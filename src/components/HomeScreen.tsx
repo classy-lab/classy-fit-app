@@ -1,11 +1,26 @@
-import { StyleSheet, Text, View, Button, Alert, Image, TouchableOpacity, useWindowDimensions } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  Alert,
+  Image,
+  TouchableOpacity,
+  useWindowDimensions
+} from 'react-native';
+import { useFonts } from 'expo-font'
+import { SafeAreaView } from 'react-native-safe-area-context';
 import PinkLeafImg from '../assets/images/pinkLeaf.png'
 
 const HomeScreen = () => {
   const vectorImg = require('../assets/images/vector-img.png')
   const { height, width } = useWindowDimensions();
+  const [fontLoaded] = useFonts({
+    'Montserrat-Regular': require('../assets/fonts/montserrat/Montserrat-Regular.ttf'),
+    'Montserrat-Bold': require('../assets/fonts/montserrat/Montserrat-Bold.ttf'),
+    'Montserrat-Medium': require('../assets/fonts/montserrat/Montserrat-Medium.ttf'),
+  })
   return (
-    <>
+    <SafeAreaView style={styles.container}>
       <View style={styles.headingContainer}>
         <Text style={styles.title}>Classy Gym</Text>
         <Image style={styles.pinkLeaf} source={PinkLeafImg} />
@@ -53,13 +68,19 @@ const HomeScreen = () => {
         width="300"
         uri="https://cleancodeusa.com/img/online-learning.svg"
       /> */}
-    </>
+    </SafeAreaView>
   )
 }
 
 export default HomeScreen
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    width: "100%",
+    borderWidth: 1,
+  },
   headingContainer: {
     width: 375,
     alignItems: 'center'
