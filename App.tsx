@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native';
 import FlashMessage from 'react-native-flash-message'
 import { NavigationContainer } from '@react-navigation/native'
-import HomeScreen from './src/components/HomeScreen';
+import MainAppStack from './src/components/MainAppStack';
 
 export default function App() {
 
@@ -9,7 +9,7 @@ export default function App() {
     <>
       <NavigationContainer>
         <FlashMessage posigion={'top'} />
-        <HomeScreen />
+        <MainAppStack />
       </NavigationContainer>
     </>
   );

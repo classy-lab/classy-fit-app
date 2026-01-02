@@ -2,22 +2,24 @@ import {
   StyleSheet,
   Text,
   View,
-  Alert,
   Image,
   TouchableOpacity,
   useWindowDimensions
 } from 'react-native';
+import { AppColors } from '../../styles/colors'
+import { useNavigation } from '@react-navigation/native'
 import { useFonts } from 'expo-font'
 import { SafeAreaView } from 'react-native-safe-area-context';
-import PinkLeafImg from '../assets/images/pinkLeaf.png'
+import PinkLeafImg from '../../assets/images/pinkLeaf.png'
 
-const HomeScreen = () => {
-  const vectorImg = require('../assets/images/vector-img.png')
+const AuthStack = () => {
+  const navigation = useNavigation()
+  const vectorImg = require('../../assets/images/vector-img.png')
   const { height, width } = useWindowDimensions();
   const [fontLoaded] = useFonts({
-    'Montserrat-Regular': require('../assets/fonts/montserrat/Montserrat-Regular.ttf'),
-    'Montserrat-Bold': require('../assets/fonts/montserrat/Montserrat-Bold.ttf'),
-    'Montserrat-Medium': require('../assets/fonts/montserrat/Montserrat-Medium.ttf'),
+    'Montserrat-Regular': require('../../assets/fonts/montserrat/Montserrat-Regular.ttf'),
+    'Montserrat-Bold': require('../../assets/fonts/montserrat/Montserrat-Bold.ttf'),
+    'Montserrat-Medium': require('../../assets/fonts/montserrat/Montserrat-Medium.ttf'),
   })
   return (
     <SafeAreaView style={styles.container}>
@@ -43,7 +45,7 @@ const HomeScreen = () => {
         <TouchableOpacity
           style={styles.registerBtn}
           title="Register"
-          onPress={() => { Alert.alert(`${width}`) }}
+          onPress={() => { navigation.navigate('RegisterScreen') }}
           activeOpacity={0.7}
         >
           <Text style={styles.registerBtnText}>
@@ -53,7 +55,7 @@ const HomeScreen = () => {
         <TouchableOpacity
           style={styles.loginBtn}
           title="Login"
-          onPress={() => { }}
+          onPress={() => { navigation.navigate('LoginScreen') }}
           activeOpacity={0.7}
         >
           <Text style={styles.loginBtnText}>
@@ -72,10 +74,11 @@ const HomeScreen = () => {
   )
 }
 
-export default HomeScreen
+export default AuthStack
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: AppColors.white,
     flex: 1,
     alignItems: 'center',
     width: "100%",
@@ -86,7 +89,7 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   title: {
-    color: '#020EFF',
+    color: AppColors.blue,
     fontFamily: 'Montserrat-Regular',
     fontSize: 32,
     marginTop: 90,
@@ -104,7 +107,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   box: {
-    backgroundColor: '#F5F6FA',
+    backgroundColor: AppColors.grey,
     width: 90,
     height: 90,
     borderRadius: 30,
@@ -113,14 +116,14 @@ const styles = StyleSheet.create({
   },
   subTitle: {
     fontFamily: "Montserrat-Regular",
-    color: '#020eff',
+    color: AppColors.blue,
     fontSize: 14,
     lineHeight: 24,
     textAlign: 'center',
     margin: 32
   },
   registerBtn: {
-    backgroundColor: '#020EFF',
+    backgroundColor: AppColors.blue,
     borderRadius: 40,
     width: 140,
     height: 50,
@@ -134,7 +137,7 @@ const styles = StyleSheet.create({
   loginBtn: {
     backgroundColor: 'white',
     borderWidth: 1,
-    borderColor: '#020eff',
+    borderColor: AppColors.blue,
     borderRadius: 40,
     width: 140,
     height: 50,
@@ -142,7 +145,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   loginBtnText: {
-    color: '#020eff',
+    color: AppColors.blue,
     fontSize: 14
   },
   imageContainer: {
