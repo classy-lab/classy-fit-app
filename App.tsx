@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View, Button, Alert, Image, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font'
-import { SvgUri } from 'react-native-svg';
+import PinkLeafImg from './src/assets/images/pinkLeaf.png'
 
 export default function App() {
   const vectorImg = require('./src/assets/images/vector-img.png')
@@ -13,6 +13,7 @@ export default function App() {
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Classy Gym</Text>
+      <Image style={styles.pinkLeaf} source={PinkLeafImg} />
       <View style={{
         flexDirection: "row",
         justifyContent: 'space-evenly',
@@ -42,7 +43,7 @@ export default function App() {
         <TouchableOpacity
           style={styles.registerBtn}
           title="Register"
-          onPress={() => Alert.alert("You clicked on the Register button.")}
+          onPress={() => { }}
           activeOpacity={0.7}
         >
           <Text style={styles.registerBtnText}>
@@ -52,7 +53,7 @@ export default function App() {
         <TouchableOpacity
           style={styles.loginBtn}
           title="Login"
-          onPress={() => Alert.alert("You clicked on Login button.")}
+          onPress={() => { }}
           activeOpacity={0.7}
         >
           <Text style={styles.loginBtnText}>
@@ -73,7 +74,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    width: "100%"
   },
   title: {
     color: '#020EFF',
@@ -81,6 +83,12 @@ const styles = StyleSheet.create({
     fontSize: 32,
     marginTop: 90,
     marginBottom: 32
+  },
+  pinkLeaf: {
+    position: 'relative',
+    // zIndex: -1,
+    top: -120,
+    right: -80
   },
   box: {
     backgroundColor: '#F5F6FA',
@@ -122,5 +130,8 @@ const styles = StyleSheet.create({
   loginBtnText: {
     color: '#020eff',
     fontSize: 14
+  },
+  image: {
+    // width: '90%'
   }
 });
