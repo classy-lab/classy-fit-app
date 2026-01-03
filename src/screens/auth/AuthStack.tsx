@@ -1,5 +1,6 @@
 import {
   StyleSheet,
+  Button,
   Text,
   View,
   Image,
@@ -21,8 +22,13 @@ const AuthStack = () => {
     'Montserrat-Bold': require('../../assets/fonts/montserrat/Montserrat-Bold.ttf'),
     'Montserrat-Medium': require('../../assets/fonts/montserrat/Montserrat-Medium.ttf'),
   })
+
   return (
     <SafeAreaView style={styles.container}>
+      <Button
+        onPress={() => navigation.openDrawer()}
+        title="Open Drawer"
+      />
       <View style={styles.headingContainer}>
         <Text style={styles.title}>Classy Gym</Text>
         <Image style={styles.pinkLeaf} source={PinkLeafImg} />
