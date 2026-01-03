@@ -6,18 +6,20 @@ import {
   Image,
   TouchableOpacity,
   useWindowDimensions
-} from 'react-native';
+} from 'react-native'
 import { AppColors } from '../../styles/colors'
 import { DrawerActions, useNavigation } from '@react-navigation/native'
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context'
 import PinkLeafImg from '../../assets/images/pinkLeaf.png'
-import Ionicons from '@expo/vector-icons/Ionicons';
+import Ionicons from '@expo/vector-icons/Ionicons'
+import { useFonts } from 'expo-font'
 
 const AuthStack = () => {
   const navigation = useNavigation()
   const vectorImg = require('../../assets/images/vector-img.png')
-  const { height, width } = useWindowDimensions();
-
+  const [fontsLoaded] = useFonts({
+    "Montserrat": require("../../assets/fonts/montserrat/Montserrat-Regular.ttf")
+  })
 
   return (
     <SafeAreaView style={styles.container}>
@@ -92,7 +94,7 @@ const styles = StyleSheet.create({
   },
   title: {
     color: AppColors.blue,
-    fontFamily: 'Montserrat-Regular',
+    fontFamily: 'Montserrat',
     fontSize: 32,
     marginTop: 60,
   },
@@ -117,7 +119,7 @@ const styles = StyleSheet.create({
     alignItems: "center"
   },
   subTitle: {
-    fontFamily: "Montserrat-Regular",
+    fontFamily: "Montserrat",
     color: AppColors.blue,
     fontSize: 14,
     lineHeight: 24,

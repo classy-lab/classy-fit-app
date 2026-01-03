@@ -5,7 +5,7 @@ import {
   DrawerContentScrollView,
   DrawerItem, DrawerItemList,
   createDrawerNavigator,
-} from '@react-navigation/drawer';
+} from '@react-navigation/drawer'
 import About from '../screens/auth/About'
 import Contact from '../screens/auth/Contact'
 import GymHours from '../screens/auth/GymHours'
@@ -13,13 +13,17 @@ import { AppColors } from '../styles/colors'
 import { DrawerActions, useNavigation } from '@react-navigation/native'
 import RegisterScreen from '../screens/auth/RegisterScreen'
 import LoginScreen from '../screens/auth/LoginScreen'
-import Ionicons from '@expo/vector-icons/Ionicons';
+import Ionicons from '@expo/vector-icons/Ionicons'
+import { useFonts } from 'expo-font'
 
 const Stack = createStackNavigator()
 
 const MainAppStack = () => {
   const navigation = useNavigation()
   const Drawer = createDrawerNavigator();
+  const [fontsLoaded] = useFonts({
+    "Montserrat": require("../assets/fonts/montserrat/Montserrat-Regular.ttf"),
+  })
 
   function CustomDrawerContent(props) {
     return (
