@@ -3,55 +3,89 @@ import { createStackNavigator } from '@react-navigation/stack'
 import AuthStack from '../screens/auth/AuthStack'
 import {
   DrawerContentScrollView,
-  DrawerItem,
+  DrawerItem, DrawerItemList,
   createDrawerNavigator,
 } from '@react-navigation/drawer';
 import About from '../screens/auth/About'
 import Contact from '../screens/auth/Contact'
 import GymHours from '../screens/auth/GymHours'
 import { AppColors } from '../styles/colors'
-// import { getHeaderTitle } from '@react-navigation/elements';
-import { useNavigation } from '@react-navigation/native'
+import { DrawerActions, useNavigation } from '@react-navigation/native'
 import RegisterScreen from '../screens/auth/RegisterScreen'
 import LoginScreen from '../screens/auth/LoginScreen'
+import Ionicons from '@expo/vector-icons/Ionicons';
 
-// const Stack = createStackNavigator()
+const Stack = createStackNavigator()
 
 const MainAppStack = () => {
   const navigation = useNavigation()
   const Drawer = createDrawerNavigator();
 
+  function CustomDrawerContent(props) {
+    return (
+      <DrawerContentScrollView {...props}>
+        <View style={styles.header}>
+          <Ionicons name="close" size={28} color={AppColors.blue} style={{ marginLeft: 'auto' }} onPress={() => { navigation.dispatch(DrawerActions.closeDrawer()); }} />
+          <Text style={styles.headerText}>Navigation</Text>
+        </View>
+        <DrawerItemList style={styles.drawerItemList} {...props} />
+        {/* Add custom items or dividers here */}
+      </DrawerContentScrollView>
+    );
+  }
+
   return (
     <>
-      <Drawer.Navigator screenOptions={{ headerShown: false }}
-        drawerContent={() => {
-          return (
-            <DrawerContentScrollView>
-              <Text style={{ textAlign: 'center', fontSize: 32, color: AppColors.blue }}>Navigation</Text>
-              <DrawerItem label={'Home'} onPress={() => { navigation.navigate('AuthStack') }} />
-              <DrawerItem label={'About'} onPress={() => { navigation.navigate('About') }} />
-              <DrawerItem label={'Contact'} onPress={() => { navigation.navigate('Contact') }} />
-              <DrawerItem label={'Gym Hours'} onPress={() => { navigation.navigate('GymHours') }} />
-            </DrawerContentScrollView>
-          );
-        }}>
-        <Drawer.Screen name="AuthStack" component={AuthStack} />
+      <Drawer.Navigator
+        screenOptions={{
+          overlayColor: 'rgba(0, 0, 0, 0.3)',
+          drawerStyle: {
+            backgroundColor: AppColors.grey,
+            width: 320,
+            borderTopRightRadius: 40,     // Apply top-right border radius
+            borderBottomRightRadius: 40,  // Apply bottom-right border radius
+          },
+          headerShown: false,
+          drawerActiveTintColor: AppColors.blue,        // Active text/icon color
+          drawerInactiveTintColor: AppColors.blue,      // Inactive text/icon color
+          drawerActiveBackgroundColor: AppColors.grey,  // Active background color
+          drawerItemStyle: { marginVertical: 4 },      // Apply a style to all items
+          drawerLabelStyle: {
+            fontSize: 20,
+            fontFamily: 'Montserrat',
+          },
+        }} drawerContent={props => <CustomDrawerContent {...props} />}>
+        <Drawer.Screen name="Home" component={AuthStack} />
         <Drawer.Screen name="About" component={About} options={{ title: 'About' }} />
         <Drawer.Screen name="Contact" component={Contact} options={{ title: 'Contact' }} />
         <Drawer.Screen name="GymHours" component={GymHours} options={{ title: 'Gym Hours' }} />
-        <Drawer.Screen name='RegisterScreen' component={RegisterScreen} />
-        <Drawer.Screen name='LoginScreen' component={LoginScreen} />
+        <Drawer.Screen options={{
+          drawerItemStyle: { display: 'none' },
+        }} name='RegisterScreen' component={RegisterScreen} />
+        <Drawer.Screen options={{
+          drawerItemStyle: { display: 'none' },
+        }} name='LoginScreen' component={LoginScreen} />
       </Drawer.Navigator>
-
-      {/* <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name='AuthStack' component={AuthStack} />
-        <Stack.Screen name='RegisterScreen' component={RegisterScreen} />
-        <Stack.Screen name='LoginScreen' component={LoginScreen} />
-      </Stack.Navigator> */}
     </>
   )
 }
 
 export default MainAppStack
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  header: {
+    marginTop: 8,
+    marginBottom: 32,
+  },
+  headerText: {
+    color: AppColors.blue,
+    fontSize: 32,
+    textAlign: 'center',
+  },
+  drawerItemList: {
+    color: AppColors.blue,
+  },
+  overlay: {
+    backgroundColor: 'red'
+  }
+});

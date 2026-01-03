@@ -8,10 +8,10 @@ import {
   useWindowDimensions
 } from 'react-native';
 import { AppColors } from '../../styles/colors'
-import { useNavigation } from '@react-navigation/native'
-import { useFonts } from 'expo-font'
+import { DrawerActions, useNavigation } from '@react-navigation/native'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import PinkLeafImg from '../../assets/images/pinkLeaf.png'
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 const AuthStack = () => {
   const navigation = useNavigation()
@@ -21,10 +21,9 @@ const AuthStack = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Button
-        onPress={() => navigation.openDrawer()}
-        title="Open Drawer"
-      />
+      <View style={styles.hamburgerIcon}>
+        <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.toggleDrawer()} />
+      </View>
       <View style={styles.headingContainer}>
         <Text style={styles.title}>Classy Gym</Text>
         <Image style={styles.pinkLeaf} source={PinkLeafImg} />
@@ -68,10 +67,6 @@ const AuthStack = () => {
       <View style={styles.imageContainer}>
         <Image style={styles.image} source={vectorImg} />
       </View>
-      {/* <SvgUri
-        width="300"
-        uri="https://cleancodeusa.com/img/online-learning.svg"
-      /> */}
     </SafeAreaView>
   )
 }
@@ -84,7 +79,12 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     width: "100%",
-    borderWidth: 1,
+    padding: 8
+  },
+  hamburgerIcon: {
+    width: '100%',
+    alignItems: 'flex-end',
+    marginRight: 24
   },
   headingContainer: {
     width: 375,
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
     color: AppColors.blue,
     fontFamily: 'Montserrat-Regular',
     fontSize: 32,
-    marginTop: 90,
+    marginTop: 60,
   },
   pinkLeaf: {
     position: 'relative',
