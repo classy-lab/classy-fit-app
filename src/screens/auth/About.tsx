@@ -3,9 +3,9 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { AppColors } from '../../styles/colors'
-import PinkLeafImg from '../../assets/images/pinkLeaf.png'
 import { useFonts } from 'expo-font'
 import WorkoutSvg from '../../components/svg/WorkoutSvg'
+import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
 
 const About = () => {
   const navigation = useNavigation()
@@ -22,7 +22,8 @@ const About = () => {
       </View>
       <View style={styles.headingContainer}>
         <Text style={styles.title}>About</Text>
-        <Image style={styles.pinkLeaf} source={PinkLeafImg} />
+        {/* <Image style={styles.pinkLeaf} source={PinkLeafImg} /> */}
+        <PinkLeafSvg style={styles.pinkLeaf} />
       </View>
       <Text style={styles.body}>
         V-fitness Center & Gym in Koheda has a wide range of products and / or services to cater to the varied requirements of their customers. The staff at this establishment are courteous and prompt at providing any assistance. They readily answer any queries or questions that you may have. This establishment is functional from 05:30 - 21:00.
@@ -63,7 +64,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     zIndex: -1,
     top: -68,
-    right: -72
+    right: -40
   },
   body: {
     fontFamily: "Montserrat",
