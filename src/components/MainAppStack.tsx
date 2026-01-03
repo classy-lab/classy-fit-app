@@ -3,7 +3,7 @@ import { createStackNavigator } from '@react-navigation/stack'
 import AuthStack from '../screens/auth/AuthStack'
 import {
   DrawerContentScrollView,
-  DrawerItem, DrawerItemList,
+  DrawerItemList,
   createDrawerNavigator,
 } from '@react-navigation/drawer'
 import About from '../screens/auth/About'
