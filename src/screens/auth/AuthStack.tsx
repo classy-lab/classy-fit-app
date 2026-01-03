@@ -17,11 +17,7 @@ const AuthStack = () => {
   const navigation = useNavigation()
   const vectorImg = require('../../assets/images/vector-img.png')
   const { height, width } = useWindowDimensions();
-  const [fontLoaded] = useFonts({
-    'Montserrat-Regular': require('../../assets/fonts/montserrat/Montserrat-Regular.ttf'),
-    'Montserrat-Bold': require('../../assets/fonts/montserrat/Montserrat-Bold.ttf'),
-    'Montserrat-Medium': require('../../assets/fonts/montserrat/Montserrat-Medium.ttf'),
-  })
+
 
   return (
     <SafeAreaView style={styles.container}>
