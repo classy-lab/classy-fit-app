@@ -1,14 +1,12 @@
 import {
   StyleSheet,
-  Button,
   Text,
   View,
   Image,
   TouchableOpacity,
-  useWindowDimensions
 } from 'react-native'
 import { AppColors } from '../../styles/colors'
-import { DrawerActions, useNavigation } from '@react-navigation/native'
+import { useNavigation } from '@react-navigation/native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import PinkLeafImg from '../../assets/images/pinkLeaf.png'
 import Ionicons from '@expo/vector-icons/Ionicons'
@@ -24,7 +22,7 @@ const AuthStack = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.hamburgerIcon}>
-        <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.toggleDrawer()} />
+        <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
       </View>
       <View style={styles.headingContainer}>
         <Text style={styles.title}>Classy Gym</Text>
