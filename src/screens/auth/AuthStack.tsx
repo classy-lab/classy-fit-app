@@ -8,13 +8,13 @@ import {
 import { AppColors } from '../../styles/colors'
 import { useNavigation } from '@react-navigation/native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import PinkLeafImg from '../../assets/images/pinkLeaf.png'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { useFonts } from 'expo-font'
+import VectorImageSvg from '../../components/svg/VectorImageSvg'
+import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
 
 const AuthStack = () => {
   const navigation = useNavigation()
-  const vectorImg = require('../../assets/images/vector-img.png')
   const [fontsLoaded] = useFonts({
     "Montserrat": require("../../assets/fonts/montserrat/Montserrat-Regular.ttf")
   })
@@ -26,7 +26,7 @@ const AuthStack = () => {
       </View>
       <View style={styles.headingContainer}>
         <Text style={styles.title}>Classy Gym</Text>
-        <Image style={styles.pinkLeaf} source={PinkLeafImg} />
+        <PinkLeafSvg style={styles.pinkLeaf} />
       </View>
       <View style={styles.row}>
         <View style={styles.box}><Text>Gym</Text></View>
@@ -65,7 +65,7 @@ const AuthStack = () => {
         </TouchableOpacity>
       </View>
       <View style={styles.imageContainer}>
-        <Image style={styles.image} source={vectorImg} />
+        <VectorImageSvg />
       </View>
     </SafeAreaView>
   )
