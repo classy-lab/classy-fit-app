@@ -9,7 +9,6 @@ import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
 
 const About = () => {
   const navigation = useNavigation()
-  const workoutSVG = require('../../assets/svg/Workout-rafiki.svg')
   const [fontsLoaded] = useFonts({
     "Montserrat": require("../../assets/fonts/montserrat/Montserrat-Regular.ttf"),
     "Montserrat-Bold": require("../../assets/fonts/montserrat/Montserrat-Bold.ttf")
@@ -22,7 +21,6 @@ const About = () => {
       </View>
       <View style={styles.headingContainer}>
         <Text style={styles.title}>About</Text>
-        {/* <Image style={styles.pinkLeaf} source={PinkLeafImg} /> */}
         <PinkLeafSvg style={styles.pinkLeaf} />
       </View>
       <Text style={styles.body}>
