@@ -42,7 +42,8 @@ const MainAppStack = () => {
     <>
       <Drawer.Navigator
         screenOptions={{
-          overlayColor: 'rgba(0, 0, 0, 0.3)',
+          // overlayColor: 'rgba(0, 0, 0, 0.3)',
+          overlayColor: 'rgba(255, 255, 255, 0.3)',
           drawerStyle: {
             backgroundColor: AppColors.grey,
             width: 320,
