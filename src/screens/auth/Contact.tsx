@@ -87,32 +87,6 @@ const styles = StyleSheet.create({
     marginRight: 24,
     textAlign: 'center'
   },
-  registerBtn: {
-    backgroundColor: AppColors.blue,
-    borderRadius: 40,
-    width: 140,
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  registerBtnText: {
-    color: '#fff',
-    fontSize: 14
-  },
-  loginBtn: {
-    backgroundColor: 'white',
-    borderWidth: 1,
-    borderColor: AppColors.blue,
-    borderRadius: 40,
-    width: 140,
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loginBtnText: {
-    color: AppColors.blue,
-    fontSize: 14
-  },
   imageContainer: {
     flexGrow: 1,
     justifyContent: 'flex-end',
