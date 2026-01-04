@@ -2,7 +2,6 @@ import {
   StyleSheet,
   Text,
   View,
-  Image,
   TouchableOpacity,
 } from 'react-native'
 import { AppColors } from '../../styles/colors'
@@ -11,7 +10,9 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { useFonts } from 'expo-font'
 import VectorImageSvg from '../../components/svg/VectorImageSvg'
-import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
+import AvatarBoyKid from '../../assets/svg/AvatarBoyKidSvg'
+import { s, vs } from 'react-native-size-matters'
+import LoginForm from '../../components/forms/LoginForm'
 
 const LoginScreen = () => {
   const navigation = useNavigation()
@@ -21,8 +22,12 @@ const LoginScreen = () => {
         <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
       </View>
       <View style={styles.headingContainer}>
+        <AvatarBoyKid style={styles.avatarBoyKidSvg} />
         <Text style={styles.title}>Sign In</Text>
-        <PinkLeafSvg style={styles.pinkLeaf} />
+        <Text style={styles.subHead}>Please sign in to proceed to your account.</Text>
+      </View>
+      <View>
+        <LoginForm />
       </View>
       <View style={styles.imageContainer}>
         <VectorImageSvg />
@@ -39,7 +44,9 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     width: "100%",
-    padding: 8
+    padding: 8,
+    paddingLeft: s(32),
+    paddingRight: s(32)
   },
   hamburgerIcon: {
     width: '100%',
@@ -47,14 +54,27 @@ const styles = StyleSheet.create({
     marginRight: 24
   },
   headingContainer: {
-    width: 375,
-    alignItems: 'center'
+    marginTop: 24,
+    width: '100%',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+    // borderWidth: 1, borderColor: 'red'
+  },
+  avatarBoyKidSvg: {
+    width: s(80),
+    height: s(80),
+    borderWidth: 1, borderColor: 'red'
   },
   title: {
     color: AppColors.blue,
     fontFamily: 'Montserrat',
-    fontSize: 32,
-    marginTop: 60,
+    fontSize: s(32),
+    marginTop: s(20),
+    marginBottom: s(10)
+  },
+  subHead: {
+    fontSize: s(20),
+    lineHeight: s(24)
   },
   pinkLeaf: {
     position: 'relative',
