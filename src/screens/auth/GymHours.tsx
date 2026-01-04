@@ -112,9 +112,9 @@ const styles = StyleSheet.create({
     fontFamily: "Montserrat",
     lineHeight: 24,
     color: AppColors.primary,
-    marginLeft: 32,
     marginTop: 32,
-    width: '100%'
+    width: '100%',
+    textAlign: 'center'
   },
   imageContainer: {
     flexGrow: 1,
