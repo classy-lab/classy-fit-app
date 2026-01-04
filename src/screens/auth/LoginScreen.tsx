@@ -91,6 +91,5 @@ const styles = StyleSheet.create({
   imageContainer: {
     flexGrow: 1,
     justifyContent: 'flex-end',
-    marginBottom: 32
   }
 })
