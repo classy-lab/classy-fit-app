@@ -2,6 +2,7 @@ import { StyleSheet, Text, View, Image } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import Ionicons from '@expo/vector-icons/Ionicons'
+import Entypo from '@expo/vector-icons/Entypo'
 import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
 import VectorImageSvg from '../../components/svg/VectorImageSvg'
@@ -16,7 +17,8 @@ const Contact = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.hamburgerIcon}>
+      <View style={styles.navs}>
+        <Entypo name="chevron-small-left" color={AppColors.blue} size={40} onPress={() => { navigation.goBack() }} />
         <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
       </View>
       <View style={styles.headingContainer}>
@@ -53,10 +55,10 @@ const styles = StyleSheet.create({
     width: "100%",
     padding: 8
   },
-  hamburgerIcon: {
+  navs: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     width: '100%',
-    alignItems: 'flex-end',
-    marginRight: 24
   },
   headingContainer: {
     width: 375,
