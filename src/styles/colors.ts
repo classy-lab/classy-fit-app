@@ -4,5 +4,6 @@ export const AppColors = {
   blue: "#020EFF",
   grey: '#F5F6FA',
   red: 'red',
-  hamburgerIconColor: '#D0D0D0'
+  hamburgerIconColor: '#D0D0D0',
+  textInputBorderColor: '#F1F1F1'
 };
