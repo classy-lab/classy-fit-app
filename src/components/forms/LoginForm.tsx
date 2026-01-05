@@ -51,6 +51,7 @@ const LoginForm = () => {
                 style={styles.inputField}
                 value={value}
                 onChangeText={onChange}
+                keyboardType='default'
               />
             )}
             name="email"
