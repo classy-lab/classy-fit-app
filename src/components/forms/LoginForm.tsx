@@ -39,7 +39,7 @@ const LoginForm = () => {
   };
 
   return (
-    <View>
+    <>
       <View style={styles.fieldset}>
         <View style={styles.email}>
           <Text style={styles.formLabel}>E-mail</Text>
@@ -67,7 +67,7 @@ const LoginForm = () => {
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </>
   );
 };
 
