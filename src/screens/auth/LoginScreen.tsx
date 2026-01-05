@@ -50,16 +50,11 @@ const styles = StyleSheet.create({
   hamburgerIcon: {
     width: '100%',
     alignItems: 'flex-end',
-    marginRight: 24
   },
   headingContainer: {
-    marginTop: 24,
-    width: '100%',
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
+    marginTop: s(24)
   },
-  avatarBoyKidSvg: {
-  },
+  avatarBoyKidSvg: {},
   title: {
     color: AppColors.blue,
     fontFamily: 'Montserrat',
