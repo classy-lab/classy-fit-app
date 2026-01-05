@@ -60,9 +60,6 @@ const styles = StyleSheet.create({
     // borderWidth: 1, borderColor: 'red'
   },
   avatarBoyKidSvg: {
-    width: s(80),
-    height: s(80),
-    borderWidth: 1, borderColor: 'red'
   },
   title: {
     color: AppColors.blue,
