@@ -29,7 +29,7 @@ const LoginScreen = () => {
       <View>
         <LoginForm />
       </View>
-      <View style={styles.imageContainer}>
+      <View style={styles.vectorImageSvg}>
         <VectorImageSvg />
       </View>
     </SafeAreaView>
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
     width: 300,
     marginBottom: 10,
   },
-  imageContainer: {
+  vectorImageSvg: {
     flexGrow: 1,
     justifyContent: 'flex-end',
   }
