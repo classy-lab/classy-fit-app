@@ -60,7 +60,6 @@ const LoginForm = () => {
               Login
             </Text>
           </TouchableOpacity>
-          {/* <TouchableOpacity style={styles.createAcctBtn} title="Submit" onPress={handleSubmit(onPressSend)} /> */}
         </View>
       </View>
     </View >
