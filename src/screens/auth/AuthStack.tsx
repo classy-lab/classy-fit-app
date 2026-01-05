@@ -133,11 +133,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   registerBtnText: {
-    color: '#fff',
+    color: AppColors.white,
     fontSize: 14
   },
   loginBtn: {
-    backgroundColor: 'white',
+    backgroundColor: AppColors.white,
     borderWidth: 1,
     borderColor: AppColors.blue,
     borderRadius: 40,
