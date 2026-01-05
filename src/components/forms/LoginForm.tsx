@@ -21,7 +21,8 @@ const windowWidth = Dimensions.get('window').width;
 const LoginForm = () => {
   const navigation = useNavigation()
   const [fontsLoaded] = useFonts({
-    "Montserrat": require("../../assets/fonts/montserrat/Montserrat-Regular.ttf")
+    "Montserrat": require("../../assets/fonts/montserrat/Montserrat-Regular.ttf"),
+    "Montserrat-Medium": require("../../assets/fonts/montserrat/Montserrat-Medium.ttf")
   })
 
   const { control, handleSubmit, formState: { errors }, } = useForm({
@@ -52,12 +53,13 @@ const LoginForm = () => {
           {errors.password && <Text style={styles.errorMessage}>{errors.password.message}</Text>}
         </View>
         {/* Render other form inputs and their corresponding error messages */}
-        <View>
+        <View style={styles.loginBtnContainer}>
           <TouchableOpacity
             style={styles.loginBtn}
             title="loginSubmit"
-            onPress={() => { navigation.navigate('DashboardScreen') }}
+            // onPress={() => { navigation.navigate('DashboardScreen') }}
             activeOpacity={0.7}
+            onPress={handleSubmit(onPressSend)}
           >
             <Text style={styles.loginBtnText}>
               Login
@@ -88,6 +90,9 @@ const styles = StyleSheet.create({
   email: {
     width: '100%',
   },
+  password: {
+    marginTop: s(16)
+  },
   formLabel: {
     fontSize: s(12),
     marginBottom: s(8)
@@ -102,6 +107,11 @@ const styles = StyleSheet.create({
   errorMessage: {},
   createAcctBtn: {},
   createAcctBtnText: {},
+  loginBtnContainer: {
+    alignItems: 'center',
+    marginTop: s(16),
+    // borderWidth: 1, borderColor: 'yellow',
+  },
   loginBtn: {
     backgroundColor: AppColors.blue,
     borderRadius: 40,
@@ -112,6 +122,7 @@ const styles = StyleSheet.create({
   },
   loginBtnText: {
     color: AppColors.white,
-    fontSize: 14
+    fontSize: s(14),
+    fontFamily: 'Montserrat-Medium'
   },
 })
