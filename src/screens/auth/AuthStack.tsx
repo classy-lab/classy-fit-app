@@ -36,13 +36,7 @@ const AuthStack = () => {
         <View style={styles.box}><Text>Training</Text></View>
       </View>
       <Text style={styles.subTitle}>Helping gyms and workouts be productive for everyone</Text>
-      <View style={{
-        flexDirection: "row",
-        justifyContent: 'space-evenly',
-        width: 300,
-        marginTop: 32,
-        marginBottom: 20
-      }}>
+      <View style={styles.row}>
         <TouchableOpacity
           style={styles.registerBtn}
           title="Register"
@@ -105,7 +99,7 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     justifyContent: 'space-evenly',
-    width: 300,
+    width: 311,
     marginBottom: 10,
   },
   box: {
@@ -122,7 +116,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 24,
     textAlign: 'center',
-    margin: 32
+    marginTop: 24,
+    marginBottom: 24,
   },
   registerBtn: {
     backgroundColor: AppColors.blue,
@@ -153,6 +148,5 @@ const styles = StyleSheet.create({
   imageContainer: {
     flexGrow: 1,
     justifyContent: 'flex-end',
-    marginBottom: 32
   }
 })
