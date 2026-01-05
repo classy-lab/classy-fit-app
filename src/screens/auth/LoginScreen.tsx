@@ -57,7 +57,6 @@ const styles = StyleSheet.create({
     width: '100%',
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
-    // borderWidth: 1, borderColor: 'red'
   },
   avatarBoyKidSvg: {
   },
