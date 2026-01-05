@@ -2,7 +2,7 @@ import { StyleSheet, Text, View, Image } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import Ionicons from '@expo/vector-icons/Ionicons'
-import Entypo from '@expo/vector-icons/Entypo';
+import Entypo from '@expo/vector-icons/Entypo'
 import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
 import WorkoutSvg from '../../components/svg/WorkoutSvg'
