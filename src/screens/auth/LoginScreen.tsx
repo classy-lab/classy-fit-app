@@ -72,6 +72,7 @@ const styles = StyleSheet.create({
     marginBottom: s(10)
   },
   subHead: {
+    fontFamily: 'Montserrat',
     fontSize: s(20),
     lineHeight: s(24)
   },
