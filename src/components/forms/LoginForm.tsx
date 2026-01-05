@@ -39,7 +39,7 @@ const LoginForm = () => {
   };
 
   return (
-    <View style={styles.test}>
+    <View>
       <View style={styles.fieldset}>
         <View style={styles.email}>
           <Text style={styles.formLabel}>E-mail</Text>
@@ -74,9 +74,6 @@ const LoginForm = () => {
 export default LoginForm
 
 const styles = StyleSheet.create({
-  test: {
-    flexDirection: 'row'
-  },
   fieldset: {
     marginTop: s(24),
     // width: '100%',
