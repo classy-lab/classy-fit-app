@@ -47,7 +47,11 @@ const LoginForm = () => {
             control={control}
             rules={{ required: true }}
             render={({ field: { onChange, value } }) => (
-              <TextInput style={styles.inputField} value={value} onChangeText={onChange} />
+              <TextInput
+                style={styles.inputField}
+                value={value}
+                onChangeText={onChange}
+              />
             )}
             name="email"
           />
