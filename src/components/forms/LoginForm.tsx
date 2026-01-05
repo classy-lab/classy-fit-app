@@ -71,9 +71,9 @@ const LoginForm = () => {
           <TouchableOpacity
             style={styles.loginBtn}
             title="loginSubmit"
+            onPress={handleSubmit(onPressSend)}
             // onPress={() => { navigation.navigate('DashboardScreen') }}
             activeOpacity={0.7}
-            onPress={handleSubmit(onPressSend)}
           >
             <Text style={styles.loginBtnText}>
               Login
