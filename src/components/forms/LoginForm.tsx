@@ -99,8 +99,7 @@ const styles = StyleSheet.create({
   createAcctBtnText: {},
   loginBtnContainer: {
     alignItems: 'center',
-    marginTop: s(16),
-    // borderWidth: 1, borderColor: 'yellow',
+    marginTop: s(16)
   },
   loginBtn: {
     backgroundColor: AppColors.blue,
