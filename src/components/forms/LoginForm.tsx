@@ -7,6 +7,7 @@ import { useNavigation } from '@react-navigation/native'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { useFonts } from 'expo-font'
 import { s, vs } from 'react-native-size-matters'
+import { useState } from 'react'
 
 const schema = yup.object().shape({
   email: yup.string().required('Email is required').email('Invalid email'),
@@ -25,6 +26,7 @@ const LoginForm = () => {
     "Montserrat-Medium": require("../../assets/fonts/montserrat/Montserrat-Medium.ttf")
   })
 
+  // const [email, setEmail] = useState('')
   const { control, handleSubmit, formState: { errors }, } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
@@ -32,6 +34,10 @@ const LoginForm = () => {
       password: '',
     },
   });
+
+  // const emailChecker = (email) => {
+  //   setEmail(email)
+  // }
 
   const onPressSend = (formData) => {
     // Perform actions with the validated form data
