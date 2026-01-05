@@ -43,7 +43,14 @@ const LoginForm = () => {
       <View style={styles.fieldset}>
         <View style={styles.email}>
           <Text style={styles.formLabel}>E-mail</Text>
-          <Controller control={control} rules={{ required: true }} render={({ field: { onChange, value } }) => (<TextInput style={styles.inputField} value={value} onChangeText={onChange} />)} name="email" />
+          <Controller
+            control={control}
+            rules={{ required: true }}
+            render={({ field: { onChange, value } }) => (
+              <TextInput style={styles.inputField} value={value} onChangeText={onChange} />
+            )}
+            name="email"
+          />
           {errors.email && <Text>{errors.email.message}</Text>}
         </View>
 
