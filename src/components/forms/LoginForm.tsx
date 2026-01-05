@@ -42,13 +42,13 @@ const LoginForm = () => {
       <View style={styles.fieldset}>
         <View style={styles.email}>
           <Text style={styles.formLabel}>E-mail</Text>
-          <Controller control={control} rules={{ required: true }} render={({ field: { onChange, value } }) => (<TextInput style={styles.inputField} value={value} onChangeText={onChange} placeholder="Email" />)} name="email" />
+          <Controller control={control} rules={{ required: true }} render={({ field: { onChange, value } }) => (<TextInput style={styles.inputField} value={value} onChangeText={onChange} />)} name="email" />
           {errors.email && <Text>{errors.email.message}</Text>}
         </View>
 
         <View style={styles.password}>
           <Text style={styles.formLabel}>Password</Text>
-          <Controller control={control} rules={{ required: true }} render={({ field: { onChange, value } }) => (<TextInput style={styles.inputField} value={value} onChangeText={onChange} placeholder="Password" secureTextEntry />)} name="password" />
+          <Controller control={control} rules={{ required: true }} render={({ field: { onChange, value } }) => (<TextInput style={styles.inputField} value={value} onChangeText={onChange} secureTextEntry />)} name="password" />
           {errors.password && <Text style={styles.errorMessage}>{errors.password.message}</Text>}
         </View>
         {/* Render other form inputs and their corresponding error messages */}
