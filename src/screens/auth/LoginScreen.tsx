@@ -1,8 +1,4 @@
-import {
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native'
+import { StyleSheet, Text, View, Dimensions } from 'react-native'
 import { AppColors } from '../../styles/colors'
 import { useNavigation } from '@react-navigation/native'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -12,6 +8,8 @@ import VectorImageSvg from '../../components/svg/VectorImageSvg'
 import AvatarBoyKid from '../../assets/svg/AvatarBoyKidSvg'
 import { s, vs } from 'react-native-size-matters'
 import LoginForm from '../../components/forms/LoginForm'
+
+const windowWidth = Dimensions.get('window').width;
 
 const LoginScreen = () => {
   const navigation = useNavigation()
@@ -25,13 +23,11 @@ const LoginScreen = () => {
         <Text style={styles.title}>Sign In</Text>
         <Text style={styles.subHead}>Please sign in to proceed to your account.</Text>
       </View>
-      <View>
-        <LoginForm />
-      </View>
+      <LoginForm />
       <View style={styles.vectorImageSvg}>
         <VectorImageSvg />
       </View>
-    </SafeAreaView>
+    </SafeAreaView >
   )
 }
 
@@ -43,15 +39,15 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     width: "100%",
-    padding: 8,
-    paddingLeft: s(32),
-    paddingRight: s(32)
+    padding: 8
   },
   hamburgerIcon: {
     width: '100%',
     alignItems: 'flex-end',
+    marginRight: 24
   },
   headingContainer: {
+    width: windowWidth - 64,
     marginTop: s(24)
   },
   avatarBoyKidSvg: {},
