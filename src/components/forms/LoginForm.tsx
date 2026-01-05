@@ -75,12 +75,7 @@ export default LoginForm
 
 const styles = StyleSheet.create({
   test: {
-    flexDirection: 'row',
-    // flex: 1,
-    // justifyContent: 'center',
-    // alignItems: 'center',
-    // width: '100%',
-    // borderWidth: 1, borderColor: 'yellow',
+    flexDirection: 'row'
   },
   fieldset: {
     marginTop: s(24),
