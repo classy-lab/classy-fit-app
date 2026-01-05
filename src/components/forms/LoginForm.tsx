@@ -1,11 +1,12 @@
 import * as yup from 'yup';
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { StyleSheet, View, Text, TouchableOpacity, TextInput } from 'react-native'
+import { StyleSheet, View, Text, TouchableOpacity, TextInput, Dimensions } from 'react-native'
 import { AppColors } from '../../styles/colors'
 import { useNavigation } from '@react-navigation/native'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { useFonts } from 'expo-font'
+import { s, vs } from 'react-native-size-matters'
 
 const schema = yup.object().shape({
   email: yup.string().required('Email is required').email('Invalid email'),
@@ -14,6 +15,8 @@ const schema = yup.object().shape({
     .required('Password is required')
     .min(8, 'Password must contain at least 8 characters'),
 });
+
+const windowWidth = Dimensions.get('window').width;
 
 const LoginForm = () => {
   const navigation = useNavigation()
@@ -35,30 +38,32 @@ const LoginForm = () => {
   };
 
   return (
-    <View style={styles.fieldset}>
-      <View style={styles.email}>
-        <Text style={styles.formLabel}>E-mail</Text>
-        <Controller control={control} rules={{ required: true }} render={({ field: { onChange, value } }) => (<TextInput style={styles.input} value={value} onChangeText={onChange} placeholder="Email" />)} name="email" />
-        {errors.email && <Text>{errors.email.message}</Text>}
-      </View>
+    <View style={styles.test}>
+      <View style={styles.fieldset}>
+        <View style={styles.email}>
+          <Text style={styles.formLabel}>E-mail</Text>
+          <Controller control={control} rules={{ required: true }} render={({ field: { onChange, value } }) => (<TextInput style={styles.inputField} value={value} onChangeText={onChange} placeholder="Email" />)} name="email" />
+          {errors.email && <Text>{errors.email.message}</Text>}
+        </View>
 
-      <View style={styles.password}>
-        <Text style={styles.formLabel}>Password</Text>
-        <Controller control={control} rules={{ required: true }} render={({ field: { onChange, value } }) => (<TextInput style={styles.input} value={value} onChangeText={onChange} placeholder="Password" secureTextEntry />)} name="password" />
-        {errors.password && <Text style={styles.errorMessage}>{errors.password.message}</Text>}
-      </View>
-      {/* Render other form inputs and their corresponding error messages */}
-      <View>
-        <TouchableOpacity
-          style={styles.loginBtn}
-          title="loginSubmit"
-          onPress={() => { navigation.navigate('DashboardScreen') }}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.loginBtnText}>
-            Login
-          </Text>
-        </TouchableOpacity>
+        <View style={styles.password}>
+          <Text style={styles.formLabel}>Password</Text>
+          <Controller control={control} rules={{ required: true }} render={({ field: { onChange, value } }) => (<TextInput style={styles.inputField} value={value} onChangeText={onChange} placeholder="Password" secureTextEntry />)} name="password" />
+          {errors.password && <Text style={styles.errorMessage}>{errors.password.message}</Text>}
+        </View>
+        {/* Render other form inputs and their corresponding error messages */}
+        <View>
+          <TouchableOpacity
+            style={styles.loginBtn}
+            title="loginSubmit"
+            onPress={() => { navigation.navigate('DashboardScreen') }}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.loginBtnText}>
+              Login
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -67,10 +72,33 @@ const LoginForm = () => {
 export default LoginForm
 
 const styles = StyleSheet.create({
-  fieldset: {},
-  email: {},
-  formLabel: {},
-  input: {},
+  test: {
+    flexDirection: 'row',
+    // flex: 1,
+    // justifyContent: 'center',
+    // alignItems: 'center',
+    // width: '100%',
+    // borderWidth: 1, borderColor: 'yellow',
+  },
+  fieldset: {
+    marginTop: s(24),
+    // width: '100%',
+    // borderWidth: 1, borderColor: 'red',
+  },
+  email: {
+    width: '100%',
+  },
+  formLabel: {
+    fontSize: s(12),
+    marginBottom: s(8)
+  },
+  inputField: {
+    borderWidth: 1,
+    borderColor: AppColors.textInputBorderColor,
+    height: s(48),
+    borderRadius: s(8),
+    width: windowWidth - 64
+  },
   errorMessage: {},
   createAcctBtn: {},
   createAcctBtnText: {},
