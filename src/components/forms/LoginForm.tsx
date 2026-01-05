@@ -60,7 +60,12 @@ const LoginForm = () => {
             control={control}
             rules={{ required: true }}
             render={({ field: { onChange, value } }) => (
-              <TextInput style={styles.inputField} value={value} onChangeText={onChange} secureTextEntry />
+              <TextInput
+                style={styles.inputField}
+                value={value}
+                onChangeText={onChange}
+                secureTextEntry
+              />
             )}
             name="password"
           />
