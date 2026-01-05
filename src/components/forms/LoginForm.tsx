@@ -75,9 +75,7 @@ export default LoginForm
 
 const styles = StyleSheet.create({
   fieldset: {
-    marginTop: s(24),
-    // width: '100%',
-    // borderWidth: 1, borderColor: 'red',
+    marginTop: s(24)
   },
   email: {
     width: '100%',
