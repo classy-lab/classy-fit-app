@@ -56,7 +56,14 @@ const LoginForm = () => {
 
         <View style={styles.password}>
           <Text style={styles.formLabel}>Password</Text>
-          <Controller control={control} rules={{ required: true }} render={({ field: { onChange, value } }) => (<TextInput style={styles.inputField} value={value} onChangeText={onChange} secureTextEntry />)} name="password" />
+          <Controller
+            control={control}
+            rules={{ required: true }}
+            render={({ field: { onChange, value } }) => (
+              <TextInput style={styles.inputField} value={value} onChangeText={onChange} secureTextEntry />
+            )}
+            name="password"
+          />
           {errors.password && <Text style={styles.errorMessage}>{errors.password.message}</Text>}
         </View>
         {/* Render other form inputs and their corresponding error messages */}
