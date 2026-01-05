@@ -26,7 +26,6 @@ const RegisterForm = () => {
     "Montserrat-Medium": require("../../assets/fonts/montserrat/Montserrat-Medium.ttf")
   })
 
-  // const [email, setEmail] = useState('')
   const { control, handleSubmit, formState: { errors }, } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
@@ -34,10 +33,6 @@ const RegisterForm = () => {
       password: '',
     },
   });
-
-  // const emailChecker = (email) => {
-  //   setEmail(email)
-  // }
 
   const onPressSend = (formData) => {
     // Perform actions with the validated form data
