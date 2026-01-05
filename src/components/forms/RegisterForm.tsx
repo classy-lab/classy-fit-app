@@ -44,40 +44,26 @@ const RegisterForm = () => {
       <View style={styles.fieldset}>
         <View style={styles.email}>
           <Text style={styles.formLabel}>E-mail</Text>
-          <Controller
-            control={control}
-            rules={{ required: true }}
+          <Controller control={control} ules={{ required: true }} name="email"
             render={({ field: { onChange, value } }) => (
-              <TextInput
-                style={styles.inputField}
-                value={value}
-                onChangeText={onChange}
-                keyboardType='email-address'
-              />
+              <TextInput style={styles.inputField} value={value} onChangeText={onChange} keyboardType='email-address' />
             )}
-            name="email"
           />
           {errors.email && <Text>{errors.email.message}</Text>}
         </View>
 
         <View style={styles.password}>
           <Text style={styles.formLabel}>Password</Text>
-          <Controller
-            control={control}
-            rules={{ required: true }}
+          <Controller control={control} rules={{ required: true }} name="password"
             render={({ field: { onChange, value } }) => (
-              <TextInput
-                style={styles.inputField}
-                value={value}
-                onChangeText={onChange}
-                secureTextEntry
-              />
+              <TextInput style={styles.inputField} value={value} onChangeText={onChange} secureTextEntry />
             )}
-            name="password"
           />
           {errors.password && <Text style={styles.errorMessage}>{errors.password.message}</Text>}
         </View>
+
         {/* Render other form inputs and their corresponding error messages */}
+
         <View style={styles.loginBtnContainer}>
           <TouchableOpacity
             style={styles.loginBtn}
