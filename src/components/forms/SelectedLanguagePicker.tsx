@@ -20,9 +20,9 @@ const SelectedLanguagePicker = () => {
         }
         }>
         <Picker.Item label="" value="" />
-        <Picker.Item label="Java" value="java" />
-        <Picker.Item label="JavaScript" value="js" />
-        <Picker.Item label="Python" value="python" />
+        <Picker.Item label="Owner" value="owner" />
+        <Picker.Item label="Gym Member" value="trainer" />
+        <Picker.Item label="Trainer" value="member" />
       </Picker>
     </View>
   );
