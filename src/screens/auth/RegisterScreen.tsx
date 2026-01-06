@@ -25,8 +25,7 @@ const RegisterScreen = () => {
         <View style={styles.headingContainer}>
           <Text style={styles.title}>Register</Text>
           <Text style={styles.subHead}>Create an account to start.</Text>
-          {/* <AvatarBoyKid style={styles.avatarBoyKidSvg} /> */}
-          <ProfileImage />
+          <ProfileImage style={styles.card} />
         </View>
         <RegisterForm />
         <View style={styles.vectorImageSvg}>
@@ -47,6 +46,7 @@ const styles = StyleSheet.create({
     width: "100%",
     padding: 8
   },
+  card: {},
   navs: {
     flexDirection: 'row',
     justifyContent: 'space-between',
