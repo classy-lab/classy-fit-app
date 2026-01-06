@@ -14,7 +14,10 @@ const windowWidth = Dimensions.get('window').width;
 // 1. Define the Yup validation schema
 const schema = yup.object().shape({
   email: yup.string().required('Email is required').email('Invalid email'),
-  password: yup.string().required('Password is required').min(8, 'Password must contain at least 8 characters'),
+  password: yup.string().required('Password is required').min(13, 'Password must contain at least 8 characters').matches(
+    /^[a-zA-Z0-9]+$/,
+    'Password must only contain alphanumeric characters (letters and numbers)'
+  ),
 });
 
 const LoginForm = () => {
