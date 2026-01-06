@@ -4,9 +4,7 @@ import { useNavigation } from '@react-navigation/native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import Feather from '@expo/vector-icons/Feather'
-import { useFonts } from 'expo-font'
 import VectorImageSvg from '../../components/svg/VectorImageSvg'
-import AvatarBoyKid from '../../assets/svg/AvatarBoyKidSvg'
 import { s, vs } from 'react-native-size-matters'
 import RegisterForm from '../../components/forms/RegisterForm'
 import ProfileImage from '../../components/svg/ProfileImage'
@@ -21,7 +19,7 @@ const RegisterScreen = () => {
         <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
         <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
       </View>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false} >
         <View style={styles.headingContainer}>
           <Text style={styles.title}>Register</Text>
           <Text style={styles.subHead}>Create an account to start.</Text>
