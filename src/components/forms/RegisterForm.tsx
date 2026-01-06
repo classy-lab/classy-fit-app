@@ -109,6 +109,12 @@ const RegisterForm = () => {
           {errors.preferredContact && <Text>{errors.preferredContact.message}</Text>}
         </View>
 
+        <View style={styles.field}>
+          <Text style={styles.formLabel}>Job</Text>
+          <TextInput style={styles.inputField} name="job" {...register("job")} keyboardType='default' />
+          {errors.job && <Text>{errors.job.message}</Text>}
+        </View>
+
         <View style={styles.loginBtnContainer}>
           <TouchableOpacity
             style={styles.loginBtn}
