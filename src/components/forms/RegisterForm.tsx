@@ -67,8 +67,20 @@ const RegisterForm = () => {
 
         <View style={styles.field}>
           <Text style={styles.formLabel}>Password</Text>
-          <TextInput style={styles.inputField} name="password"  {...register("password")} keyboardType='default' secureTextEntry />
-          {errors.password && <Text style={styles.errorMessage}>{errors.password.message}</Text>}
+          <Controller
+            control={control}
+            name="password"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styles.inputField}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                secureTextEntry
+              />
+            )}
+          />
+          {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
         </View>
 
         <View style={styles.field}>
