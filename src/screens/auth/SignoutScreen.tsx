@@ -23,14 +23,14 @@ const SignoutScreen = () => {
         <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
       </View>
       <View style={styles.headingContainer}>
-        <Text style={styles.title}>Thank you!</Text>
+        <Text style={styles.title}>Signout</Text>
         <PinkLeafSvg style={styles.pinkLeaf} />
       </View>
       <Text style={styles.body}>
-        Your account has been created. Please check your email and click on activation link to activate your account.
+        You have successfully signed out of your account.
       </Text>
       <View style={styles.imageContainer}>
-        <HealthyLifestyleSvg />
+        {/* <HealthyLifestyleSvg /> */}
       </View>
     </SafeAreaView >
   )
