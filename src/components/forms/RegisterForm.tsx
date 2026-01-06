@@ -9,7 +9,7 @@ import { useFonts } from 'expo-font'
 import { s, vs } from 'react-native-size-matters'
 import { useState } from 'react'
 import { Picker } from '@react-native-picker/picker';
-import SelectedLanguagePicker1 from './SelectedLanguagePicker1'
+import SelectedLanguagePicker from './SelectedLanguagePicker'
 
 const windowWidth = Dimensions.get('window').width
 const schema = yup.object().shape({
@@ -51,7 +51,7 @@ const RegisterForm = () => {
 
         {/* Render other form inputs and their corresponding error messages */}
 
-        <SelectedLanguagePicker1 />
+        <SelectedLanguagePicker />
         <View style={styles.loginBtnContainer}>
           <TouchableOpacity
             style={styles.loginBtn}
