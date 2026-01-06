@@ -12,21 +12,14 @@ const SelectedLanguagePicker = () => {
   return (
     <View style={styles.container}>
       <Picker
-        style={{
-          borderWidth: 1,
-          borderColor: AppColors.textInputBorderColor,
-          height: s(48),
-          borderRadius: s(8),
-          width: windowWidth - 64,
-          backgroundColor: AppColors.grey,
-        }}
+        style={styles.pickerStyles}
         selectedValue={selectedLanguage}
         onValueChange={(itemValue, itemIndex) => {
           setSelectedLanguage(itemValue)
           // console.log(selectedLanguage)
         }
         }>
-        {/* <Picker.Item label="" value="" /> */}
+        <Picker.Item label="" value="" />
         <Picker.Item label="Java" value="java" />
         <Picker.Item label="JavaScript" value="js" />
         <Picker.Item label="Python" value="python" />
@@ -41,6 +34,15 @@ const styles = StyleSheet.create({
     paddingTop: 40,
     alignItems: 'center',
   },
+  pickerStyles: {
+    borderWidth: 1,
+    borderColor: AppColors.textInputBorderColor,
+    height: s(48),
+    borderRadius: s(8),
+    width: windowWidth - 64,
+    backgroundColor: AppColors.grey,
+    marginTop: s(-24) // check
+  }
 });
 
 export default SelectedLanguagePicker
