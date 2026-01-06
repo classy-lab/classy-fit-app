@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native'
 import { createStackNavigator } from '@react-navigation/stack'
-import AuthStack from '../screens/auth/AuthStack'
+import StartScreen from '../screens/auth/StartScreen'
 import {
   DrawerContentScrollView,
   DrawerItemList,
@@ -62,7 +62,7 @@ const MainAppStack = () => {
             fontFamily: 'Montserrat',
           },
         }} drawerContent={props => <CustomDrawerContent {...props} />}>
-        <Drawer.Screen name="Home" component={AuthStack} />
+        <Drawer.Screen name="Home" component={StartScreen} />
         <Drawer.Screen name="About" component={About} options={{ title: 'About' }} />
         <Drawer.Screen name="Contact" component={Contact} options={{ title: 'Contact' }} />
         <Drawer.Screen name="GymHours" component={GymHours} options={{ title: 'Gym Hours' }} />
