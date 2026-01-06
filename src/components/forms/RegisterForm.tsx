@@ -8,6 +8,8 @@ import Ionicons from '@expo/vector-icons/Ionicons'
 import { useFonts } from 'expo-font'
 import { s, vs } from 'react-native-size-matters'
 import { useState } from 'react'
+import { Picker } from '@react-native-picker/picker';
+import SelectedLanguagePicker1 from './SelectedLanguagePicker1'
 
 const windowWidth = Dimensions.get('window').width
 const schema = yup.object().shape({
@@ -20,7 +22,7 @@ const schema = yup.object().shape({
 
 const RegisterForm = () => {
   const navigation = useNavigation()
-
+  const [selectedLanguage, setSelectedLanguage] = useState();
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
@@ -49,6 +51,7 @@ const RegisterForm = () => {
 
         {/* Render other form inputs and their corresponding error messages */}
 
+        <SelectedLanguagePicker1 />
         <View style={styles.loginBtnContainer}>
           <TouchableOpacity
             style={styles.loginBtn}
