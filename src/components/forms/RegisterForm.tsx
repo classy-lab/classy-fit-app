@@ -73,6 +73,12 @@ const RegisterForm = () => {
           {errors.lname && <Text>{errors.lname.message}</Text>}
         </View>
 
+        <View style={styles.field}>
+          <Text style={styles.formLabel}>Age</Text>
+          <TextInput style={styles.inputField} name="age" {...register("age")} keyboardType='default' />
+          {errors.age && <Text>{errors.age.message}</Text>}
+        </View>
+
         <View style={styles.loginBtnContainer}>
           <TouchableOpacity
             style={styles.loginBtn}
