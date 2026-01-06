@@ -91,20 +91,18 @@ export default RegisterForm
 
 const styles = StyleSheet.create({
   fieldset: {
-    marginTop: s(24)
+    marginTop: s(16)
   },
   email: {
-    width: '100%',
-  },
-  field: {
-
+    // width: '100%',
   },
   formLabel: {
     fontSize: s(12),
-    marginBottom: s(8)
+    marginTop: s(16),
+    // marginBottom: s(-10)
   },
   inputField: {
-    marginTop: s(16),
+    marginTop: s(5),
     borderWidth: 1,
     borderColor: AppColors.textInputBorderColor,
     height: s(48),
