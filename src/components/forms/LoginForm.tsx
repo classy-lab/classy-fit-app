@@ -4,10 +4,8 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { StyleSheet, View, Text, TouchableOpacity, TextInput, Dimensions, Button } from 'react-native'
 import { AppColors } from '../../styles/colors'
 import { useNavigation } from '@react-navigation/native'
-import Ionicons from '@expo/vector-icons/Ionicons'
 import { useFonts } from 'expo-font'
 import { s, vs } from 'react-native-size-matters'
-import { useState } from 'react'
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -125,7 +123,9 @@ const styles = StyleSheet.create({
     borderRadius: s(8),
     width: windowWidth - 64
   },
-  errorMessage: {},
+  errorText: {
+    color: AppColors.red
+  },
   createAcctBtn: {},
   createAcctBtnText: {},
   loginBtnContainer: {
