@@ -61,11 +61,9 @@ const RegisterForm = () => {
           {errors.password && <Text style={styles.errorMessage}>{errors.password.message}</Text>}
         </View>
 
-
-
         <View style={styles.field}>
-          <Text style={styles.formLabel}>Role</Text>
-          <TextInput style={styles.inputField} name="role" {...register("role")} keyboardType='default' />
+          <Text style={styles.formLabel}>First Name</Text>
+          <TextInput style={styles.inputField} name="fname" {...register("fname")} keyboardType='default' />
           {errors.email && <Text>{errors.email.message}</Text>}
         </View>
 
@@ -107,7 +105,8 @@ const styles = StyleSheet.create({
     borderColor: AppColors.textInputBorderColor,
     height: s(48),
     borderRadius: s(8),
-    width: windowWidth - 64
+    width: windowWidth - 64,
+    backgroundColor: AppColors.grey
   },
   errorMessage: {},
   createAcctBtn: {},
