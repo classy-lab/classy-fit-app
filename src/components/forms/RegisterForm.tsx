@@ -1,5 +1,5 @@
 import * as yup from 'yup';
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { StyleSheet, View, Text, TouchableOpacity, TextInput, Dimensions } from 'react-native'
 import { AppColors } from '../../styles/colors'
@@ -14,35 +14,55 @@ import CheckboxComponent from './CheckboxComponent'
 import RegisterComplete from '../../screens/auth/RegisterComplete'
 
 const windowWidth = Dimensions.get('window').width
+
+// 1. Define the Yup validation schema
 const schema = yup.object().shape({
   email: yup.string().required('Email is required').email('Invalid email'),
-  password: yup
-    .string()
-    .required('Password is required')
-    .min(8, 'Password must contain at least 8 characters'),
-})
+  password: yup.string().required('Password is required').min(13, 'Password must contain at least 13 characters').matches(
+    /^[a-zA-Z0-9]+$/,
+    'Password must only contain alphanumeric characters (letters and numbers)'
+  ),
+});
 
 const RegisterForm = () => {
   const navigation = useNavigation()
   const [selectedLanguage, setSelectedLanguage] = useState();
-  const { register, handleSubmit, formState: { errors } } = useForm({
+
+  // 2. Initialize useForm with the Yup resolver
+  const { control, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
       email: '',
+      password: '',
     },
-  });
+  })
 
+  // 3. Define the submit handler
   const onSubmit = (data) => {
-    console.log(data)
-  };
+    console.log("Form Submitted:", data);
+    // Handle form submission logic (e.g., API call)
+  }
 
   return (
     <>
       <View style={styles.fieldset}>
         <View style={styles.field}>
           <Text style={styles.formLabel}>E-mail</Text>
-          <TextInput style={styles.inputField} name="email" {...register("email")} keyboardType='email-address' />
-          {errors.email && <Text>{errors.email.message}</Text>}
+          <Controller
+            control={control}
+            name="email"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styles.inputField}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+            )}
+          />
+          {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
         </View>
 
         <View style={styles.field}>
