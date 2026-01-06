@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
     width: "100%",
     padding: 8
   },
-  card: { alignSelf: 'center' },
+  card: { alignSelf: 'center', marginTop: s(16) },
   navs: {
     flexDirection: 'row',
     justifyContent: 'space-between',
