@@ -97,6 +97,12 @@ const RegisterForm = () => {
           {errors.age && <Text>{errors.age.message}</Text>}
         </View>
 
+        <View style={styles.field}>
+          <Text style={styles.formLabel}>WhatsApp Number</Text>
+          <TextInput style={styles.inputField} name="whatsappNumber" {...register("whatsappNumber")} keyboardType='default' />
+          {errors.age && <Text>{errors.age.message}</Text>}
+        </View>
+
         <View style={styles.loginBtnContainer}>
           <TouchableOpacity
             style={styles.loginBtn}
