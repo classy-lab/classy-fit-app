@@ -53,15 +53,13 @@ const RegisterForm = () => {
           <TouchableOpacity
             style={styles.loginBtn}
             title="loginSubmit"
+            activeOpacity={0.7}
             onPress={() => {
               handleSubmit(onSubmit)
               navigation.navigate('DashboardScreen')
             }}
-            activeOpacity={0.7}
           >
-            <Text style={styles.loginBtnText}>
-              Login
-            </Text>
+            <Text style={styles.loginBtnText}>Login</Text>
           </TouchableOpacity>
         </View>
       </View>
