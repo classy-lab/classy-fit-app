@@ -5,9 +5,9 @@ import Ionicons from '@expo/vector-icons/Ionicons'
 import Feather from '@expo/vector-icons/Feather'
 import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
-import HealthyLifestyleSvg from '../../components/svg/HealthyLifestyleSvg'
 import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
 import { s, vs } from 'react-native-size-matters'
+import DesignerSvg from '../../components/svg/DesignerSvg'
 
 const SignoutScreen = () => {
   const navigation = useNavigation()
@@ -30,7 +30,7 @@ const SignoutScreen = () => {
         You have successfully signed out of your account.
       </Text>
       <View style={styles.imageContainer}>
-        {/* <HealthyLifestyleSvg /> */}
+        <DesignerSvg />
       </View>
     </SafeAreaView >
   )
