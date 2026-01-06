@@ -107,7 +107,7 @@ export default RegisterForm
 
 const styles = StyleSheet.create({
   fieldset: {
-    marginTop: s(16)
+    marginBottom: s(32)
   },
   email: {
     // width: '100%',
