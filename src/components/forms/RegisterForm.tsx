@@ -148,9 +148,7 @@ const styles = StyleSheet.create({
   fieldset: {
     marginBottom: s(32)
   },
-  email: {
-    // width: '100%',
-  },
+  email: {},
   formLabel: {
     fontSize: s(12),
     marginTop: s(16),
