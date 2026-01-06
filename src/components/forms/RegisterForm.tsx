@@ -8,9 +8,10 @@ import Ionicons from '@expo/vector-icons/Ionicons'
 import { useFonts } from 'expo-font'
 import { s, vs } from 'react-native-size-matters'
 import { useState } from 'react'
-import { Picker } from '@react-native-picker/picker';
+import { Picker } from '@react-native-picker/picker'
 import SelectedLanguagePicker from './SelectedLanguagePicker'
-import CheckboxComponent from './CheckboxComponent';
+import CheckboxComponent from './CheckboxComponent'
+import RegisterComplete from '../../screens/auth/RegisterComplete'
 
 const windowWidth = Dimensions.get('window').width
 const schema = yup.object().shape({
@@ -131,7 +132,7 @@ const RegisterForm = () => {
             activeOpacity={0.7}
             onPress={() => {
               handleSubmit(onSubmit)
-              navigation.navigate('DashboardScreen')
+              navigation.navigate('RegisterComplete')
             }}
           >
             <Text style={styles.loginBtnText}>Create Account</Text>
