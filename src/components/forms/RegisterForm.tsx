@@ -1,5 +1,5 @@
 import * as yup from 'yup';
-import { useForm, Controller } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { StyleSheet, View, Text, TouchableOpacity, TextInput, Dimensions } from 'react-native'
 import { AppColors } from '../../styles/colors'
@@ -9,34 +9,27 @@ import { useFonts } from 'expo-font'
 import { s, vs } from 'react-native-size-matters'
 import { useState } from 'react'
 
+const windowWidth = Dimensions.get('window').width
 const schema = yup.object().shape({
   email: yup.string().required('Email is required').email('Invalid email'),
   password: yup
     .string()
     .required('Password is required')
     .min(8, 'Password must contain at least 8 characters'),
-});
-
-const windowWidth = Dimensions.get('window').width;
+})
 
 const RegisterForm = () => {
   const navigation = useNavigation()
-  const [fontsLoaded] = useFonts({
-    "Montserrat": require("../../assets/fonts/montserrat/Montserrat-Regular.ttf"),
-    "Montserrat-Medium": require("../../assets/fonts/montserrat/Montserrat-Medium.ttf")
-  })
 
-  const { control, handleSubmit, formState: { errors }, } = useForm({
+  const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
       email: '',
-      password: '',
     },
   });
 
-  const onPressSend = (formData) => {
-    // Perform actions with the validated form data
-    console.log(formData)
+  const onSubmit = (data) => {
+    console.log(data)
   };
 
   return (
@@ -44,21 +37,13 @@ const RegisterForm = () => {
       <View style={styles.fieldset}>
         <View style={styles.email}>
           <Text style={styles.formLabel}>E-mail</Text>
-          <Controller control={control} ules={{ required: true }} name="email"
-            render={({ field: { onChange, value } }) => (
-              <TextInput style={styles.inputField} value={value} onChangeText={onChange} keyboardType='email-address' />
-            )}
-          />
+          <TextInput style={styles.inputField} {...register("email")} keyboardType='email-address' />
           {errors.email && <Text>{errors.email.message}</Text>}
         </View>
 
         <View style={styles.password}>
           <Text style={styles.formLabel}>Password</Text>
-          <Controller control={control} rules={{ required: true }} name="password"
-            render={({ field: { onChange, value } }) => (
-              <TextInput style={styles.inputField} value={value} onChangeText={onChange} secureTextEntry />
-            )}
-          />
+          <TextInput style={styles.inputField} {...register("name")} keyboardType='email-address' secureTextEntry />
           {errors.password && <Text style={styles.errorMessage}>{errors.password.message}</Text>}
         </View>
 
@@ -69,7 +54,7 @@ const RegisterForm = () => {
             style={styles.loginBtn}
             title="loginSubmit"
             onPress={() => {
-              handleSubmit(onPressSend)
+              handleSubmit(onSubmit)
               navigation.navigate('DashboardScreen')
             }}
             activeOpacity={0.7}
