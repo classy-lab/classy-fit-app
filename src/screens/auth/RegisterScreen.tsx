@@ -9,6 +9,7 @@ import VectorImageSvg from '../../components/svg/VectorImageSvg'
 import AvatarBoyKid from '../../assets/svg/AvatarBoyKidSvg'
 import { s, vs } from 'react-native-size-matters'
 import RegisterForm from '../../components/forms/RegisterForm'
+import ProfileImage from '../../components/svg/ProfileImage'
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -22,9 +23,10 @@ const RegisterScreen = () => {
       </View>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.headingContainer}>
-          <AvatarBoyKid style={styles.avatarBoyKidSvg} />
-          <Text style={styles.title}>Sign In</Text>
-          <Text style={styles.subHead}>Please sign in to proceed to your account.</Text>
+          <Text style={styles.title}>Register</Text>
+          <Text style={styles.subHead}>Create an account to start.</Text>
+          {/* <AvatarBoyKid style={styles.avatarBoyKidSvg} /> */}
+          <ProfileImage />
         </View>
         <RegisterForm />
         <View style={styles.vectorImageSvg}>
@@ -54,7 +56,9 @@ const styles = StyleSheet.create({
     width: windowWidth - 64,
     marginTop: s(24)
   },
-  avatarBoyKidSvg: {},
+  avatarBoyKidSvg: {
+    marginTop: s(16),
+  },
   title: {
     color: AppColors.blue,
     fontFamily: 'Montserrat',
