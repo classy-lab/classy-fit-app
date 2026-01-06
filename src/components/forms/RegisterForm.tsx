@@ -115,6 +115,12 @@ const RegisterForm = () => {
           {errors.job && <Text>{errors.job.message}</Text>}
         </View>
 
+        <View style={styles.field}>
+          <Text style={styles.formLabel}>Gym Location / Fitness Center</Text>
+          <TextInput style={styles.inputField} name="gymLocation" {...register("gymLocation")} keyboardType='default' />
+          {errors.gymLocation && <Text>{errors.gymLocation.message}</Text>}
+        </View>
+
         <View style={styles.loginBtnContainer}>
           <TouchableOpacity
             style={styles.loginBtn}
