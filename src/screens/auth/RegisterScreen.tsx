@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Dimensions } from 'react-native'
+import { StyleSheet, Text, View, Dimensions, ScrollView } from 'react-native'
 import { AppColors } from '../../styles/colors'
 import { useNavigation } from '@react-navigation/native'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -20,15 +20,17 @@ const RegisterScreen = () => {
         <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
         <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
       </View>
-      <View style={styles.headingContainer}>
-        <AvatarBoyKid style={styles.avatarBoyKidSvg} />
-        <Text style={styles.title}>Sign In</Text>
-        <Text style={styles.subHead}>Please sign in to proceed to your account.</Text>
-      </View>
-      <RegisterForm />
-      <View style={styles.vectorImageSvg}>
-        <VectorImageSvg />
-      </View>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View style={styles.headingContainer}>
+          <AvatarBoyKid style={styles.avatarBoyKidSvg} />
+          <Text style={styles.title}>Sign In</Text>
+          <Text style={styles.subHead}>Please sign in to proceed to your account.</Text>
+        </View>
+        <RegisterForm />
+        <View style={styles.vectorImageSvg}>
+          <VectorImageSvg />
+        </View>
+      </ScrollView>
     </SafeAreaView >
   )
 }
