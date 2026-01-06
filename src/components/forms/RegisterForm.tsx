@@ -103,6 +103,12 @@ const RegisterForm = () => {
           {errors.whatsappNumber && <Text>{errors.whatsappNumber.message}</Text>}
         </View>
 
+        <View style={styles.field}>
+          <Text style={styles.formLabel}>Preferred Contact</Text>
+          <TextInput style={styles.inputField} name="preferredContact" {...register("preferredContact")} keyboardType='default' />
+          {errors.preferredContact && <Text>{errors.preferredContact.message}</Text>}
+        </View>
+
         <View style={styles.loginBtnContainer}>
           <TouchableOpacity
             style={styles.loginBtn}
