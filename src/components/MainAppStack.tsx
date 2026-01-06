@@ -17,6 +17,7 @@ import Ionicons from '@expo/vector-icons/Ionicons'
 import { useFonts } from 'expo-font'
 import DashboardScreen from '../screens/auth/DashboardScreen'
 import RegisterComplete from '../screens/auth/RegisterComplete'
+import SignoutScreen from '../screens/auth/SignoutScreen'
 
 const Stack = createStackNavigator()
 
@@ -79,6 +80,9 @@ const MainAppStack = () => {
         <Drawer.Screen options={{
           drawerItemStyle: { display: 'none' },
         }} name='RegisterComplete' component={RegisterComplete} />
+        <Drawer.Screen options={{
+          drawerItemStyle: { display: 'none' },
+        }} name='SignoutScreen' component={SignoutScreen} />
       </Drawer.Navigator>
     </>
   )
