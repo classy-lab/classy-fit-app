@@ -92,8 +92,8 @@ const RegisterForm = () => {
         </View>
 
         <View style={styles.field}>
-          <Text style={styles.formLabel}>Phone</Text>
-          <TextInput style={styles.inputField} name="phone" {...register("phone")} keyboardType='default' />
+          <Text style={styles.formLabel}>Phone Number</Text>
+          <TextInput style={styles.inputField} name="phoneNumber" {...register("phoneNumber")} keyboardType='default' />
           {errors.age && <Text>{errors.age.message}</Text>}
         </View>
 
