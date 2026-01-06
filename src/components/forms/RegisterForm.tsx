@@ -88,19 +88,19 @@ const RegisterForm = () => {
         <View style={styles.field}>
           <Text style={styles.formLabel}>Sex</Text>
           <TextInput style={styles.inputField} name="sex" {...register("sex")} keyboardType='default' />
-          {errors.age && <Text>{errors.age.message}</Text>}
+          {errors.sex && <Text>{errors.sex.message}</Text>}
         </View>
 
         <View style={styles.field}>
           <Text style={styles.formLabel}>Phone Number</Text>
           <TextInput style={styles.inputField} name="phoneNumber" {...register("phoneNumber")} keyboardType='default' />
-          {errors.age && <Text>{errors.age.message}</Text>}
+          {errors.phoneNumber && <Text>{errors.phoneNumber.message}</Text>}
         </View>
 
         <View style={styles.field}>
           <Text style={styles.formLabel}>WhatsApp Number</Text>
           <TextInput style={styles.inputField} name="whatsappNumber" {...register("whatsappNumber")} keyboardType='default' />
-          {errors.age && <Text>{errors.age.message}</Text>}
+          {errors.whatsappNumber && <Text>{errors.whatsappNumber.message}</Text>}
         </View>
 
         <View style={styles.loginBtnContainer}>
