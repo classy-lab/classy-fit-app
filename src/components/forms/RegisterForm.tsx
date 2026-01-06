@@ -134,7 +134,7 @@ const RegisterForm = () => {
               navigation.navigate('DashboardScreen')
             }}
           >
-            <Text style={styles.loginBtnText}>Login</Text>
+            <Text style={styles.loginBtnText}>Create Account</Text>
           </TouchableOpacity>
         </View>
       </View>
