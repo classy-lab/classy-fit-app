@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
     width: "100%",
     padding: 8
   },
-  card: {},
+  card: { alignSelf: 'center' },
   navs: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -54,7 +54,8 @@ const styles = StyleSheet.create({
   },
   headingContainer: {
     width: windowWidth - 64,
-    marginTop: s(24)
+    marginTop: s(24),
+    // borderWidth: 1, borderColor: 'red'
   },
   avatarBoyKidSvg: {
     marginTop: s(16),
