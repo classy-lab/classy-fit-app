@@ -27,11 +27,10 @@ const LoginForm = () => {
   })
 
   // const [email, setEmail] = useState('')
-  const { control, handleSubmit, formState: { errors }, } = useForm({
+  const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
       email: '',
-      password: '',
     },
   });
 
@@ -47,49 +46,27 @@ const LoginForm = () => {
   return (
     <>
       <View style={styles.fieldset}>
-        <View style={styles.email}>
+        <View style={styles.field}>
           <Text style={styles.formLabel}>E-mail</Text>
-          <Controller
-            control={control}
-            rules={{ required: true }}
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                style={styles.inputField}
-                value={value}
-                onChangeText={onChange}
-                keyboardType='email-address'
-              />
-            )}
-            name="email"
-          />
+          <TextInput style={styles.inputField} name="email" {...register("email")} keyboardType='email-address' />
           {errors.email && <Text>{errors.email.message}</Text>}
         </View>
 
-        <View style={styles.password}>
+        <View style={styles.field}>
           <Text style={styles.formLabel}>Password</Text>
-          <Controller
-            control={control}
-            rules={{ required: true }}
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                style={styles.inputField}
-                value={value}
-                onChangeText={onChange}
-                secureTextEntry
-              />
-            )}
-            name="password"
-          />
+          <TextInput style={styles.inputField} name="password"  {...register("password")} keyboardType='default' secureTextEntry />
           {errors.password && <Text style={styles.errorMessage}>{errors.password.message}</Text>}
         </View>
+
         {/* Render other form inputs and their corresponding error messages */}
+
         <View style={styles.loginBtnContainer}>
           <TouchableOpacity
             style={styles.loginBtn}
             title="loginSubmit"
             onPress={() => {
-              handleSubmit(onPressSend)
-              navigation.navigate('DashboardScreen')
+              // handleSubmit(onPressSend)
+              // navigation.navigate('DashboardScreen')
             }}
             activeOpacity={0.7}
           >
