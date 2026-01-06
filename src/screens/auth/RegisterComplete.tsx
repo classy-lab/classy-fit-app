@@ -30,7 +30,7 @@ const RegisterComplete = () => {
         Your account has been created. Please check your email and click on activation link to activate your account.
       </Text>
       <View style={styles.imageContainer}>
-        <WorkoutSvg />
+        {/* <WorkoutSvg /> */}
       </View>
     </SafeAreaView >
   )
