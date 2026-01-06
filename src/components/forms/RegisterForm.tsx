@@ -10,6 +10,7 @@ import { s, vs } from 'react-native-size-matters'
 import { useState } from 'react'
 import { Picker } from '@react-native-picker/picker';
 import SelectedLanguagePicker from './SelectedLanguagePicker'
+import CheckboxComponent from './CheckboxComponent';
 
 const windowWidth = Dimensions.get('window').width
 const schema = yup.object().shape({
@@ -120,6 +121,8 @@ const RegisterForm = () => {
           <TextInput style={styles.inputField} name="gymLocation" {...register("gymLocation")} keyboardType='default' />
           {errors.gymLocation && <Text>{errors.gymLocation.message}</Text>}
         </View>
+
+        <CheckboxComponent />
 
         <View style={styles.loginBtnContainer}>
           <TouchableOpacity
