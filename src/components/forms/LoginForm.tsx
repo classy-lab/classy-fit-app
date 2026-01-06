@@ -15,9 +15,13 @@ const windowWidth = Dimensions.get('window').width;
 const schema = yup.object().shape({
   email: yup.string().required('Email is required').email('Invalid email'),
   password: yup.string().required('Password is required').min(13, 'Password must contain at least 8 characters').matches(
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/,
-    'Must contain at least one uppercase letter, one lowercase letter, one number, and one special character'
+    /^[a-zA-Z0-9]+$/,
+    'Password must only contain alphanumeric characters (letters and numbers)'
   ),
+  // matches(
+  //   /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/,
+  //   'Must contain at least one uppercase letter, one lowercase letter, one number, and one special character'
+  // ),
 });
 
 const LoginForm = () => {
