@@ -37,21 +37,38 @@ const RegisterForm = () => {
   return (
     <>
       <View style={styles.fieldset}>
-        <View style={styles.email}>
+        <View style={styles.field}>
           <Text style={styles.formLabel}>E-mail</Text>
-          <TextInput style={styles.inputField} {...register("email")} keyboardType='email-address' />
+          <TextInput style={styles.inputField} name="email" {...register("email")} keyboardType='email-address' />
           {errors.email && <Text>{errors.email.message}</Text>}
         </View>
 
-        <View style={styles.password}>
+        <View style={styles.field}>
           <Text style={styles.formLabel}>Password</Text>
-          <TextInput style={styles.inputField} {...register("name")} keyboardType='email-address' secureTextEntry />
+          <TextInput style={styles.inputField} name="password"  {...register("password")} keyboardType='default' secureTextEntry />
           {errors.password && <Text style={styles.errorMessage}>{errors.password.message}</Text>}
         </View>
 
-        {/* Render other form inputs and their corresponding error messages */}
+        <View style={styles.field}>
+          <Text style={styles.formLabel}>Confirm Password</Text>
+          <TextInput style={styles.inputField} name="confirmPassword"  {...register("confirmPassword")} keyboardType='default' secureTextEntry />
+          {errors.password && <Text style={styles.errorMessage}>{errors.password.message}</Text>}
+        </View>
+
+        <View style={styles.field}>
+          <Text style={styles.formLabel}>Confirm Password</Text>
+          <TextInput style={styles.inputField} name="confirmPassword"  {...register("confirmPassword")} keyboardType='default' secureTextEntry />
+          {errors.password && <Text style={styles.errorMessage}>{errors.password.message}</Text>}
+        </View>
 
         <SelectedLanguagePicker />
+
+        <View style={styles.field}>
+          <Text style={styles.formLabel}>Role</Text>
+          <TextInput style={styles.inputField} name="role" {...register("role")} keyboardType='default' />
+          {errors.email && <Text>{errors.email.message}</Text>}
+        </View>
+
         <View style={styles.loginBtnContainer}>
           <TouchableOpacity
             style={styles.loginBtn}
@@ -79,14 +96,15 @@ const styles = StyleSheet.create({
   email: {
     width: '100%',
   },
-  password: {
-    marginTop: s(16)
+  field: {
+
   },
   formLabel: {
     fontSize: s(12),
     marginBottom: s(8)
   },
   inputField: {
+    marginTop: s(16),
     borderWidth: 1,
     borderColor: AppColors.textInputBorderColor,
     height: s(48),
