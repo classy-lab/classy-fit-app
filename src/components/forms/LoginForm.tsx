@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { StyleSheet, View, Text, TouchableOpacity, TextInput, Dimensions } from 'react-native'
+import { StyleSheet, View, Text, TouchableOpacity, TextInput, Dimensions, Button } from 'react-native'
 import { AppColors } from '../../styles/colors'
 import { useNavigation } from '@react-navigation/native'
 import Ionicons from '@expo/vector-icons/Ionicons'
@@ -9,15 +9,13 @@ import { useFonts } from 'expo-font'
 import { s, vs } from 'react-native-size-matters'
 import { useState } from 'react'
 
+const windowWidth = Dimensions.get('window').width;
+
+// 1. Define the Yup validation schema
 const schema = yup.object().shape({
   email: yup.string().required('Email is required').email('Invalid email'),
-  password: yup
-    .string()
-    .required('Password is required')
-    .min(8, 'Password must contain at least 8 characters'),
+  password: yup.string().required('Password is required').min(8, 'Password must contain at least 8 characters'),
 });
-
-const windowWidth = Dimensions.get('window').width;
 
 const LoginForm = () => {
   const navigation = useNavigation()
@@ -25,49 +23,66 @@ const LoginForm = () => {
     "Montserrat": require("../../assets/fonts/montserrat/Montserrat-Regular.ttf"),
     "Montserrat-Medium": require("../../assets/fonts/montserrat/Montserrat-Medium.ttf")
   })
-
-  // const [email, setEmail] = useState('')
-  const { register, handleSubmit, formState: { errors } } = useForm({
+  // 2. Initialize useForm with the Yup resolver
+  const { control, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
       email: '',
+      password: '',
     },
-  });
+  })
 
-  // const emailChecker = (email) => {
-  //   setEmail(email)
-  // }
-
-  const onPressSend = (formData) => {
-    // Perform actions with the validated form data
-    console.log(formData)
-  };
+  // 3. Define the submit handler
+  const onSubmit = (data) => {
+    console.log("Form Submitted:", data);
+    // Handle form submission logic (e.g., API call)
+  }
 
   return (
     <>
       <View style={styles.fieldset}>
         <View style={styles.field}>
           <Text style={styles.formLabel}>E-mail</Text>
-          <TextInput style={styles.inputField} name="email" {...register("email")} keyboardType='email-address' />
-          {errors.email && <Text>{errors.email.message}</Text>}
+          <Controller
+            control={control}
+            name="email"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styles.inputField}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+            )}
+          />
+          {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
         </View>
 
         <View style={styles.field}>
           <Text style={styles.formLabel}>Password</Text>
-          <TextInput style={styles.inputField} name="password"  {...register("password")} keyboardType='default' secureTextEntry />
-          {errors.password && <Text style={styles.errorMessage}>{errors.password.message}</Text>}
+          <Controller
+            control={control}
+            name="password"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styles.inputField}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                secureTextEntry
+              />
+            )}
+          />
+          {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
         </View>
-
         {/* Render other form inputs and their corresponding error messages */}
-
         <View style={styles.loginBtnContainer}>
           <TouchableOpacity
             style={styles.loginBtn}
             title="loginSubmit"
-            onPress={() => {
-              // handleSubmit(onPressSend)
-              // navigation.navigate('DashboardScreen')
-            }}
+            onPress={handleSubmit(onSubmit)}
             activeOpacity={0.7}
           >
             <Text style={styles.loginBtnText}>
