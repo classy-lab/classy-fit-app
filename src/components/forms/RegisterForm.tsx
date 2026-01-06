@@ -57,14 +57,14 @@ const RegisterForm = () => {
 
         <View style={styles.field}>
           <Text style={styles.formLabel}>Role</Text>
-          <SelectedLanguagePicker style={styles.inputField} name="role"  {...register("role")} />
+          <SelectedLanguagePicker name="role"  {...register("role")} />
           {errors.password && <Text style={styles.errorMessage}>{errors.password.message}</Text>}
         </View>
 
         <View style={styles.field}>
           <Text style={styles.formLabel}>First Name</Text>
           <TextInput style={styles.inputField} name="fname" {...register("fname")} keyboardType='default' />
-          {errors.email && <Text>{errors.email.message}</Text>}
+          {errors.fname && <Text>{errors.fname.message}</Text>}
         </View>
 
         <View style={styles.loginBtnContainer}>
