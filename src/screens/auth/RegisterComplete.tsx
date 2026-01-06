@@ -5,7 +5,7 @@ import Ionicons from '@expo/vector-icons/Ionicons'
 import Feather from '@expo/vector-icons/Feather'
 import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
-import WorkoutSvg from '../../components/svg/WorkoutSvg'
+import HealthyLifestyleSvg from '../../components/svg/HealthyLifestyleSvg'
 import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
 import { s, vs } from 'react-native-size-matters'
 
@@ -30,7 +30,7 @@ const RegisterComplete = () => {
         Your account has been created. Please check your email and click on activation link to activate your account.
       </Text>
       <View style={styles.imageContainer}>
-        {/* <WorkoutSvg /> */}
+        <HealthyLifestyleSvg />
       </View>
     </SafeAreaView >
   )
