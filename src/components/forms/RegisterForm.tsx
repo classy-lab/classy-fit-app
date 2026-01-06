@@ -56,12 +56,12 @@ const RegisterForm = () => {
         </View>
 
         <View style={styles.field}>
-          <Text style={styles.formLabel}>Confirm Password</Text>
-          <TextInput style={styles.inputField} name="confirmPassword"  {...register("confirmPassword")} keyboardType='default' secureTextEntry />
+          <Text style={styles.formLabel}>Role</Text>
+          <SelectedLanguagePicker style={styles.inputField} name="role"  {...register("role")} />
           {errors.password && <Text style={styles.errorMessage}>{errors.password.message}</Text>}
         </View>
 
-        <SelectedLanguagePicker />
+
 
         <View style={styles.field}>
           <Text style={styles.formLabel}>Role</Text>
