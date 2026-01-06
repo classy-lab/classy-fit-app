@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image } from 'react-native'
+import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import Ionicons from '@expo/vector-icons/Ionicons'
@@ -29,6 +29,16 @@ const SignoutScreen = () => {
       <Text style={styles.body}>
         You have successfully signed out of your account.
       </Text>
+      <TouchableOpacity
+        style={styles.loginBtn}
+        title="Login"
+        onPress={() => { navigation.navigate('LoginScreen') }}
+        activeOpacity={0.7}
+      >
+        <Text style={styles.loginBtnText}>
+          Login
+        </Text>
+      </TouchableOpacity>
       <View style={styles.imageContainer}>
         <DesignerSvg />
       </View>
@@ -73,6 +83,7 @@ const styles = StyleSheet.create({
     color: AppColors.blue,
     marginLeft: 24,
     marginRight: 24,
+    margingBottom: 40,
     fontSize: s(20)
   },
   registerBtn: {
@@ -96,6 +107,7 @@ const styles = StyleSheet.create({
     height: 50,
     justifyContent: 'center',
     alignItems: 'center',
+    // margingTop: 40, borderWidth: 1, borderColor: 'red'
   },
   loginBtnText: {
     color: AppColors.blue,
