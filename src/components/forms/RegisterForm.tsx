@@ -19,17 +19,17 @@ const schema = yup.object().shape({
     /^[a-zA-Z0-9]+$/,
     'Password must only contain alphanumeric characters (letters and numbers)'
   ),
-  confirmPassword: '',
+  confirmPassword: yup.string().oneOf([yup.ref('password'), null]).required(),
   role: '',
-  fname: '',
-  lname: '',
+  fname: yup.string().required().min(3),
+  lname: yup.string().required().min(2),
   dateOfBirth: '',
-  age: '',
+  age: yup.number().positive().integer().min(18).required(),
   sex: '',
   phoneNumber: '',
   whatsappNumber: '',
   preferredContact: '',
-  job: '',
+  job: yup.string(),
   gymLocation: ''
 });
 
