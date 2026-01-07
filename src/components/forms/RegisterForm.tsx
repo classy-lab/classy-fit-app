@@ -8,6 +8,7 @@ import { s, vs } from 'react-native-size-matters'
 import { useState } from 'react'
 import SelectedRolePicker from './SelectedRolePicker'
 import CheckboxComponent from './CheckboxComponent'
+import SexPicker from './SexPicker';
 
 const windowWidth = Dimensions.get('window').width
 
@@ -42,6 +43,7 @@ const RegisterForm = () => {
     defaultValues: {
       email: '',
       password: '',
+      SexPicker: 'gymMember' // working?
     },
   })
 
@@ -212,7 +214,7 @@ const RegisterForm = () => {
             control={control}
             name="sex"
             render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
+              <SexPicker
                 style={styles.inputField}
                 onBlur={onBlur}
                 onChangeText={onChange}
