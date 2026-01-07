@@ -132,7 +132,7 @@ const RegisterForm = () => {
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
-                keyboardType="defaul"
+                keyboardType="default"
                 autoCapitalize="none"
               />
             )}
@@ -151,12 +151,32 @@ const RegisterForm = () => {
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
-                keyboardType="defaul"
+                keyboardType="default"
                 autoCapitalize="none"
               />
             )}
           />
           {errors.lname && <Text style={styles.errorText}>{errors.lname.message}</Text>}
+        </View>
+
+        <View style={styles.field}>
+          <Text style={styles.formLabel}>Date of Birth</Text>
+          <Controller
+            control={control}
+            name="dateOfBirth"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styles.inputField}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                keyboardType="default"
+                autoCapitalize="none"
+                placeholder="MM/DD/YYYY"
+              /> // needs date picker added. check
+            )}
+          />
+          {errors.dateOfBirth && <Text style={styles.errorText}>{errors.dateOfBirth.message}</Text>}
         </View>
 
         <CheckboxComponent />
