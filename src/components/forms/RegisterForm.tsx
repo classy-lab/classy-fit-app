@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { StyleSheet, View, Text, TouchableOpacity, TextInput, Dimensions } from 'react-native'
+import { StyleSheet, View, Text, TouchableOpacity, TextInput, Dimensions, ScrollView } from 'react-native'
 import { AppColors } from '../../styles/colors'
 import { useNavigation } from '@react-navigation/native'
 import { s, vs } from 'react-native-size-matters'
@@ -9,8 +9,10 @@ import { useState } from 'react'
 import SelectedRolePicker from './SelectedRolePicker'
 import CheckboxComponent from './CheckboxComponent'
 import SexPicker from './SexPicker';
+import PreferredContact from './PreferredContact';
 
 const windowWidth = Dimensions.get('window').width
+const phoneRegExp = /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/
 
 // 1. Define the Yup validation schema
 const schema = yup.object().shape({
@@ -26,9 +28,9 @@ const schema = yup.object().shape({
   // dateOfBirth: '',
   age: yup.number().positive().integer().min(18).required(),
   sex: yup.string().oneOf(['Male', 'Female', 'Other']),
-  // phoneNumber: '',
-  // whatsappNumber: '',
-  // preferredContact: '',
+  phoneNumber: yup.string().matches(phoneRegExp, 'Phone Number is not valid'),
+  whatsappNumber: yup.string().matches(phoneRegExp, 'WhatsApp Number number is not valid'),
+  preferredContact: yup.string().oneOf(['Phone', 'Email', 'WhatsApp']),
   job: yup.string(),
   // gymLocation: ''
 });
@@ -240,6 +242,7 @@ const RegisterForm = () => {
                 value={value}
                 keyboardType="default"
                 autoCapitalize="none"
+                placeholder="518-555-5555"
               />
             )}
           />
@@ -258,6 +261,7 @@ const RegisterForm = () => {
                 onChangeText={onChange}
                 value={value}
                 keyboardType="default"
+                placeholder="518-555-5555"
                 autoCapitalize="none"
               />
             )}
@@ -271,7 +275,7 @@ const RegisterForm = () => {
             control={control}
             name="preferredContact"
             render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
+              <PreferredContact
                 style={styles.inputField}
                 onBlur={onBlur}
                 onChangeText={onChange}
@@ -360,7 +364,9 @@ const styles = StyleSheet.create({
     width: windowWidth - 64,
     backgroundColor: AppColors.grey
   },
-  errorMessage: {},
+  errorText: {
+    color: AppColors.red
+  },
   createAcctBtn: {},
   createAcctBtnText: {},
   loginBtnContainer: {
