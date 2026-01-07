@@ -19,6 +19,18 @@ const schema = yup.object().shape({
     /^[a-zA-Z0-9]+$/,
     'Password must only contain alphanumeric characters (letters and numbers)'
   ),
+  confirmPassword: '',
+  role: '',
+  fname: '',
+  lname: '',
+  dateOfBirth: '',
+  age: '',
+  sex: '',
+  phoneNumber: '',
+  whatsappNumber: '',
+  preferredContact: '',
+  job: '',
+  gymLocation: ''
 });
 
 const RegisterForm = () => {
