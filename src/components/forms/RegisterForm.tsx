@@ -217,7 +217,43 @@ const RegisterForm = () => {
           {errors.sex && <Text style={styles.errorText}>{errors.sex.message}</Text>}
         </View>
 
+        <View style={styles.field}>
+          <Text style={styles.formLabel}>Phone Number</Text>
+          <Controller
+            control={control}
+            name="phoneNumber"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styles.inputField}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                keyboardType="default"
+                autoCapitalize="none"
+              />
+            )}
+          />
+          {errors.phoneNumber && <Text style={styles.errorText}>{errors.phoneNumber.message}</Text>}
+        </View>
 
+        {/* <View style={styles.field}>
+          <Text style={styles.formLabel}>First Name</Text>
+          <Controller
+            control={control}
+            name="fname"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styles.inputField}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                keyboardType="default"
+                autoCapitalize="none"
+              />
+            )}
+          />
+          {errors.fname && <Text style={styles.errorText}>{errors.fname.message}</Text>}
+        </View> */}
 
         <CheckboxComponent />
 
