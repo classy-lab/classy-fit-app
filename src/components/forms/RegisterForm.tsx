@@ -10,6 +10,7 @@ import SelectedRolePicker from './SelectedRolePicker'
 import CheckboxComponent from './CheckboxComponent'
 import SexPicker from './SexPicker';
 import PreferredContact from './PreferredContact';
+import GymLocationPicker from './GymLocationPicker';
 
 const windowWidth = Dimensions.get('window').width
 const phoneRegExp = /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/
@@ -313,7 +314,7 @@ const RegisterForm = () => {
             control={control}
             name="gymLocation"
             render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
+              <GymLocationPicker
                 style={styles.inputField}
                 onBlur={onBlur}
                 onChangeText={onChange}
