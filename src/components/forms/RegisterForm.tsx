@@ -274,6 +274,25 @@ const RegisterForm = () => {
           {errors.preferredContact && <Text style={styles.errorText}>{errors.preferredContact.message}</Text>}
         </View>
 
+        <View style={styles.field}>
+          <Text style={styles.formLabel}>Job</Text>
+          <Controller
+            control={control}
+            name="job"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styles.inputField}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                keyboardType="default"
+                autoCapitalize="none"
+              />
+            )}
+          />
+          {errors.job && <Text style={styles.errorText}>{errors.job.message}</Text>}
+        </View>
+
         {/* <View style={styles.field}>
           <Text style={styles.formLabel}>First Name</Text>
           <Controller
