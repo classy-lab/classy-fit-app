@@ -140,6 +140,25 @@ const RegisterForm = () => {
           {errors.fname && <Text style={styles.errorText}>{errors.fname.message}</Text>}
         </View>
 
+        <View style={styles.field}>
+          <Text style={styles.formLabel}>Last Name</Text>
+          <Controller
+            control={control}
+            name="lname"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styles.inputField}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                keyboardType="defaul"
+                autoCapitalize="none"
+              />
+            )}
+          />
+          {errors.lname && <Text style={styles.errorText}>{errors.lname.message}</Text>}
+        </View>
+
         <CheckboxComponent />
 
         <View style={styles.loginBtnContainer}>
