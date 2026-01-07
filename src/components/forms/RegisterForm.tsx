@@ -118,7 +118,26 @@ const RegisterForm = () => {
                 autoCapitalize="none" />
             )}
           />
-          {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
+          {errors.role && <Text style={styles.errorText}>{errors.role.message}</Text>}
+        </View>
+
+        <View style={styles.field}>
+          <Text style={styles.formLabel}>First Name</Text>
+          <Controller
+            control={control}
+            name="fname"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styles.inputField}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                keyboardType="defaul"
+                autoCapitalize="none"
+              />
+            )}
+          />
+          {errors.fname && <Text style={styles.errorText}>{errors.fname.message}</Text>}
         </View>
 
         <CheckboxComponent />
