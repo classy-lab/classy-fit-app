@@ -7,20 +7,20 @@ import { s, vs } from 'react-native-size-matters'
 const windowWidth = Dimensions.get('window').width
 
 const SexPicker = () => {
-  const [selectedLanguage, setSelectedLanguage] = useState();
+  const [selectedSex, setSelectedSex] = useState('');
 
   return (
     <View style={styles.container}>
       <Picker
         name="role"
         style={styles.pickerStyles}
-        selectedValue={selectedLanguage}
+        selectedValue={selectedSex}
         onValueChange={(itemValue, itemIndex) => {
-          setSelectedLanguage(itemValue)
-          // console.log(selectedLanguage)
+          setSelectedSex(itemValue)
+          // console.log(selectedSex)
         }
         }>
-        {/* <Picker.Item label="" value="" /> */}
+        <Picker.Item label="" value="" />
         <Picker.Item label="Male" value="male" />
         <Picker.Item label="Female" value="female" />
         <Picker.Item label="Other" value="other" />
