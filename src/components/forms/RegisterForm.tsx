@@ -6,7 +6,7 @@ import { AppColors } from '../../styles/colors'
 import { useNavigation } from '@react-navigation/native'
 import { s, vs } from 'react-native-size-matters'
 import { useState } from 'react'
-import SelectedLanguagePicker from './SelectedLanguagePicker'
+import SelectedRolePicker from './SelectedRolePicker'
 import CheckboxComponent from './CheckboxComponent'
 import RegisterComplete from '../../screens/auth/RegisterComplete'
 
@@ -20,7 +20,7 @@ const schema = yup.object().shape({
     'Password must only contain alphanumeric characters (letters and numbers)'
   ),
   confirmPassword: yup.string().oneOf([yup.ref('password'), null]).required(),
-  role: yup.string().oneOf([...role]),
+  role: yup.string().oneOf(['Owner', 'Gym Member', 'Trainer']),
   fname: yup.string().required().min(3),
   lname: yup.string().required().min(2),
   dateOfBirth: '',
@@ -118,7 +118,7 @@ const RegisterForm = () => {
             control={control}
             name="role"
             render={({ field: { onChange, onBlur, value } }) => (
-              <SelectedLanguagePicker
+              <SelectedRolePicker
                 style={styles.inputField}
                 onBlur={onBlur}
                 onChangeText={onChange}
