@@ -198,6 +198,25 @@ const RegisterForm = () => {
           {errors.age && <Text style={styles.errorText}>{errors.age.message}</Text>}
         </View>
 
+        <View style={styles.field}>
+          <Text style={styles.formLabel}>Age</Text>
+          <Controller
+            control={control}
+            name="age"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styles.inputField}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                keyboardType="numeric"
+                autoCapitalize="none"
+              />
+            )}
+          />
+          {errors.age && <Text style={styles.errorText}>{errors.age.message}</Text>}
+        </View>
+
 
         <CheckboxComponent />
 
