@@ -293,11 +293,11 @@ const RegisterForm = () => {
           {errors.job && <Text style={styles.errorText}>{errors.job.message}</Text>}
         </View>
 
-        {/* <View style={styles.field}>
-          <Text style={styles.formLabel}>First Name</Text>
+        <View style={styles.field}>
+          <Text style={styles.formLabel}>Gym Location / Fitness Center</Text>
           <Controller
             control={control}
-            name="fname"
+            name="gymLocation"
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
                 style={styles.inputField}
@@ -309,8 +309,8 @@ const RegisterForm = () => {
               />
             )}
           />
-          {errors.fname && <Text style={styles.errorText}>{errors.fname.message}</Text>}
-        </View> */}
+          {errors.gymLocation && <Text style={styles.errorText}>{errors.gymLocation.message}</Text>}
+        </View>
 
         <CheckboxComponent />
 
