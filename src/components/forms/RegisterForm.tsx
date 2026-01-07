@@ -76,6 +76,7 @@ const RegisterForm = () => {
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
+                keyboardType='default'
                 secureTextEntry
               />
             )}
@@ -85,75 +86,24 @@ const RegisterForm = () => {
 
         <View style={styles.field}>
           <Text style={styles.formLabel}>Confirm Password</Text>
-          <TextInput style={styles.inputField} name="confirmPassword"  {...register("confirmPassword")} keyboardType='default' secureTextEntry />
-          {errors.password && <Text style={styles.errorMessage}>{errors.password.message}</Text>}
+          <Controller
+            control={control}
+            name="confirmPassword"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styles.inputField}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                keyboardType='default'
+                secureTextEntry
+              />
+            )}
+          />
+          {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword.message}</Text>}
         </View>
 
-        <View style={styles.field}>
-          <Text style={styles.formLabel}>Role</Text>
-          <SelectedLanguagePicker name="role"  {...register("role")} />
-          {errors.password && <Text style={styles.errorMessage}>{errors.password.message}</Text>}
-        </View>
 
-        <View style={styles.field}>
-          <Text style={styles.formLabel}>First Name</Text>
-          <TextInput style={styles.inputField} name="fname" {...register("fname")} keyboardType='default' />
-          {errors.fname && <Text>{errors.fname.message}</Text>}
-        </View>
-
-        <View style={styles.field}>
-          <Text style={styles.formLabel}>Last Name</Text>
-          <TextInput style={styles.inputField} name="lname" {...register("lname")} keyboardType='default' />
-          {errors.lname && <Text>{errors.lname.message}</Text>}
-        </View>
-
-        <View style={styles.field}>
-          <Text style={styles.formLabel}>Date of Birth</Text>
-          <TextInput style={styles.inputField} name="dateOfBirth" {...register("dateOfBirth")} keyboardType='default' />
-          {errors.dateOfBirth && <Text>{errors.dateOfBirth.message}</Text>}
-        </View>
-
-        <View style={styles.field}>
-          <Text style={styles.formLabel}>Age</Text>
-          <TextInput style={styles.inputField} name="age" {...register("age")} keyboardType='default' />
-          {errors.age && <Text>{errors.age.message}</Text>}
-        </View>
-
-        <View style={styles.field}>
-          <Text style={styles.formLabel}>Sex</Text>
-          <TextInput style={styles.inputField} name="sex" {...register("sex")} keyboardType='default' />
-          {errors.sex && <Text>{errors.sex.message}</Text>}
-        </View>
-
-        <View style={styles.field}>
-          <Text style={styles.formLabel}>Phone Number</Text>
-          <TextInput style={styles.inputField} name="phoneNumber" {...register("phoneNumber")} keyboardType='default' />
-          {errors.phoneNumber && <Text>{errors.phoneNumber.message}</Text>}
-        </View>
-
-        <View style={styles.field}>
-          <Text style={styles.formLabel}>WhatsApp Number</Text>
-          <TextInput style={styles.inputField} name="whatsappNumber" {...register("whatsappNumber")} keyboardType='default' />
-          {errors.whatsappNumber && <Text>{errors.whatsappNumber.message}</Text>}
-        </View>
-
-        <View style={styles.field}>
-          <Text style={styles.formLabel}>Preferred Contact</Text>
-          <TextInput style={styles.inputField} name="preferredContact" {...register("preferredContact")} keyboardType='default' />
-          {errors.preferredContact && <Text>{errors.preferredContact.message}</Text>}
-        </View>
-
-        <View style={styles.field}>
-          <Text style={styles.formLabel}>Job</Text>
-          <TextInput style={styles.inputField} name="job" {...register("job")} keyboardType='default' />
-          {errors.job && <Text>{errors.job.message}</Text>}
-        </View>
-
-        <View style={styles.field}>
-          <Text style={styles.formLabel}>Gym Location / Fitness Center</Text>
-          <TextInput style={styles.inputField} name="gymLocation" {...register("gymLocation")} keyboardType='default' />
-          {errors.gymLocation && <Text>{errors.gymLocation.message}</Text>}
-        </View>
 
         <CheckboxComponent />
 
