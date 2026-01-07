@@ -255,6 +255,25 @@ const RegisterForm = () => {
           {errors.whatsappNumber && <Text style={styles.errorText}>{errors.whatsappNumber.message}</Text>}
         </View>
 
+        <View style={styles.field}>
+          <Text style={styles.formLabel}>Preferred Contact</Text>
+          <Controller
+            control={control}
+            name="preferredContact"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styles.inputField}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                keyboardType="default"
+                autoCapitalize="none"
+              />
+            )}
+          />
+          {errors.preferredContact && <Text style={styles.errorText}>{errors.preferredContact.message}</Text>}
+        </View>
+
         {/* <View style={styles.field}>
           <Text style={styles.formLabel}>First Name</Text>
           <Controller
