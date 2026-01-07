@@ -20,7 +20,7 @@ const schema = yup.object().shape({
     'Password must only contain alphanumeric characters (letters and numbers)'
   ),
   confirmPassword: yup.string().oneOf([yup.ref('password'), null]).required(),
-  role: '',
+  role: yup.string().oneOf([...role]),
   fname: yup.string().required().min(3),
   lname: yup.string().required().min(2),
   dateOfBirth: '',
