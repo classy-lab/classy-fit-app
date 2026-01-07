@@ -8,7 +8,6 @@ import { s, vs } from 'react-native-size-matters'
 import { useState } from 'react'
 import SelectedRolePicker from './SelectedRolePicker'
 import CheckboxComponent from './CheckboxComponent'
-import RegisterComplete from '../../screens/auth/RegisterComplete'
 
 const windowWidth = Dimensions.get('window').width
 
@@ -23,14 +22,14 @@ const schema = yup.object().shape({
   role: yup.string().oneOf(['Owner', 'Gym Member', 'Trainer']),
   fname: yup.string().required().min(3),
   lname: yup.string().required().min(2),
-  dateOfBirth: '',
+  // dateOfBirth: '',
   age: yup.number().positive().integer().min(18).required(),
-  sex: '',
-  phoneNumber: '',
-  whatsappNumber: '',
-  preferredContact: '',
+  sex: yup.string().oneOf(['Male', 'Female', 'Other']),
+  // phoneNumber: '',
+  // whatsappNumber: '',
+  // preferredContact: '',
   job: yup.string(),
-  gymLocation: ''
+  // gymLocation: ''
 });
 
 const RegisterForm = () => {
@@ -328,10 +327,7 @@ const RegisterForm = () => {
             style={styles.loginBtn}
             title="loginSubmit"
             activeOpacity={0.7}
-            onPress={() => {
-              handleSubmit(onSubmit)
-              navigation.navigate('RegisterComplete')
-            }}
+            onPress={handleSubmit(onSubmit)}
           >
             <Text style={styles.loginBtnText}>Create Account</Text>
           </TouchableOpacity>
