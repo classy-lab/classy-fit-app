@@ -103,7 +103,23 @@ const RegisterForm = () => {
           {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword.message}</Text>}
         </View>
 
-
+        <View style={styles.field}>
+          <Text style={styles.formLabel}>Role</Text>
+          <Controller
+            control={control}
+            name="role"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <SelectedLanguagePicker
+                style={styles.inputField}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                keyboardType="default"
+                autoCapitalize="none" />
+            )}
+          />
+          {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
+        </View>
 
         <CheckboxComponent />
 
