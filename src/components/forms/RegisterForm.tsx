@@ -199,23 +199,24 @@ const RegisterForm = () => {
         </View>
 
         <View style={styles.field}>
-          <Text style={styles.formLabel}>Age</Text>
+          <Text style={styles.formLabel}>Sex</Text>
           <Controller
             control={control}
-            name="age"
+            name="sex"
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
                 style={styles.inputField}
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
-                keyboardType="numeric"
+                keyboardType="default"
                 autoCapitalize="none"
               />
             )}
           />
-          {errors.age && <Text style={styles.errorText}>{errors.age.message}</Text>}
+          {errors.sex && <Text style={styles.errorText}>{errors.sex.message}</Text>}
         </View>
+
 
 
         <CheckboxComponent />
