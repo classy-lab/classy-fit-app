@@ -19,7 +19,6 @@ const StartScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.navs}>
-        <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
         <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
       </View>
       <View style={styles.headingContainer}>
@@ -79,7 +78,7 @@ const styles = StyleSheet.create({
   },
   navs: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     width: '100%',
   },
   headingContainer: {
