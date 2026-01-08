@@ -33,7 +33,9 @@ const DashboardScreen = () => {
         <View style={styles.blueBox}>
           <Text style={styles.earningsText}>Earnings</Text>
         </View>
-
+        <View style={styles.blueBox}>
+          <Text style={styles.earningsText}>Gym</Text>
+        </View>
       </View>
     </SafeAreaView >
   )
