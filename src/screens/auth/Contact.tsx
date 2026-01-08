@@ -7,6 +7,7 @@ import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
 import VectorImageSvg from '../../components/svg/VectorImageSvg'
 import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
+import { s, vs } from 'react-native-size-matters'
 
 const Contact = () => {
   const navigation = useNavigation()
@@ -25,19 +26,21 @@ const Contact = () => {
         <Text style={styles.title}>Contact Us</Text>
         <PinkLeafSvg style={styles.pinkLeaf} />
       </View>
-      <Text style={styles.boldText}>
-        V-Fitness Center & Gym{"\n"}
-      </Text>
-      <Text style={styles.body}>
-        Varakala Nivas Super Market{"\n"}
-        Sree ramnjanagar colony,{"\n"}
-        Hyderabad, Munganoor{"\n"}
-        Telangana 501505{"\n\n"}
-      </Text>
-      <Text style={styles.boldText}>
-        Call Anytime{"\n\n"}
-        +91  095536 27654
-      </Text>
+      <View style={styles.body}>
+        <Text style={styles.boldText}>
+          V-Fitness Center & Gym{"\n"}
+        </Text>
+        <Text style={styles.bodyText}>
+          Varakala Nivas Super Market{"\n"}
+          Sree ramnjanagar colony,{"\n"}
+          Hyderabad, Munganoor{"\n"}
+          Telangana 501505{"\n\n"}
+        </Text>
+        <Text style={styles.boldText}>
+          Call Anytime{"\n\n"}
+          +91  095536 27654
+        </Text>
+      </View>
       <View style={styles.imageContainer}>
         <VectorImageSvg />
       </View>
@@ -51,9 +54,11 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: AppColors.white,
     flex: 1,
+    // justifyContent: 'flex-end',
     alignItems: 'center',
     width: "100%",
-    padding: 8
+    paddingLeft: 24,
+    paddingRight: 24,
   },
   navs: {
     flexDirection: 'row',
@@ -70,11 +75,6 @@ const styles = StyleSheet.create({
     fontSize: 32,
     marginTop: 60,
   },
-  boldText: {
-    fontWeight: 'bold',
-    fontSize: 16,
-    textAlign: 'center'
-  },
   pinkLeaf: {
     position: 'relative',
     zIndex: -1,
@@ -82,6 +82,50 @@ const styles = StyleSheet.create({
     right: -40
   },
   body: {
+    // borderWidth: 1, bordeerColor: 'red',
+    flex: 1,
+  },
+  bodyText: {
+    fontFamily: "Montserrat",
+    lineHeight: 24,
+    color: AppColors.primary,
+  },
+  registerBtn: {
+    backgroundColor: AppColors.blue,
+    borderRadius: 40,
+    width: 140,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  registerBtnText: {
+    color: '#fff',
+    fontSize: 14
+  },
+  loginBtn: {
+    backgroundColor: 'white',
+    borderWidth: 1,
+    borderColor: AppColors.blue,
+    borderRadius: 40,
+    width: 140,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loginBtnText: {
+    color: AppColors.blue,
+    fontSize: 14
+  },
+  imageContainer: {
+    marginBottom: 8
+    // borderWidth: 1, bordeerColor: 'red',
+  },
+  boldText: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    textAlign: 'center'
+  },
+  bodyText: {
     fontFamily: "Montserrat",
     lineHeight: 32,
     color: AppColors.primary,
@@ -89,9 +133,4 @@ const styles = StyleSheet.create({
     marginRight: 24,
     textAlign: 'center'
   },
-  imageContainer: {
-    flexGrow: 1,
-    justifyContent: 'flex-end',
-    marginBottom: 8
-  }
 })
