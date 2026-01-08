@@ -1,7 +1,6 @@
 import { StyleSheet, Text, View, Image } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
-import Ionicons from '@expo/vector-icons/Ionicons'
 import Feather from '@expo/vector-icons/Feather'
 import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
@@ -29,9 +28,9 @@ const DashboardScreen = () => {
       <View style={styles.headingContainer}>
         <Text style={styles.title}>Dashboard</Text>
       </View>
-      <Text style={styles.body}>
+      <View style={styles.body}>
 
-      </Text>
+      </View>
       <View style={styles.imageContainer}>
         {/* <WorkoutSvg /> */}
       </View>
@@ -45,9 +44,11 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: AppColors.white,
     flex: 1,
+    // justifyContent: 'flex-end',
     alignItems: 'center',
     width: "100%",
-    padding: 8
+    paddingLeft: 24,
+    paddingRight: 24,
   },
   navs: {
     flexDirection: 'row',
@@ -64,24 +65,19 @@ const styles = StyleSheet.create({
     fontSize: 32,
     marginTop: 60,
   },
-  pinkLeaf: {
-    position: 'relative',
-    zIndex: -1,
-    top: -68,
-    right: -40
-  },
   body: {
+    // borderWidth: 1, bordeerColor: 'red',
+    flex: 1,
+  },
+  bodyText: {
+    fontSize: s(14),
     fontFamily: "Montserrat",
     lineHeight: 24,
-    color: AppColors.blue,
-    marginLeft: 24,
-    marginRight: 24,
-    fontSize: s(20)
+    color: AppColors.primary,
   },
   imageContainer: {
-    flexGrow: 1,
-    justifyContent: 'flex-end',
     marginBottom: 8
+    // borderWidth: 1, bordeerColor: 'red',
   },
   signOut: {
     // borderWidth: 1, borderColor: 'red',
