@@ -7,6 +7,7 @@ import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
 import WorkoutSvg from '../../components/svg/WorkoutSvg'
 import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
+import { s, vs } from 'react-native-size-matters'
 
 const About = () => {
   const navigation = useNavigation()
