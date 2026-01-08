@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
   email: {
     width: '100%',
   },
-  password: {
+  field: {
     marginTop: s(16)
   },
   formLabel: {
