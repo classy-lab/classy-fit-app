@@ -85,37 +85,6 @@ const styles = StyleSheet.create({
     // borderWidth: 1, bordeerColor: 'red',
     flex: 1,
   },
-  bodyText: {
-    fontFamily: "Montserrat",
-    lineHeight: 24,
-    color: AppColors.primary,
-  },
-  registerBtn: {
-    backgroundColor: AppColors.blue,
-    borderRadius: 40,
-    width: 140,
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  registerBtnText: {
-    color: '#fff',
-    fontSize: 14
-  },
-  loginBtn: {
-    backgroundColor: 'white',
-    borderWidth: 1,
-    borderColor: AppColors.blue,
-    borderRadius: 40,
-    width: 140,
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loginBtnText: {
-    color: AppColors.blue,
-    fontSize: 14
-  },
   imageContainer: {
     marginBottom: 8
     // borderWidth: 1, bordeerColor: 'red',
