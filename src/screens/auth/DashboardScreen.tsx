@@ -47,7 +47,6 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: AppColors.white,
     flex: 1,
-    // justifyContent: 'flex-end',
     alignItems: 'center',
     width: "100%",
     paddingLeft: 24,
