@@ -5,9 +5,8 @@ import Ionicons from '@expo/vector-icons/Ionicons'
 import Feather from '@expo/vector-icons/Feather'
 import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
-import WorkoutSvg from '../../components/svg/WorkoutSvg'
-import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
 import { s, vs } from 'react-native-size-matters'
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 const DashboardScreen = () => {
   const navigation = useNavigation()
@@ -20,17 +19,21 @@ const DashboardScreen = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.navs}>
         <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
-        <Ionicons name="log-out-outline" color={AppColors.blue} size={36} onPress={() => navigation.navigate('SignoutScreen')} />
+        <View style={styles.signOut}>
+          <Text style={styles.signOutText}>Sign out</Text>
+          <View style={styles.circle}>
+            <MaterialIcons name="logout" color={AppColors.white} size={18} />
+          </View>
+        </View>
       </View>
       <View style={styles.headingContainer}>
         <Text style={styles.title}>Dashboard</Text>
-        <PinkLeafSvg style={styles.pinkLeaf} />
       </View>
       <Text style={styles.body}>
-        Hello Vishal!
+
       </Text>
       <View style={styles.imageContainer}>
-        <WorkoutSvg />
+        {/* <WorkoutSvg /> */}
       </View>
     </SafeAreaView >
   )
@@ -75,35 +78,28 @@ const styles = StyleSheet.create({
     marginRight: 24,
     fontSize: s(20)
   },
-  registerBtn: {
-    backgroundColor: AppColors.blue,
-    borderRadius: 40,
-    width: 140,
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  registerBtnText: {
-    color: '#fff',
-    fontSize: 14
-  },
-  loginBtn: {
-    backgroundColor: 'white',
-    borderWidth: 1,
-    borderColor: AppColors.blue,
-    borderRadius: 40,
-    width: 140,
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loginBtnText: {
-    color: AppColors.blue,
-    fontSize: 14
-  },
   imageContainer: {
     flexGrow: 1,
     justifyContent: 'flex-end',
     marginBottom: 8
+  },
+  signOut: {
+    // borderWidth: 1, borderColor: 'red',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  signOutText: {
+    marginRight: 4,
+    color: AppColors.blue,
+    fontSize: 14
+  },
+  circle: {
+    width: 30,
+    height: 30,
+    borderRadius: '50%',
+    backgroundColor: AppColors.blue,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingLeft: 3
   }
 })
