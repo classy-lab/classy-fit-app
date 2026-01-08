@@ -66,7 +66,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Montserrat',
     fontSize: 32,
     marginTop: 20,
-    // marginBottom: 20
   },
   body: {
     flex: 1,
