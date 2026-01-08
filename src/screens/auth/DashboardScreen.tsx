@@ -31,13 +31,13 @@ const DashboardScreen = () => {
       </View>
       <View style={styles.body}>
         <TouchableOpacity
-          style={styles.blueBox}
+          style={styles.buleRectangle}
           activeOpacity={0.7}
         >
           <Text style={styles.earningsText}>Earnings</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.blueBox}
+          style={styles.buleRectangle}
           activeOpacity={0.7}
         >
           <Text style={styles.earningsText}>Gym</Text>
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingLeft: 3
   },
-  blueBox: {
+  buleRectangle: {
     backgroundColor: AppColors.blue,
     borderRadius: 24,
     width: windowWidth - 64,
