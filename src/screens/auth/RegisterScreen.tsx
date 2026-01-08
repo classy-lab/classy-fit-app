@@ -26,10 +26,13 @@ const RegisterScreen = () => {
           <ProfileImage style={styles.card} />
         </View>
         <RegisterForm />
-        <View style={styles.vectorImageSvg}>
-          <VectorImageSvg />
-        </View>
       </ScrollView>
+      <View style={styles.body}>
+
+      </View>
+      <View style={styles.imageContainer}>
+        <VectorImageSvg />
+      </View>
     </SafeAreaView >
   )
 }
@@ -40,11 +43,12 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: AppColors.white,
     flex: 1,
+    // justifyContent: 'flex-end',
     alignItems: 'center',
     width: "100%",
-    padding: 8
+    paddingLeft: 24,
+    paddingRight: 24,
   },
-  card: { alignSelf: 'center', marginTop: s(16) },
   navs: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -53,11 +57,34 @@ const styles = StyleSheet.create({
   headingContainer: {
     width: windowWidth - 64,
     marginTop: s(24),
-    // borderWidth: 1, borderColor: 'red'
   },
-  avatarBoyKidSvg: {
-    marginTop: s(16),
+  title: {
+    color: AppColors.blue,
+    fontFamily: 'Montserrat',
+    fontSize: 32,
+    marginTop: 60,
   },
+  pinkLeaf: {
+    position: 'relative',
+    zIndex: -1,
+    top: -68,
+    right: -40
+  },
+  body: {
+    // borderWidth: 1, bordeerColor: 'red',
+    flex: 1,
+  },
+  bodyText: {
+    fontSize: s(14),
+    fontFamily: "Montserrat",
+    lineHeight: 24,
+    color: AppColors.primary,
+  },
+  imageContainer: {
+    marginBottom: 8
+    // borderWidth: 1, bordeerColor: 'red',
+  },
+  card: { alignSelf: 'center', marginTop: s(16) },
   title: {
     color: AppColors.blue,
     fontFamily: 'Montserrat',
@@ -70,20 +97,4 @@ const styles = StyleSheet.create({
     fontSize: s(20),
     lineHeight: s(24)
   },
-  pinkLeaf: {
-    position: 'relative',
-    zIndex: -1,
-    top: -68,
-    right: -72
-  },
-  row: {
-    flexDirection: "row",
-    justifyContent: 'space-evenly',
-    width: 300,
-    marginBottom: 10,
-  },
-  vectorImageSvg: {
-    flexGrow: 1,
-    justifyContent: 'flex-end',
-  }
 })
