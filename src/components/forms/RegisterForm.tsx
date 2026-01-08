@@ -51,9 +51,20 @@ const RegisterForm = () => {
   })
 
   // 3. Define the submit handler
-  const onSubmit = (data) => {
-    console.log("Form Submitted:", data);
-    // Handle form submission logic (e.g., API call)
+  const onSubmit = async (data) => {
+    // This function only runs if validation passes
+    console.log('Form Submitted (Validation Passed):', data);
+
+    try {
+      // Perform your authentication logic or API call here
+      // const response = await api.post('/login', data);
+      // If successful, navigate to the Login page or another desired screen
+      navigation.navigate('RegisterComplete');
+    } catch (error) {
+      // Handle API errors (React Hook Form does not swallow errors here)
+      console.error("Login failed:", error);
+      // Optionally, show an error message to the user
+    }
   }
 
   return (
