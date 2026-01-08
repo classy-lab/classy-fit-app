@@ -69,7 +69,6 @@ const styles = StyleSheet.create({
     // marginBottom: 20
   },
   body: {
-    // borderWidth: 1, bordeerColor: 'red',
     flex: 1,
   },
   bodyText: {
