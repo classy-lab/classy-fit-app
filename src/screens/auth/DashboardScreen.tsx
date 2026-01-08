@@ -78,7 +78,6 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     marginBottom: 8
-    // borderWidth: 1, bordeerColor: 'red',
   },
   signOut: {
     // borderWidth: 1, borderColor: 'red',
