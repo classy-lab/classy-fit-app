@@ -5,7 +5,7 @@ import Ionicons from '@expo/vector-icons/Ionicons'
 import Feather from '@expo/vector-icons/Feather'
 import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
-import VectorImageSvg from '../../components/svg/VectorImageSvg'
+import WorkoutSvg from '../../components/svg/WorkoutSvg'
 import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
 
 const GymHours = () => {
@@ -25,39 +25,41 @@ const GymHours = () => {
         <Text style={styles.title}>Gym Hours</Text>
         <PinkLeafSvg style={styles.pinkLeaf} />
       </View>
-      <View style={styles.columnContainer}>
-        <View style={styles.column}>
-          <Text style={styles.columnText}>Sunday</Text>
-          <Text style={styles.columnText}>Monday</Text>
-          <Text style={styles.columnText}>Tuesday</Text>
-          <Text style={styles.columnText}>Wednesday</Text>
-          <Text style={styles.columnText}>Thursday</Text>
-          <Text style={styles.columnText}>Friday</Text>
-          <Text style={styles.columnText}>Saturday</Text>
+      <View style={styles.body}>
+        <View style={styles.columnContainer}>
+          <View style={styles.column}>
+            <Text style={styles.columnText}>Sunday</Text>
+            <Text style={styles.columnText}>Monday</Text>
+            <Text style={styles.columnText}>Tuesday</Text>
+            <Text style={styles.columnText}>Wednesday</Text>
+            <Text style={styles.columnText}>Thursday</Text>
+            <Text style={styles.columnText}>Friday</Text>
+            <Text style={styles.columnText}>Saturday</Text>
+          </View>
+          <View style={styles.column}>
+            <Text style={styles.columnText}>6 AM to 10 AM</Text>
+            <Text style={styles.columnText}>5.30 AM to 9 PM</Text>
+            <Text style={styles.columnText}>5.30 AM to 9 PM</Text>
+            <Text style={styles.columnText}>5.30 AM to 9 PM</Text>
+            <Text style={styles.columnText}>5.30 AM to 9 PM</Text>
+            <Text style={styles.columnText}>5.30 AM to 9 PM</Text>
+            <Text style={styles.columnText}>5.30 AM to 9 PM</Text>
+          </View>
         </View>
-        <View style={styles.column}>
-          <Text style={styles.columnText}>6 AM to 10 AM</Text>
-          <Text style={styles.columnText}>5.30 AM to 9 PM</Text>
-          <Text style={styles.columnText}>5.30 AM to 9 PM</Text>
-          <Text style={styles.columnText}>5.30 AM to 9 PM</Text>
-          <Text style={styles.columnText}>5.30 AM to 9 PM</Text>
-          <Text style={styles.columnText}>5.30 AM to 9 PM</Text>
-          <Text style={styles.columnText}>5.30 AM to 9 PM</Text>
-        </View>
+        <Text style={styles.addressText}>
+          Address:{"\n"}
+          Varakala Nivas Super Market{"\n"}
+          Sree ramnjanagar colony,{"\n"}
+          Hyderabad, Munganoor{"\n"}
+          Telangana 501505{"\n\n"}
+        </Text>
+        <Text style={styles.callText}>
+          Call Anytime{"\n\n"}
+          +91  095536 27654
+        </Text>
       </View>
-      <Text style={styles.body}>
-        Address:{"\n"}
-        Varakala Nivas Super Market{"\n"}
-        Sree ramnjanagar colony,{"\n"}
-        Hyderabad, Munganoor{"\n"}
-        Telangana 501505{"\n\n"}
-      </Text>
-      <Text style={styles.boldText}>
-        Call Anytime{"\n\n"}
-        +91  095536 27654
-      </Text>
       <View style={styles.imageContainer}>
-        <VectorImageSvg />
+        <WorkoutSvg />
       </View>
     </SafeAreaView >
   )
@@ -69,21 +71,11 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: AppColors.white,
     flex: 1,
+    // justifyContent: 'flex-end',
     alignItems: 'center',
     width: "100%",
-    padding: 8
-  },
-  columnContainer: {
-    flexDirection: 'row',             // Aligns children horizontally
-    justifyContent: 'space-between',  // Optional: distributes space between columns
-    marginLeft: 8
-  },
-  column: {
-    flex: 1,                          // Ensures each column takes equal width
-    paddingHorizontal: 5              // Optional: adds spacing within columns
-  },
-  columnText: {
-    lineHeight: 32
+    paddingLeft: 24,
+    paddingRight: 24,
   },
   navs: {
     flexDirection: 'row',
@@ -100,10 +92,6 @@ const styles = StyleSheet.create({
     fontSize: 32,
     marginTop: 60,
   },
-  boldText: {
-    fontWeight: 'bold',
-    textAlign: 'center'
-  },
   pinkLeaf: {
     position: 'relative',
     zIndex: -1,
@@ -111,16 +99,42 @@ const styles = StyleSheet.create({
     right: -40
   },
   body: {
+    // borderWidth: 1, bordeerColor: 'red',
+    flex: 1,
+  },
+  bodyText: {
     fontFamily: "Montserrat",
     lineHeight: 24,
     color: AppColors.primary,
-    marginTop: 32,
-    width: '100%',
-    textAlign: 'center'
+  },
+  registerBtn: {
+    backgroundColor: AppColors.blue,
+    borderRadius: 40,
+    width: 140,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  registerBtnText: {
+    color: '#fff',
+    fontSize: 14
+  },
+  loginBtn: {
+    backgroundColor: 'white',
+    borderWidth: 1,
+    borderColor: AppColors.blue,
+    borderRadius: 40,
+    width: 140,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loginBtnText: {
+    color: AppColors.blue,
+    fontSize: 14
   },
   imageContainer: {
-    flexGrow: 1,
-    justifyContent: 'flex-end',
     marginBottom: 8
+    // borderWidth: 1, bordeerColor: 'red',
   }
 })
