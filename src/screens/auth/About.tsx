@@ -25,9 +25,11 @@ const About = () => {
         <Text style={styles.title}>About</Text>
         <PinkLeafSvg style={styles.pinkLeaf} />
       </View>
-      <Text style={styles.body}>
-        V-fitness Center & Gym in Koheda has a wide range of products and / or services to cater to the varied requirements of their customers. The staff at this establishment are courteous and prompt at providing any assistance. They readily answer any queries or questions that you may have. This establishment is functional from 05:30 - 21:00.
-      </Text>
+      <View style={styles.body}>
+        <Text style={styles.bodyText}>
+          V-fitness Center & Gym in Koheda has a wide range of products and / or services to cater to the varied requirements of their customers. The staff at this establishment are courteous and prompt at providing any assistance. They readily answer any queries or questions that you may have. This establishment is functional from 05:30 - 21:00.
+        </Text>
+      </View>
       <View style={styles.imageContainer}>
         <WorkoutSvg />
       </View>
@@ -41,9 +43,11 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: AppColors.white,
     flex: 1,
+    // justifyContent: 'flex-end',
     alignItems: 'center',
     width: "100%",
-    padding: 8
+    paddingLeft: 24,
+    paddingRight: 24,
   },
   navs: {
     flexDirection: 'row',
@@ -67,11 +71,13 @@ const styles = StyleSheet.create({
     right: -40
   },
   body: {
+    // borderWidth: 1, bordeerColor: 'red',
+    flex: 1,
+  },
+  bodyText: {
     fontFamily: "Montserrat",
     lineHeight: 24,
     color: AppColors.primary,
-    marginLeft: 24,
-    marginRight: 24,
   },
   registerBtn: {
     backgroundColor: AppColors.blue,
@@ -100,8 +106,7 @@ const styles = StyleSheet.create({
     fontSize: 14
   },
   imageContainer: {
-    flexGrow: 1,
-    justifyContent: 'flex-end',
     marginBottom: 8
+    // borderWidth: 1, bordeerColor: 'red',
   }
 })
