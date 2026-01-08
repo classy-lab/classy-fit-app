@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import Ionicons from '@expo/vector-icons/Ionicons'
@@ -26,9 +26,22 @@ const RegisterComplete = () => {
         <Text style={styles.title}>Thank you!</Text>
         <PinkLeafSvg style={styles.pinkLeaf} />
       </View>
-      <Text style={styles.body}>
-        Your account has been created. Please check your email and click on activation link to activate your account.
-      </Text>
+      <View style={styles.body}>
+        <Text style={styles.bodyText}>
+          Your account has been created.{"\n"}Please check your email and click on activation link to activate your account.
+        </Text>
+        <TouchableOpacity
+          style={styles.loginBtn}
+          title="Login"
+          onPress={() => { navigation.navigate('LoginScreen') }}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.loginBtnText}>
+            Login
+          </Text>
+        </TouchableOpacity>
+      </View>
+
       <View style={styles.imageContainer}>
         <HealthyLifestyleSvg />
       </View>
@@ -44,7 +57,8 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     width: "100%",
-    padding: 8
+    paddingLeft: 24,
+    paddingRight: 24,
   },
   navs: {
     flexDirection: 'row',
@@ -68,42 +82,33 @@ const styles = StyleSheet.create({
     right: -40
   },
   body: {
+    // borderWidth: 1, bordeerColor: 'red',
+    flex: 1,
+    marginBottom: 32,
+    alignItems: 'center'
+  },
+  bodyText: {
     fontFamily: "Montserrat",
     lineHeight: s(32),
     color: AppColors.blue,
-    marginLeft: 24,
-    marginRight: 24,
-    fontSize: s(20)
+    fontSize: s(20),
+    textAlign: 'center'
   },
-  registerBtn: {
+  loginBtn: {
     backgroundColor: AppColors.blue,
     borderRadius: 40,
     width: 140,
     height: 50,
     justifyContent: 'center',
     alignItems: 'center',
+    marginTop: 32
   },
-  registerBtnText: {
+  loginBtnText: {
     color: '#fff',
     fontSize: 14
   },
-  loginBtn: {
-    backgroundColor: 'white',
-    borderWidth: 1,
-    borderColor: AppColors.blue,
-    borderRadius: 40,
-    width: 140,
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loginBtnText: {
-    color: AppColors.blue,
-    fontSize: 14
-  },
   imageContainer: {
-    flexGrow: 1,
-    justifyContent: 'flex-end',
-    marginBottom: 8
+    marginBottom: 8,
+    // borderWidth: 1, bordeerColor: 'red',
   }
 })
