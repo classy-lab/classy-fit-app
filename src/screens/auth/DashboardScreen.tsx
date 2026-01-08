@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, Dimensions } from 'react-native'
+import { StyleSheet, Text, View, Image, Dimensions, TouchableOpacity } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import Feather from '@expo/vector-icons/Feather'
@@ -30,12 +30,18 @@ const DashboardScreen = () => {
         <Text style={styles.title}>Dashboard</Text>
       </View>
       <View style={styles.body}>
-        <View style={styles.blueBox}>
+        <TouchableOpacity
+          style={styles.blueBox}
+          activeOpacity={0.7}
+        >
           <Text style={styles.earningsText}>Earnings</Text>
-        </View>
-        <View style={styles.blueBox}>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.blueBox}
+          activeOpacity={0.7}
+        >
           <Text style={styles.earningsText}>Gym</Text>
-        </View>
+        </TouchableOpacity>
       </View>
     </SafeAreaView >
   )
