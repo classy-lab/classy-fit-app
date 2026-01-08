@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image } from 'react-native'
+import { StyleSheet, Text, View, Image, Dimensions } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import Feather from '@expo/vector-icons/Feather'
@@ -7,6 +7,7 @@ import { useFonts } from 'expo-font'
 import { s, vs } from 'react-native-size-matters'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
+const windowWidth = Dimensions.get('window').width
 const DashboardScreen = () => {
   const navigation = useNavigation()
   const [fontsLoaded] = useFonts({
@@ -29,10 +30,12 @@ const DashboardScreen = () => {
         <Text style={styles.title}>Dashboard</Text>
       </View>
       <View style={styles.body}>
-
-      </View>
-      <View style={styles.imageContainer}>
-        {/* <WorkoutSvg /> */}
+        <View style={styles.blueBox}>
+          <Text style={styles.earningsText}>Earnings</Text>
+        </View>
+        <View style={styles.blueBox}>
+          <Text style={styles.earningsText}>Gym</Text>
+        </View>
       </View>
     </SafeAreaView >
   )
@@ -63,7 +66,8 @@ const styles = StyleSheet.create({
     color: AppColors.blue,
     fontFamily: 'Montserrat',
     fontSize: 32,
-    marginTop: 60,
+    marginTop: 20,
+    // marginBottom: 20
   },
   body: {
     // borderWidth: 1, bordeerColor: 'red',
@@ -97,5 +101,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingLeft: 3
+  },
+  blueBox: {
+    backgroundColor: AppColors.blue,
+    borderRadius: 24,
+    width: windowWidth - 64,
+    height: 128,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+    marginBottom: 20
+  },
+  earningsText: {
+    color: AppColors.white,
+    fontSize: 24
   }
 })
