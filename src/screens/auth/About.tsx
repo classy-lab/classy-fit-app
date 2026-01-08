@@ -76,6 +76,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   bodyText: {
+    fontSize: s(14),
     fontFamily: "Montserrat",
     lineHeight: 24,
     color: AppColors.primary,
