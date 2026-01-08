@@ -1,67 +1,67 @@
-import {
-  StyleSheet,
-  Text,
-  View,
-  Image,
-  TouchableOpacity,
-} from 'react-native'
-import { AppColors } from '../../styles/colors'
-import { useNavigation } from '@react-navigation/native'
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { useNavigation } from '@react-navigation/native'
 import Ionicons from '@expo/vector-icons/Ionicons'
+import Feather from '@expo/vector-icons/Feather'
+import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
 import VectorImageSvg from '../../components/svg/VectorImageSvg'
 import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
+import { s, vs } from 'react-native-size-matters'
 
 const StartScreen = () => {
   const navigation = useNavigation()
   const [fontsLoaded] = useFonts({
-    "Montserrat": require("../../assets/fonts/montserrat/Montserrat-Regular.ttf")
+    "Montserrat": require("../../assets/fonts/montserrat/Montserrat-Regular.ttf"),
+    "Montserrat-Bold": require("../../assets/fonts/montserrat/Montserrat-Bold.ttf")
   })
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.hamburgerIcon}>
+      <View style={styles.navs}>
+        <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
         <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
       </View>
       <View style={styles.headingContainer}>
         <Text style={styles.title}>Classy Gym</Text>
         <PinkLeafSvg style={styles.pinkLeaf} />
       </View>
-      <View style={styles.row}>
-        <View style={styles.box}><Text>Gym</Text></View>
-        <View style={styles.box}><Text>Classes</Text></View>
-      </View>
-      <View style={styles.row}>
-        <View style={styles.box}><Text>Training</Text></View>
-      </View>
-      <Text style={styles.subTitle}>Helping gyms and workouts be productive for everyone</Text>
-      <View style={styles.row}>
-        <TouchableOpacity
-          style={styles.registerBtn}
-          title="Register"
-          onPress={() => { navigation.navigate('RegisterScreen') }}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.registerBtnText}>
-            Register
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.loginBtn}
-          title="Login"
-          onPress={() => { navigation.navigate('LoginScreen') }}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.loginBtnText}>
-            Login
-          </Text>
-        </TouchableOpacity>
+      <View style={styles.body}>
+        <View style={styles.row}>
+          <View style={styles.box}><Text>Gym</Text></View>
+          <View style={styles.box}><Text>Classes</Text></View>
+        </View>
+        <View style={styles.row}>
+          <View style={styles.box}><Text>Training</Text></View>
+        </View>
+        <Text style={styles.subTitle}>Helping gyms and workouts be productive for everyone</Text>
+        <View style={styles.row}>
+          <TouchableOpacity
+            style={styles.registerBtn}
+            title="Register"
+            onPress={() => { navigation.navigate('RegisterScreen') }}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.registerBtnText}>
+              Register
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.loginBtn}
+            title="Login"
+            onPress={() => { navigation.navigate('LoginScreen') }}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.loginBtnText}>
+              Login
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
       <View style={styles.imageContainer}>
         <VectorImageSvg />
       </View>
-    </SafeAreaView>
+    </SafeAreaView >
   )
 }
 
@@ -71,15 +71,16 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: AppColors.white,
     flex: 1,
+    // justifyContent: 'flex-end',
     alignItems: 'center',
     width: "100%",
-    padding: 8,
-    // borderWidth: 1, borderColor: 'red'
+    paddingLeft: 24,
+    paddingRight: 24,
   },
-  hamburgerIcon: {
+  navs: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     width: '100%',
-    alignItems: 'flex-end',
-    marginRight: 24
   },
   headingContainer: {
     width: 375,
@@ -95,13 +96,53 @@ const styles = StyleSheet.create({
     position: 'relative',
     zIndex: -1,
     top: -68,
-    right: -72
+    right: -40
+  },
+  body: {
+    // borderWidth: 1, bordeerColor: 'red',
+    flex: 1,
+  },
+  bodyText: {
+    fontSize: s(14),
+    fontFamily: "Montserrat",
+    lineHeight: 24,
+    color: AppColors.primary,
+  },
+  registerBtn: {
+    backgroundColor: AppColors.blue,
+    borderRadius: 40,
+    width: 140,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  registerBtnText: {
+    color: '#fff',
+    fontSize: 14
+  },
+  loginBtn: {
+    backgroundColor: 'white',
+    borderWidth: 1,
+    borderColor: AppColors.blue,
+    borderRadius: 40,
+    width: 140,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loginBtnText: {
+    color: AppColors.blue,
+    fontSize: 14
+  },
+  imageContainer: {
+    marginBottom: 8
+    // borderWidth: 1, borderColor: 'red',
   },
   row: {
     flexDirection: "row",
     justifyContent: 'space-evenly',
-    width: 311,
     marginBottom: 10,
+    // borderWidth: 1, borderColor: 'red',
   },
   box: {
     backgroundColor: AppColors.grey,
@@ -119,35 +160,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 24,
     marginBottom: 24,
-  },
-  registerBtn: {
-    backgroundColor: AppColors.blue,
-    borderRadius: 40,
-    width: 140,
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  registerBtnText: {
-    color: AppColors.white,
-    fontSize: 14
-  },
-  loginBtn: {
-    backgroundColor: AppColors.white,
-    borderWidth: 1,
-    borderColor: AppColors.blue,
-    borderRadius: 40,
-    width: 140,
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loginBtnText: {
-    color: AppColors.blue,
-    fontSize: 14
-  },
-  imageContainer: {
-    flexGrow: 1,
-    justifyContent: 'flex-end',
   }
 })
