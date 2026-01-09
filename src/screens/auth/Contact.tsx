@@ -91,11 +91,12 @@ const styles = StyleSheet.create({
   },
   boldText: {
     fontWeight: 'bold',
-    fontSize: 16,
+    fontSize: s(16),
     textAlign: 'center'
   },
   bodyText: {
     fontFamily: "Montserrat",
+    fontSize: s(16),
     lineHeight: 32,
     color: AppColors.primary,
     marginLeft: 24,
