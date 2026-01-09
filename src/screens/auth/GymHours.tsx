@@ -54,7 +54,7 @@ const GymHours = () => {
           Varakala Nivas Super Market{"\n"}
           Sree ramnjanagar colony,{"\n"}
           Hyderabad, Munganoor{"\n"}
-          Telangana 501505{"\n\n"}
+          Telangana 501505
         </Text>
         <Text style={styles.callText}>
           Call Anytime{"\n\n"}
@@ -140,6 +140,7 @@ const styles = StyleSheet.create({
     fontSize: s(16),
     lineHeight: s(16),
     alignSelf: 'center',
-    textAlign: 'center'
+    textAlign: 'center',
+    marginTop: s(32),
   }
 })
