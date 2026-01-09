@@ -30,18 +30,28 @@ const DashboardScreen = () => {
         <Text style={styles.title}>Dashboard</Text>
       </View>
       <View style={styles.body}>
-        <TouchableOpacity
-          style={styles.buleRectangle}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.earningsText}>Earnings</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.buleRectangle}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.earningsText}>Gym</Text>
-        </TouchableOpacity>
+        <View>
+          <TouchableOpacity
+            style={styles.buleRectangle}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.earningsText}>Earnings</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.buleRectangle}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.earningsText}>Gym</Text>
+          </TouchableOpacity>
+        </View>
+        <View>
+          <TouchableOpacity style={styles.greySquare}>
+            <View style={styles.whiteSquare}>
+              {/* add icon */}
+            </View>
+            <Text>Staff</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </SafeAreaView >
   )
