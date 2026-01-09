@@ -62,7 +62,7 @@ const GymHours = () => {
         </Text>
       </View>
       <View style={styles.imageContainer}>
-        {/* <WorkoutSvg /> */}
+        <WorkoutSvg />
       </View>
     </SafeAreaView >
   )
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
   },
   body: {
     // borderWidth: 1, bordeerColor: 'red',
-    flex: 1,
+    // flex: 1,
   },
   bodyText: {
     fontFamily: "Montserrat",
