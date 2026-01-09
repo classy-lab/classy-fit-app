@@ -45,7 +45,25 @@ const DashboardScreen = () => {
             <Text style={styles.earningsText}>Gym</Text>
           </TouchableOpacity>
         </View>
-        <View>
+        <View style={styles.greySquares}>
+          <TouchableOpacity style={styles.greySquare}>
+            <View style={styles.whiteSquare}>
+              <FontAwesome5 name="user-friends" size={24} color={AppColors.blue} />
+            </View>
+            <Text>Staff</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.greySquare}>
+            <View style={styles.whiteSquare}>
+              <FontAwesome5 name="user-friends" size={24} color={AppColors.blue} />
+            </View>
+            <Text>Staff</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.greySquare}>
+            <View style={styles.whiteSquare}>
+              <FontAwesome5 name="user-friends" size={24} color={AppColors.blue} />
+            </View>
+            <Text>Staff</Text>
+          </TouchableOpacity>
           <TouchableOpacity style={styles.greySquare}>
             <View style={styles.whiteSquare}>
               <FontAwesome5 name="user-friends" size={24} color={AppColors.blue} />
@@ -76,7 +94,8 @@ const styles = StyleSheet.create({
   },
   headingContainer: {
     width: 375,
-    alignItems: 'center'
+    alignItems: 'center',
+    marginBottom: 20
   },
   title: {
     color: AppColors.blue,
@@ -128,6 +147,14 @@ const styles = StyleSheet.create({
   earningsText: {
     color: AppColors.white,
     fontSize: 24
+  },
+  greySquares: {
+    // borderWidth: 1, borderRadius: 'red',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    rowGap: 16,
+    // columnGap: 16
   },
   greySquare: {
     backgroundColor: AppColors.grey,
