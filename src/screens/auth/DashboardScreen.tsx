@@ -6,7 +6,6 @@ import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
 import { s, vs } from 'react-native-size-matters'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
-import FontAwesome from '@expo/vector-icons/FontAwesome'
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5'
 import Ionicons from '@expo/vector-icons/Ionicons';
 
@@ -68,7 +67,7 @@ const DashboardScreen = () => {
           </TouchableOpacity>
           <TouchableOpacity style={styles.greySquare}>
             <View style={styles.whiteSquare}>
-              <FontAwesome name="user" size={24} color={AppColors.blue} />
+              <FontAwesome5 name="user-alt" size={24} color={AppColors.blue} />
             </View>
             <Text>Staff</Text>
           </TouchableOpacity>
@@ -157,6 +156,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     rowGap: 16,
     // columnGap: 16
+    // alignContent: 'flex-start',
+    // height: 500
   },
   greySquare: {
     backgroundColor: AppColors.grey,
