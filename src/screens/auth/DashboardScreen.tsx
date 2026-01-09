@@ -6,7 +6,7 @@ import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
 import { s, vs } from 'react-native-size-matters'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
-import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5'
 
 const windowWidth = Dimensions.get('window').width
 const DashboardScreen = () => {
@@ -54,9 +54,9 @@ const DashboardScreen = () => {
           </TouchableOpacity>
           <TouchableOpacity style={styles.greySquare}>
             <View style={styles.whiteSquare}>
-              <FontAwesome5 name="user-friends" size={24} color={AppColors.blue} />
+              <FontAwesome5 name="users" size={24} color={AppColors.blue} />
             </View>
-            <Text>Staff</Text>
+            <Text>Members</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.greySquare}>
             <View style={styles.whiteSquare}>
