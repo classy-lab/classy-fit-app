@@ -76,9 +76,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   bodyText: {
-    fontSize: s(14),
+    fontSize: s(16),
     fontFamily: "Montserrat",
-    lineHeight: 24,
+    lineHeight: s(24),
     color: AppColors.primary,
   },
   imageContainer: {
