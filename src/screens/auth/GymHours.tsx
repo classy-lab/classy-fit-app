@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image } from 'react-native'
+import { StyleSheet, Text, View, Image, Dimensions } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import Ionicons from '@expo/vector-icons/Ionicons'
@@ -7,6 +7,9 @@ import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
 import WorkoutSvg from '../../components/svg/WorkoutSvg'
 import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
+import { s, vs } from 'react-native-size-matters'
+
+const windowWidth = Dimensions.get('window').width
 
 const GymHours = () => {
   const navigation = useNavigation()
@@ -59,7 +62,7 @@ const GymHours = () => {
         </Text>
       </View>
       <View style={styles.imageContainer}>
-        <WorkoutSvg />
+        {/* <WorkoutSvg /> */}
       </View>
     </SafeAreaView >
   )
@@ -110,5 +113,33 @@ const styles = StyleSheet.create({
   imageContainer: {
     marginBottom: 8
     // borderWidth: 1, bordeerColor: 'red',
+  },
+  columnContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: windowWidth - 64
+  },
+  column: {
+    // flexDirection: 'column',
+    // borderWidth: 1, borderColor: 'red',
+  },
+  columnText: {
+    fontSize: s(16),
+    lineHeight: s(32),
+  },
+  addressText: {
+    fontSize: s(16),
+    lineHeight: s(24),
+    marginTop: s(32),
+    alignSelf: 'center',
+    textAlign: 'center'
+  },
+  callText: {
+    fontWeight: 'bold',
+    fontSize: s(16),
+    lineHeight: s(16),
+    marginTop: s(16),
+    alignSelf: 'center',
+    textAlign: 'center'
   }
 })
