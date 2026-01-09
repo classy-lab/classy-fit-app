@@ -27,11 +27,11 @@ const StartScreen = () => {
       </View>
       <View style={styles.body}>
         <View style={styles.row}>
-          <View style={styles.box}><Text>Gym</Text></View>
-          <View style={styles.box}><Text>Classes</Text></View>
+          <View style={styles.box}><Text style={styles.boxText}>Gym</Text></View>
+          <View style={styles.box}><Text style={styles.boxText}>Classes</Text></View>
         </View>
         <View style={styles.row}>
-          <View style={styles.box}><Text>Training</Text></View>
+          <View style={styles.box}><Text style={styles.boxText}>Training</Text></View>
         </View>
         <Text style={styles.subTitle}>Helping gyms and workouts be productive for everyone</Text>
         <View style={styles.row}>
@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   bodyText: {
-    fontSize: s(14),
+    fontSize: s(16),
     fontFamily: "Montserrat",
     lineHeight: 24,
     color: AppColors.primary,
@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
   },
   registerBtnText: {
     color: '#fff',
-    fontSize: 14
+    fontSize: 16
   },
   loginBtn: {
     backgroundColor: 'white',
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
   },
   loginBtnText: {
     color: AppColors.blue,
-    fontSize: 14
+    fontSize: 16
   },
   imageContainer: {
     marginBottom: 8
@@ -151,11 +151,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center"
   },
+  boxText: {
+    fontSize: s(16),
+  },
   subTitle: {
     fontFamily: "Montserrat",
     color: AppColors.blue,
-    fontSize: 14,
-    lineHeight: 24,
+    fontSize: s(16),
+    lineHeight: s(32),
     textAlign: 'center',
     marginTop: 24,
     marginBottom: 24,
