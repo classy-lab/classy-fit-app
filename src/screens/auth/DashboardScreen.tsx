@@ -5,7 +5,8 @@ import Feather from '@expo/vector-icons/Feather'
 import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
 import { s, vs } from 'react-native-size-matters'
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons'
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 
 const windowWidth = Dimensions.get('window').width
 const DashboardScreen = () => {
@@ -47,7 +48,7 @@ const DashboardScreen = () => {
         <View>
           <TouchableOpacity style={styles.greySquare}>
             <View style={styles.whiteSquare}>
-              {/* add icon */}
+              <FontAwesome5 name="user-friends" size={24} color={AppColors.blue} />
             </View>
             <Text>Staff</Text>
           </TouchableOpacity>
@@ -127,5 +128,22 @@ const styles = StyleSheet.create({
   earningsText: {
     color: AppColors.white,
     fontSize: 24
+  },
+  greySquare: {
+    backgroundColor: AppColors.grey,
+    width: s(144),
+    height: s(144),
+    borderRadius: s(24),
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  whiteSquare: {
+    backgroundColor: AppColors.white,
+    borderRadius: s(16),
+    width: s(60),
+    height: s(60),
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: s(8)
   }
 })
