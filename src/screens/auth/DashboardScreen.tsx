@@ -7,9 +7,14 @@ import { useFonts } from 'expo-font'
 import { s, vs } from 'react-native-size-matters'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5'
-import Ionicons from '@expo/vector-icons/Ionicons';
+import Ionicons from '@expo/vector-icons/Ionicons'
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import About from './About'
+import Contact from './Contact'
 
 const windowWidth = Dimensions.get('window').width
+const Tab = createBottomTabNavigator();
+
 const DashboardScreen = () => {
   const navigation = useNavigation()
   const [fontsLoaded] = useFonts({
@@ -73,6 +78,10 @@ const DashboardScreen = () => {
           </TouchableOpacity>
         </View>
       </View>
+      <Tab.Navigator>
+        <Tab.Screen name="About" component={About} />
+        <Tab.Screen name="Contact" component={Contact} />
+      </Tab.Navigator>
     </SafeAreaView >
   )
 }
