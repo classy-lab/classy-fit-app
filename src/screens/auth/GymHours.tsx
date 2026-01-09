@@ -128,8 +128,9 @@ const styles = StyleSheet.create({
     lineHeight: s(32),
   },
   addressText: {
+    color: AppColors.primary,
     fontSize: s(16),
-    lineHeight: s(24),
+    lineHeight: s(32),
     marginTop: s(32),
     alignSelf: 'center',
     textAlign: 'center'
@@ -138,7 +139,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: s(16),
     lineHeight: s(16),
-    marginTop: s(16),
     alignSelf: 'center',
     textAlign: 'center'
   }
