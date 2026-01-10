@@ -35,7 +35,7 @@ const DashboardScreen = () => {
         <View style={styles.signOut}>
           <Text style={styles.signOutText}>Sign out</Text>
           <View style={styles.circle}>
-            <MaterialIcons name="logout" color={AppColors.white} size={18} />
+            <MaterialIcons name="logout" color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
           </View>
         </View>
       </View>
