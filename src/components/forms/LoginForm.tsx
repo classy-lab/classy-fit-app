@@ -12,14 +12,10 @@ const windowWidth = Dimensions.get('window').width;
 // 1. Define the Yup validation schema
 const schema = yup.object().shape({
   email: yup.string().required('Email is required').email('Invalid email'),
-  password: yup.string().required('Password is required').min(2, 'Password must contain at least 13 characters').matches(
+  password: yup.string().required('Password is required').min(2, 'Password must contain at least 2 characters').matches(
     /^[a-zA-Z0-9]+$/,
     'Password must only contain alphanumeric characters (letters and numbers)'
-  ),
-  // matches(
-  //   /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/,
-  //   'Must contain at least one uppercase letter, one lowercase letter, one number, and one special character'
-  // ),
+  )
 });
 
 const LoginForm = () => {
@@ -38,17 +34,19 @@ const LoginForm = () => {
   })
 
   // 3. Define the submit handler
-  const onSubmit = (data) => {
-    // This function onluy runs if validation passes
-    // console.log('Form submitted (Validation passed):', data)
-    navigation.navigate('DashboardScreen')
+  const onSubmit = async (data) => {
+    // This function only runs if validation passes
+    console.log('Form Submitted (Validation Passed):', data);
+
     try {
       // Perform your authentication logic or API call here
       // const response = await api.post('/login', data);
-      // If successful, navigate to the Login page or another desired screen 
-
+      // If successful, navigate to the Login page or another desired screen
+      navigation.navigate('DashboardScreen');
     } catch (error) {
-      console.log('Login failed: ', error)
+      // Handle API errors (React Hook Form does not swallow errors here)
+      console.error("Login failed:", error);
+      // Optionally, show an error message to the user
     }
   }
 
@@ -96,12 +94,10 @@ const LoginForm = () => {
           <TouchableOpacity
             style={styles.loginBtn}
             title="loginSubmit"
-            onPress={handleSubmit(onSubmit)}
             activeOpacity={0.7}
+            onPress={handleSubmit(onSubmit)}
           >
-            <Text style={styles.loginBtnText}>
-              Login
-            </Text>
+            <Text style={styles.loginBtnText}>Create Account</Text>
           </TouchableOpacity>
         </View>
       </View>
