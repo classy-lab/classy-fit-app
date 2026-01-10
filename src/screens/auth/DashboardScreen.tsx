@@ -11,6 +11,11 @@ import Ionicons from '@expo/vector-icons/Ionicons'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import About from './About'
 import Contact from './Contact'
+import GymHours from './GymHours'
+import SignoutScreen from './SignoutScreen'
+import AntDesign from '@expo/vector-icons/AntDesign';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 
 const windowWidth = Dimensions.get('window').width
 const Tab = createBottomTabNavigator();
@@ -78,9 +83,59 @@ const DashboardScreen = () => {
           </TouchableOpacity>
         </View>
       </View>
-      <Tab.Navigator>
-        <Tab.Screen name="About" component={About} />
-        <Tab.Screen name="Contact" component={Contact} />
+      <Tab.Navigator
+        screenOptions={{
+          tabBarActiveTintColor: 'dodgerblue',
+          tabBarInactiveTintColor: '#a7ccf6',
+          tabBarStyle: {
+            backgroundColor: '#fff',
+          },
+          tabBarLabelStyle: {
+            fontSize: 16,
+            fontWeight: 'bold'
+          }
+        }}
+      >
+        <Tab.Screen
+          options={{
+            title: "DashBoard",
+            tabBarIcon: ({ color }) => <AntDesign name="dashboard" size={24} color={color} />
+          }}
+          name="DashboardScreen"
+          component={DashboardScreen}
+        />
+        <Tab.Screen
+          options={{
+            title: "About",
+            tabBarIcon: ({ color }) => <MaterialCommunityIcons name="weight" size={24} color="black" />
+          }}
+          name="About"
+          component={About}
+        />
+        <Tab.Screen
+          options={{
+            title: "Contact",
+            tabBarIcon: ({ color }) => <FontAwesome6 name="bolt-lightning" size={24} color="black" />
+          }}
+          name="Contact"
+          component={Contact}
+        />
+        <Tab.Screen
+          options={{
+            title: "SignoutScreen",
+            tabBarIcon: ({ color }) => <Ionicons name="bag-handle-outline" size={24} color="black" />
+          }}
+          name="SignoutScreen"
+          component={SignoutScreen}
+        />
+        <Tab.Screen
+          options={{
+            title: "GymHours",
+            tabBarIcon: ({ color }) => <MaterialIcons name="settings" size={24} color="black" />
+          }}
+          name="GymHours"
+          component={GymHours}
+        />
       </Tab.Navigator>
     </SafeAreaView >
   )
