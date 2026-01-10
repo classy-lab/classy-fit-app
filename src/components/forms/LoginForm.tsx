@@ -40,13 +40,13 @@ const LoginForm = () => {
   // 3. Define the submit handler
   const onSubmit = (data) => {
     // This function onluy runs if validation passes
-    console.log('Form submitted (Validation passed):', data)
-
+    // console.log('Form submitted (Validation passed):', data)
+    navigation.navigate('DashboardScreen')
     try {
       // Perform your authentication logic or API call here
       // const response = await api.post('/login', data);
       // If successful, navigate to the Login page or another desired screen 
-      navigation.navigate('DashboardScreen')
+
     } catch (error) {
       console.log('Login failed: ', error)
     }
