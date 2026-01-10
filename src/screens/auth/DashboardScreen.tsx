@@ -13,6 +13,7 @@ import About from './About'
 import Contact from './Contact'
 import GymHours from './GymHours'
 import SignoutScreen from './SignoutScreen'
+import StartScreen from './StartScreen'
 import AntDesign from '@expo/vector-icons/AntDesign';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
@@ -98,16 +99,16 @@ const DashboardScreen = () => {
       >
         <Tab.Screen
           options={{
-            title: "DashBoard",
-            tabBarIcon: ({ color }) => <AntDesign name="dashboard" size={24} color={color} />
+            title: "StartScreen",
+            tabBarIcon: () => <AntDesign name="dashboard" size={24} color='black' />
           }}
-          name="DashboardScreen"
-          component={DashboardScreen}
+          name="StartScreen"
+          component={StartScreen}
         />
         <Tab.Screen
           options={{
             title: "About",
-            tabBarIcon: ({ color }) => <MaterialCommunityIcons name="weight" size={24} color="black" />
+            tabBarIcon: () => <MaterialCommunityIcons name="weight" size={24} color='black' />
           }}
           name="About"
           component={About}
@@ -115,7 +116,7 @@ const DashboardScreen = () => {
         <Tab.Screen
           options={{
             title: "Contact",
-            tabBarIcon: ({ color }) => <FontAwesome6 name="bolt-lightning" size={24} color="black" />
+            tabBarIcon: () => <FontAwesome6 name="bolt-lightning" size={24} color='black' />
           }}
           name="Contact"
           component={Contact}
@@ -123,7 +124,7 @@ const DashboardScreen = () => {
         <Tab.Screen
           options={{
             title: "SignoutScreen",
-            tabBarIcon: ({ color }) => <Ionicons name="bag-handle-outline" size={24} color="black" />
+            tabBarIcon: () => <Ionicons name="bag-handle-outline" size={24} color='black' />
           }}
           name="SignoutScreen"
           component={SignoutScreen}
@@ -131,7 +132,7 @@ const DashboardScreen = () => {
         <Tab.Screen
           options={{
             title: "GymHours",
-            tabBarIcon: ({ color }) => <MaterialIcons name="settings" size={24} color="black" />
+            tabBarIcon: () => <MaterialIcons name="settings" size={24} color='black' />
           }}
           name="GymHours"
           component={GymHours}
