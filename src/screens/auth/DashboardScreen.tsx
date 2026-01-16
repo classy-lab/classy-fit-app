@@ -7,6 +7,7 @@ import { useFonts } from 'expo-font'
 import { s } from 'react-native-size-matters'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5'
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import GymHours from './GymHours'
@@ -101,7 +102,7 @@ const DashboardScreen = () => {
         <Tab.Screen
           options={{
             title: "GymHours",
-            tabBarIcon: () => <MaterialIcons name="settings" size={24} color='black' />
+            tabBarIcon: () => <FontAwesome5 name="dumbbell" size={24} color="black" />
           }}
           name="GymHours"
           component={GymHours}
@@ -109,7 +110,7 @@ const DashboardScreen = () => {
         <Tab.Screen
           options={{
             title: "Staff",
-            tabBarIcon: () => <MaterialIcons name="settings" size={24} color='black' />
+            tabBarIcon: () => <FontAwesome6 name="bolt-lightning" size={24} color="black" />
           }}
           name="Staff"
           component={About}
