@@ -17,14 +17,13 @@ const windowWidth = Dimensions.get('window').width
 const Tab = createBottomTabNavigator();
 
 const screenOptionsStyle = {
-  tabBarActiveTintColor: 'dodgerblue',
-  tabBarInactiveTintColor: '#a7ccf6',
+  tabBarActiveTintColor: AppColors.blue,
+  tabBarInactiveTintColor: AppColors.primary,
   tabBarStyle: {
-    backgroundColor: '#fff',
+    backgroundColor: AppColors.white,
   },
   tabBarLabelStyle: {
-    fontSize: 16,
-    fontWeight: 'bold'
+    fontSize: 14,
   },
   // tabBarItemStyle: {
   //   justifyContent: 'center',
@@ -89,7 +88,7 @@ const DashboardScreen = () => {
           </TouchableOpacity>
         </View>
       </View>
-      <Tab.Navigator style={styles.tabNavigator} screenOptions={screenOptionsStyle} >
+      <Tab.Navigator screenOptions={screenOptionsStyle} >
         <Tab.Screen
           options={{
             title: "Dashboard",
@@ -211,9 +210,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: s(8)
   },
-  tabNavigator: {
-    // justifyContent: 'center'
-    borderWidth: 1, borderRadius: 'red',
-    display: 'none'
-  }
 })
