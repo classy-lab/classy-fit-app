@@ -108,10 +108,26 @@ const DashboardScreen = () => {
         />
         <Tab.Screen
           options={{
-            title: "About",
+            title: "Staff",
             tabBarIcon: () => <MaterialIcons name="settings" size={24} color='black' />
           }}
-          name="About"
+          name="Staff"
+          component={About}
+        />
+        <Tab.Screen
+          options={{
+            title: "Products",
+            tabBarIcon: () => <MaterialIcons name="settings" size={24} color='black' />
+          }}
+          name="Products"
+          component={About}
+        />
+        <Tab.Screen
+          options={{
+            title: "Profile",
+            tabBarIcon: () => <MaterialIcons name="settings" size={24} color='black' />
+          }}
+          name="Profile"
           component={About}
         />
       </Tab.Navigator>
