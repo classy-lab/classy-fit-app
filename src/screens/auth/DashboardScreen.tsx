@@ -1,22 +1,17 @@
-import { StyleSheet, Text, View, Image, Dimensions, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, View, Dimensions, TouchableOpacity } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import Feather from '@expo/vector-icons/Feather'
 import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
-import { s, vs } from 'react-native-size-matters'
+import { s } from 'react-native-size-matters'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-import About from './About'
-import Contact from './Contact'
 import GymHours from './GymHours'
-import SignoutScreen from './SignoutScreen'
 import StartScreen from './StartScreen'
 import AntDesign from '@expo/vector-icons/AntDesign';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 
 const windowWidth = Dimensions.get('window').width
 const Tab = createBottomTabNavigator();
@@ -30,7 +25,11 @@ const screenOptionsStyle = {
   tabBarLabelStyle: {
     fontSize: 16,
     fontWeight: 'bold'
-  }
+  },
+  // tabBarItemStyle: {
+  //   justifyContent: 'center',
+  //   alignSelf: 'center'
+  // }
 }
 
 const DashboardScreen = () => {
@@ -55,17 +54,11 @@ const DashboardScreen = () => {
         <Text style={styles.title}>Dashboard</Text>
       </View>
       <View style={styles.body}>
-        <View>
-          <TouchableOpacity
-            style={styles.buleRectangle}
-            activeOpacity={0.7}
-          >
+        <View style={{ alignItems: 'center', }}>
+          <TouchableOpacity style={styles.buleRectangle} activeOpacity={0.7}>
             <Text style={styles.earningsText}>Earnings</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.buleRectangle}
-            activeOpacity={0.7}
-          >
+          <TouchableOpacity style={styles.buleRectangle} activeOpacity={0.7}>
             <Text style={styles.earningsText}>Gym</Text>
           </TouchableOpacity>
         </View>
@@ -96,38 +89,14 @@ const DashboardScreen = () => {
           </TouchableOpacity>
         </View>
       </View>
-      <Tab.Navigator screenOptions={screenOptionsStyle}>
+      <Tab.Navigator style={styles.tabNavigator} screenOptions={screenOptionsStyle} >
         <Tab.Screen
           options={{
-            title: "StartScreen",
+            title: "Dashboard",
             tabBarIcon: () => <AntDesign name="dashboard" size={24} color='black' />
           }}
-          name="StartScreen"
+          name="Dashboard"
           component={StartScreen}
-        />
-        <Tab.Screen
-          options={{
-            title: "About",
-            tabBarIcon: () => <MaterialCommunityIcons name="weight" size={24} color='black' />
-          }}
-          name="About"
-          component={About}
-        />
-        <Tab.Screen
-          options={{
-            title: "Contact",
-            tabBarIcon: () => <FontAwesome6 name="bolt-lightning" size={24} color='black' />
-          }}
-          name="Contact"
-          component={Contact}
-        />
-        <Tab.Screen
-          options={{
-            title: "SignoutScreen",
-            tabBarIcon: () => <Ionicons name="bag-handle-outline" size={24} color='black' />
-          }}
-          name="SignoutScreen"
-          component={SignoutScreen}
         />
         <Tab.Screen
           options={{
@@ -138,7 +107,7 @@ const DashboardScreen = () => {
           component={GymHours}
         />
       </Tab.Navigator>
-    </SafeAreaView >
+    </SafeAreaView>
   )
 }
 
@@ -148,7 +117,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: AppColors.white,
     flex: 1,
-    alignItems: 'center',
+    // alignItems: 'center',
     width: "100%",
     paddingLeft: 24,
     paddingRight: 24,
@@ -170,7 +139,8 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   body: {
-    flex: 1,
+    // flex: 1,
+    // borderWidth: 1, borderColor: 'red',
   },
   bodyText: {
     fontSize: s(14),
@@ -208,7 +178,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',
-    marginBottom: 20
+    marginBottom: 20,
+    // borderWidth: 1, borderRadius: 'red',
   },
   earningsText: {
     color: AppColors.white,
@@ -218,11 +189,10 @@ const styles = StyleSheet.create({
     // borderWidth: 1, borderRadius: 'red',
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    justifyContent: 'space-aroud',
     rowGap: 16,
-    // columnGap: 16
-    // alignContent: 'flex-start',
-    // height: 500
+    columnGap: 16,
+    width: '100%'
   },
   greySquare: {
     backgroundColor: AppColors.grey,
@@ -240,5 +210,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: s(8)
+  },
+  tabNavigator: {
+    // justifyContent: 'center'
+    borderWidth: 1, borderRadius: 'red',
+    display: 'none'
   }
 })
