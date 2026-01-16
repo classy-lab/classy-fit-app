@@ -72,23 +72,32 @@ const MainAppStack = () => {
         <Drawer.Screen name="GymHours" component={GymHours} options={{ title: 'Gym Hours' }} />
 
         <Drawer.Screen
-          options={{ drawerItemStyle: { display: 'none' }, }}
           name='RegisterScreen'
+          options={{ drawerItemStyle: { display: 'none' }, }}
           component={RegisterScreen}
         />
         <Drawer.Screen
+          name='LoginScreen'
           options={{ drawerItemStyle: { display: 'none' }, }}
-          name='LoginScreen' component={LoginScreen}
+          component={LoginScreen}
         />
-        <Drawer.Screen options={{
-          drawerItemStyle: { display: 'none' },
-        }} name='DashboardScreen' component={DashboardScreen} />
-        <Drawer.Screen options={{
-          drawerItemStyle: { display: 'none' },
-        }} name='RegisterComplete' component={RegisterComplete} />
-        <Drawer.Screen options={{
-          drawerItemStyle: { display: 'none' },
-        }} name='SignoutScreen' component={SignoutScreen} />
+        <Drawer.Screen
+          name='DashboardScreen'
+          options={{ drawerItemStyle: { display: 'none' }, }}
+          component={DashboardScreen}
+        />
+        <Drawer.Screen
+          name='RegisterComplete'
+          options={{ drawerItemStyle: { display: 'none' }, }}
+          component={RegisterComplete}
+        />
+        <Drawer.Screen
+          name='SignoutScreen'
+          options={{
+            drawerItemStyle: { display: 'none' },
+          }}
+          component={SignoutScreen}
+        />
       </Drawer.Navigator>
     </>
   )
