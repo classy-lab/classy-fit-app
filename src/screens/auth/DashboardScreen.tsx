@@ -13,7 +13,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import GymHours from './GymHours'
 import StartScreen from './StartScreen'
 import About from './About'
-import AntDesign from '@expo/vector-icons/AntDesign';
+import AntDesign from '@expo/vector-icons/AntDesign'
 
 const windowWidth = Dimensions.get('window').width
 const Tab = createBottomTabNavigator();
@@ -118,7 +118,7 @@ const DashboardScreen = () => {
         <Tab.Screen
           options={{
             title: "Products",
-            tabBarIcon: () => <MaterialIcons name="settings" size={24} color='black' />
+            tabBarIcon: () => <Ionicons name="bag-check-outline" size={24} color="black" />
           }}
           name="Products"
           component={About}
@@ -126,7 +126,7 @@ const DashboardScreen = () => {
         <Tab.Screen
           options={{
             title: "Profile",
-            tabBarIcon: () => <MaterialIcons name="settings" size={24} color='black' />
+            tabBarIcon: () => <FontAwesome6 name="circle-user" size={24} color="black" />
           }}
           name="Profile"
           component={About}
