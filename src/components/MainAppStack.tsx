@@ -21,6 +21,26 @@ import SignoutScreen from '../screens/auth/SignoutScreen'
 
 const Stack = createStackNavigator()
 
+const screenOptionsStyle = {
+  // overlayColor: 'rgba(0, 0, 0, 0.3)',
+  overlayColor: 'rgba(255, 255, 255, 0.3)',
+  drawerStyle: {
+    backgroundColor: AppColors.grey,
+    width: 320,
+    borderTopRightRadius: 40,                   // Apply top-right border radius
+    borderBottomRightRadius: 40,                // Apply bottom-right border radius
+  },
+  headerShown: false,
+  drawerActiveTintColor: AppColors.blue,        // Active text/icon color
+  drawerInactiveTintColor: AppColors.blue,      // Inactive text/icon color
+  drawerActiveBackgroundColor: AppColors.grey,  // Active background color
+  drawerItemStyle: { marginVertical: 4 },      // Apply a style to all items
+  drawerLabelStyle: {
+    fontSize: 20,
+    fontFamily: 'Montserrat',
+  },
+}
+
 const MainAppStack = () => {
   const navigation = useNavigation()
   const Drawer = createDrawerNavigator();
@@ -44,36 +64,22 @@ const MainAppStack = () => {
   return (
     <>
       <Drawer.Navigator
-        screenOptions={{
-          // overlayColor: 'rgba(0, 0, 0, 0.3)',
-          overlayColor: 'rgba(255, 255, 255, 0.3)',
-          drawerStyle: {
-            backgroundColor: AppColors.grey,
-            width: 320,
-            borderTopRightRadius: 40,     // Apply top-right border radius
-            borderBottomRightRadius: 40,  // Apply bottom-right border radius
-          },
-          headerShown: false,
-          drawerActiveTintColor: AppColors.blue,        // Active text/icon color
-          drawerInactiveTintColor: AppColors.blue,      // Inactive text/icon color
-          drawerActiveBackgroundColor: AppColors.grey,  // Active background color
-          drawerItemStyle: { marginVertical: 4 },      // Apply a style to all items
-          drawerLabelStyle: {
-            fontSize: 20,
-            fontFamily: 'Montserrat',
-          },
-        }} drawerContent={props => <CustomDrawerContent {...props} />}>
+        screenOptions={screenOptionsStyle}
+        drawerContent={props => <CustomDrawerContent {...props} />}>
         <Drawer.Screen name="Home" component={StartScreen} />
         <Drawer.Screen name="About" component={About} options={{ title: 'About' }} />
         <Drawer.Screen name="Contact" component={Contact} options={{ title: 'Contact' }} />
         <Drawer.Screen name="GymHours" component={GymHours} options={{ title: 'Gym Hours' }} />
 
-        <Drawer.Screen options={{
-          drawerItemStyle: { display: 'none' },
-        }} name='RegisterScreen' component={RegisterScreen} />
-        <Drawer.Screen options={{
-          drawerItemStyle: { display: 'none' },
-        }} name='LoginScreen' component={LoginScreen} />
+        <Drawer.Screen
+          options={{ drawerItemStyle: { display: 'none' }, }}
+          name='RegisterScreen'
+          component={RegisterScreen}
+        />
+        <Drawer.Screen
+          options={{ drawerItemStyle: { display: 'none' }, }}
+          name='LoginScreen' component={LoginScreen}
+        />
         <Drawer.Screen options={{
           drawerItemStyle: { display: 'none' },
         }} name='DashboardScreen' component={DashboardScreen} />
