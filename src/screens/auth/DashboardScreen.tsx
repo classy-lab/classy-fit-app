@@ -69,7 +69,9 @@ const DashboardScreen = () => {
           </TouchableOpacity>
         </View>
       </View>
+
       <ClassyGymTabNavigator />
+
     </SafeAreaView>
   )
 }
