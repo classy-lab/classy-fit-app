@@ -21,14 +21,13 @@ const screenOptionsStyle = {
   tabBarInactiveTintColor: AppColors.primary,
   tabBarStyle: {
     backgroundColor: AppColors.white,
+    elevation: 0,     // for Android
+    shadowOpacity: 0, // for iOS
+    borderTopWidth: 0,// for iOS
   },
   tabBarLabelStyle: {
     fontSize: 14,
-  },
-  // tabBarItemStyle: {
-  //   justifyContent: 'center',
-  //   alignSelf: 'center'
-  // }
+  }
 }
 
 const DashboardScreen = () => {
@@ -88,7 +87,7 @@ const DashboardScreen = () => {
           </TouchableOpacity>
         </View>
       </View>
-      <Tab.Navigator screenOptions={screenOptionsStyle} >
+      <Tab.Navigator style={{ flexGrow: 1 }} screenOptions={screenOptionsStyle} >
         <Tab.Screen
           options={{
             title: "Dashboard",
@@ -117,9 +116,8 @@ const styles = StyleSheet.create({
     backgroundColor: AppColors.white,
     flex: 1,
     // alignItems: 'center',
-    width: "100%",
-    paddingLeft: 24,
-    paddingRight: 24,
+    // width: "100%",
+
   },
   navs: {
     flexDirection: 'row',
@@ -140,6 +138,10 @@ const styles = StyleSheet.create({
   body: {
     // flex: 1,
     // borderWidth: 1, borderColor: 'red',
+    paddingLeft: 24,
+    paddingRight: 24,
+    marginBottom: 16,
+    // flexGrow: 1
   },
   bodyText: {
     fontSize: s(14),
