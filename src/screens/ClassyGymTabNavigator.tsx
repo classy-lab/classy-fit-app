@@ -24,7 +24,7 @@ const screenOptions = {
     borderTopWidth: 1,                // for iOS // Add top border
     // borderTopLeftRadius: 24,       // Apply top left radius
     // borderTopRightRadius: 24,      // Apply top right radius
-    borderTopColor: '#E0E0E0',        // Border color
+    borderTopColor: AppColors.grey,        // Border color
     // overflow: 'hidden',            // Hide overflow to make radius work properly
     height: 88,                       // Adjust height as needed
   },
