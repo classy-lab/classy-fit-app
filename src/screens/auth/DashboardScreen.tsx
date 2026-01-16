@@ -11,6 +11,7 @@ import Ionicons from '@expo/vector-icons/Ionicons'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import GymHours from './GymHours'
 import StartScreen from './StartScreen'
+import About from './About'
 import AntDesign from '@expo/vector-icons/AntDesign';
 
 const windowWidth = Dimensions.get('window').width
@@ -19,6 +20,7 @@ const Tab = createBottomTabNavigator();
 const screenOptionsStyle = {
   tabBarActiveTintColor: AppColors.blue,
   tabBarInactiveTintColor: AppColors.primary,
+  tabBarLabelPosition: 'below-icon',
   tabBarStyle: {
     backgroundColor: AppColors.white,
     elevation: 0,     // for Android
@@ -103,6 +105,14 @@ const DashboardScreen = () => {
           }}
           name="GymHours"
           component={GymHours}
+        />
+        <Tab.Screen
+          options={{
+            title: "About",
+            tabBarIcon: () => <MaterialIcons name="settings" size={24} color='black' />
+          }}
+          name="About"
+          component={About}
         />
       </Tab.Navigator>
     </SafeAreaView>
