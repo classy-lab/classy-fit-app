@@ -122,6 +122,8 @@ const styles = StyleSheet.create({
   navs: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    paddingLeft: 24,
+    paddingRight: 24,
     width: '100%',
   },
   headingContainer: {
