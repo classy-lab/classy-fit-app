@@ -21,6 +21,18 @@ import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 const windowWidth = Dimensions.get('window').width
 const Tab = createBottomTabNavigator();
 
+const screenOptionsStyle = {
+  tabBarActiveTintColor: 'dodgerblue',
+  tabBarInactiveTintColor: '#a7ccf6',
+  tabBarStyle: {
+    backgroundColor: '#fff',
+  },
+  tabBarLabelStyle: {
+    fontSize: 16,
+    fontWeight: 'bold'
+  }
+}
+
 const DashboardScreen = () => {
   const navigation = useNavigation()
   const [fontsLoaded] = useFonts({
@@ -84,19 +96,7 @@ const DashboardScreen = () => {
           </TouchableOpacity>
         </View>
       </View>
-      <Tab.Navigator
-        screenOptions={{
-          tabBarActiveTintColor: 'dodgerblue',
-          tabBarInactiveTintColor: '#a7ccf6',
-          tabBarStyle: {
-            backgroundColor: '#fff',
-          },
-          tabBarLabelStyle: {
-            fontSize: 16,
-            fontWeight: 'bold'
-          }
-        }}
-      >
+      <Tab.Navigator screenOptions={screenOptionsStyle}>
         <Tab.Screen
           options={{
             title: "StartScreen",
