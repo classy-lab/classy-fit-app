@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, Dimensions } from 'react-native'
+import { StyleSheet, Text, View, Image, Dimensions, ScrollView } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import Ionicons from '@expo/vector-icons/Ionicons'
@@ -24,46 +24,41 @@ const GymHours = () => {
         <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
         <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
       </View>
-      <View style={styles.headingContainer}>
-        <Text style={styles.title}>Gym Hours</Text>
-        <PinkLeafSvg style={styles.pinkLeaf} />
-      </View>
-      <View style={styles.body}>
-        <View style={styles.columnContainer}>
-          <View style={styles.column}>
-            <Text style={styles.columnText}>Sunday</Text>
-            <Text style={styles.columnText}>Monday</Text>
-            <Text style={styles.columnText}>Tuesday</Text>
-            <Text style={styles.columnText}>Wednesday</Text>
-            <Text style={styles.columnText}>Thursday</Text>
-            <Text style={styles.columnText}>Friday</Text>
-            <Text style={styles.columnText}>Saturday</Text>
-          </View>
-          <View style={styles.column}>
-            <Text style={styles.columnText}>6 AM to 10 AM</Text>
-            <Text style={styles.columnText}>5.30 AM to 9 PM</Text>
-            <Text style={styles.columnText}>5.30 AM to 9 PM</Text>
-            <Text style={styles.columnText}>5.30 AM to 9 PM</Text>
-            <Text style={styles.columnText}>5.30 AM to 9 PM</Text>
-            <Text style={styles.columnText}>5.30 AM to 9 PM</Text>
-            <Text style={styles.columnText}>5.30 AM to 9 PM</Text>
-          </View>
+      <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}>
+        <View style={styles.headingContainer}>
+          <Text style={styles.title}>Gym Hours</Text>
+          <PinkLeafSvg style={styles.pinkLeaf} />
         </View>
-        <Text style={styles.addressText}>
-          Address:{"\n"}
-          Varakala Nivas Super Market{"\n"}
-          Sree ramnjanagar colony,{"\n"}
-          Hyderabad, Munganoor{"\n"}
-          Telangana 501505
-        </Text>
-        <Text style={styles.callText}>
-          Call Anytime{"\n\n"}
-          +91  095536 27654
-        </Text>
-      </View>
-      <View style={styles.imageContainer}>
-        <WorkoutSvg />
-      </View>
+        <View style={styles.body}>
+          <View style={styles.columnContainer}>
+            <View style={styles.column}>
+              <Text style={styles.columnText}>Sunday</Text>
+              <Text style={styles.columnText}>Monday</Text>
+              <Text style={styles.columnText}>Tuesday</Text>
+              <Text style={styles.columnText}>Wednesday</Text>
+              <Text style={styles.columnText}>Thursday</Text>
+              <Text style={styles.columnText}>Friday</Text>
+              <Text style={styles.columnText}>Saturday</Text>
+            </View>
+            <View style={styles.column}>
+              <Text style={styles.columnText}>6 AM to 10 AM</Text>
+              <Text style={styles.columnText}>5.30 AM to 9 PM</Text>
+              <Text style={styles.columnText}>5.30 AM to 9 PM</Text>
+              <Text style={styles.columnText}>5.30 AM to 9 PM</Text>
+              <Text style={styles.columnText}>5.30 AM to 9 PM</Text>
+              <Text style={styles.columnText}>5.30 AM to 9 PM</Text>
+              <Text style={styles.columnText}>5.30 AM to 9 PM</Text>
+            </View>
+          </View>
+          <Text style={styles.callText}>
+            Call Anytime{"\n\n"}
+            +91  095536 27654
+          </Text>
+        </View>
+        <View style={styles.imageContainer}>
+          <WorkoutSvg />
+        </View>
+      </ScrollView>
     </SafeAreaView >
   )
 }
@@ -75,6 +70,7 @@ const styles = StyleSheet.create({
     backgroundColor: AppColors.white,
     flex: 1,
     // justifyContent: 'flex-end',
+    borderWidth: 1, bordeerColor: 'red',
     alignItems: 'center',
     width: "100%",
     paddingLeft: 24,
@@ -111,7 +107,8 @@ const styles = StyleSheet.create({
     color: AppColors.primary,
   },
   imageContainer: {
-    marginBottom: 8
+    marginBottom: 8,
+    alignSelf: 'center',
     // borderWidth: 1, bordeerColor: 'red',
   },
   columnContainer: {
@@ -133,7 +130,8 @@ const styles = StyleSheet.create({
     lineHeight: s(32),
     marginTop: s(32),
     alignSelf: 'center',
-    textAlign: 'center'
+    textAlign: 'center',
+    // borderWidth: 1, borderColor: 'red',
   },
   callText: {
     fontWeight: 'bold',
