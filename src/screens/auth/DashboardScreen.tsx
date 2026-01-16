@@ -93,7 +93,7 @@ const DashboardScreen = () => {
       <Tab.Navigator style={{ flexGrow: 1 }} screenOptions={screenOptionsStyle} >
         <Tab.Screen
           options={{
-            title: "Dashboard",
+            title: "Home",
             tabBarIcon: () => <AntDesign name="dashboard" size={24} color='black' />
           }}
           name="Dashboard"
@@ -101,10 +101,10 @@ const DashboardScreen = () => {
         />
         <Tab.Screen
           options={{
-            title: "GymHours",
+            title: "Gym",
             tabBarIcon: () => <FontAwesome5 name="dumbbell" size={24} color="black" />
           }}
-          name="GymHours"
+          name="Gym"
           component={GymHours}
         />
         <Tab.Screen
