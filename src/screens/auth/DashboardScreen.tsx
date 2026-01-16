@@ -18,15 +18,20 @@ import AntDesign from '@expo/vector-icons/AntDesign'
 const windowWidth = Dimensions.get('window').width
 const Tab = createBottomTabNavigator();
 
-const screenOptionsStyle = {
+const screenOptions = {
   tabBarActiveTintColor: AppColors.blue,
   tabBarInactiveTintColor: AppColors.primary,
   tabBarLabelPosition: 'below-icon',
   tabBarStyle: {
-    backgroundColor: AppColors.white,
-    elevation: 0,     // for Android
-    shadowOpacity: 0, // for iOS
-    borderTopWidth: 0,// for iOS
+    backgroundColor: AppColors.white, // Tab bar background color
+    elevation: 0,             // for Android
+    shadowOpacity: 0,         // for iOS
+    borderTopWidth: 1,        // for iOS // Add top border
+    borderTopLeftRadius: 24,  // Apply top left radius
+    borderTopRightRadius: 24, // Apply top right radius
+    borderTopColor: '#E0E0E0', // Border color
+    // overflow: 'hidden',     // Hide overflow to make radius work properly
+    height: 88,                // Adjust height as needed
   },
   tabBarLabelStyle: {
     fontSize: 14,
@@ -90,7 +95,7 @@ const DashboardScreen = () => {
           </TouchableOpacity>
         </View>
       </View>
-      <Tab.Navigator style={{ flexGrow: 1 }} screenOptions={screenOptionsStyle} >
+      <Tab.Navigator style={{ flexGrow: 1 }} screenOptions={screenOptions} >
         <Tab.Screen
           options={{
             title: "Home",
@@ -169,7 +174,7 @@ const styles = StyleSheet.create({
     // borderWidth: 1, borderColor: 'red',
     paddingLeft: 24,
     paddingRight: 24,
-    marginBottom: 16,
+    marginBottom: 8,
     // flexGrow: 1
   },
   bodyText: {
