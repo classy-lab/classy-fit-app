@@ -22,7 +22,6 @@ const DashboardScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.navs}>
-        <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
         <View style={styles.signOut}>
           <Text style={styles.signOutText}>Sign out</Text>
           <View style={styles.circle}>
@@ -87,7 +86,7 @@ const styles = StyleSheet.create({
   },
   navs: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     paddingLeft: 24,
     paddingRight: 24,
     width: '100%',
