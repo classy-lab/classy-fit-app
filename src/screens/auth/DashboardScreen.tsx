@@ -35,7 +35,7 @@ const DashboardScreen = () => {
       </View>
       <View style={styles.body}>
         <View style={{ alignItems: 'center', }}>
-          <TouchableOpacity style={styles.buleRectangle} activeOpacity={0.7}>
+          <TouchableOpacity style={styles.buleRectangle} activeOpacity={0.7} onPress={() => { navigation.navigate('Earnings') }}>
             <Text style={styles.earningsText}>Earnings</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.buleRectangle} activeOpacity={0.7}>
