@@ -34,7 +34,7 @@ const About = () => {
       <View style={styles.imageContainer}>
         <WorkoutSvg />
       </View>
-    </SafeAreaView >
+    </SafeAreaView>
   )
 }
 
