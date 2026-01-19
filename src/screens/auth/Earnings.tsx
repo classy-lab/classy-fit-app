@@ -1,7 +1,6 @@
-import { StyleSheet, Text, View, Image } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
-import Ionicons from '@expo/vector-icons/Ionicons'
 import Feather from '@expo/vector-icons/Feather'
 import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
@@ -30,6 +29,10 @@ const Earnings = () => {
       </View>
       <View style={styles.headingContainer}>
         <Text style={styles.title}>Earnings</Text>
+        <Text style={styles.title}>September 2025</Text>
+        <Text style={styles.title}> {'<'} Previous </Text>
+        <Text style={styles.title}>Full Year</Text>
+        <Text style={styles.title}>Next {'>'}</Text>
         <PinkLeafSvg style={styles.pinkLeaf} />
       </View>
       <View style={styles.body}>
