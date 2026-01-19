@@ -18,6 +18,7 @@ import { useFonts } from 'expo-font'
 import DashboardScreen from '../screens/auth/DashboardScreen'
 import RegisterComplete from '../screens/auth/RegisterComplete'
 import SignoutScreen from '../screens/auth/SignoutScreen'
+import Earnings from '../screens/auth/Earnings'
 
 const Stack = createStackNavigator()
 
@@ -97,6 +98,13 @@ const MainAppStack = () => {
             drawerItemStyle: { display: 'none' },
           }}
           component={SignoutScreen}
+        />
+        <Drawer.Screen
+          name='Earnings'
+          options={{
+            drawerItemStyle: { display: 'none' },
+          }}
+          component={Earnings}
         />
       </Drawer.Navigator>
     </>
