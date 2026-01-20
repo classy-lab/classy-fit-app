@@ -84,7 +84,7 @@ const MainAppStack = () => {
         />
         <Drawer.Screen
           name='DashboardScreen'
-          options={{ drawerItemStyle: { display: 'none' }, }}
+          // options={{ drawerItemStyle: { display: 'none' }, }}
           component={DashboardScreen}
         />
         <Drawer.Screen
