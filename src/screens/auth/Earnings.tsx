@@ -1,13 +1,10 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, View, ImageBackground } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import Feather from '@expo/vector-icons/Feather'
 import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
-import WorkoutSvg from '../../components/svg/WorkoutSvg'
-import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
-import { s, vs } from 'react-native-size-matters'
-import MaterialIcons from '@expo/vector-icons/MaterialIcons'
+import { s } from 'react-native-size-matters'
 
 const Earnings = () => {
   const navigation = useNavigation()
@@ -17,33 +14,25 @@ const Earnings = () => {
   })
 
   return (
-    <SafeAreaView style={styles.container}>
+    <ImageBackground
+      source={require('../../assets/images/blueGreyBg.png')}
+      style={styles.bgImage}
+    >
       <View style={styles.navs}>
         <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
-        <View style={styles.signOut}>
-          <Text style={styles.signOutText}>Sign out</Text>
-          <View style={styles.circle}>
-            <MaterialIcons name="logout" color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
-          </View>
-        </View>
       </View>
       <View style={styles.headingContainer}>
         <Text style={styles.title}>Earnings</Text>
-        <Text style={styles.title}>September 2025</Text>
-        <Text style={styles.title}> {'<'} Previous </Text>
-        <Text style={styles.title}>Full Year</Text>
-        <Text style={styles.title}>Next {'>'}</Text>
-        <PinkLeafSvg style={styles.pinkLeaf} />
+        <Text style={styles.bodyText}>
+          September 2025
+        </Text>
       </View>
       <View style={styles.body}>
         <Text style={styles.bodyText}>
-          This is the Earnings screen
+          V-fitness Center & Gym in Koheda has a wide range of products and / or services to cater to the varied requirements of their customers. The staff at this establishment are courteous and prompt at providing any assistance. They readily answer any queries or questions that you may have. This establishment is functional from 05:30 - 21:00.
         </Text>
       </View>
-      <View style={styles.imageContainer}>
-        <WorkoutSvg />
-      </View>
-    </SafeAreaView>
+    </ImageBackground>
   )
 }
 
@@ -51,25 +40,30 @@ export default Earnings
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: AppColors.white,
+    // backgroundColor: AppColors.white,
+    // flex: 1,
+    // // justifyContent: 'flex-end',
+    // alignItems: 'center',
+    // width: "100%",
+    // paddingLeft: 24,
+    // paddingRight: 24,
+  },
+  bgImage: {
     flex: 1,
-    // justifyContent: 'flex-end',
-    alignItems: 'center',
-    width: "100%",
-    paddingLeft: 24,
-    paddingRight: 24,
+    // justifyContent: 'center',
+    // height: '100%'
   },
   navs: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
+    // flexDirection: 'row',
+    // justifyContent: 'space-between',
+    // width: '100%',
   },
   headingContainer: {
     width: 375,
     alignItems: 'center'
   },
   title: {
-    color: AppColors.blue,
+    color: AppColors.white,
     fontFamily: 'Montserrat',
     fontSize: 32,
     marginTop: 60,
