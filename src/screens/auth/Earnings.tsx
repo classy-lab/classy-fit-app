@@ -5,6 +5,7 @@ import Feather from '@expo/vector-icons/Feather'
 import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
 import { s } from 'react-native-size-matters'
+import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 
 const Earnings = () => {
   const navigation = useNavigation()
@@ -16,22 +17,33 @@ const Earnings = () => {
   return (
     <ImageBackground
       source={require('../../assets/images/blueGreyBg.png')}
-      style={styles.bgImage}
+      style={styles.container}
     >
-      <View style={styles.navs}>
-        <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
-      </View>
-      <View style={styles.headingContainer}>
-        <Text style={styles.title}>Earnings</Text>
-        <Text style={styles.bodyText}>
-          September 2025
-        </Text>
-      </View>
-      <View style={styles.body}>
-        <Text style={styles.bodyText}>
-          V-fitness Center & Gym in Koheda has a wide range of products and / or services to cater to the varied requirements of their customers. The staff at this establishment are courteous and prompt at providing any assistance. They readily answer any queries or questions that you may have. This establishment is functional from 05:30 - 21:00.
-        </Text>
-      </View>
+      <SafeAreaView class={styles.content}>
+        <View style={styles.navs}>
+          <Feather name="arrow-left" color={AppColors.white} size={36} onPress={() => { navigation.goBack() }} />
+          <View style={styles.signOut}>
+            <Text style={styles.signOutText}>Sign out</Text>
+            <View style={styles.circle}>
+              <MaterialIcons name="logout" color={AppColors.blue} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
+            </View>
+          </View>
+        </View>
+        <View style={styles.heading}>
+          <Text style={styles.headingTitle}>Earnings</Text>
+          <Text style={styles.headingSubTitle}>September 2025</Text>
+          <View style={styles.calendarControls}>
+            <Text style={styles.calendarControlText}>{'<'} Previous</Text>
+            <Text style={styles.calendarControlText}>Full Year</Text>
+            <Text style={styles.calendarControlText}>Next {'>'}</Text>
+          </View>
+        </View>
+        <View style={styles.body}>
+          <Text style={styles.bodyText}>
+            V-fitness Center & Gym in Koheda has a wide range of products and / or services to cater to the varied requirements of their customers. The staff at this establishment are courteous and prompt at providing any assistance. They readily answer any queries or questions that you may have. This establishment is functional from 05:30 - 21:00.
+          </Text>
+        </View>
+      </SafeAreaView>
     </ImageBackground>
   )
 }
@@ -40,48 +52,52 @@ export default Earnings
 
 const styles = StyleSheet.create({
   container: {
-    // backgroundColor: AppColors.white,
-    // flex: 1,
-    // // justifyContent: 'flex-end',
-    // alignItems: 'center',
-    // width: "100%",
-    // paddingLeft: 24,
-    // paddingRight: 24,
-  },
-  bgImage: {
     flex: 1,
-    // justifyContent: 'center',
-    // height: '100%'
+    paddingLeft: 24,
+    paddingRight: 24,
+  },
+  content: {
   },
   navs: {
-    // flexDirection: 'row',
-    // justifyContent: 'space-between',
-    // width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between'
   },
-  headingContainer: {
-    width: 375,
-    alignItems: 'center'
+  heading: {
+    marginTop: 16,
+    alignItems: 'center',
+    width: '100%',
+    // borderWidth: 1, borderColor: 'red',
   },
-  title: {
+  headingTitle: {
     color: AppColors.white,
-    fontFamily: 'Montserrat',
     fontSize: 32,
-    marginTop: 60,
+    marginTop: 16,
   },
-  pinkLeaf: {
-    position: 'relative',
-    zIndex: -1,
-    top: -68,
-    right: -40
+  headingSubTitle: {
+    marginTop: 6,
+    fontSize: 16,
+    color: AppColors.white,
+  },
+  calendarControls: {
+    marginTop: 16,
+    flexDirection: 'row',
+    // flex: 1,
+    flexGrow: 1,
+    justifyContent: 'space-between',
+    // borderWidth: 1, borderColor: 'red',
+    width: '100%'
+  },
+  calendarControlText: {
+    color: AppColors.primary,
+    fontSize: 16,
+    // flex: 1
   },
   body: {
     // borderWidth: 1, bordeerColor: 'red',
     flex: 1,
   },
   bodyText: {
-    fontSize: s(16),
-    fontFamily: "Montserrat",
-    lineHeight: s(24),
+    fontSize: 16,
     color: AppColors.primary,
   },
   imageContainer: {
@@ -95,14 +111,14 @@ const styles = StyleSheet.create({
   },
   signOutText: {
     marginRight: 4,
-    color: AppColors.blue,
+    color: AppColors.white,
     fontSize: 14
   },
   circle: {
     width: 30,
     height: 30,
     borderRadius: '50%',
-    backgroundColor: AppColors.blue,
+    backgroundColor: AppColors.white,
     justifyContent: 'center',
     alignItems: 'center',
     paddingLeft: 3
