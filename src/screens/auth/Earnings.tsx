@@ -6,6 +6,7 @@ import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
 import { s } from 'react-native-size-matters'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
+import ClassyGymTabNavigator from '../ClassyGymTabNavigator'
 
 const Earnings = () => {
   const navigation = useNavigation()
@@ -43,7 +44,9 @@ const Earnings = () => {
             V-fitness Center & Gym in Koheda has a wide range of products and / or services to cater to the varied requirements of their customers. The staff at this establishment are courteous and prompt at providing any assistance. They readily answer any queries or questions that you may have. This establishment is functional from 05:30 - 21:00.
           </Text>
         </View>
+
       </SafeAreaView>
+      {/* <ClassyGymTabNavigator /> */}
     </ImageBackground>
   )
 }
