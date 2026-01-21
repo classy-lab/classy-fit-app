@@ -69,7 +69,6 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: AppColors.white,
     flex: 1,
-    // justifyContent: 'flex-end',
     borderWidth: 1, bordeerColor: 'red',
     alignItems: 'center',
     width: "100%",
@@ -98,8 +97,6 @@ const styles = StyleSheet.create({
     right: -40
   },
   body: {
-    // borderWidth: 1, bordeerColor: 'red',
-    // flex: 1,
   },
   bodyText: {
     fontFamily: "Montserrat",
@@ -109,7 +106,6 @@ const styles = StyleSheet.create({
   imageContainer: {
     marginBottom: 8,
     alignSelf: 'center',
-    // borderWidth: 1, bordeerColor: 'red',
   },
   columnContainer: {
     flexDirection: 'row',
@@ -117,8 +113,6 @@ const styles = StyleSheet.create({
     width: windowWidth - 64
   },
   column: {
-    // flexDirection: 'column',
-    // borderWidth: 1, borderColor: 'red',
   },
   columnText: {
     fontSize: s(16),
@@ -131,7 +125,6 @@ const styles = StyleSheet.create({
     marginTop: s(32),
     alignSelf: 'center',
     textAlign: 'center',
-    // borderWidth: 1, borderColor: 'red',
   },
   callText: {
     fontWeight: 'bold',
