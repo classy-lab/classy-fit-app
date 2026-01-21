@@ -1,7 +1,6 @@
-import { StyleSheet, Text, View, Dimensions, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, View, Dimensions, TouchableOpacity, ScrollView } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
-import Feather from '@expo/vector-icons/Feather'
 import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
 import { s } from 'react-native-size-matters'
@@ -20,58 +19,73 @@ const DashboardScreen = () => {
   })
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.navs}>
-        <View style={styles.signOut}>
-          <Text style={styles.signOutText}>Sign out</Text>
-          <View style={styles.circle}>
-            <MaterialIcons name="logout" color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
+    <>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.navs}>
+          <View style={styles.signOut}>
+            <Text style={styles.signOutText}>Sign out</Text>
+            <View style={styles.circle}>
+              <MaterialIcons name="logout" color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
+            </View>
           </View>
         </View>
-      </View>
-      <View style={styles.headingContainer}>
-        <Text style={styles.title}>Dashboard</Text>
-      </View>
-      <View style={styles.body}>
-        <View style={{ alignItems: 'center', }}>
-          <TouchableOpacity style={styles.buleRectangle} activeOpacity={0.7} onPress={() => { navigation.navigate('Earnings') }}>
-            <Text style={styles.earningsText}>Earnings</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.buleRectangle} activeOpacity={0.7}>
-            <Text style={styles.earningsText}>Gym</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.greySquares}>
-          <TouchableOpacity style={styles.greySquare}>
-            <View style={styles.whiteSquare}>
-              <FontAwesome5 name="user-friends" size={24} color={AppColors.blue} />
+        <ScrollView>
+          <View style={styles.headingContainer}>
+            <Text style={styles.title}>Dashboard</Text>
+          </View>
+          <View style={styles.body}>
+            <View style={{ alignItems: 'center', }}>
+              <TouchableOpacity style={styles.buleRectangle} activeOpacity={0.7} onPress={() => { navigation.navigate('Earnings') }}>
+                <Text style={styles.earningsText}>Earnings</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.buleRectangle} activeOpacity={0.7}>
+                <Text style={styles.earningsText}>Gym</Text>
+              </TouchableOpacity>
             </View>
-            <Text>Staff</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.greySquare}>
-            <View style={styles.whiteSquare}>
-              <FontAwesome5 name="users" size={24} color={AppColors.blue} />
+            <View style={styles.greySquares}>
+              <TouchableOpacity style={styles.greySquare}>
+                <View style={styles.whiteSquare}>
+                  <FontAwesome5 name="user-friends" size={24} color={AppColors.blue} />
+                </View>
+                <Text>Staff</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.greySquare}>
+                <View style={styles.whiteSquare}>
+                  <FontAwesome5 name="users" size={24} color={AppColors.blue} />
+                </View>
+                <Text>Members</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.greySquare}>
+                <View style={styles.whiteSquare}>
+                  <Ionicons name="bag-handle" size={24} color={AppColors.blue} />
+                </View>
+                <Text>Products</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.greySquare}>
+                <View style={styles.whiteSquare}>
+                  <FontAwesome5 name="user-alt" size={24} color={AppColors.blue} />
+                </View>
+                <Text>Staff</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.greySquare}>
+                <View style={styles.whiteSquare}>
+                  <FontAwesome5 name="user-alt" size={24} color={AppColors.blue} />
+                </View>
+                <Text>Staff</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.greySquare}>
+                <View style={styles.whiteSquare}>
+                  <FontAwesome5 name="user-alt" size={24} color={AppColors.blue} />
+                </View>
+                <Text>Staff</Text>
+              </TouchableOpacity>
             </View>
-            <Text>Members</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.greySquare}>
-            <View style={styles.whiteSquare}>
-              <Ionicons name="bag-handle" size={24} color={AppColors.blue} />
-            </View>
-            <Text>Products</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.greySquare}>
-            <View style={styles.whiteSquare}>
-              <FontAwesome5 name="user-alt" size={24} color={AppColors.blue} />
-            </View>
-            <Text>Staff</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+          </View>
+        </ScrollView>
+        <ClassyGymTabNavigator />
+      </SafeAreaView>
 
-      <ClassyGymTabNavigator />
-
-    </SafeAreaView>
+    </>
   )
 }
 
@@ -80,7 +94,7 @@ export default DashboardScreen
 const styles = StyleSheet.create({
   container: {
     backgroundColor: AppColors.white,
-    flex: 1,
+    // flex: 1,
     // alignItems: 'center',
     // width: "100%",
   },
