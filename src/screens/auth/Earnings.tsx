@@ -203,12 +203,13 @@ const styles = StyleSheet.create({
   cards: {
     flex: 1,
     marginBottom: 20,
-    // borderWidth: 1, bordeerColor: 'red',
+    // borderWidth: 1, borderColor: 'red',
     flexDirection: 'row',
     flexWrap: 'wrap',
     rowGap: 16,
     columnGap: 16,
     justifyContent: 'center',
+    paddingBottom: 88
   },
   square: {
     width: 160,
