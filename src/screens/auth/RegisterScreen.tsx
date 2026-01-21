@@ -19,7 +19,7 @@ const RegisterScreen = () => {
         <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
         <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
       </View>
-      <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false} >
+      <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}>
         <View style={styles.headingContainer}>
           <Text style={styles.title}>Register</Text>
           <Text style={styles.subHead}>Create an account to start.</Text>
