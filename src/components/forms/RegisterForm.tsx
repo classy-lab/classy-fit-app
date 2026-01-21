@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { StyleSheet, View, Text, TouchableOpacity, TextInput, Dimensions, ScrollView } from 'react-native'
+import { StyleSheet, View, Text, TouchableOpacity, TextInput, Dimensions } from 'react-native'
 import { AppColors } from '../../styles/colors'
 import { useNavigation } from '@react-navigation/native'
 import { s, vs } from 'react-native-size-matters'
