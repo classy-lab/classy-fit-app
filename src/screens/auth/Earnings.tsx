@@ -39,10 +39,19 @@ const Earnings = () => {
             <Text style={styles.calendarControlText}>Next {'>'}</Text>
           </View>
         </View>
-        <View style={styles.body}>
-          <Text style={styles.bodyText}>
-            V-fitness Center & Gym in Koheda has a wide range of products and / or services to cater to the varied requirements of their customers. The staff at this establishment are courteous and prompt at providing any assistance. They readily answer any queries or questions that you may have. This establishment is functional from 05:30 - 21:00.
-          </Text>
+        <View style={styles.content}>
+          <View style={styles.squareCard}>
+            <View style={styles.squareCardHeadingContainer}>
+              <View style={styles.squareCardHeading}>
+                <View style={styles.settings}>
+
+                </View>
+              </View>
+            </View>
+            <View style={styles.barGraph}>
+
+            </View>
+          </View>
         </View>
 
       </SafeAreaView>
@@ -58,8 +67,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingLeft: 24,
     paddingRight: 24,
-  },
-  content: {
   },
   navs: {
     flexDirection: 'row',
@@ -93,7 +100,19 @@ const styles = StyleSheet.create({
   calendarControlText: {
     color: AppColors.primary,
     fontSize: 16,
-    // flex: 1
+    fontWeight: 'bold'
+  },
+  content: {
+
+  },
+  squareCard: {
+
+  },
+  squareCardHeadingContainer: {
+
+  },
+  barGraph: {
+
   },
   body: {
     // borderWidth: 1, bordeerColor: 'red',
