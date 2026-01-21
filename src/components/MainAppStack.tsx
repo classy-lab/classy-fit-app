@@ -19,6 +19,7 @@ import DashboardScreen from '../screens/auth/DashboardScreen'
 import RegisterComplete from '../screens/auth/RegisterComplete'
 import SignoutScreen from '../screens/auth/SignoutScreen'
 import Earnings from '../screens/auth/Earnings'
+import GymScreen from '../screens/auth/GymScreen'
 
 const Stack = createStackNavigator()
 
@@ -105,6 +106,13 @@ const MainAppStack = () => {
             // drawerItemStyle: { display: 'none' },
           }}
           component={Earnings}
+        />
+        <Drawer.Screen
+          name='GymScreen'
+          options={{
+            // drawerItemStyle: { display: 'none' },
+          }}
+          component={GymScreen}
         />
       </Drawer.Navigator>
     </>
