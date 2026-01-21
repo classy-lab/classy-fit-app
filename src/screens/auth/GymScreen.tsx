@@ -11,6 +11,10 @@ import BuildingSvg from '../../components/svg/BuildingSvg'
 import ClassesSvg from '../../components/svg/ClassesSvg'
 import PersonalTrainingSvg from '../../components/svg/PersonalTrainingSvg'
 import ClassyGymTabNavigator from '../ClassyGymTabNavigator'
+import Elliptical from '../../assets/svg/Elliptical'
+import Dumbbell from '../../assets/svg/Dumbbell'
+import MemberNotification from '../../assets/svg/MemberNotification'
+import Treadmill from '../../assets/svg/Treadmill'
 
 const windowWidth = Dimensions.get('window').width
 
@@ -41,14 +45,18 @@ const GymScreen = () => {
           <View style={styles.body}>
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Gym</Text>
-              <View style={styles.greySquares}>
+              <ScrollView
+                style={styles.greySquares}
+                horizontal={true}
+                showsHorizontalScrollIndicator={false}
+              >
                 <View style={styles.greySquareContainer}>
                   <TouchableOpacity style={styles.greySquare}>
                     <View style={styles.whiteSquare}>
                       <BuildingSvg />
                     </View>
                   </TouchableOpacity>
-                  <Text>Building</Text>
+                  <Text style={styles.cardText}>Building</Text>
                 </View>
                 <View style={styles.greySquareContainer}>
                   <TouchableOpacity style={styles.greySquare}>
@@ -56,7 +64,7 @@ const GymScreen = () => {
                       <ClassesSvg />
                     </View>
                   </TouchableOpacity>
-                  <Text>Classes</Text>
+                  <Text style={styles.cardText}>Classes</Text>
                 </View>
                 <View style={styles.greySquareContainer}>
                   <TouchableOpacity style={styles.greySquare}>
@@ -64,51 +72,67 @@ const GymScreen = () => {
                       <PersonalTrainingSvg />
                     </View>
                   </TouchableOpacity>
-                  <Text>Personal {'\n'}Training</Text>
+                  <Text style={styles.cardText}>Personal {'\n'}Training</Text>
                 </View>
-              </View>
+              </ScrollView>
             </View>
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Equipment</Text>
-              <View style={styles.greySquares}>
+              <ScrollView
+                style={styles.greySquares}
+                horizontal={true}
+                showsHorizontalScrollIndicator={false}
+              >
                 <View style={styles.greySquareContainer}>
                   <TouchableOpacity style={styles.greySquare}>
                     <View style={styles.whiteSquare}>
-                      <BuildingSvg />
+                      <Elliptical />
                     </View>
                   </TouchableOpacity>
-                  <Text>Building</Text>
+                  <Text style={styles.cardText}>Elliptical</Text>
                 </View>
                 <View style={styles.greySquareContainer}>
                   <TouchableOpacity style={styles.greySquare}>
                     <View style={styles.whiteSquare}>
-                      <ClassesSvg />
+                      <Treadmill />
                     </View>
                   </TouchableOpacity>
-                  <Text>Classes</Text>
+                  <Text style={styles.cardText}>Treadmill</Text>
                 </View>
                 <View style={styles.greySquareContainer}>
                   <TouchableOpacity style={styles.greySquare}>
                     <View style={styles.whiteSquare}>
-                      <PersonalTrainingSvg />
+                      <Dumbbell />
                     </View>
                   </TouchableOpacity>
-                  <Text>Personal {'\n'}Training</Text>
+                  <Text style={styles.cardText}>Dumbbells</Text>
                 </View>
-              </View>
+                <View style={styles.greySquareContainer}>
+                  <TouchableOpacity style={styles.greySquare}>
+                    <View style={styles.whiteSquare}>
+                      <Dumbbell />
+                    </View>
+                  </TouchableOpacity>
+                  <Text style={styles.cardText}>Smith {'\n'} Machine</Text>
+                </View>
+              </ScrollView>
             </View>
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Messaging</Text>
-              <View style={styles.greySquares}>
+              <ScrollView
+                style={styles.greySquares}
+                horizontal={true}
+                showsHorizontalScrollIndicator={false}
+              >
                 <View style={styles.greySquareContainer}>
                   <TouchableOpacity style={styles.greySquare}>
                     <View style={styles.whiteSquare}>
-                      <BuildingSvg />
+                      <MemberNotification />
                     </View>
                   </TouchableOpacity>
-                  <Text style={{ textAlign: 'center' }}>Member {'\n'}Notifications</Text>
+                  <Text style={styles.cardText}>Member{'\n'}Notifications</Text>
                 </View>
-              </View>
+              </ScrollView>
             </View>
           </View>
         </ScrollView>
@@ -150,14 +174,16 @@ const styles = StyleSheet.create({
     // borderWidth: 1, borderColor: 'red',
     paddingLeft: 24,
     paddingRight: 24,
-    // flexGrow: 1
+    paddingBottom: 88
   },
   section: {
+    flexDirection: 'column',
     marginBottom: 32
   },
   sectionTitle: {
     fontSize: 24,
     marginBottom: 16,
+    width: '100%'
   },
   bodyText: {
     fontSize: s(14),
@@ -204,10 +230,11 @@ const styles = StyleSheet.create({
   },
   greySquares: {
     // borderWidth: 1, borderRadius: 'red',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'flex-start',
+    // flexDirection: 'row',
+    // flexWrap: 'wrap',
+    // justifyContent: 'flex-start',
     columnGap: 8,
+    rowGap: 16
   },
   greySquareContainer: {
     alignItems: 'center',
@@ -219,7 +246,8 @@ const styles = StyleSheet.create({
     height: s(96),
     borderRadius: s(16),
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    marginRight: 8
   },
   whiteSquare: {
     backgroundColor: AppColors.white,
@@ -236,4 +264,9 @@ const styles = StyleSheet.create({
     top: -68,
     right: -40
   },
+  cardText: {
+    textAlign: 'center',
+    // borderWidth: 1, borderColor: 'red',
+    marginTop: 8
+  }
 })
