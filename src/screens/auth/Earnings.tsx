@@ -235,8 +235,8 @@ const styles = StyleSheet.create({
     paddingBottom: 88
   },
   square: {
-    width: 172,
-    height: 172,
+    width: s(140),
+    height: s(140),
     borderRadius: 24,
     backgroundColor: AppColors.white,
     justifyContent: 'flex-start',
