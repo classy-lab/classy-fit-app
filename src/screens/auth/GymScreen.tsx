@@ -106,23 +106,7 @@ const GymScreen = () => {
                       <BuildingSvg />
                     </View>
                   </TouchableOpacity>
-                  <Text>Building</Text>
-                </View>
-                <View style={styles.greySquareContainer}>
-                  <TouchableOpacity style={styles.greySquare}>
-                    <View style={styles.whiteSquare}>
-                      <ClassesSvg />
-                    </View>
-                  </TouchableOpacity>
-                  <Text>Classes</Text>
-                </View>
-                <View style={styles.greySquareContainer}>
-                  <TouchableOpacity style={styles.greySquare}>
-                    <View style={styles.whiteSquare}>
-                      <PersonalTrainingSvg />
-                    </View>
-                  </TouchableOpacity>
-                  <Text>Personal {'\n'}Training</Text>
+                  <Text style={{ textAlign: 'center' }}>Member {'\n'}Notifications</Text>
                 </View>
               </View>
             </View>
@@ -166,11 +150,10 @@ const styles = StyleSheet.create({
     // borderWidth: 1, borderColor: 'red',
     paddingLeft: 24,
     paddingRight: 24,
-    marginBottom: 8,
     // flexGrow: 1
   },
   section: {
-
+    marginBottom: 32
   },
   sectionTitle: {
     fontSize: 24,
@@ -223,11 +206,8 @@ const styles = StyleSheet.create({
     // borderWidth: 1, borderRadius: 'red',
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-around',
-    // rowGap: 8,
-    // columnGap: 8,
-    // width: '100%'
-    // flex: 1
+    justifyContent: 'flex-start',
+    columnGap: 8,
   },
   greySquareContainer: {
     alignItems: 'center',
