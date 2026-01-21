@@ -10,6 +10,7 @@ import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
 import BuildingSvg from '../../components/svg/BuildingSvg'
 import ClassesSvg from '../../components/svg/ClassesSvg'
 import PersonalTrainingSvg from '../../components/svg/PersonalTrainingSvg'
+import ClassyGymTabNavigator from '../ClassyGymTabNavigator'
 
 const windowWidth = Dimensions.get('window').width
 
@@ -39,31 +40,95 @@ const GymScreen = () => {
           </View>
           <View style={styles.body}>
             <View style={styles.section}>
-              <Text class={styles.sectionTitle}>Gym</Text>
+              <Text style={styles.sectionTitle}>Gym</Text>
               <View style={styles.greySquares}>
-                <TouchableOpacity style={styles.greySquare}>
-                  <View style={styles.whiteSquare}>
-                    <BuildingSvg />
-                  </View>
-                  {/* <Text>Building</Text> */}
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.greySquare}>
-                  <View style={styles.whiteSquare}>
-                    <ClassesSvg />
-                  </View>
-                  {/* <Text>Classes</Text> */}
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.greySquare}>
-                  <View style={styles.whiteSquare}>
-                    <PersonalTrainingSvg />
-                  </View>
-                  {/* <Text>Personal Training</Text> */}
-                </TouchableOpacity>
+                <View style={styles.greySquareContainer}>
+                  <TouchableOpacity style={styles.greySquare}>
+                    <View style={styles.whiteSquare}>
+                      <BuildingSvg />
+                    </View>
+                  </TouchableOpacity>
+                  <Text>Building</Text>
+                </View>
+                <View style={styles.greySquareContainer}>
+                  <TouchableOpacity style={styles.greySquare}>
+                    <View style={styles.whiteSquare}>
+                      <ClassesSvg />
+                    </View>
+                  </TouchableOpacity>
+                  <Text>Classes</Text>
+                </View>
+                <View style={styles.greySquareContainer}>
+                  <TouchableOpacity style={styles.greySquare}>
+                    <View style={styles.whiteSquare}>
+                      <PersonalTrainingSvg />
+                    </View>
+                  </TouchableOpacity>
+                  <Text>Personal {'\n'}Training</Text>
+                </View>
+              </View>
+            </View>
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Equipment</Text>
+              <View style={styles.greySquares}>
+                <View style={styles.greySquareContainer}>
+                  <TouchableOpacity style={styles.greySquare}>
+                    <View style={styles.whiteSquare}>
+                      <BuildingSvg />
+                    </View>
+                  </TouchableOpacity>
+                  <Text>Building</Text>
+                </View>
+                <View style={styles.greySquareContainer}>
+                  <TouchableOpacity style={styles.greySquare}>
+                    <View style={styles.whiteSquare}>
+                      <ClassesSvg />
+                    </View>
+                  </TouchableOpacity>
+                  <Text>Classes</Text>
+                </View>
+                <View style={styles.greySquareContainer}>
+                  <TouchableOpacity style={styles.greySquare}>
+                    <View style={styles.whiteSquare}>
+                      <PersonalTrainingSvg />
+                    </View>
+                  </TouchableOpacity>
+                  <Text>Personal {'\n'}Training</Text>
+                </View>
+              </View>
+            </View>
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Messaging</Text>
+              <View style={styles.greySquares}>
+                <View style={styles.greySquareContainer}>
+                  <TouchableOpacity style={styles.greySquare}>
+                    <View style={styles.whiteSquare}>
+                      <BuildingSvg />
+                    </View>
+                  </TouchableOpacity>
+                  <Text>Building</Text>
+                </View>
+                <View style={styles.greySquareContainer}>
+                  <TouchableOpacity style={styles.greySquare}>
+                    <View style={styles.whiteSquare}>
+                      <ClassesSvg />
+                    </View>
+                  </TouchableOpacity>
+                  <Text>Classes</Text>
+                </View>
+                <View style={styles.greySquareContainer}>
+                  <TouchableOpacity style={styles.greySquare}>
+                    <View style={styles.whiteSquare}>
+                      <PersonalTrainingSvg />
+                    </View>
+                  </TouchableOpacity>
+                  <Text>Personal {'\n'}Training</Text>
+                </View>
               </View>
             </View>
           </View>
         </ScrollView>
-        {/* <ClassyGymTabNavigator /> */}
+        <ClassyGymTabNavigator />
       </SafeAreaView>
     </>
   )
@@ -108,7 +173,8 @@ const styles = StyleSheet.create({
 
   },
   sectionTitle: {
-    fontSize: 32
+    fontSize: 24,
+    marginBottom: 16,
   },
   bodyText: {
     fontSize: s(14),
@@ -154,19 +220,23 @@ const styles = StyleSheet.create({
     fontSize: 24
   },
   greySquares: {
-    borderWidth: 1, borderRadius: 'red',
+    // borderWidth: 1, borderRadius: 'red',
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
     // rowGap: 8,
     // columnGap: 8,
     // width: '100%'
     // flex: 1
   },
+  greySquareContainer: {
+    alignItems: 'center',
+    // borderWidth: 1, borderRadius: 'red',
+  },
   greySquare: {
     backgroundColor: AppColors.grey,
-    width: s(100),
-    height: s(100),
+    width: s(96),
+    height: s(96),
     borderRadius: s(16),
     justifyContent: 'center',
     alignItems: 'center'
