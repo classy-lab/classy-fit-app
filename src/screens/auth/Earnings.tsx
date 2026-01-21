@@ -84,11 +84,6 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: AppColors.grey,
   },
-  scrollViewStyles: {
-    paddingLeft: 24,
-    paddingRight: 24,
-    marginBottom: 8,
-  },
   navs: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -96,25 +91,22 @@ const styles = StyleSheet.create({
     paddingRight: 24,
     width: '100%',
   },
+  scrollViewStyles: {
+    paddingLeft: 24,
+    paddingRight: 24,
+    marginBottom: 8,
+  },
   title: {
     color: AppColors.blue,
     fontFamily: 'Montserrat',
     fontSize: 32,
     marginTop: 20,
   },
-  body: {
-    // paddingLeft: 24,
-    // paddingRight: 24,
-    // marginBottom: 8,
-  },
   bodyText: {
     fontSize: s(14),
     fontFamily: "Montserrat",
     lineHeight: 24,
     color: AppColors.primary,
-  },
-  imageContainer: {
-    marginBottom: 8
   },
   signOut: {
     // borderWidth: 1, borderColor: 'red',
@@ -135,46 +127,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingLeft: 3
   },
-  buleRectangle: {
-    backgroundColor: AppColors.blue,
-    borderRadius: 24,
-    width: windowWidth - 64,
-    height: 128,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-    marginBottom: 20,
-    // borderWidth: 1, borderRadius: 'red',
-  },
   earningsText: {
     color: AppColors.white,
     fontSize: 24
-  },
-  greySquares: {
-    // borderWidth: 1, borderRadius: 'red',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-evenly',
-    rowGap: 16,
-    columnGap: 16,
-    width: '100%'
-  },
-  greySquare: {
-    backgroundColor: AppColors.grey,
-    width: s(144),
-    height: s(144),
-    borderRadius: s(24),
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  whiteSquare: {
-    backgroundColor: AppColors.white,
-    borderRadius: s(16),
-    width: s(60),
-    height: s(60),
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: s(8)
   },
   heading: {
     marginTop: 16,
