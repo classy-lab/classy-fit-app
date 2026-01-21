@@ -5,9 +5,11 @@ import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
 import { s } from 'react-native-size-matters'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
-import FontAwesome5 from '@expo/vector-icons/FontAwesome5'
-import Ionicons from '@expo/vector-icons/Ionicons'
-import ClassyGymTabNavigator from '../ClassyGymTabNavigator'
+import Feather from '@expo/vector-icons/Feather'
+import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
+import BuildingSvg from '../../components/svg/BuildingSvg'
+import ClassesSvg from '../../components/svg/ClassesSvg'
+import PersonalTrainingSvg from '../../components/svg/PersonalTrainingSvg'
 
 const windowWidth = Dimensions.get('window').width
 
@@ -22,6 +24,7 @@ const GymScreen = () => {
     <>
       <SafeAreaView style={styles.container}>
         <View style={styles.navs}>
+          <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
           <View style={styles.signOut}>
             <Text style={styles.signOutText}>Sign out</Text>
             <View style={styles.circle}>
@@ -31,60 +34,37 @@ const GymScreen = () => {
         </View>
         <ScrollView>
           <View style={styles.headingContainer}>
-            <Text style={styles.title}>Dashboard</Text>
+            <Text style={styles.title}>Gym</Text>
+            <PinkLeafSvg style={styles.pinkLeaf} />
           </View>
           <View style={styles.body}>
-            <View style={{ alignItems: 'center', }}>
-              <TouchableOpacity style={styles.buleRectangle} activeOpacity={0.7} onPress={() => { navigation.navigate('Earnings') }}>
-                <Text style={styles.earningsText}>Earnings</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.buleRectangle} activeOpacity={0.7}>
-                <Text style={styles.earningsText}>Gym</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.greySquares}>
-              <TouchableOpacity style={styles.greySquare}>
-                <View style={styles.whiteSquare}>
-                  <FontAwesome5 name="user-friends" size={24} color={AppColors.blue} />
-                </View>
-                <Text>Staff</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.greySquare}>
-                <View style={styles.whiteSquare}>
-                  <FontAwesome5 name="users" size={24} color={AppColors.blue} />
-                </View>
-                <Text>Members</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.greySquare}>
-                <View style={styles.whiteSquare}>
-                  <Ionicons name="bag-handle" size={24} color={AppColors.blue} />
-                </View>
-                <Text>Products</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.greySquare}>
-                <View style={styles.whiteSquare}>
-                  <FontAwesome5 name="user-alt" size={24} color={AppColors.blue} />
-                </View>
-                <Text>Staff</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.greySquare}>
-                <View style={styles.whiteSquare}>
-                  <FontAwesome5 name="user-alt" size={24} color={AppColors.blue} />
-                </View>
-                <Text>Staff</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.greySquare}>
-                <View style={styles.whiteSquare}>
-                  <FontAwesome5 name="user-alt" size={24} color={AppColors.blue} />
-                </View>
-                <Text>Staff</Text>
-              </TouchableOpacity>
+            <View style={styles.section}>
+              <Text class={styles.sectionTitle}>Gym</Text>
+              <View style={styles.greySquares}>
+                <TouchableOpacity style={styles.greySquare}>
+                  <View style={styles.whiteSquare}>
+                    <BuildingSvg />
+                  </View>
+                  {/* <Text>Building</Text> */}
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.greySquare}>
+                  <View style={styles.whiteSquare}>
+                    <ClassesSvg />
+                  </View>
+                  {/* <Text>Classes</Text> */}
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.greySquare}>
+                  <View style={styles.whiteSquare}>
+                    <PersonalTrainingSvg />
+                  </View>
+                  {/* <Text>Personal Training</Text> */}
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </ScrollView>
-        <ClassyGymTabNavigator />
+        {/* <ClassyGymTabNavigator /> */}
       </SafeAreaView>
-
     </>
   )
 }
@@ -100,7 +80,7 @@ const styles = StyleSheet.create({
   },
   navs: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
     paddingLeft: 24,
     paddingRight: 24,
     width: '100%',
@@ -123,6 +103,12 @@ const styles = StyleSheet.create({
     paddingRight: 24,
     marginBottom: 8,
     // flexGrow: 1
+  },
+  section: {
+
+  },
+  sectionTitle: {
+    fontSize: 32
   },
   bodyText: {
     fontSize: s(14),
@@ -168,19 +154,20 @@ const styles = StyleSheet.create({
     fontSize: 24
   },
   greySquares: {
-    // borderWidth: 1, borderRadius: 'red',
+    borderWidth: 1, borderRadius: 'red',
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-aroud',
-    rowGap: 16,
-    columnGap: 16,
-    width: '100%'
+    justifyContent: 'space-between',
+    // rowGap: 8,
+    // columnGap: 8,
+    // width: '100%'
+    // flex: 1
   },
   greySquare: {
     backgroundColor: AppColors.grey,
-    width: s(144),
-    height: s(144),
-    borderRadius: s(24),
+    width: s(100),
+    height: s(100),
+    borderRadius: s(16),
     justifyContent: 'center',
     alignItems: 'center'
   },
@@ -192,5 +179,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: s(8)
+  },
+  pinkLeaf: {
+    position: 'relative',
+    zIndex: -1,
+    top: -68,
+    right: -40
   },
 })
