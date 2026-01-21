@@ -20,14 +20,15 @@ const screenOptions = {
   tabBarStyle: {
     backgroundColor: AppColors.white, // Tab bar background color
     elevation: 0,                     // for Android
-    shadowOpacity: 0,                 // for iOS
-    borderTopWidth: 1,                // for iOS // Add top border
+    // shadowOpacity: 0,                 // for iOS
+    // borderTopWidth: 1,                // for iOS // Add top border
     // borderTopLeftRadius: 24,       // Apply top left radius
     // borderTopRightRadius: 24,      // Apply top right radius
-    borderTopColor: AppColors.grey,   // Border color
+    // borderTopColor: AppColors.grey,   // Border color
     // overflow: 'hidden',            // Hide overflow to make radius work properly
     height: 88,                       // Adjust height as needed
-    bottom: 88
+    bottom: 96,
+    // borderWidth: 1, borderColor: 'red',
   },
   tabBarLabelStyle: {
     fontSize: 14,
