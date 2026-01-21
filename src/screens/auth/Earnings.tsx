@@ -170,7 +170,8 @@ const styles = StyleSheet.create({
     paddingLeft: 24,
     paddingRight: 24,
     paddingBottom: 12,
-    marginBottom: 20
+    marginBottom: 20,
+    boxShadow: '4px 8px 24px rgba(000, 0, 0, 0.1)'
   },
   squareCardHeadingContainer: {
     flexDirection: 'row',
@@ -201,22 +202,23 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   cards: {
-    flex: 1,
-    marginBottom: 20,
-    // borderWidth: 1, borderColor: 'red',
     flexDirection: 'row',
     flexWrap: 'wrap',
+    // flex: 1,
+    marginBottom: 20,
+    // borderWidth: 1, borderColor: 'red',
     rowGap: 16,
     columnGap: 16,
     justifyContent: 'center',
     paddingBottom: 88
   },
   square: {
-    width: 160,
-    height: 160,
+    width: 172,
+    height: 172,
     borderRadius: 24,
     backgroundColor: AppColors.white,
     justifyContent: 'center',
     alignItems: 'center',
+    boxShadow: '4px 8px 24px rgba(000, 0, 0, 0.1)'
   },
 })
