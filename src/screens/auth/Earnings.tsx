@@ -1,15 +1,16 @@
-import { StyleSheet, Text, View, ImageBackground, ScrollView } from 'react-native'
+import { StyleSheet, Text, View, Dimensions, ScrollView } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
-import Feather from '@expo/vector-icons/Feather'
 import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
+import Feather from '@expo/vector-icons/Feather'
 import { s } from 'react-native-size-matters'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import ClassyGymTabNavigator from '../ClassyGymTabNavigator'
 import EarningsBarGraph from '../../assets/svg/EarningsBarGraph'
 import Entypo from '@expo/vector-icons/Entypo';
 
+const windowWidth = Dimensions.get('window').width
 
 const Earnings = () => {
   const navigation = useNavigation()
@@ -20,21 +21,19 @@ const Earnings = () => {
 
   return (
     <>
-      <ImageBackground
-        source={require('../../assets/images/blueGreyBg.png')}
-      // style={styles.container}
-      >
-        <SafeAreaView class={styles.container}>
-          <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}>
-            <View style={styles.navs}>
-              <Feather name="arrow-left" color={AppColors.white} size={36} onPress={() => { navigation.goBack() }} />
-              <View style={styles.signOut}>
-                <Text style={styles.signOutText}>Sign out</Text>
-                <View style={styles.circle}>
-                  <MaterialIcons name="logout" color={AppColors.blue} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
-                </View>
-              </View>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.navs}>
+          <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
+          <View style={styles.signOut}>
+            <Text style={styles.signOutText}>Sign out</Text>
+            <View style={styles.circle}>
+              <MaterialIcons name="logout" color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
             </View>
+          </View>
+        </View>
+        <ScrollView>
+
+          <View style={styles.body}>
             <View style={styles.heading}>
               <Text style={styles.headingTitle}>Earnings</Text>
               <Text style={styles.headingSubTitle}>September 2025</Text>
@@ -44,6 +43,7 @@ const Earnings = () => {
                 <Text style={styles.calendarControlText}>Next {'>'}</Text>
               </View>
             </View>
+
             <View style={styles.content}>
               <View style={styles.squareCard}>
                 <View style={styles.squareCardHeadingContainer}>
@@ -74,11 +74,10 @@ const Earnings = () => {
                 </View>
               </View>
             </View>
-          </ScrollView>
-          <ClassyGymTabNavigator />
-        </SafeAreaView>
-      </ImageBackground>
-
+          </View>
+        </ScrollView>
+        <ClassyGymTabNavigator style={styles.tabNavigator} />
+      </SafeAreaView>
     </>
   )
 }
@@ -87,18 +86,101 @@ export default Earnings
 
 const styles = StyleSheet.create({
   container: {
-    paddingLeft: 24,
-    paddingRight: 24,
-    // flex: 1,
-    borderWidth: 1, borderColor: 'green',
-  },
-  content: {
-    borderWidth: 1, borderColor: 'red',
-    // flex: 1,
+    backgroundColor: AppColors.grey,
+    flex: 1,
+    // borderWidth: 1, borderColor: 'red'
   },
   navs: {
     flexDirection: 'row',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    paddingLeft: 24,
+    paddingRight: 24,
+    width: '100%',
+  },
+  headingContainer: {
+    width: 375,
+    alignItems: 'center',
+    marginBottom: 20
+  },
+  title: {
+    color: AppColors.blue,
+    fontFamily: 'Montserrat',
+    fontSize: 32,
+    marginTop: 20,
+  },
+  body: {
+    paddingLeft: 24,
+    paddingRight: 24,
+    marginBottom: 8,
+  },
+  bodyText: {
+    fontSize: s(14),
+    fontFamily: "Montserrat",
+    lineHeight: 24,
+    color: AppColors.primary,
+  },
+  imageContainer: {
+    marginBottom: 8
+  },
+  signOut: {
+    // borderWidth: 1, borderColor: 'red',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  signOutText: {
+    marginRight: 4,
+    color: AppColors.blue,
+    fontSize: 14
+  },
+  circle: {
+    width: 30,
+    height: 30,
+    borderRadius: '50%',
+    backgroundColor: AppColors.blue,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingLeft: 3
+  },
+  buleRectangle: {
+    backgroundColor: AppColors.blue,
+    borderRadius: 24,
+    width: windowWidth - 64,
+    height: 128,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+    marginBottom: 20,
+    // borderWidth: 1, borderRadius: 'red',
+  },
+  earningsText: {
+    color: AppColors.white,
+    fontSize: 24
+  },
+  greySquares: {
+    // borderWidth: 1, borderRadius: 'red',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-aroud',
+    rowGap: 16,
+    columnGap: 16,
+    width: '100%'
+  },
+  greySquare: {
+    backgroundColor: AppColors.grey,
+    width: s(144),
+    height: s(144),
+    borderRadius: s(24),
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  whiteSquare: {
+    backgroundColor: AppColors.white,
+    borderRadius: s(16),
+    width: s(60),
+    height: s(60),
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: s(8)
   },
   heading: {
     marginTop: 16,
@@ -107,14 +189,14 @@ const styles = StyleSheet.create({
     // borderWidth: 1, borderColor: 'red',
   },
   headingTitle: {
-    color: AppColors.white,
+    color: AppColors.blue,
     fontSize: 32,
     marginTop: 16,
   },
   headingSubTitle: {
     marginTop: 6,
     fontSize: 16,
-    color: AppColors.white,
+    color: AppColors.blue,
   },
   calendarControls: {
     marginTop: 16,
@@ -190,25 +272,5 @@ const styles = StyleSheet.create({
     height: 150,
     justifyContent: 'center',
     alignItems: 'center',
-
-  },
-  signOut: {
-    // borderWidth: 1, borderColor: 'red',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  signOutText: {
-    marginRight: 4,
-    color: AppColors.blue,
-    fontSize: 14
-  },
-  circle: {
-    width: 30,
-    height: 30,
-    borderRadius: '50%',
-    backgroundColor: AppColors.white,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingLeft: 3
   },
 })
