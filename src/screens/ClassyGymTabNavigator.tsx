@@ -49,7 +49,7 @@ const ClassyGymTabNavigator = () => {
       <Tab.Screen
         options={{
           title: "Gym",
-          tabBarIcon: () => <FontAwesome5 name="dumbbell" size={22} color="black" />
+          tabBarIcon: () => <FontAwesome5 name="dumbbell" size={20} color="black" />
         }}
         name="Gym"
         component={GymHours}
@@ -57,7 +57,7 @@ const ClassyGymTabNavigator = () => {
       <Tab.Screen
         options={{
           title: "Staff",
-          tabBarIcon: () => <FontAwesome6 name="bolt-lightning" size={22} color="black" />
+          tabBarIcon: () => <FontAwesome6 name="bolt-lightning" size={20} color="black" />
         }}
         name="Staff"
         component={About}
