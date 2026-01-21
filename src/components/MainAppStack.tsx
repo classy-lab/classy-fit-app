@@ -102,7 +102,7 @@ const MainAppStack = () => {
         <Drawer.Screen
           name='Earnings'
           options={{
-            drawerItemStyle: { display: 'none' },
+            // drawerItemStyle: { display: 'none' },
           }}
           component={Earnings}
         />
