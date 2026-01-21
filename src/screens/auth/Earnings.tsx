@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Dimensions, ScrollView } from 'react-native'
+import { StyleSheet, Text, View, Dimensions, TouchableOpacity, ScrollView } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import { AppColors } from '../../styles/colors'
@@ -31,52 +31,48 @@ const Earnings = () => {
             </View>
           </View>
         </View>
-        <ScrollView>
-
+        <ScrollView style={styles.scrollViewStyles}>
+          <View style={styles.heading}>
+            <Text style={styles.headingTitle}>Earnings</Text>
+            <Text style={styles.headingSubTitle}>September 2025</Text>
+            <View style={styles.calendarControls}>
+              <Text style={styles.calendarControlText}>{'<'} Previous</Text>
+              <Text style={styles.calendarControlText}>Full Year</Text>
+              <Text style={styles.calendarControlText}>Next {'>'}</Text>
+            </View>
+          </View>
           <View style={styles.body}>
-            <View style={styles.heading}>
-              <Text style={styles.headingTitle}>Earnings</Text>
-              <Text style={styles.headingSubTitle}>September 2025</Text>
-              <View style={styles.calendarControls}>
-                <Text style={styles.calendarControlText}>{'<'} Previous</Text>
-                <Text style={styles.calendarControlText}>Full Year</Text>
-                <Text style={styles.calendarControlText}>Next {'>'}</Text>
+            <View style={styles.squareCard}>
+              <View style={styles.squareCardHeadingContainer}>
+                <View style={styles.squareCardHeading}>
+                  <Text style={styles.SquareCardHeadingTitle}>October</Text>
+                  <Text style={styles.SquareCardHeadingSubTitle}>7 Day Business Earnings Graph</Text>
+                </View>
+                <View style={styles.SquareCardSettingsIcon}>
+                  <Entypo name="sound-mix" size={24} color={AppColors.grey3} />
+                </View>
+              </View>
+              <View style={styles.barGraph}>
+                <EarningsBarGraph />
               </View>
             </View>
-
-            <View style={styles.content}>
-              <View style={styles.squareCard}>
-                <View style={styles.squareCardHeadingContainer}>
-                  <View style={styles.squareCardHeading}>
-                    <Text style={styles.SquareCardHeadingTitle}>October</Text>
-                    <Text style={styles.SquareCardHeadingSubTitle}>7 Day Business Earnings Graph</Text>
-                  </View>
-                  <View style={styles.SquareCardSettingsIcon}>
-                    <Entypo name="sound-mix" size={24} color={AppColors.grey3} />
-                  </View>
-                </View>
-                <View style={styles.barGraph}>
-                  <EarningsBarGraph />
-                </View>
+            <View style={styles.cards}>
+              <View style={styles.square}>
+                <Text>Square</Text>
               </View>
-              <View style={styles.cards}>
-                <View style={styles.square}>
-                  <Text>Square</Text>
-                </View>
-                <View style={styles.square}>
-                  <Text>Square</Text>
-                </View>
-                <View style={styles.square}>
-                  <Text>Square</Text>
-                </View>
-                <View style={styles.square}>
-                  <Text>Square</Text>
-                </View>
+              <View style={styles.square}>
+                <Text>Square</Text>
+              </View>
+              <View style={styles.square}>
+                <Text>Square</Text>
+              </View>
+              <View style={styles.square}>
+                <Text>Square</Text>
               </View>
             </View>
           </View>
         </ScrollView>
-        <ClassyGymTabNavigator style={styles.tabNavigator} />
+        <ClassyGymTabNavigator />
       </SafeAreaView>
     </>
   )
@@ -87,8 +83,11 @@ export default Earnings
 const styles = StyleSheet.create({
   container: {
     backgroundColor: AppColors.grey,
-    flex: 1,
-    // borderWidth: 1, borderColor: 'red'
+  },
+  scrollViewStyles: {
+    paddingLeft: 24,
+    paddingRight: 24,
+    marginBottom: 8,
   },
   navs: {
     flexDirection: 'row',
@@ -97,11 +96,6 @@ const styles = StyleSheet.create({
     paddingRight: 24,
     width: '100%',
   },
-  headingContainer: {
-    width: 375,
-    alignItems: 'center',
-    marginBottom: 20
-  },
   title: {
     color: AppColors.blue,
     fontFamily: 'Montserrat',
@@ -109,9 +103,9 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   body: {
-    paddingLeft: 24,
-    paddingRight: 24,
-    marginBottom: 8,
+    // paddingLeft: 24,
+    // paddingRight: 24,
+    // marginBottom: 8,
   },
   bodyText: {
     fontSize: s(14),
@@ -160,7 +154,7 @@ const styles = StyleSheet.create({
     // borderWidth: 1, borderRadius: 'red',
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-aroud',
+    justifyContent: 'space-evenly',
     rowGap: 16,
     columnGap: 16,
     width: '100%'
@@ -187,6 +181,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     // borderWidth: 1, borderColor: 'red',
+    marginBottom: 20
   },
   headingTitle: {
     color: AppColors.blue,
@@ -201,14 +196,12 @@ const styles = StyleSheet.create({
   calendarControls: {
     marginTop: 16,
     flexDirection: 'row',
-    // flex: 1,
-    flexGrow: 1,
     justifyContent: 'space-between',
     // borderWidth: 1, borderColor: 'red',
     width: '100%'
   },
   calendarControlText: {
-    color: AppColors.primary,
+    color: AppColors.blue,
     fontSize: 16,
     fontWeight: 'bold'
   },
@@ -258,18 +251,15 @@ const styles = StyleSheet.create({
     // borderWidth: 1, bordeerColor: 'red',
     flexDirection: 'row',
     flexWrap: 'wrap',
-    rowGap: 12,
-    columnGap: 12,
+    rowGap: 16,
+    columnGap: 16,
     justifyContent: 'center',
-    // alignItems: 'center',
-    // height: '100%',
-    // width: '100%'
   },
   square: {
     width: 160,
+    height: 160,
     borderRadius: 24,
     backgroundColor: AppColors.white,
-    height: 150,
     justifyContent: 'center',
     alignItems: 'center',
   },
