@@ -8,7 +8,12 @@ import { s } from 'react-native-size-matters'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import ClassyGymTabNavigator from '../ClassyGymTabNavigator'
 import EarningsBarGraph from '../../assets/svg/EarningsBarGraph'
-import Entypo from '@expo/vector-icons/Entypo';
+import Entypo from '@expo/vector-icons/Entypo'
+
+import LineChart from '../../assets/svg/LineChart'
+import LineChart2 from '../../assets/svg/LineChart2'
+import LineChart3 from '../../assets/svg/LineChart3'
+import LineChart4 from '../../assets/svg/LineChart4'
 
 const windowWidth = Dimensions.get('window').width
 
@@ -45,8 +50,8 @@ const Earnings = () => {
             <View style={styles.squareCard}>
               <View style={styles.squareCardHeadingContainer}>
                 <View style={styles.squareCardHeading}>
-                  <Text style={styles.SquareCardHeadingTitle}>October</Text>
-                  <Text style={styles.SquareCardHeadingSubTitle}>7 Day Business Earnings Graph</Text>
+                  <Text style={styles.SquareCardTitle}>October</Text>
+                  <Text style={styles.SquareCardSubTitle}>7 Day Business Earnings Graph</Text>
                 </View>
                 <View style={styles.SquareCardSettingsIcon}>
                   <Entypo name="sound-mix" size={24} color={AppColors.grey3} />
@@ -58,16 +63,32 @@ const Earnings = () => {
             </View>
             <View style={styles.cards}>
               <View style={styles.square}>
-                <Text>Square</Text>
+                <Text style={styles.smallSquareCardTitle}>Membership</Text>
+                <Text style={styles.smallSquareCardSubTitle}>Earnings</Text>
+                <View style={styles.smallBarGraph}>
+                  <LineChart />
+                </View>
               </View>
               <View style={styles.square}>
-                <Text>Square</Text>
+                <Text style={styles.smallSquareCardTitle}>Membership</Text>
+                <Text style={styles.smallSquareCardSubTitle}>Earnings</Text>
+                <View style={styles.smallBarGraph}>
+                  <LineChart2 />
+                </View>
               </View>
               <View style={styles.square}>
-                <Text>Square</Text>
+                <Text style={styles.smallSquareCardTitle}>Membership</Text>
+                <Text style={styles.smallSquareCardSubTitle}>Earnings</Text>
+                <View style={styles.smallBarGraph}>
+                  <LineChart3 />
+                </View>
               </View>
               <View style={styles.square}>
-                <Text>Square</Text>
+                <Text style={styles.smallSquareCardTitle}>Membership</Text>
+                <Text style={styles.smallSquareCardSubTitle}>Earnings</Text>
+                <View style={styles.smallBarGraph}>
+                  <LineChart4 />
+                </View>
               </View>
             </View>
           </View>
@@ -142,6 +163,7 @@ const styles = StyleSheet.create({
     color: AppColors.blue,
     fontSize: 32,
     marginTop: 16,
+    // fontFamily: 'Montserrat-Bold'
   },
   headingSubTitle: {
     marginTop: 6,
@@ -181,12 +203,12 @@ const styles = StyleSheet.create({
   },
   squareCardHeading: {},
   SquareCardHeadingText: {},
-  SquareCardHeadingTitle: {
+  SquareCardTitle: {
     color: AppColors.primary,
     fontSize: 24,
     fontFamily: 'Montserrat-Bold'
   },
-  SquareCardHeadingSubTitle: {
+  SquareCardSubTitle: {
     color: AppColors.grey2,
     fontSize: 12
   },
@@ -217,8 +239,20 @@ const styles = StyleSheet.create({
     height: 172,
     borderRadius: 24,
     backgroundColor: AppColors.white,
-    justifyContent: 'center',
-    alignItems: 'center',
-    boxShadow: '4px 8px 24px rgba(000, 0, 0, 0.1)'
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+    boxShadow: '4px 8px 24px rgba(000, 0, 0, 0.1)',
+    padding: 16
   },
+  smallSquareCardTitle: {
+    fontSize: 12,
+    fontFamily: 'Montserrat-Bold'
+  },
+  smallSquareCardSubTitle: {
+    marginTop: 6,
+    color: AppColors.grey2
+  },
+  smallBarGraph: {
+    marginTop: 16
+  }
 })
