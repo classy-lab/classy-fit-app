@@ -35,10 +35,10 @@ const DashboardScreen = () => {
           </View>
           <View style={styles.body}>
             <View style={{ alignItems: 'center', }}>
-              <TouchableOpacity style={styles.buleRectangle} activeOpacity={0.7} onPress={() => { navigation.navigate('Earnings') }}>
+              <TouchableOpacity style={styles.blueRectangle} activeOpacity={0.7} onPress={() => { navigation.navigate('Earnings') }}>
                 <Text style={styles.earningsText}>Earnings</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.buleRectangle} activeOpacity={0.7}>
+              <TouchableOpacity style={styles.blueRectangle} activeOpacity={0.7}>
                 <Text style={styles.earningsText}>Gym</Text>
               </TouchableOpacity>
             </View>
@@ -67,18 +67,6 @@ const DashboardScreen = () => {
                 </View>
                 <Text>Staff</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.greySquare}>
-                <View style={styles.whiteSquare}>
-                  <FontAwesome5 name="user-alt" size={24} color={AppColors.blue} />
-                </View>
-                <Text>Staff</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.greySquare}>
-                <View style={styles.whiteSquare}>
-                  <FontAwesome5 name="user-alt" size={24} color={AppColors.blue} />
-                </View>
-                <Text>Staff</Text>
-              </TouchableOpacity>
             </View>
           </View>
         </ScrollView>
@@ -94,9 +82,6 @@ export default DashboardScreen
 const styles = StyleSheet.create({
   container: {
     backgroundColor: AppColors.white,
-    // flex: 1,
-    // alignItems: 'center',
-    // width: "100%",
   },
   navs: {
     flexDirection: 'row',
@@ -117,21 +102,15 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   body: {
-    // flex: 1,
-    // borderWidth: 1, borderColor: 'red',
     paddingLeft: 24,
     paddingRight: 24,
     marginBottom: 8,
-    // flexGrow: 1
   },
   bodyText: {
     fontSize: s(14),
     fontFamily: "Montserrat",
     lineHeight: 24,
     color: AppColors.primary,
-  },
-  imageContainer: {
-    marginBottom: 8
   },
   signOut: {
     // borderWidth: 1, borderColor: 'red',
@@ -152,7 +131,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingLeft: 3
   },
-  buleRectangle: {
+  blueRectangle: {
     backgroundColor: AppColors.blue,
     borderRadius: 24,
     width: windowWidth - 64,
@@ -174,7 +153,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-aroud',
     rowGap: 16,
     columnGap: 16,
-    width: '100%'
+    width: '100%',
+    paddingBottom: 96
   },
   greySquare: {
     backgroundColor: AppColors.grey,
