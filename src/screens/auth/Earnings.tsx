@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, ImageBackground } from 'react-native'
+import { StyleSheet, Text, View, ImageBackground, ScrollView } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import Feather from '@expo/vector-icons/Feather'
@@ -7,6 +7,9 @@ import { useFonts } from 'expo-font'
 import { s } from 'react-native-size-matters'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import ClassyGymTabNavigator from '../ClassyGymTabNavigator'
+import EarningsBarGraph from '../../assets/svg/EarningsBarGraph'
+import Entypo from '@expo/vector-icons/Entypo';
+
 
 const Earnings = () => {
   const navigation = useNavigation()
@@ -16,47 +19,67 @@ const Earnings = () => {
   })
 
   return (
-    <ImageBackground
-      source={require('../../assets/images/blueGreyBg.png')}
-      style={styles.container}
-    >
-      <SafeAreaView class={styles.content}>
-        <View style={styles.navs}>
-          <Feather name="arrow-left" color={AppColors.white} size={36} onPress={() => { navigation.goBack() }} />
-          <View style={styles.signOut}>
-            <Text style={styles.signOutText}>Sign out</Text>
-            <View style={styles.circle}>
-              <MaterialIcons name="logout" color={AppColors.blue} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
-            </View>
-          </View>
-        </View>
-        <View style={styles.heading}>
-          <Text style={styles.headingTitle}>Earnings</Text>
-          <Text style={styles.headingSubTitle}>September 2025</Text>
-          <View style={styles.calendarControls}>
-            <Text style={styles.calendarControlText}>{'<'} Previous</Text>
-            <Text style={styles.calendarControlText}>Full Year</Text>
-            <Text style={styles.calendarControlText}>Next {'>'}</Text>
-          </View>
-        </View>
-        <View style={styles.content}>
-          <View style={styles.squareCard}>
-            <View style={styles.squareCardHeadingContainer}>
-              <View style={styles.squareCardHeading}>
-                <View style={styles.settings}>
-
+    <>
+      <ImageBackground
+        source={require('../../assets/images/blueGreyBg.png')}
+      // style={styles.container}
+      >
+        <SafeAreaView class={styles.container}>
+          <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}>
+            <View style={styles.navs}>
+              <Feather name="arrow-left" color={AppColors.white} size={36} onPress={() => { navigation.goBack() }} />
+              <View style={styles.signOut}>
+                <Text style={styles.signOutText}>Sign out</Text>
+                <View style={styles.circle}>
+                  <MaterialIcons name="logout" color={AppColors.blue} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
                 </View>
               </View>
             </View>
-            <View style={styles.barGraph}>
-
+            <View style={styles.heading}>
+              <Text style={styles.headingTitle}>Earnings</Text>
+              <Text style={styles.headingSubTitle}>September 2025</Text>
+              <View style={styles.calendarControls}>
+                <Text style={styles.calendarControlText}>{'<'} Previous</Text>
+                <Text style={styles.calendarControlText}>Full Year</Text>
+                <Text style={styles.calendarControlText}>Next {'>'}</Text>
+              </View>
             </View>
-          </View>
-        </View>
+            <View style={styles.content}>
+              <View style={styles.squareCard}>
+                <View style={styles.squareCardHeadingContainer}>
+                  <View style={styles.squareCardHeading}>
+                    <Text style={styles.SquareCardHeadingTitle}>October</Text>
+                    <Text style={styles.SquareCardHeadingSubTitle}>7 Day Business Earnings Graph</Text>
+                  </View>
+                  <View style={styles.SquareCardSettingsIcon}>
+                    <Entypo name="sound-mix" size={24} color={AppColors.grey3} />
+                  </View>
+                </View>
+                <View style={styles.barGraph}>
+                  <EarningsBarGraph />
+                </View>
+              </View>
+              <View style={styles.cards}>
+                <View style={styles.square}>
+                  <Text>Square</Text>
+                </View>
+                <View style={styles.square}>
+                  <Text>Square</Text>
+                </View>
+                <View style={styles.square}>
+                  <Text>Square</Text>
+                </View>
+                <View style={styles.square}>
+                  <Text>Square</Text>
+                </View>
+              </View>
+            </View>
+          </ScrollView>
+          <ClassyGymTabNavigator />
+        </SafeAreaView>
+      </ImageBackground>
 
-      </SafeAreaView>
-      {/* <ClassyGymTabNavigator /> */}
-    </ImageBackground>
+    </>
   )
 }
 
@@ -64,9 +87,14 @@ export default Earnings
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     paddingLeft: 24,
     paddingRight: 24,
+    // flex: 1,
+    borderWidth: 1, borderColor: 'green',
+  },
+  content: {
+    borderWidth: 1, borderColor: 'red',
+    // flex: 1,
   },
   navs: {
     flexDirection: 'row',
@@ -102,29 +130,67 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold'
   },
-  content: {
-
-  },
   squareCard: {
-
+    width: '100%',
+    backgroundColor: AppColors.white,
+    borderRadius: 24,
+    height: 320,
+    marginTop: 24,
+    paddingTop: 32,
+    paddingLeft: 24,
+    paddingRight: 24,
+    paddingBottom: 12,
+    marginBottom: 20
   },
   squareCardHeadingContainer: {
-
+    flexDirection: 'row',
+    // borderWidth: 1, borderColor: 'red',
+    justifyContent: 'space-between',
+    alignItems: 'baseline'
+  },
+  squareCardHeading: {},
+  SquareCardHeadingText: {},
+  SquareCardHeadingTitle: {
+    color: AppColors.primary,
+    fontSize: 24,
+    fontFamily: 'Montserrat-Bold'
+  },
+  SquareCardHeadingSubTitle: {
+    color: AppColors.grey2,
+    fontSize: 12
+  },
+  settings: {
+    color: AppColors.primary
   },
   barGraph: {
-
-  },
-  body: {
-    // borderWidth: 1, bordeerColor: 'red',
+    width: '100%',
+    height: 200,
     flex: 1,
+    marginTop: 20,
+    borderRadius: 16,
+    alignItems: 'center'
   },
-  bodyText: {
-    fontSize: 16,
-    color: AppColors.primary,
-  },
-  imageContainer: {
-    marginBottom: 8
+  cards: {
+    flex: 1,
+    marginBottom: 20,
     // borderWidth: 1, bordeerColor: 'red',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    rowGap: 12,
+    columnGap: 12,
+    justifyContent: 'center',
+    // alignItems: 'center',
+    // height: '100%',
+    // width: '100%'
+  },
+  square: {
+    width: 160,
+    borderRadius: 24,
+    backgroundColor: AppColors.white,
+    height: 150,
+    justifyContent: 'center',
+    alignItems: 'center',
+
   },
   signOut: {
     // borderWidth: 1, borderColor: 'red',
@@ -133,7 +199,7 @@ const styles = StyleSheet.create({
   },
   signOutText: {
     marginRight: 4,
-    color: AppColors.white,
+    color: AppColors.blue,
     fontSize: 14
   },
   circle: {
