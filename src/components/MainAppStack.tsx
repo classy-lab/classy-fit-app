@@ -20,6 +20,7 @@ import RegisterComplete from '../screens/auth/RegisterComplete'
 import SignoutScreen from '../screens/auth/SignoutScreen'
 import Earnings from '../screens/auth/Earnings'
 import GymScreen from '../screens/auth/GymScreen'
+import TemplateScreen from '../screens/auth/TemplateScreen'
 
 const Stack = createStackNavigator()
 
@@ -113,6 +114,13 @@ const MainAppStack = () => {
             // drawerItemStyle: { display: 'none' },
           }}
           component={GymScreen}
+        />
+        <Drawer.Screen
+          name='TemplateScreen'
+          options={{
+            // drawerItemStyle: { display: 'none' },
+          }}
+          component={TemplateScreen}
         />
       </Drawer.Navigator>
     </>
