@@ -22,6 +22,7 @@ import Earnings from '../screens/auth/Earnings'
 import GymScreen from '../screens/auth/GymScreen'
 import TemplateScreen from '../screens/auth/TemplateScreen'
 import StaffScreen from '../screens/auth/StaffScreen'
+import Members from '../screens/auth/Members'
 
 const Stack = createStackNavigator()
 
@@ -38,7 +39,7 @@ const screenOptionsStyle = {
   drawerActiveTintColor: AppColors.blue,        // Active text/icon color
   drawerInactiveTintColor: AppColors.blue,      // Inactive text/icon color
   drawerActiveBackgroundColor: AppColors.grey,  // Active background color
-  drawerItemStyle: { marginVertical: 4 },      // Apply a style to all items
+  drawerItemStyle: { marginVertical: 4 },       // Apply a style to all items
   drawerLabelStyle: {
     fontSize: 20,
     fontFamily: 'Montserrat',
@@ -122,6 +123,13 @@ const MainAppStack = () => {
             // drawerItemStyle: { display: 'none' },
           }}
           component={StaffScreen}
+        />
+        <Drawer.Screen
+          name='Members'
+          options={{
+            // drawerItemStyle: { display: 'none' },
+          }}
+          component={Members}
         />
         {/* <Drawer.Screen
           name='TemplateScreen'
