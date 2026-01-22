@@ -68,7 +68,7 @@ const Contractors = () => {
         </View>
         <ScrollView style={styles.scrollView}>
           <View style={styles.headingContainer}>
-            <Text style={styles.title}>Products</Text>
+            <Text style={styles.title}>Contractors</Text>
             <PinkLeafSvg style={styles.pinkLeaf} />
           </View>
           <View style={styles.body}>
