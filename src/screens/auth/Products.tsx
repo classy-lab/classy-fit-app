@@ -219,10 +219,13 @@ const styles = StyleSheet.create({
     marginTop: 24,
     marginBottom: 32
   },
+  sectionHeading: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
   sectionTitle: {
     fontSize: 24,
     // marginBottom: 16,
-    width: '100%'
   },
   countText: {
     fontSize: 12
