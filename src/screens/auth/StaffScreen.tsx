@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Dimensions, TouchableOpacity, ScrollView, TextInput } from 'react-native'
+import { StyleSheet, Text, View, Dimensions, TouchableOpacity, ScrollView, TextInput, Image } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import { AppColors } from '../../styles/colors'
@@ -87,6 +87,7 @@ const StaffScreen = () => {
                       keyboardType="default"
                       autoCapitalize="none"
                       placeholder="Search"
+                      placeholderTextColor={AppColors.blue}
                       onBlur={handleSubmit(onSubmit)}
                     />
                   )}
@@ -104,6 +105,31 @@ const StaffScreen = () => {
                 </TouchableOpacity>
               </View> */}
               {errors.search && <Text style={styles.errorText}>{errors.search.message}</Text>}
+            </View>
+
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Owner</Text>
+              <View style={styles.boxes}>
+                <View style={styles.box}>
+                  <Image style={styles.image} source={require('../../assets/images/headshots/sarahHeadshot.png')} />
+                  <Text style={styles.personName}>Sarah B.</Text>
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Staff / Personal Trainers</Text>
+              <View style={styles.boxes}>
+                <View style={styles.box}>
+                  <Image style={styles.image} source={require('../../assets/images/headshots/jenniferHeadshot.png')} />
+                  <Text style={styles.personName}>Jenniffer P.</Text>
+                </View>
+
+                <View style={styles.box}>
+                  <Image style={styles.image} source={require('../../assets/images/headshots/mariaHeadshot.png')} />
+                  <Text style={styles.personName}>Maria K.</Text>
+                </View>
+              </View>
             </View>
 
           </View>
@@ -186,9 +212,29 @@ const styles = StyleSheet.create({
     height: s(48),
     borderRadius: s(8),
   },
-  loginBtnText: {
-    color: AppColors.white,
-    fontSize: s(14),
-    fontFamily: 'Montserrat-Medium'
+  section: {
+    // flexDirection: 'column',
+    marginTop: 24,
+    marginBottom: 32
   },
+  sectionTitle: {
+    fontSize: 24,
+    // marginBottom: 16,
+    width: '100%'
+  },
+  boxes: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    columnGap: 26,
+    // justifyContent: 'center',
+    // alignItems: 'center',
+  },
+  image: {
+    marginTop: 16,
+    width: 80,
+    height: 80
+  },
+  personName: {
+    marginTop: 10
+  }
 })
