@@ -10,7 +10,7 @@ import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
 import BuildingSvg from '../../components/svg/BuildingSvg'
 import ClassesSvg from '../../components/svg/ClassesSvg'
 import PersonalTrainingSvg from '../../components/svg/PersonalTrainingSvg'
-import ClassyGymTabNavigator from '../ClassyGymTabNavigator'
+import TabNavigator from '../TabNavigator'
 import Elliptical from '../../assets/svg/Elliptical'
 import Dumbbell from '../../assets/svg/Dumbbell'
 import MemberNotification from '../../assets/svg/MemberNotification'
@@ -136,7 +136,7 @@ const GymScreen = () => {
             </View>
           </View>
         </ScrollView>
-        <ClassyGymTabNavigator />
+        <TabNavigator />
       </SafeAreaView>
     </>
   )
