@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Dimensions, TouchableOpacity, ScrollView } from 'react-native'
+import { StyleSheet, Text, View, Dimensions, TouchableOpacity, ScrollView, TextInput } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import { AppColors } from '../../styles/colors'
@@ -8,15 +8,47 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import Feather from '@expo/vector-icons/Feather'
 import ClassyGymTabNavigator from '../ClassyGymTabNavigator'
 import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
+import * as yup from 'yup'
+import { useForm, Controller } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
 
-const windowWidth = Dimensions.get('window').width
+const windowHeight = Dimensions.get('window').height
 
 const StaffScreen = () => {
   const navigation = useNavigation()
-  const [fontsLoaded] = useFonts({
-    "Montserrat": require("../../assets/fonts/montserrat/Montserrat-Regular.ttf"),
-    "Montserrat-Bold": require("../../assets/fonts/montserrat/Montserrat-Bold.ttf")
+
+  // 1. Define the Yup validation schema
+  const schema = yup.object().shape({
+    search: yup.string().required('Search field is required').matches(
+      /^[a-zA-Z0-9]+$/,
+      'Password must only contain alphanumeric characters (letters and numbers)'
+    )
   })
+
+  // 2. Initialize useForm with the Yup resolver
+  const { control, handleSubmit, formState: { errors } } = useForm({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      search: '',
+    },
+  })
+
+  // 3. Define the submit handler
+  const onSubmit = async (data) => {
+    // This function only runs if validation passes
+    console.log('Form Submitted (Validation Passed):', data);
+
+    try {
+      // Perform your authentication logic or API call here
+      // const response = await api.post('/login', data);
+      // If successful, navigate to the Login page or another desired screen
+      // navigation.navigate('DashboardScreen');
+    } catch (error) {
+      // Handle API errors (React Hook Form does not swallow errors here)
+      console.error("Login failed:", error);
+      // Optionally, show an error message to the user
+    }
+  }
 
   return (
     <>
@@ -38,9 +70,42 @@ const StaffScreen = () => {
           <View style={styles.body}>
 
 
+            <View style={styles.fieldset}>
+              <View style={styles.field}>
+                <Controller
+                  control={control}
+                  name="search"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                      style={styles.inputField}
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                      keyboardType="default"
+                      autoCapitalize="none"
+                      placeholder="Search"
+                    />
+                  )}
+                />
+
+              </View>
+              {/* Render other form inputs and their corresponding error messages */}
+              <View style={styles.loginBtnContainer}>
+                <TouchableOpacity
+                  style={styles.loginBtn}
+                  title="loginSubmit"
+                  activeOpacity={0.7}
+                  onPress={handleSubmit(onSubmit)}
+                >
+                  <Text style={styles.loginBtnText}>Search</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+            {errors.search && <Text style={styles.errorText}>{errors.search.message}</Text>}
+
           </View>
         </ScrollView>
-        {/* <ClassyGymTabNavigator /> */}
+        <ClassyGymTabNavigator />
       </SafeAreaView>
 
     </>
@@ -79,7 +144,6 @@ const styles = StyleSheet.create({
     paddingLeft: 3
   },
   headingContainer: {
-    width: 375,
     alignItems: 'center',
     marginBottom: 20
   },
@@ -90,15 +154,53 @@ const styles = StyleSheet.create({
     marginTop: 60,
   },
   pinkLeaf: {
-    position: 'relative',
-    zIndex: -1,
-    top: -68,
-    right: -40
+    position: 'absolute',
+    // zIndex: -1,
+    top: 40,
+    right: 140
   },
   body: {
     paddingLeft: 24,
     paddingRight: 24,
     marginBottom: 8,
+    flex: 1,
+    height: windowHeight,
+    // borderWidth: 1, borderColor: 'red',
   },
-
+  errorText: {
+    color: AppColors.red
+  },
+  fieldset: {
+    flexDirection: 'row',
+    // borderWidth: 1, borderColor: 'red',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  field: {
+    flexGrow: 1
+  },
+  inputField: {
+    borderWidth: 1,
+    borderColor: AppColors.textInputBorderColor,
+    backgroundColor: AppColors.grey,
+    paddingLeft: 22,
+    height: s(48),
+    borderRadius: s(8),
+  },
+  loginBtnContainer: {
+    alignItems: 'center',
+  },
+  loginBtn: {
+    backgroundColor: AppColors.blue,
+    borderRadius: 8,
+    height: s(48),
+    justifyContent: 'center',
+    marginLeft: 8,
+    padding: 4
+  },
+  loginBtnText: {
+    color: AppColors.white,
+    fontSize: s(14),
+    fontFamily: 'Montserrat-Medium'
+  },
 })
