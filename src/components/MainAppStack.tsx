@@ -23,6 +23,7 @@ import GymScreen from '../screens/auth/GymScreen'
 import TemplateScreen from '../screens/auth/TemplateScreen'
 import StaffScreen from '../screens/auth/StaffScreen'
 import Members from '../screens/auth/Members'
+import Products from '../screens/auth/Products'
 
 const Stack = createStackNavigator()
 
@@ -130,6 +131,13 @@ const MainAppStack = () => {
             // drawerItemStyle: { display: 'none' },
           }}
           component={Members}
+        />
+        <Drawer.Screen
+          name='Products'
+          options={{
+            // drawerItemStyle: { display: 'none' },
+          }}
+          component={Products}
         />
         {/* <Drawer.Screen
           name='TemplateScreen'
