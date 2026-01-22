@@ -56,6 +56,10 @@ const StaffScreen = () => {
         <View style={styles.navs}>
           <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
           <View style={styles.signOut}>
+            <Text style={styles.signOutText}>Add</Text>
+            <View style={styles.circle}>
+              <Feather name="plus" size={24} color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
+            </View>
             <Text style={styles.signOutText}>Sign out</Text>
             <View style={styles.circle}>
               <MaterialIcons name="logout" color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
@@ -130,6 +134,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   signOutText: {
+    marginLeft: 10,
     marginRight: 4,
     color: AppColors.blue,
     fontSize: 14
@@ -141,7 +146,7 @@ const styles = StyleSheet.create({
     backgroundColor: AppColors.blue,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingLeft: 3
+    // paddingLeft: 3
   },
   headingContainer: {
     alignItems: 'center',
@@ -151,12 +156,12 @@ const styles = StyleSheet.create({
     color: AppColors.blue,
     fontFamily: 'Montserrat',
     fontSize: 32,
-    marginTop: 60,
+    marginTop: 20,
   },
   pinkLeaf: {
     position: 'absolute',
     // zIndex: -1,
-    top: 40,
+    // top: 0,
     right: 140
   },
   body: {
@@ -174,7 +179,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     // borderWidth: 1, borderColor: 'red',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   field: {
     flexGrow: 1
