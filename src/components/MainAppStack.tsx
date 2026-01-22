@@ -24,6 +24,7 @@ import TemplateScreen from '../screens/auth/TemplateScreen'
 import StaffScreen from '../screens/auth/StaffScreen'
 import Members from '../screens/auth/Members'
 import Products from '../screens/auth/Products'
+import Contractors from '../screens/auth/Contractors'
 
 const Stack = createStackNavigator()
 
@@ -138,6 +139,13 @@ const MainAppStack = () => {
             // drawerItemStyle: { display: 'none' },
           }}
           component={Products}
+        />
+        <Drawer.Screen
+          name='Contractors'
+          options={{
+            // drawerItemStyle: { display: 'none' },
+          }}
+          component={Contractors}
         />
         {/* <Drawer.Screen
           name='TemplateScreen'
