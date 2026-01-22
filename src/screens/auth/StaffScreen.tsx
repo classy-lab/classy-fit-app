@@ -235,6 +235,7 @@ const styles = StyleSheet.create({
     height: 80
   },
   personName: {
-    marginTop: 10
+    marginTop: 10,
+    textAlign: 'center'
   }
 })
