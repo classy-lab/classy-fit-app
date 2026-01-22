@@ -7,6 +7,7 @@ import { s } from 'react-native-size-matters'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import Feather from '@expo/vector-icons/Feather'
 import ClassyGymTabNavigator from '../ClassyGymTabNavigator'
+import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
 
 const windowWidth = Dimensions.get('window').width
 
@@ -31,7 +32,8 @@ const TemplateScreen = () => {
         </View>
         <ScrollView>
           <View style={styles.headingContainer}>
-            <Text style={styles.title}>Template Screen</Text>
+            <Text style={styles.title}>Staff</Text>
+            <PinkLeafSvg style={styles.pinkLeaf} />
           </View>
           <View style={styles.body}>
 
@@ -85,7 +87,13 @@ const styles = StyleSheet.create({
     color: AppColors.blue,
     fontFamily: 'Montserrat',
     fontSize: 32,
-    marginTop: 20,
+    marginTop: 60,
+  },
+  pinkLeaf: {
+    position: 'relative',
+    zIndex: -1,
+    top: -68,
+    right: -40
   },
   body: {
     paddingLeft: 24,
