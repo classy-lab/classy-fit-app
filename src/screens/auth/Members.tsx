@@ -98,20 +98,23 @@ const Members = () => {
             </View>
 
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Owner</Text>
+              <View style={styles.sectionHeading}>
+                <Text style={styles.sectionTitle}>Owner</Text>
+                <Text style={styles.countText}>Count: 105</Text>
+              </View>
               <View style={styles.boxes}>
-                <View style={styles.box}>
-                  <Image style={styles.image} source={require('../../assets/images/headshots/sarahHeadshot.png')} />
-                  <Text style={styles.personName}>Sarah B.</Text>
-                </View>
                 <View style={styles.box}>
                   <Image style={styles.image} source={require('../../assets/images/headshots/jenniferHeadshot.png')} />
                   <Text style={styles.personName}>Jenniffer P.</Text>
                 </View>
+                <View style={styles.box}>
+                  <Image style={styles.image} source={require('../../assets/images/headshots/patrickHeadshot.png')} />
+                  <Text style={styles.personName}>Patrick P.</Text>
+                </View>
 
                 <View style={styles.box}>
-                  <Image style={styles.image} source={require('../../assets/images/headshots/mariaHeadshot.png')} />
-                  <Text style={styles.personName}>Maria K.</Text>
+                  <Image style={styles.image} source={require('../../assets/images/headshots/MarkS.png')} />
+                  <Text style={styles.personName}>Mark S.</Text>
                 </View>
 
                 <View style={styles.box}>
@@ -243,10 +246,13 @@ const styles = StyleSheet.create({
     marginTop: 24,
     marginBottom: 32
   },
+  sectionHeading: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
   sectionTitle: {
     fontSize: 24,
     // marginBottom: 16,
-    width: '100%'
   },
   boxes: {
     flexDirection: 'row',
