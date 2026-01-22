@@ -6,7 +6,7 @@ import { useFonts } from 'expo-font'
 import { s } from 'react-native-size-matters'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import Feather from '@expo/vector-icons/Feather'
-import ClassyGymTabNavigator from '../ClassyGymTabNavigator'
+import TabNavigator from '../TabNavigator'
 import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
 
 const windowWidth = Dimensions.get('window').width
@@ -40,7 +40,7 @@ const TemplateScreen = () => {
 
           </View>
         </ScrollView>
-        <ClassyGymTabNavigator />
+        <TabNavigator />
       </SafeAreaView>
 
     </>
