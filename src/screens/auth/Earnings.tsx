@@ -6,7 +6,7 @@ import { useFonts } from 'expo-font'
 import Feather from '@expo/vector-icons/Feather'
 import { s } from 'react-native-size-matters'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
-import ClassyGymTabNavigator from '../ClassyGymTabNavigator'
+import TabNavigator from '../TabNavigator'
 import EarningsBarGraph from '../../assets/svg/EarningsBarGraph'
 import Entypo from '@expo/vector-icons/Entypo'
 
@@ -93,7 +93,7 @@ const Earnings = () => {
             </View>
           </View>
         </ScrollView>
-        <ClassyGymTabNavigator />
+        <TabNavigator />
       </SafeAreaView>
     </>
   )
