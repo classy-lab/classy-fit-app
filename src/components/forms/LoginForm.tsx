@@ -9,21 +9,18 @@ import { s, vs } from 'react-native-size-matters'
 
 const windowWidth = Dimensions.get('window').width;
 
-// 1. Define the Yup validation schema
-const schema = yup.object().shape({
-  email: yup.string().required('Email is required').email('Invalid email'),
-  password: yup.string().required('Password is required').min(2, 'Password must contain at least 2 characters').matches(
-    /^[a-zA-Z0-9]+$/,
-    'Password must only contain alphanumeric characters (letters and numbers)'
-  )
-});
-
 const LoginForm = () => {
   const navigation = useNavigation()
-  const [fontsLoaded] = useFonts({
-    "Montserrat": require("../../assets/fonts/montserrat/Montserrat-Regular.ttf"),
-    "Montserrat-Medium": require("../../assets/fonts/montserrat/Montserrat-Medium.ttf")
-  })
+
+  // 1. Define the Yup validation schema
+  const schema = yup.object().shape({
+    email: yup.string().required('Email is required').email('Invalid email'),
+    password: yup.string().required('Password is required').min(2, 'Password must contain at least 2 characters').matches(
+      /^[a-zA-Z0-9]+$/,
+      'Password must only contain alphanumeric characters (letters and numbers)'
+    )
+  });
+
   // 2. Initialize useForm with the Yup resolver
   const { control, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
