@@ -66,7 +66,7 @@ const Members = () => {
             </View>
           </View>
         </View>
-        <ScrollView>
+        <ScrollView style={styles.scrollView}>
           <View style={styles.headingContainer}>
             <Text style={styles.title}>Members</Text>
             <PinkLeafSvg style={styles.pinkLeaf} />
@@ -129,16 +129,30 @@ const Members = () => {
                 </View>
 
                 <View style={styles.box}>
-                  <Image style={styles.image} source={require('../../assets/images/headshots/sarahHeadshot.png')} />
+                  <Image style={styles.image} source={require('../../assets/images/headshots/lisa.png')} />
                   <Text style={styles.personName}>Sarah B.</Text>
                 </View>
                 <View style={styles.box}>
-                  <Image style={styles.image} source={require('../../assets/images/headshots/jenniferHeadshot.png')} />
+                  <Image style={styles.image} source={require('../../assets/images/headshots/andy.png')} />
                   <Text style={styles.personName}>Jenniffer P.</Text>
                 </View>
 
                 <View style={styles.box}>
-                  <Image style={styles.image} source={require('../../assets/images/headshots/mariaHeadshot.png')} />
+                  <Image style={styles.image} source={require('../../assets/images/headshots/jessica.png')} />
+                  <Text style={styles.personName}>Maria K.</Text>
+                </View>
+
+                <View style={styles.box}>
+                  <Image style={styles.image} source={require('../../assets/images/headshots/candy.png')} />
+                  <Text style={styles.personName}>Sarah B.</Text>
+                </View>
+                <View style={styles.box}>
+                  <Image style={styles.image} source={require('../../assets/images/headshots/sam.png')} />
+                  <Text style={styles.personName}>Jenniffer P.</Text>
+                </View>
+
+                <View style={styles.box}>
+                  <Image style={styles.image} source={require('../../assets/images/headshots/rajesh.png')} />
                   <Text style={styles.personName}>Maria K.</Text>
                 </View>
               </View>
@@ -249,5 +263,8 @@ const styles = StyleSheet.create({
   personName: {
     marginTop: 10,
     textAlign: 'center'
+  },
+  scrollView: {
+    marginBottom: 32
   }
 })
