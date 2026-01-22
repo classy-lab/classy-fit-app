@@ -73,7 +73,6 @@ const StaffScreen = () => {
           </View>
           <View style={styles.body}>
 
-
             <View style={styles.fieldset}>
               <View style={styles.field}>
                 <Controller
@@ -82,19 +81,19 @@ const StaffScreen = () => {
                   render={({ field: { onChange, onBlur, value } }) => (
                     <TextInput
                       style={styles.inputField}
-                      onBlur={onBlur}
+                      // onBlur={onBlur}
                       onChangeText={onChange}
                       value={value}
                       keyboardType="default"
                       autoCapitalize="none"
                       placeholder="Search"
+                      onBlur={handleSubmit(onSubmit)}
                     />
                   )}
                 />
-
               </View>
               {/* Render other form inputs and their corresponding error messages */}
-              <View style={styles.loginBtnContainer}>
+              {/* <View style={styles.loginBtnContainer}>
                 <TouchableOpacity
                   style={styles.loginBtn}
                   title="loginSubmit"
@@ -103,15 +102,14 @@ const StaffScreen = () => {
                 >
                   <Text style={styles.loginBtnText}>Search</Text>
                 </TouchableOpacity>
-              </View>
+              </View> */}
+              {errors.search && <Text style={styles.errorText}>{errors.search.message}</Text>}
             </View>
-            {errors.search && <Text style={styles.errorText}>{errors.search.message}</Text>}
 
           </View>
         </ScrollView>
         <TabNavigator />
       </SafeAreaView>
-
     </>
   )
 }
@@ -173,14 +171,10 @@ const styles = StyleSheet.create({
     // borderWidth: 1, borderColor: 'red',
   },
   errorText: {
-    color: AppColors.red
+    color: AppColors.red,
+    // marginTop: 8
   },
-  fieldset: {
-    flexDirection: 'row',
-    // borderWidth: 1, borderColor: 'red',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  fieldset: {},
   field: {
     flexGrow: 1
   },
@@ -191,17 +185,6 @@ const styles = StyleSheet.create({
     paddingLeft: 22,
     height: s(48),
     borderRadius: s(8),
-  },
-  loginBtnContainer: {
-    alignItems: 'center',
-  },
-  loginBtn: {
-    backgroundColor: AppColors.blue,
-    borderRadius: 8,
-    height: s(48),
-    justifyContent: 'center',
-    marginLeft: 8,
-    padding: 4
   },
   loginBtnText: {
     color: AppColors.white,
