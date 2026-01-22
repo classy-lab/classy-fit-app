@@ -104,31 +104,37 @@ const Contractors = () => {
               </View>
               <View style={styles.boxes}>
                 <View style={styles.box}>
-                  <Image style={styles.image} source={require('../../assets/images/products/boxingGloves.png')} resizeMode="contain" />
+                  <Image style={styles.image} source={require('../../assets/images/headshots/chinna.png')} resizeMode="contain" />
                   <Text style={styles.personName}>Boxing Gloves</Text>
+                  <Text style={styles.job}>Electrician</Text>
                 </View>
                 <View style={styles.box}>
-                  <Image style={styles.image} source={require('../../assets/images/products/proteinShaker.png')} resizeMode="contain" />
+                  <Image style={styles.image} source={require('../../assets/images/headshots/rani.png')} resizeMode="contain" />
                   <Text style={styles.personName}>Protein Shaker</Text>
+                  <Text style={styles.job}>Plumber</Text>
                 </View>
 
                 <View style={styles.box}>
-                  <Image style={styles.image} source={require('../../assets/images/products/proteinShaker2.png')} resizeMode="contain" />
+                  <Image style={styles.image} source={require('../../assets/images/headshots/imran.png')} resizeMode="contain" />
                   <Text style={styles.personName}>Protein Shaker</Text>
+                  <Text style={styles.job}>Repair Technician</Text>
                 </View>
 
                 <View style={styles.box}>
-                  <Image style={styles.image} source={require('../../assets/images/products/tShirt.png')} resizeMode="contain" />
-                  <Text style={styles.personName}>T Shirt</Text>
+                  <Image style={styles.image} source={require('../../assets/images/headshots/radeep.png')} resizeMode="contain" />
+                  <Text style={styles.personName}>Radeep K.</Text>
+                  <Text style={styles.job}>Repair Technician</Text>
                 </View>
                 <View style={styles.box}>
-                  <Image style={styles.image} source={require('../../assets/images/products/wristBand.png')} resizeMode="contain" />
-                  <Text style={styles.personName}>Wrist band</Text>
+                  <Image style={styles.image} source={require('../../assets/images/headshots/inna.png')} resizeMode="contain" />
+                  <Text style={styles.personName}>Inna K.</Text>
+                  <Text style={styles.job}>Cleaner</Text>
                 </View>
 
                 <View style={styles.box}>
-                  <Image style={styles.image} source={require('../../assets/images/products/headPhones.png')} resizeMode="contain" />
-                  <Text style={styles.personName}>Headphones</Text>
+                  <Image style={styles.image} source={require('../../assets/images/headshots/saloni.png')} resizeMode="contain" />
+                  <Text style={styles.personName}>Saloni K.</Text>
+                  <Text style={styles.job}>Cleaner</Text>
                 </View>
 
               </View>
@@ -235,7 +241,9 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     columnGap: 26,
     justifyContent: 'space-evenly',
-    // alignItems: 'center',
+  },
+  box: {
+    alignItems: 'center'
   },
   image: {
     marginTop: 16,
@@ -245,6 +253,11 @@ const styles = StyleSheet.create({
   personName: {
     marginTop: 10,
     textAlign: 'center'
+  },
+  job: {
+    marginTop: 8,
+    textAlign: 'center',
+    color: AppColors.grey2
   },
   scrollView: {
     marginBottom: 32
