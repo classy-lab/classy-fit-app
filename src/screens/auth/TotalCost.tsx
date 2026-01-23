@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
     fontSize: 32,
     color: AppColors.blue,
     fontFamily: 'Montserrat',
-    marginTop: 8
+    marginTop: 24
   },
   scrollView: {
     height: '100%',
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   loginBtnContainer: {
-    marginTop: 16
+    marginTop: 24
   },
   loginBtn: {
     backgroundColor: AppColors.blue,
