@@ -36,7 +36,7 @@ const Earnings = () => {
             </View>
           </View>
         </View>
-        <ScrollView style={styles.scrollViewStyles}>
+        <ScrollView style={styles.scrollViewStyles} showsVerticalScrollIndicator={false}>
           <View style={styles.heading}>
             <Text style={styles.headingTitle}>Earnings</Text>
             <Text style={styles.headingSubTitle}>September 2025</Text>
