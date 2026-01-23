@@ -156,7 +156,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingLeft: 24,
     paddingRight: 24,
-    width: '100%',
   },
   signOut: {
     flexDirection: 'row',
@@ -188,10 +187,10 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   pinkLeaf: {
-    position: 'absolute',
-    // zIndex: -1,
-    // top: 0,
-    right: 112
+    position: 'relative',
+    zIndex: -1,
+    top: -68,
+    right: -40
   },
   body: {
     paddingLeft: 24,
