@@ -69,16 +69,12 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: AppColors.white,
     flex: 1,
-    borderWidth: 1, bordeerColor: 'red',
-    alignItems: 'center',
-    // width: "100%",
     paddingLeft: 24,
     paddingRight: 24,
   },
   navs: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    // width: '100%',
   },
   headingContainer: {
     alignItems: 'center'
@@ -114,23 +110,23 @@ const styles = StyleSheet.create({
   column: {
   },
   columnText: {
-    fontSize: s(16),
-    lineHeight: s(32),
+    fontSize: 16,
+    lineHeight: 32,
   },
   addressText: {
     color: AppColors.primary,
-    fontSize: s(16),
-    lineHeight: s(32),
-    marginTop: s(32),
+    fontSize: 16,
+    lineHeight: 32,
+    marginTop: 32,
     alignSelf: 'center',
     textAlign: 'center',
   },
   callText: {
     fontWeight: 'bold',
-    fontSize: s(16),
-    lineHeight: s(16),
+    fontSize: 16,
+    lineHeight: 16,
     alignSelf: 'center',
     textAlign: 'center',
-    marginTop: s(32),
+    marginTop: 32,
   }
 })
