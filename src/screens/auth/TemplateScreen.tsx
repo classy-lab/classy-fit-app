@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Dimensions, ScrollView } from 'react-native'
+import { StyleSheet, Text, View, Dimensions, ScrollView, TouchableOpacity, Image } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import Feather from '@expo/vector-icons/Feather'
@@ -39,6 +39,7 @@ const TemplateScreen = () => {
             <PinkLeafSvg style={styles.pinkLeaf} />
           </View>
           <View style={styles.body}>
+
           </View>
         </ScrollView>
         <TabNavigator />
