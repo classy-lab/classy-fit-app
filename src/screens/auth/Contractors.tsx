@@ -103,40 +103,49 @@ const Contractors = () => {
                 <Text style={styles.countText}>Count: 6</Text>
               </View>
               <View style={styles.boxes}>
-                <View style={styles.box}>
-                  <Image style={styles.image} source={require('../../assets/images/headshots/chinna.png')} resizeMode="contain" />
-                  <Text style={styles.personName}>Boxing Gloves</Text>
-                  <Text style={styles.job}>Electrician</Text>
-                </View>
-                <View style={styles.box}>
-                  <Image style={styles.image} source={require('../../assets/images/headshots/rani.png')} resizeMode="contain" />
-                  <Text style={styles.personName}>Protein Shaker</Text>
-                  <Text style={styles.job}>Plumber</Text>
-                </View>
+                <TouchableOpacity>
+                  <View style={styles.box}>
+                    <Image style={styles.image} source={require('../../assets/images/headshots/chinna.png')} resizeMode="contain" />
+                    <Text style={styles.personName}>Boxing Gloves</Text>
+                    <Text style={styles.job}>Electrician</Text>
+                  </View>
+                </TouchableOpacity>
 
-                <View style={styles.box}>
-                  <Image style={styles.image} source={require('../../assets/images/headshots/imran.png')} resizeMode="contain" />
-                  <Text style={styles.personName}>Protein Shaker</Text>
-                  <Text style={styles.job}>Repair Technician</Text>
-                </View>
-
-                <View style={styles.box}>
-                  <Image style={styles.image} source={require('../../assets/images/headshots/radeep.png')} resizeMode="contain" />
-                  <Text style={styles.personName}>Radeep K.</Text>
-                  <Text style={styles.job}>Repair Technician</Text>
-                </View>
-                <View style={styles.box}>
-                  <Image style={styles.image} source={require('../../assets/images/headshots/inna.png')} resizeMode="contain" />
-                  <Text style={styles.personName}>Inna K.</Text>
-                  <Text style={styles.job}>Cleaner</Text>
-                </View>
-
-                <View style={styles.box}>
-                  <Image style={styles.image} source={require('../../assets/images/headshots/saloni.png')} resizeMode="contain" />
-                  <Text style={styles.personName}>Saloni K.</Text>
-                  <Text style={styles.job}>Cleaner</Text>
-                </View>
-
+                <TouchableOpacity>
+                  <View style={styles.box}>
+                    <Image style={styles.image} source={require('../../assets/images/headshots/rani.png')} resizeMode="contain" />
+                    <Text style={styles.personName}>Protein Shaker</Text>
+                    <Text style={styles.job}>Plumber</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity>
+                  <View style={styles.box}>
+                    <Image style={styles.image} source={require('../../assets/images/headshots/imran.png')} resizeMode="contain" />
+                    <Text style={styles.personName}>Protein Shaker</Text>
+                    <Text style={styles.job}>Repair Technician</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity>
+                  <View style={styles.box}>
+                    <Image style={styles.image} source={require('../../assets/images/headshots/radeep.png')} resizeMode="contain" />
+                    <Text style={styles.personName}>Radeep K.</Text>
+                    <Text style={styles.job}>Repair Technician</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity>
+                  <View style={styles.box}>
+                    <Image style={styles.image} source={require('../../assets/images/headshots/inna.png')} resizeMode="contain" />
+                    <Text style={styles.personName}>Inna K.</Text>
+                    <Text style={styles.job}>Cleaner</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity>
+                  <View style={styles.box}>
+                    <Image style={styles.image} source={require('../../assets/images/headshots/saloni.png')} resizeMode="contain" />
+                    <Text style={styles.personName}>Saloni K.</Text>
+                    <Text style={styles.job}>Cleaner</Text>
+                  </View>
+                </TouchableOpacity>
               </View>
             </View>
 
