@@ -29,7 +29,7 @@ const DashboardScreen = () => {
             </View>
           </View>
         </View>
-        <ScrollView>
+        <ScrollView style={styles.scrollView}>
           <View style={styles.headingContainer}>
             <Text style={styles.title}>Dashboard</Text>
           </View>
@@ -65,7 +65,7 @@ const DashboardScreen = () => {
                 <View style={styles.whiteSquare}>
                   <FontAwesome5 name="user-alt" size={24} color={AppColors.blue} />
                 </View>
-                <Text>Staff</Text>
+                <Text>Contractors</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -100,6 +100,9 @@ const styles = StyleSheet.create({
     fontFamily: 'Montserrat',
     fontSize: 32,
     marginTop: 20,
+  },
+  scrollView: {
+    height: '100%',
   },
   body: {
     paddingLeft: 24,
