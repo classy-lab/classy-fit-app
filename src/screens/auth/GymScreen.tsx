@@ -37,7 +37,7 @@ const GymScreen = () => {
             </View>
           </View>
         </View>
-        <ScrollView>
+        <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.headingContainer}>
             <Text style={styles.title}>Gym</Text>
             <PinkLeafSvg style={styles.pinkLeaf} />
