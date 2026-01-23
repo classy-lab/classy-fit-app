@@ -101,13 +101,6 @@ const MainAppStack = () => {
           component={RegisterComplete}
         />
         <Drawer.Screen
-          name='SignoutScreen'
-          options={{
-            drawerItemStyle: { display: 'none' },
-          }}
-          component={SignoutScreen}
-        />
-        <Drawer.Screen
           name='Earnings'
           options={{
             // drawerItemStyle: { display: 'none' },
@@ -162,6 +155,13 @@ const MainAppStack = () => {
             // drawerItemStyle: { display: 'none' },
           }}
           component={ThankYou}
+        />
+        <Drawer.Screen
+          name='SignoutScreen'
+          options={{
+            // drawerItemStyle: { display: 'none' },
+          }}
+          component={SignoutScreen}
         />
         <Drawer.Screen
           name='TemplateScreen'
