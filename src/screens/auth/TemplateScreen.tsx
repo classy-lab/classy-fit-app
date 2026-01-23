@@ -1,15 +1,14 @@
-import { StyleSheet, Text, View, Dimensions, TouchableOpacity, ScrollView } from 'react-native'
+import { StyleSheet, Text, View, Dimensions, ScrollView } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
+import Feather from '@expo/vector-icons/Feather'
 import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
-import { s } from 'react-native-size-matters'
-import MaterialIcons from '@expo/vector-icons/MaterialIcons'
-import Feather from '@expo/vector-icons/Feather'
-import TabNavigator from '../TabNavigator'
 import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
+import MaterialIcons from '@expo/vector-icons/MaterialIcons'
+import TabNavigator from '../TabNavigator'
 
-const windowWidth = Dimensions.get('window').width
+const windowHeight = Dimensions.get('window').height
 
 const TemplateScreen = () => {
   const navigation = useNavigation()
@@ -24,25 +23,26 @@ const TemplateScreen = () => {
         <View style={styles.navs}>
           <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
           <View style={styles.signOut}>
+            <Text style={styles.signOutText}>Add</Text>
+            <View style={styles.circle}>
+              <Feather name="plus" size={24} color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
+            </View>
             <Text style={styles.signOutText}>Sign out</Text>
             <View style={styles.circle}>
               <MaterialIcons name="logout" color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
             </View>
           </View>
         </View>
-        <ScrollView>
+        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.headingContainer}>
-            <Text style={styles.title}>Staff</Text>
+            <Text style={styles.title}>Template</Text>
             <PinkLeafSvg style={styles.pinkLeaf} />
           </View>
           <View style={styles.body}>
-
-
           </View>
         </ScrollView>
         <TabNavigator />
       </SafeAreaView>
-
     </>
   )
 }
@@ -58,13 +58,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingLeft: 24,
     paddingRight: 24,
-    width: '100%',
   },
   signOut: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   signOutText: {
+    marginLeft: 10,
     marginRight: 4,
     color: AppColors.blue,
     fontSize: 14
@@ -76,10 +76,8 @@ const styles = StyleSheet.create({
     backgroundColor: AppColors.blue,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingLeft: 3
   },
   headingContainer: {
-    width: 375,
     alignItems: 'center',
     marginBottom: 20
   },
@@ -87,7 +85,7 @@ const styles = StyleSheet.create({
     color: AppColors.blue,
     fontFamily: 'Montserrat',
     fontSize: 32,
-    marginTop: 60,
+    marginTop: 20,
   },
   pinkLeaf: {
     position: 'relative',
@@ -99,6 +97,10 @@ const styles = StyleSheet.create({
     paddingLeft: 24,
     paddingRight: 24,
     marginBottom: 8,
+    flex: 1,
+    height: windowHeight,
+    // borderWidth: 1, borderColor: 'red',
   },
-
+  scrollView: {
+  }
 })
