@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     // zIndex: -1,
     // top: 0,
-    right: 140
+    right: 88
   },
   body: {
     paddingLeft: 24,
@@ -216,6 +216,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: AppColors.textInputBorderColor,
     backgroundColor: AppColors.grey,
+    marginTop: 20,
     paddingLeft: 22,
     height: s(48),
     borderRadius: s(8),
