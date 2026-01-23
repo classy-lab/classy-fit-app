@@ -88,10 +88,8 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     paddingLeft: 24,
     paddingRight: 24,
-    width: '100%',
   },
   headingContainer: {
-    width: 375,
     alignItems: 'center',
     marginBottom: 20
   },
@@ -132,7 +130,6 @@ const styles = StyleSheet.create({
     backgroundColor: AppColors.blue,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingLeft: 3
   },
   blueRectangle: {
     backgroundColor: AppColors.blue,
