@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image } from 'react-native'
+import { StyleSheet, Text, View, ScrollView } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import Ionicons from '@expo/vector-icons/Ionicons'
@@ -8,6 +8,7 @@ import { useFonts } from 'expo-font'
 import VectorImageSvg from '../../components/svg/VectorImageSvg'
 import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
 import { s, vs } from 'react-native-size-matters'
+import PhoneSvg from '../../components/svg/PhoneSvg'
 
 const Contact = () => {
   const navigation = useNavigation()
@@ -18,32 +19,37 @@ const Contact = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.navs}>
-        <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
-        <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
-      </View>
-      <View style={styles.headingContainer}>
-        <Text style={styles.title}>Contact Us</Text>
-        <PinkLeafSvg style={styles.pinkLeaf} />
-      </View>
-      <View style={styles.body}>
-        <Text style={styles.boldText}>
-          V-Fitness Center & Gym{"\n"}
-        </Text>
-        <Text style={styles.bodyText}>
-          Varakala Nivas Super Market{"\n"}
-          Sree ramnjanagar colony,{"\n"}
-          Hyderabad, Munganoor{"\n"}
-          Telangana 501505{"\n\n"}
-        </Text>
-        <Text style={styles.boldText}>
-          Call Anytime{"\n\n"}
-          +91  095536 27654
-        </Text>
-      </View>
-      <View style={styles.imageContainer}>
-        <VectorImageSvg />
-      </View>
+      <ScrollView>
+        <View style={styles.navs}>
+          <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
+          <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
+        </View>
+        <View style={styles.headingContainer}>
+          <Text style={styles.title}>Contact Us</Text>
+          <PinkLeafSvg style={styles.pinkLeaf} />
+        </View>
+        <View style={styles.body}>
+          <Text style={styles.boldText}>
+            V-Fitness Center & Gym{"\n"}
+          </Text>
+          <Text style={styles.bodyText}>
+            Varakala Nivas Super Market{"\n"}
+            Sree ramnjanagar colony,{"\n"}
+            Hyderabad, Munganoor{"\n"}
+            Telangana 501505{"\n"}
+          </Text>
+          <Text style={styles.boldText}>
+            Call Anytime{"\n\n"}
+            +91  095536 27654
+          </Text>
+          <View>
+            <PhoneSvg style={styles.phoneSvg} />
+          </View>
+        </View>
+        <View style={styles.imageContainer}>
+          <VectorImageSvg />
+        </View>
+      </ScrollView>
     </SafeAreaView >
   )
 }
@@ -54,19 +60,15 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: AppColors.white,
     flex: 1,
-    // justifyContent: 'flex-end',
     alignItems: 'center',
-    width: "100%",
     paddingLeft: 24,
     paddingRight: 24,
   },
   navs: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '100%',
   },
   headingContainer: {
-    width: 375,
     alignItems: 'center'
   },
   title: {
@@ -83,11 +85,10 @@ const styles = StyleSheet.create({
   },
   body: {
     // borderWidth: 1, bordeerColor: 'red',
-    flex: 1,
   },
   imageContainer: {
-    marginBottom: 8
-    // borderWidth: 1, bordeerColor: 'red',
+    marginTop: 8,
+    alignItems: 'center',
   },
   boldText: {
     fontWeight: 'bold',
@@ -103,4 +104,8 @@ const styles = StyleSheet.create({
     marginRight: 24,
     textAlign: 'center'
   },
+  phoneSvg: {
+    alignSelf: 'center',
+    marginTop: 32,
+  }
 })
