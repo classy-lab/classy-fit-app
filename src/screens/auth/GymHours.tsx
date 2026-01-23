@@ -5,9 +5,8 @@ import Ionicons from '@expo/vector-icons/Ionicons'
 import Feather from '@expo/vector-icons/Feather'
 import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
-import WorkoutSvg from '../../components/svg/WorkoutSvg'
+import Jogging from '../../components/svg/Jogging'
 import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
-import { s, vs } from 'react-native-size-matters'
 
 const windowWidth = Dimensions.get('window').width
 
@@ -56,7 +55,7 @@ const GymHours = () => {
           </Text>
         </View>
         <View style={styles.imageContainer}>
-          <WorkoutSvg />
+          <Jogging width="360" />
         </View>
       </ScrollView>
     </SafeAreaView >
@@ -68,7 +67,7 @@ export default GymHours
 const styles = StyleSheet.create({
   container: {
     backgroundColor: AppColors.white,
-    flex: 1,
+    // flex: 1,
     paddingLeft: 24,
     paddingRight: 24,
   },
@@ -86,40 +85,31 @@ const styles = StyleSheet.create({
     marginTop: 60,
   },
   pinkLeaf: {
-    position: 'relative',
+    position: 'absolute',
     zIndex: -1,
-    top: -68,
-    right: -40
+    top: 32,
+    right: 40
   },
-  body: {
-  },
+  body: {},
   bodyText: {
     fontFamily: "Montserrat",
     lineHeight: 24,
     color: AppColors.primary,
+    // borderWidth: 1, borderColor: 'red',
   },
   imageContainer: {
-    marginBottom: 8,
+    marginTop: 16,
     alignSelf: 'center',
   },
   columnContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: windowWidth - 64
+    justifyContent: 'space-around',
+    marginTop: 40,
   },
-  column: {
-  },
+  column: {},
   columnText: {
     fontSize: 16,
     lineHeight: 32,
-  },
-  addressText: {
-    color: AppColors.primary,
-    fontSize: 16,
-    lineHeight: 32,
-    marginTop: 32,
-    alignSelf: 'center',
-    textAlign: 'center',
   },
   callText: {
     fontWeight: 'bold',
