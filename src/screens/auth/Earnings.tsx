@@ -47,49 +47,59 @@ const Earnings = () => {
             </View>
           </View>
           <View style={styles.body}>
-            <View style={styles.squareCard}>
-              <View style={styles.squareCardHeadingContainer}>
-                <View style={styles.squareCardHeading}>
-                  <Text style={styles.SquareCardTitle}>October</Text>
-                  <Text style={styles.SquareCardSubTitle}>7 Day Business Earnings Graph</Text>
+            <TouchableOpacity>
+              <View style={styles.squareCard}>
+                <View style={styles.squareCardHeadingContainer}>
+                  <View style={styles.squareCardHeading}>
+                    <Text style={styles.SquareCardTitle}>October</Text>
+                    <Text style={styles.SquareCardSubTitle}>7 Day Business Earnings Graph</Text>
+                  </View>
+                  <View style={styles.SquareCardSettingsIcon}>
+                    <Entypo name="sound-mix" size={24} color={AppColors.grey3} />
+                  </View>
                 </View>
-                <View style={styles.SquareCardSettingsIcon}>
-                  <Entypo name="sound-mix" size={24} color={AppColors.grey3} />
+                <View style={styles.barGraph}>
+                  <EarningsBarGraph />
                 </View>
               </View>
-              <View style={styles.barGraph}>
-                <EarningsBarGraph />
-              </View>
-            </View>
+            </TouchableOpacity>
             <View style={styles.cards}>
-              <View style={styles.square}>
-                <Text style={styles.smallSquareCardTitle}>Membership</Text>
-                <Text style={styles.smallSquareCardSubTitle}>Earnings</Text>
-                <View style={styles.smallBarGraph}>
-                  <LineChart />
+              <TouchableOpacity>
+                <View style={styles.square}>
+                  <Text style={styles.smallSquareCardTitle}>Membership</Text>
+                  <Text style={styles.smallSquareCardSubTitle}>Earnings</Text>
+                  <View style={styles.smallBarGraph}>
+                    <LineChart />
+                  </View>
                 </View>
-              </View>
-              <View style={styles.square}>
-                <Text style={styles.smallSquareCardTitle}>Membership</Text>
-                <Text style={styles.smallSquareCardSubTitle}>Earnings</Text>
-                <View style={styles.smallBarGraph}>
-                  <LineChart2 />
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <View style={styles.square}>
+                  <Text style={styles.smallSquareCardTitle}>Membership</Text>
+                  <Text style={styles.smallSquareCardSubTitle}>Earnings</Text>
+                  <View style={styles.smallBarGraph}>
+                    <LineChart2 />
+                  </View>
                 </View>
-              </View>
-              <View style={styles.square}>
-                <Text style={styles.smallSquareCardTitle}>Membership</Text>
-                <Text style={styles.smallSquareCardSubTitle}>Earnings</Text>
-                <View style={styles.smallBarGraph}>
-                  <LineChart3 />
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <View style={styles.square}>
+                  <Text style={styles.smallSquareCardTitle}>Membership</Text>
+                  <Text style={styles.smallSquareCardSubTitle}>Earnings</Text>
+                  <View style={styles.smallBarGraph}>
+                    <LineChart3 />
+                  </View>
                 </View>
-              </View>
-              <View style={styles.square}>
-                <Text style={styles.smallSquareCardTitle}>Membership</Text>
-                <Text style={styles.smallSquareCardSubTitle}>Earnings</Text>
-                <View style={styles.smallBarGraph}>
-                  <LineChart4 />
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <View style={styles.square}>
+                  <Text style={styles.smallSquareCardTitle}>Membership</Text>
+                  <Text style={styles.smallSquareCardSubTitle}>Earnings</Text>
+                  <View style={styles.smallBarGraph}>
+                    <LineChart4 />
+                  </View>
                 </View>
-              </View>
+              </TouchableOpacity>
             </View>
           </View>
         </ScrollView>
