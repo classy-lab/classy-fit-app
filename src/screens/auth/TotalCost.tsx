@@ -62,31 +62,12 @@ export default TotalCost
 const styles = StyleSheet.create({
   container: {
     backgroundColor: AppColors.white,
-    flex: 1,
   },
   navs: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingLeft: 24,
     paddingRight: 24,
-  },
-  signOut: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  signOutText: {
-    marginRight: 4,
-    color: AppColors.blue,
-    fontSize: 14
-  },
-  circle: {
-    width: 30,
-    height: 30,
-    borderRadius: '50%',
-    backgroundColor: AppColors.blue,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingLeft: 3
   },
   headingContainer: {
     alignItems: 'center',
@@ -112,8 +93,31 @@ const styles = StyleSheet.create({
     paddingRight: 24,
     marginBottom: 8,
   },
-  loginBtnContainer: {
+  bodyText: {
+    fontSize: s(14),
+    fontFamily: "Montserrat",
+    lineHeight: 24,
+    color: AppColors.primary,
+  },
+  signOut: {
+    // borderWidth: 1, borderColor: 'red',
+    flexDirection: 'row',
     alignItems: 'center',
+  },
+  signOutText: {
+    marginRight: 4,
+    color: AppColors.blue,
+    fontSize: 14
+  },
+  circle: {
+    width: 30,
+    height: 30,
+    borderRadius: '50%',
+    backgroundColor: AppColors.blue,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loginBtnContainer: {
     marginTop: 16
   },
   loginBtn: {
