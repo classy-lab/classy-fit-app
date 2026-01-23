@@ -60,7 +60,6 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: AppColors.white,
     flex: 1,
-    alignItems: 'center',
     paddingLeft: 24,
     paddingRight: 24,
   },
@@ -84,7 +83,7 @@ const styles = StyleSheet.create({
     right: -40
   },
   body: {
-    // borderWidth: 1, bordeerColor: 'red',
+    // borderWidth: 1, borderColor: 'red',
   },
   imageContainer: {
     marginTop: 32,
