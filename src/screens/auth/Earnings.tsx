@@ -41,9 +41,15 @@ const Earnings = () => {
             <Text style={styles.headingTitle}>Earnings</Text>
             <Text style={styles.headingSubTitle}>September 2025</Text>
             <View style={styles.calendarControls}>
-              <Text style={styles.calendarControlText}>{'<'} Previous</Text>
-              <Text style={styles.calendarControlText}>Full Year</Text>
-              <Text style={styles.calendarControlText}>Next {'>'}</Text>
+              <TouchableOpacity>
+                <Text style={styles.calendarControlText}>{'<'} Previous</Text>
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <Text style={styles.calendarControlText}>Full Year</Text>
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <Text style={styles.calendarControlText}>Next {'>'}</Text>
+              </TouchableOpacity>
             </View>
           </View>
           <View style={styles.body}>
