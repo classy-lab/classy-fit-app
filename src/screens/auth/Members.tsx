@@ -66,7 +66,7 @@ const Members = () => {
             </View>
           </View>
         </View>
-        <ScrollView style={styles.scrollView}>
+        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.headingContainer}>
             <Text style={styles.title}>Members</Text>
             <PinkLeafSvg style={styles.pinkLeaf} />
@@ -237,7 +237,6 @@ const styles = StyleSheet.create({
   body: {
     paddingLeft: 24,
     paddingRight: 24,
-    marginBottom: 8,
     flex: 1,
     height: windowHeight,
     // borderWidth: 1, borderColor: 'red',
