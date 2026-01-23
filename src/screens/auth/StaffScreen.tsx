@@ -66,7 +66,7 @@ const StaffScreen = () => {
             </View>
           </View>
         </View>
-        <ScrollView>
+        <ScrollView style={styles.scrollView} shows>
           <View style={styles.headingContainer}>
             <Text style={styles.title}>Staff</Text>
             <PinkLeafSvg style={styles.pinkLeaf} />
@@ -243,5 +243,7 @@ const styles = StyleSheet.create({
   personName: {
     marginTop: 10,
     textAlign: 'center'
+  },
+  scrollView: {
   }
 })
