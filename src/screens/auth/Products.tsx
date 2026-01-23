@@ -106,29 +106,35 @@ const Products = () => {
                 <View style={styles.box}>
                   <Image style={styles.image} source={require('../../assets/images/products/boxingGloves.png')} resizeMode="contain" />
                   <Text style={styles.personName}>Boxing Gloves</Text>
+                  <Text style={styles.cost}>$25.00</Text>
                 </View>
                 <View style={styles.box}>
                   <Image style={styles.image} source={require('../../assets/images/products/proteinShaker.png')} resizeMode="contain" />
                   <Text style={styles.personName}>Protein Shaker</Text>
+                  <Text style={styles.cost}>$10.00</Text>
                 </View>
 
                 <View style={styles.box}>
                   <Image style={styles.image} source={require('../../assets/images/products/proteinShaker2.png')} resizeMode="contain" />
                   <Text style={styles.personName}>Protein Shaker</Text>
+                  <Text style={styles.cost}>$10.00</Text>
                 </View>
 
                 <View style={styles.box}>
                   <Image style={styles.image} source={require('../../assets/images/products/tShirt.png')} resizeMode="contain" />
                   <Text style={styles.personName}>T Shirt</Text>
+                  <Text style={styles.cost}>$21.00</Text>
                 </View>
                 <View style={styles.box}>
                   <Image style={styles.image} source={require('../../assets/images/products/wristBand.png')} resizeMode="contain" />
                   <Text style={styles.personName}>Wrist band</Text>
+                  <Text style={styles.cost}>$20.50</Text>
                 </View>
 
                 <View style={styles.box}>
                   <Image style={styles.image} source={require('../../assets/images/products/headPhones.png')} resizeMode="contain" />
                   <Text style={styles.personName}>Headphones</Text>
+                  <Text style={styles.cost}>$100.00</Text>
                 </View>
 
               </View>
@@ -249,5 +255,10 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     marginBottom: 32
+  },
+  cost: {
+    marginTop: 8,
+    textAlign: 'center',
+    color: AppColors.grey2
   }
 })
