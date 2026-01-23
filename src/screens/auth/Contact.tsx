@@ -6,9 +6,9 @@ import Feather from '@expo/vector-icons/Feather'
 import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
 import VectorImageSvg from '../../components/svg/VectorImageSvg'
-import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
 import { s, vs } from 'react-native-size-matters'
 import PhoneSvg from '../../components/svg/PhoneSvg'
+import PinkShape from '../../components/svg/PinkShape.tsx'
 
 const Contact = () => {
   const navigation = useNavigation()
@@ -19,14 +19,14 @@ const Contact = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView>
+      <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.navs}>
           <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
           <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
         </View>
         <View style={styles.headingContainer}>
           <Text style={styles.title}>Contact Us</Text>
-          <PinkLeafSvg style={styles.pinkLeaf} />
+          <PinkShape style={styles.pinkShape} />
         </View>
         <View style={styles.body}>
           <Text style={styles.boldText}>
@@ -59,7 +59,7 @@ export default Contact
 const styles = StyleSheet.create({
   container: {
     backgroundColor: AppColors.white,
-    flex: 1,
+    // flex: 1,
     paddingLeft: 24,
     paddingRight: 24,
   },
@@ -76,11 +76,11 @@ const styles = StyleSheet.create({
     fontSize: 32,
     marginTop: 60,
   },
-  pinkLeaf: {
+  pinkShape: {
     position: 'relative',
     zIndex: -1,
-    top: -68,
-    right: -40
+    top: -104,
+    right: -80
   },
   body: {
     // borderWidth: 1, borderColor: 'red',
