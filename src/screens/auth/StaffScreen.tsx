@@ -110,25 +110,30 @@ const StaffScreen = () => {
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Owner</Text>
               <View style={styles.boxes}>
-                <View style={styles.box}>
-                  <Image style={styles.image} source={require('../../assets/images/headshots/sarahHeadshot.png')} />
-                  <Text style={styles.personName}>Sarah B.</Text>
-                </View>
+                <TouchableOpacity>
+                  <View style={styles.box}>
+                    <Image style={styles.image} source={require('../../assets/images/headshots/sarahHeadshot.png')} />
+                    <Text style={styles.personName}>Sarah B.</Text>
+                  </View>
+                </TouchableOpacity>
               </View>
             </View>
 
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Staff / Personal Trainers</Text>
               <View style={styles.boxes}>
-                <View style={styles.box}>
-                  <Image style={styles.image} source={require('../../assets/images/headshots/jenniferHeadshot.png')} />
-                  <Text style={styles.personName}>Jenniffer P.</Text>
-                </View>
-
-                <View style={styles.box}>
-                  <Image style={styles.image} source={require('../../assets/images/headshots/mariaHeadshot.png')} />
-                  <Text style={styles.personName}>Maria K.</Text>
-                </View>
+                <TouchableOpacity>
+                  <View style={styles.box}>
+                    <Image style={styles.image} source={require('../../assets/images/headshots/jenniferHeadshot.png')} />
+                    <Text style={styles.personName}>Jenniffer P.</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity>
+                  <View style={styles.box}>
+                    <Image style={styles.image} source={require('../../assets/images/headshots/mariaHeadshot.png')} />
+                    <Text style={styles.personName}>Maria K.</Text>
+                  </View>
+                </TouchableOpacity>
               </View>
             </View>
 
