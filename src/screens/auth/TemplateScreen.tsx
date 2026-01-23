@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
     color: AppColors.blue,
     fontFamily: 'Montserrat',
     fontSize: 32,
-    marginTop: 20,
+    marginTop: 60,
   },
   pinkLeaf: {
     position: 'relative',
