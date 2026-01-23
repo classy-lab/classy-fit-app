@@ -27,7 +27,7 @@ const TotalCost = () => {
             </View>
           </View>
         </View>
-        <ScrollView>
+        <ScrollView style={styles.scrollView}>
           <View style={styles.headingContainer}>
             <Text style={styles.title}>Total Cost</Text>
             <Text style={styles.totalCost}>$40.00</Text>
@@ -103,6 +103,9 @@ const styles = StyleSheet.create({
     color: AppColors.blue,
     fontFamily: 'Montserrat',
     marginTop: 8
+  },
+  scrollView: {
+    height: '100%',
   },
   body: {
     paddingLeft: 24,
