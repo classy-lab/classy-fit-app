@@ -103,61 +103,78 @@ const Members = () => {
                 <Text style={styles.countText}>Count: 105</Text>
               </View>
               <View style={styles.boxes}>
-                <View style={styles.box}>
-                  <Image style={styles.image} source={require('../../assets/images/headshots/jenniferHeadshot.png')} />
-                  <Text style={styles.personName}>Jenniffer P.</Text>
-                </View>
-                <View style={styles.box}>
-                  <Image style={styles.image} source={require('../../assets/images/headshots/patrickHeadshot.png')} />
-                  <Text style={styles.personName}>Patrick P.</Text>
-                </View>
-
-                <View style={styles.box}>
-                  <Image style={styles.image} source={require('../../assets/images/headshots/MarkS.png')} />
-                  <Text style={styles.personName}>Mark S.</Text>
-                </View>
-
-                <View style={styles.box}>
-                  <Image style={styles.image} source={require('../../assets/images/headshots/lisaM.png')} />
-                  <Text style={styles.personName}>Lisa M.</Text>
-                </View>
-                <View style={styles.box}>
-                  <Image style={styles.image} source={require('../../assets/images/headshots/AndronicusP.png')} />
-                  <Text style={styles.personName}>Andronicus P.</Text>
-                </View>
-
-                <View style={styles.box}>
-                  <Image style={styles.image} source={require('../../assets/images/headshots/sona.png')} />
-                  <Text style={styles.personName}>Sona M.</Text>
-                </View>
-
-                <View style={styles.box}>
-                  <Image style={styles.image} source={require('../../assets/images/headshots/lisa.png')} />
-                  <Text style={styles.personName}>Sarah B.</Text>
-                </View>
-                <View style={styles.box}>
-                  <Image style={styles.image} source={require('../../assets/images/headshots/andy.png')} />
-                  <Text style={styles.personName}>Jenniffer P.</Text>
-                </View>
-
-                <View style={styles.box}>
-                  <Image style={styles.image} source={require('../../assets/images/headshots/jessica.png')} />
-                  <Text style={styles.personName}>Maria K.</Text>
-                </View>
-
-                <View style={styles.box}>
-                  <Image style={styles.image} source={require('../../assets/images/headshots/candy.png')} />
-                  <Text style={styles.personName}>Sarah B.</Text>
-                </View>
-                <View style={styles.box}>
-                  <Image style={styles.image} source={require('../../assets/images/headshots/sam.png')} />
-                  <Text style={styles.personName}>Jenniffer P.</Text>
-                </View>
-
-                <View style={styles.box}>
-                  <Image style={styles.image} source={require('../../assets/images/headshots/rajesh.png')} />
-                  <Text style={styles.personName}>Maria K.</Text>
-                </View>
+                <TouchableOpacity>
+                  <View style={styles.box}>
+                    <Image style={styles.image} source={require('../../assets/images/headshots/jenniferHeadshot.png')} />
+                    <Text style={styles.personName}>Jenniffer P.</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity>
+                  <View style={styles.box}>
+                    <Image style={styles.image} source={require('../../assets/images/headshots/patrickHeadshot.png')} />
+                    <Text style={styles.personName}>Patrick P.</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity>
+                  <View style={styles.box}>
+                    <Image style={styles.image} source={require('../../assets/images/headshots/MarkS.png')} />
+                    <Text style={styles.personName}>Mark S.</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity>
+                  <View style={styles.box}>
+                    <Image style={styles.image} source={require('../../assets/images/headshots/lisaM.png')} />
+                    <Text style={styles.personName}>Lisa M.</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity>
+                  <View style={styles.box}>
+                    <Image style={styles.image} source={require('../../assets/images/headshots/AndronicusP.png')} />
+                    <Text style={styles.personName}>Andronicus P.</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity>
+                  <View style={styles.box}>
+                    <Image style={styles.image} source={require('../../assets/images/headshots/sona.png')} />
+                    <Text style={styles.personName}>Sona M.</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity>
+                  <View style={styles.box}>
+                    <Image style={styles.image} source={require('../../assets/images/headshots/lisa.png')} />
+                    <Text style={styles.personName}>Sarah B.</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity>
+                  <View style={styles.box}>
+                    <Image style={styles.image} source={require('../../assets/images/headshots/andy.png')} />
+                    <Text style={styles.personName}>Jenniffer P.</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity>
+                  <View style={styles.box}>
+                    <Image style={styles.image} source={require('../../assets/images/headshots/jessica.png')} />
+                    <Text style={styles.personName}>Maria K.</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity>
+                  <View style={styles.box}>
+                    <Image style={styles.image} source={require('../../assets/images/headshots/candy.png')} />
+                    <Text style={styles.personName}>Sarah B.</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity>
+                  <View style={styles.box}>
+                    <Image style={styles.image} source={require('../../assets/images/headshots/sam.png')} />
+                    <Text style={styles.personName}>Jenniffer P.</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity>
+                  <View style={styles.box}>
+                    <Image style={styles.image} source={require('../../assets/images/headshots/rajesh.png')} />
+                    <Text style={styles.personName}>Maria K.</Text>
+                  </View>
+                </TouchableOpacity>
               </View>
             </View>
 
