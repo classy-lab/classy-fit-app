@@ -1,13 +1,15 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, View, Dimensions, ScrollView, TouchableOpacity, Image } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
-import Ionicons from '@expo/vector-icons/Ionicons'
 import Feather from '@expo/vector-icons/Feather'
 import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
 import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
-import { s, vs } from 'react-native-size-matters'
+import MaterialIcons from '@expo/vector-icons/MaterialIcons'
+import TabNavigator from '../TabNavigator'
 import DesignerSvg from '../../components/svg/DesignerSvg'
+
+const windowHeight = Dimensions.get('window').height
 
 const SignoutScreen = () => {
   const navigation = useNavigation()
@@ -17,32 +19,50 @@ const SignoutScreen = () => {
   })
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.navs}>
-        <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
-        <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
-      </View>
-      <View style={styles.headingContainer}>
-        <Text style={styles.title}>Signout</Text>
-        <PinkLeafSvg style={styles.pinkLeaf} />
-      </View>
-      <Text style={styles.body}>
-        You have successfully signed out of your account.
-      </Text>
-      <TouchableOpacity
-        style={styles.loginBtn}
-        title="Login"
-        onPress={() => { navigation.navigate('LoginScreen') }}
-        activeOpacity={0.7}
-      >
-        <Text style={styles.loginBtnText}>
-          Login
-        </Text>
-      </TouchableOpacity>
-      <View style={styles.imageContainer}>
-        <DesignerSvg />
-      </View>
-    </SafeAreaView >
+    <>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.navs}>
+          <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
+          <View style={styles.signOut}>
+            <Text style={styles.signOutText}>Add</Text>
+            <View style={styles.circle}>
+              <Feather name="plus" size={24} color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
+            </View>
+            <Text style={styles.signOutText}>Sign out</Text>
+            <View style={styles.circle}>
+              <MaterialIcons name="logout" color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
+            </View>
+          </View>
+        </View>
+        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+          <View style={styles.headingContainer}>
+            <Text style={styles.title}>Signed Out</Text>
+            <PinkLeafSvg style={styles.pinkLeaf} />
+          </View>
+          <View style={styles.body}>
+
+            <Text style={styles.bodyText}>
+              You have successfully signed out of your account.
+            </Text>
+            <TouchableOpacity
+              style={styles.loginBtn}
+              title="Login"
+              onPress={() => { navigation.navigate('LoginScreen') }}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.loginBtnText}>
+                Login
+              </Text>
+            </TouchableOpacity>
+            <View style={styles.imageContainer}>
+              <DesignerSvg />
+            </View>
+
+          </View>
+        </ScrollView>
+        <TabNavigator />
+      </SafeAreaView>
+    </>
   )
 }
 
@@ -51,19 +71,34 @@ export default SignoutScreen
 const styles = StyleSheet.create({
   container: {
     backgroundColor: AppColors.white,
-    flex: 1,
-    alignItems: 'center',
-    width: "100%",
-    padding: 8
   },
   navs: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '100%',
+    paddingLeft: 24,
+    paddingRight: 24,
+  },
+  signOut: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  signOutText: {
+    marginLeft: 10,
+    marginRight: 4,
+    color: AppColors.blue,
+    fontSize: 14
+  },
+  circle: {
+    width: 30,
+    height: 30,
+    borderRadius: '50%',
+    backgroundColor: AppColors.blue,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   headingContainer: {
-    width: 375,
-    alignItems: 'center'
+    alignItems: 'center',
+    marginBottom: 20
   },
   title: {
     color: AppColors.blue,
@@ -78,25 +113,20 @@ const styles = StyleSheet.create({
     right: -40
   },
   body: {
-    fontFamily: "Montserrat",
-    lineHeight: s(32),
+    paddingLeft: 24,
+    paddingRight: 24,
+    marginBottom: 8,
+    flex: 1,
+    height: windowHeight,
+    alignItems: 'center'
+    // borderWidth: 1, borderColor: 'red',
+  },
+  bodyText: {
     color: AppColors.blue,
-    marginLeft: 24,
-    marginRight: 24,
-    margingBottom: 40,
-    fontSize: s(20)
-  },
-  registerBtn: {
-    backgroundColor: AppColors.blue,
-    borderRadius: 40,
-    width: 140,
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  registerBtnText: {
-    color: '#fff',
-    fontSize: 14
+    fontSize: 20,
+    lineHeight: 32,
+    textAlign: 'center',
+    marginBottom: 24
   },
   loginBtn: {
     backgroundColor: 'white',
@@ -107,15 +137,17 @@ const styles = StyleSheet.create({
     height: 50,
     justifyContent: 'center',
     alignItems: 'center',
-    // margingTop: 40, borderWidth: 1, borderColor: 'red'
+    marginBottom: 132,
   },
   loginBtnText: {
     color: AppColors.blue,
-    fontSize: 14
+    fontSize: 16
   },
   imageContainer: {
-    flexGrow: 1,
-    justifyContent: 'flex-end',
-    marginBottom: 8
+    marginBottom: 8,
+    alignItems: 'center',
+    // borderWidth: 1, borderColor: 'red',
+  },
+  scrollView: {
   }
 })
