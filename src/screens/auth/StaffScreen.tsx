@@ -66,7 +66,7 @@ const StaffScreen = () => {
             </View>
           </View>
         </View>
-        <ScrollView style={styles.scrollView} shows>
+        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.headingContainer}>
             <Text style={styles.title}>Staff</Text>
             <PinkLeafSvg style={styles.pinkLeaf} />
