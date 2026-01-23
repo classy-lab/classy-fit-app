@@ -107,12 +107,6 @@ const styles = StyleSheet.create({
     paddingRight: 24,
     marginBottom: 8,
   },
-  bodyText: {
-    fontSize: s(14),
-    fontFamily: "Montserrat",
-    lineHeight: 24,
-    color: AppColors.primary,
-  },
   signOut: {
     // borderWidth: 1, borderColor: 'red',
     flexDirection: 'row',
