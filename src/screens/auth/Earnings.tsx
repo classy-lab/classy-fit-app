@@ -75,7 +75,7 @@ const Earnings = () => {
               </TouchableOpacity>
               <TouchableOpacity>
                 <View style={styles.square}>
-                  <Text style={styles.smallSquareCardTitle}>Membership</Text>
+                  <Text style={styles.smallSquareCardTitle}>Product</Text>
                   <Text style={styles.smallSquareCardSubTitle}>Earnings</Text>
                   <View style={styles.smallBarGraph}>
                     <LineChart2 />
@@ -84,7 +84,7 @@ const Earnings = () => {
               </TouchableOpacity>
               <TouchableOpacity>
                 <View style={styles.square}>
-                  <Text style={styles.smallSquareCardTitle}>Membership</Text>
+                  <Text style={styles.smallSquareCardTitle}>Class</Text>
                   <Text style={styles.smallSquareCardSubTitle}>Earnings</Text>
                   <View style={styles.smallBarGraph}>
                     <LineChart3 />
@@ -93,7 +93,7 @@ const Earnings = () => {
               </TouchableOpacity>
               <TouchableOpacity>
                 <View style={styles.square}>
-                  <Text style={styles.smallSquareCardTitle}>Membership</Text>
+                  <Text style={styles.smallSquareCardTitle}>Personal Training</Text>
                   <Text style={styles.smallSquareCardSubTitle}>Earnings</Text>
                   <View style={styles.smallBarGraph}>
                     <LineChart4 />
