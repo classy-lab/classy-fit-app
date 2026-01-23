@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     // borderWidth: 1, bordeerColor: 'red',
   },
   imageContainer: {
-    marginTop: 8,
+    marginTop: 32,
     alignItems: 'center',
   },
   boldText: {
@@ -106,6 +106,6 @@ const styles = StyleSheet.create({
   },
   phoneSvg: {
     alignSelf: 'center',
-    marginTop: 32,
+    marginTop: 40,
   }
 })
