@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, Dimensions, ScrollView } from 'react-native'
+import { StyleSheet, Text, View, Image, Dimensions, ScrollView, StatusBar } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import Ionicons from '@expo/vector-icons/Ionicons'
@@ -20,11 +20,11 @@ const GymHours = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.navs}>
-        <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
-        <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
-      </View>
-      <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View style={styles.navs}>
+          <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
+          <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
+        </View>
         <View style={styles.headingContainer}>
           <Text style={styles.title}>Gym Hours</Text>
           <PinkLeafSvg style={styles.pinkLeaf} />
@@ -71,17 +71,16 @@ const styles = StyleSheet.create({
     flex: 1,
     borderWidth: 1, bordeerColor: 'red',
     alignItems: 'center',
-    width: "100%",
+    // width: "100%",
     paddingLeft: 24,
     paddingRight: 24,
   },
   navs: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '100%',
+    // width: '100%',
   },
   headingContainer: {
-    width: 375,
     alignItems: 'center'
   },
   title: {
