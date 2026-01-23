@@ -155,13 +155,13 @@ const MainAppStack = () => {
           }}
           component={TotalCost}
         />
-        {/* <Drawer.Screen
+        <Drawer.Screen
           name='TemplateScreen'
           options={{
             // drawerItemStyle: { display: 'none' },
           }}
           component={TemplateScreen}
-        /> */}
+        />
       </Drawer.Navigator>
     </>
   )
