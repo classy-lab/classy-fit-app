@@ -26,6 +26,7 @@ import Members from '../screens/auth/Members'
 import Products from '../screens/auth/Products'
 import Contractors from '../screens/auth/Contractors'
 import TotalCost from '../screens/auth/TotalCost'
+import ThankYou from '../screens/auth/ThankYou'
 
 const Stack = createStackNavigator()
 
@@ -154,6 +155,13 @@ const MainAppStack = () => {
             // drawerItemStyle: { display: 'none' },
           }}
           component={TotalCost}
+        />
+        <Drawer.Screen
+          name='ThankYou'
+          options={{
+            // drawerItemStyle: { display: 'none' },
+          }}
+          component={ThankYou}
         />
         <Drawer.Screen
           name='TemplateScreen'
