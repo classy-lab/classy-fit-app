@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image } from 'react-native'
+import { StyleSheet, Text, View, Image, ScrollView } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import Ionicons from '@expo/vector-icons/Ionicons'
@@ -18,22 +18,24 @@ const About = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.navs}>
-        <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
-        <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
-      </View>
-      <View style={styles.headingContainer}>
-        <Text style={styles.title}>About</Text>
-        <PinkLeafSvg style={styles.pinkLeaf} />
-      </View>
-      <View style={styles.body}>
-        <Text style={styles.bodyText}>
-          V-fitness Center & Gym in Koheda has a wide range of products and / or services to cater to the varied requirements of their customers. The staff at this establishment are courteous and prompt at providing any assistance. They readily answer any queries or questions that you may have. This establishment is functional from 05:30 - 21:00.
-        </Text>
-      </View>
-      <View style={styles.imageContainer}>
-        <WorkoutSvg />
-      </View>
+      <ScrollView>
+        <View style={styles.navs}>
+          <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
+          <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
+        </View>
+        <View style={styles.headingContainer}>
+          <Text style={styles.title}>About</Text>
+          <PinkLeafSvg style={styles.pinkLeaf} />
+        </View>
+        <View style={styles.body}>
+          <Text style={styles.bodyText}>
+            V-fitness Center & Gym in Koheda has a wide range of products and / or services to cater to the varied requirements of their customers. The staff at this establishment are courteous and prompt at providing any assistance. They readily answer any queries or questions that you may have. This establishment is functional from 05:30 - 21:00.
+          </Text>
+        </View>
+        <View style={styles.imageContainer}>
+          <WorkoutSvg />
+        </View>
+      </ScrollView>
     </SafeAreaView>
   )
 }
@@ -46,17 +48,14 @@ const styles = StyleSheet.create({
     flex: 1,
     // justifyContent: 'flex-end',
     alignItems: 'center',
-    width: "100%",
     paddingLeft: 24,
     paddingRight: 24,
   },
   navs: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '100%',
   },
   headingContainer: {
-    width: 375,
     alignItems: 'center'
   },
   title: {
@@ -72,7 +71,6 @@ const styles = StyleSheet.create({
     right: -40
   },
   body: {
-    // borderWidth: 1, bordeerColor: 'red',
     flex: 1,
   },
   bodyText: {
@@ -82,7 +80,7 @@ const styles = StyleSheet.create({
     color: AppColors.primary,
   },
   imageContainer: {
-    marginBottom: 8
-    // borderWidth: 1, bordeerColor: 'red',
+    alignItems: 'center',
+    marginBottom: 8,
   }
 })
