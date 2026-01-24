@@ -157,6 +157,10 @@ const styles = StyleSheet.create({
     paddingLeft: 24,
     paddingRight: 24,
   },
+  headingContainer: {
+    alignItems: 'center',
+    marginBottom: 20
+  },
   signOut: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -176,10 +180,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     // paddingLeft: 3
   },
-  headingContainer: {
-    alignItems: 'center',
-    marginBottom: 20
-  },
   title: {
     color: AppColors.blue,
     fontFamily: 'Montserrat',
@@ -187,10 +187,10 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   pinkLeaf: {
-    position: 'relative',
-    zIndex: -1,
-    top: -68,
-    right: -40
+    position: 'absolute',
+    // zIndex: -1,
+    // top: 0,
+    right: 88
   },
   body: {
     paddingLeft: 24,
