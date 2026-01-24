@@ -59,12 +59,6 @@ const styles = StyleSheet.create({
     fontSize: 32,
     marginTop: 60,
   },
-  pinkLeaf: {
-    position: 'relative',
-    zIndex: -1,
-    top: -68,
-    right: -40
-  },
   body: {
     // borderWidth: 1, bordeerColor: 'red',
     flex: 1,
