@@ -118,12 +118,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 12
   },
-  pinkLeaf: {
-    position: 'relative',
-    zIndex: -1,
-    top: -68,
-    right: -40
-  },
   scrollView: {
   }
 })
