@@ -196,7 +196,7 @@ const RegisterForm = () => {
                 value={value}
                 keyboardType="default"
                 autoCapitalize="none"
-                placeholder="MM/DD/YYYY"
+                placeholder="mm/dd/yyyy"
               /> // needs date picker added. check
             )}
           />
