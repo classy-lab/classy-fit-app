@@ -5,7 +5,7 @@ import Feather from '@expo/vector-icons/Feather'
 import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
 import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
-import MaterialIcons from '@expo/vector-icons/MaterialIcons'
+import Ionicons from '@expo/vector-icons/Ionicons'
 import TabNavigator from '../TabNavigator'
 import DesignerSvg from '../../components/svg/DesignerSvg'
 
@@ -22,18 +22,9 @@ const SignoutScreen = () => {
     <>
       <SafeAreaView style={styles.container}>
         <View style={styles.navs}>
-          <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
-          <View style={styles.signOut}>
-            <Text style={styles.signOutText}>Add</Text>
-            <View style={styles.circle}>
-              <Feather name="plus" size={24} color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
-            </View>
-            <Text style={styles.signOutText}>Sign out</Text>
-            <View style={styles.circle}>
-              <MaterialIcons name="logout" color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
-            </View>
-          </View>
+          <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
         </View>
+
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.headingContainer}>
             <Text style={styles.title}>Signed Out</Text>
@@ -74,7 +65,7 @@ const styles = StyleSheet.create({
   },
   navs: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     paddingLeft: 24,
     paddingRight: 24,
   },
