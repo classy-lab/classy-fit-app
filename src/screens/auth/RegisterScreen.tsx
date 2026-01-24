@@ -33,7 +33,7 @@ const RegisterScreen = () => {
       <View style={styles.imageContainer}>
         <VectorImageSvg />
       </View>
-    </SafeAreaView >
+    </SafeAreaView>
   )
 }
 
@@ -42,21 +42,16 @@ export default RegisterScreen
 const styles = StyleSheet.create({
   container: {
     backgroundColor: AppColors.white,
-    flex: 1,
-    // justifyContent: 'flex-end',
-    alignItems: 'center',
-    width: "100%",
-    paddingLeft: 24,
-    paddingRight: 24,
   },
   navs: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '100%',
+    paddingLeft: 24,
+    paddingRight: 24,
   },
   headingContainer: {
-    width: windowWidth - 64,
-    marginTop: s(24),
+    alignItems: 'center',
+    marginBottom: 20
   },
   title: {
     color: AppColors.blue,
@@ -85,13 +80,6 @@ const styles = StyleSheet.create({
     // borderWidth: 1, bordeerColor: 'red',
   },
   card: { alignSelf: 'center', marginTop: s(16) },
-  title: {
-    color: AppColors.blue,
-    fontFamily: 'Montserrat',
-    fontSize: s(32),
-    marginTop: s(20),
-    marginBottom: s(10)
-  },
   subHead: {
     fontFamily: 'Montserrat',
     fontSize: s(20),
