@@ -14,7 +14,7 @@ export default function CheckboxComponent() {
         onValueChange={setChecked}
         color={isChecked ? '#4630EB' : undefined}
       />
-      <Text style={styles.paragraph}>Custom colored checkbox</Text>
+      <Text style={styles.paragraph}>I agree to terms and conditions</Text>
     </View>
   );
 }
