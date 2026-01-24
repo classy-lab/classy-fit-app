@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, View, Dimensions, TouchableOpacity } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import Ionicons from '@expo/vector-icons/Ionicons'
@@ -8,6 +8,8 @@ import { useFonts } from 'expo-font'
 import HealthyLifestyleSvg from '../../components/svg/HealthyLifestyleSvg'
 import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
 import { s, vs } from 'react-native-size-matters'
+
+const windowHeight = Dimensions.get('window').height
 
 const RegisterComplete = () => {
   const navigation = useNavigation()
@@ -54,20 +56,16 @@ export default RegisterComplete
 const styles = StyleSheet.create({
   container: {
     backgroundColor: AppColors.white,
-    flex: 1,
-    alignItems: 'center',
-    width: "100%",
-    paddingLeft: 24,
-    paddingRight: 24,
   },
   navs: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '100%',
+    paddingLeft: 24,
+    paddingRight: 24,
   },
   headingContainer: {
-    width: 375,
-    alignItems: 'center'
+    alignItems: 'center',
+    marginBottom: 20
   },
   title: {
     color: AppColors.blue,
@@ -76,16 +74,18 @@ const styles = StyleSheet.create({
     marginTop: 60,
   },
   pinkLeaf: {
-    position: 'relative',
-    zIndex: -1,
-    top: -68,
-    right: -40
+    position: 'absolute',
+    // zIndex: -1,
+    // top: 0,
+    right: 88
   },
   body: {
-    // borderWidth: 1, bordeerColor: 'red',
+    paddingLeft: 24,
+    paddingRight: 24,
+    marginBottom: 8,
     flex: 1,
-    marginBottom: 32,
-    alignItems: 'center'
+    height: windowHeight,
+    // borderWidth: 1, borderColor: 'red',
   },
   bodyText: {
     fontFamily: "Montserrat",
