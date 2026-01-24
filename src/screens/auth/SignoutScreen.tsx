@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
     height: 50,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 132,
+    marginBottom: 80,
   },
   loginBtnText: {
     color: AppColors.blue,
