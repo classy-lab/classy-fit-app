@@ -95,13 +95,13 @@ const styles = StyleSheet.create({
     color: AppColors.blue,
     fontFamily: 'Montserrat',
     fontSize: 32,
-    marginTop: 60,
+    marginTop: 20,
   },
   pinkLeaf: {
-    position: 'relative',
-    zIndex: -1,
-    top: -68,
-    right: -40
+    position: 'absolute',
+    // zIndex: -1,
+    // top: 0,
+    right: 88
   },
   body: {
     paddingLeft: 24,
