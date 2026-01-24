@@ -20,7 +20,6 @@ const SexPicker = () => {
           // console.log(selectedSex)
         }
         }>
-        <Picker.Item label="" value="" />
         <Picker.Item label="Male" value="male" />
         <Picker.Item label="Female" value="female" />
         <Picker.Item label="Other" value="other" />
