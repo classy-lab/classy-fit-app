@@ -9,7 +9,7 @@ import VectorImageSvg from '../../components/svg/VectorImageSvg'
 import RegisterForm from '../../components/forms/RegisterForm'
 import ProfileImage from '../../components/svg/ProfileImage'
 
-const windowHeight = Dimensions.get('window').height
+// const windowHeight = Dimensions.get('window').height
 
 const RegisterScreen = () => {
   const navigation = useNavigation()
@@ -93,8 +93,8 @@ const styles = StyleSheet.create({
     // borderWidth: 1, borderColor: 'red',
   },
   imageContainer: {
-    marginBottom: 8
-    // borderWidth: 1, bordeerColor: 'red',
+    marginBottom: 40,
+    alignItems: 'center',
   },
   card: { alignSelf: 'center', marginTop: s(16) },
   subHead: {
@@ -102,6 +102,5 @@ const styles = StyleSheet.create({
     fontSize: s(20),
     lineHeight: s(24)
   },
-  scrollView: {
-  }
+  scrollView: {}
 })
