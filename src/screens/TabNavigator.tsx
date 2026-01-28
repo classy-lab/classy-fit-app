@@ -1,17 +1,20 @@
 import { StyleSheet, Text, View } from 'react-native'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-
+import { useNavigation } from '@react-navigation/native'
 import AntDesign from '@expo/vector-icons/AntDesign'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5'
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
 import { AppColors } from '../styles/colors'
 
-import GymHours from './auth/GymHours'
+import GymScreen from './auth/GymScreen'
 import StartScreen from './auth/StartScreen'
 import About from './auth/About'
+import StaffScreen from './auth/StaffScreen'
+import Products from './auth/Products'
+import ProfileScreen from './auth/ProfileScreen'
 
-const Tab = createBottomTabNavigator();
+const Tab = createBottomTabNavigator()
 
 const screenOptions = {
   tabBarActiveTintColor: AppColors.blue,
@@ -36,6 +39,8 @@ const screenOptions = {
 }
 
 const TabNavigator = () => {
+  const navigation = useNavigation()
+
   return (
     <Tab.Navigator style={{ flexGrow: 1 }} screenOptions={screenOptions} >
       <Tab.Screen
@@ -49,34 +54,34 @@ const TabNavigator = () => {
       <Tab.Screen
         options={{
           title: "Gym",
-          tabBarIcon: () => <FontAwesome5 name="dumbbell" size={20} color="black" />
+          tabBarIcon: () => <FontAwesome5 name="dumbbell" size={20} color="black" onPress={() => { navigation.navigate('GymScreen') }} />
         }}
         name="Gym"
-        component={GymHours}
+        component={GymScreen}
       />
       <Tab.Screen
         options={{
           title: "Staff",
-          tabBarIcon: () => <FontAwesome6 name="bolt-lightning" size={20} color="black" />
+          tabBarIcon: () => <FontAwesome6 name="bolt-lightning" size={20} color="black" onPress={() => { navigation.navigate('StaffScreen') }} />
         }}
         name="Staff"
-        component={About}
+        component={StaffScreen}
       />
       <Tab.Screen
         options={{
           title: "Products",
-          tabBarIcon: () => <Ionicons name="bag-check-outline" size={24} color="black" />
+          tabBarIcon: () => <Ionicons name="bag-check-outline" size={24} color="black" onPress={() => { navigation.navigate('Products') }} />
         }}
         name="Products"
-        component={About}
+        component={Products}
       />
       <Tab.Screen
         options={{
           title: "Profile",
-          tabBarIcon: () => <FontAwesome6 name="circle-user" size={24} color="black" />
+          tabBarIcon: () => <FontAwesome6 name="circle-user" size={24} color="black" onPress={() => { navigation.navigate('ProfileScreen') }} />
         }}
         name="Profile"
-        component={About}
+        component={ProfileScreen}
       />
     </Tab.Navigator>
   )
