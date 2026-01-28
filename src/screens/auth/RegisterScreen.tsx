@@ -4,36 +4,37 @@ import { useNavigation } from '@react-navigation/native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import Feather from '@expo/vector-icons/Feather'
-import VectorImageSvg from '../../components/svg/VectorImageSvg'
 import { s, vs } from 'react-native-size-matters'
+import VectorImageSvg from '../../components/svg/VectorImageSvg'
 import RegisterForm from '../../components/forms/RegisterForm'
 import ProfileImage from '../../components/svg/ProfileImage'
 
-const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height
 
 const RegisterScreen = () => {
   const navigation = useNavigation()
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.navs}>
-        <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
-        <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
-      </View>
-      <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}>
-        <View style={styles.headingContainer}>
-          <Text style={styles.title}>Register</Text>
-          <Text style={styles.subHead}>Create an account to start.</Text>
-          <ProfileImage style={styles.card} />
+    <>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.navs}>
+          <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
+          <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
         </View>
-        <RegisterForm />
-      </ScrollView>
-      <View style={styles.body}>
-
-      </View>
-      <View style={styles.imageContainer}>
-        <VectorImageSvg />
-      </View>
-    </SafeAreaView>
+        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+          <View style={styles.headingContainer}>
+            <Text style={styles.title}>Register</Text>
+            <Text style={styles.subHead}>Create an account to start.</Text>
+            <ProfileImage style={styles.card} />
+          </View>
+          <View style={styles.body}>
+            <RegisterForm />
+          </View>
+          <View style={styles.imageContainer}>
+            <VectorImageSvg />
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </>
   )
 }
 
@@ -49,6 +50,24 @@ const styles = StyleSheet.create({
     paddingLeft: 24,
     paddingRight: 24,
   },
+  signOut: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  signOutText: {
+    marginLeft: 10,
+    marginRight: 4,
+    color: AppColors.blue,
+    fontSize: 14
+  },
+  circle: {
+    width: 30,
+    height: 30,
+    borderRadius: '50%',
+    backgroundColor: AppColors.blue,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   headingContainer: {
     alignItems: 'center',
     marginBottom: 20
@@ -59,15 +78,19 @@ const styles = StyleSheet.create({
     fontSize: 32,
     marginTop: 60,
   },
-  body: {
-    // borderWidth: 1, bordeerColor: 'red',
-    flex: 1,
+  pinkLeaf: {
+    position: 'relative',
+    zIndex: -1,
+    top: -68,
+    right: -40
   },
-  bodyText: {
-    fontSize: s(14),
-    fontFamily: "Montserrat",
-    lineHeight: 24,
-    color: AppColors.primary,
+  body: {
+    paddingLeft: 24,
+    paddingRight: 24,
+    marginBottom: 8,
+    flex: 1,
+    // height: windowHeight,
+    // borderWidth: 1, borderColor: 'red',
   },
   imageContainer: {
     marginBottom: 8
@@ -79,4 +102,6 @@ const styles = StyleSheet.create({
     fontSize: s(20),
     lineHeight: s(24)
   },
+  scrollView: {
+  }
 })
