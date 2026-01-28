@@ -373,7 +373,7 @@ const styles = StyleSheet.create({
     borderColor: AppColors.textInputBorderColor,
     height: s(48),
     borderRadius: s(8),
-    width: windowWidth - 64,
+    // width: windowWidth - 64,
     backgroundColor: AppColors.grey
   },
   errorText: {
