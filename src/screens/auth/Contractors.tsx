@@ -168,7 +168,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingLeft: 24,
     paddingRight: 24,
-    width: '100%',
   },
   signOut: {
     flexDirection: 'row',
