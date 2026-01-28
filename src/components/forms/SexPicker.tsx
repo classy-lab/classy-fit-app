@@ -1,48 +1,27 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
-import { AppColors } from '../../styles/colors';
-import { s, vs } from 'react-native-size-matters'
+import React, { useState } from 'react'
+import { StyleSheet, Dimensions } from 'react-native'
+import { SelectList } from 'react-native-dropdown-select-list'
 
 const windowWidth = Dimensions.get('window').width
 
 const SexPicker = () => {
-  const [selectedSex, setSelectedSex] = useState('');
+  const [selected, setSelected] = React.useState("")
+
+  const data = [
+    { key: '1', value: 'Male', disabled: false },
+    { key: '2', value: 'Female' },
+    { key: '3', value: 'Other' },
+  ]
 
   return (
-    <View style={styles.container}>
-      <Picker
-        name="role"
-        style={styles.pickerStyles}
-        selectedValue={selectedSex}
-        onValueChange={(itemValue, itemIndex) => {
-          setSelectedSex(itemValue)
-          // console.log(selectedSex)
-        }
-        }>
-        <Picker.Item label="Male" value="male" />
-        <Picker.Item label="Female" value="female" />
-        <Picker.Item label="Other" value="other" />
-      </Picker>
-    </View>
+    <SelectList
+      setSelected={(val) => setSelected(val)}
+      data={data}
+      save="value"
+    />
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: 40,
-    alignItems: 'center',
-  },
-  pickerStyles: {
-    borderWidth: 1,
-    borderColor: AppColors.textInputBorderColor,
-    height: s(48),
-    borderRadius: s(8),
-    width: windowWidth - 64,
-    backgroundColor: AppColors.grey,
-    marginTop: s(-24) // check
-  }
-});
+const styles = StyleSheet.create({});
 
 export default SexPicker
