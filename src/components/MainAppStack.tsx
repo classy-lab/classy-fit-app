@@ -27,6 +27,7 @@ import Products from '../screens/auth/Products'
 import Contractors from '../screens/auth/Contractors'
 import TotalCost from '../screens/auth/TotalCost'
 import ThankYou from '../screens/auth/ThankYou'
+import ProfileScreen from '../screens/auth/ProfileScreen'
 
 const Stack = createStackNavigator()
 
@@ -162,6 +163,13 @@ const MainAppStack = () => {
             // drawerItemStyle: { display: 'none' },
           }}
           component={SignoutScreen}
+        />
+        <Drawer.Screen
+          name='ProfileScreen'
+          options={{
+            // drawerItemStyle: { display: 'none' },
+          }}
+          component={ProfileScreen}
         />
         <Drawer.Screen
           name='TemplateScreen'
