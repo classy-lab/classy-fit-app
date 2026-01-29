@@ -14,17 +14,17 @@ const phoneRegExp = /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2
 
 // 1. Define the Yup validation schema
 const schema = yup.object().shape({
-  email: yup.string().required('Email is required').email('Invalid email'),
-  password: yup.string().required('Password is required').min(13, 'Password must contain at least 13 characters').matches(
-    /^[a-zA-Z0-9]+$/,
-    'Password must only contain alphanumeric characters (letters and numbers)'
-  ),
-  confirmPassword: yup.string().oneOf([yup.ref('password'), null]).required(),
+  // email: yup.string().required('Email is required').email('Invalid email'),
+  // password: yup.string().required('Password is required').min(13, 'Password must contain at least 13 characters').matches(
+  // /^[a-zA-Z0-9]+$/,
+  // 'Password must only contain alphanumeric characters (letters and numbers)'
+  // ),
+  // confirmPassword: yup.string().oneOf([yup.ref('password'), null]).required(),
   role: yup.string().oneOf(['Owner', 'Gym Member', 'Trainer']),
-  fname: yup.string().required().min(3),
-  lname: yup.string().required().min(2),
+  // fname: yup.string().required().min(3),
+  // lname: yup.string().required().min(2),
   // dateOfBirth: '',
-  age: yup.number().positive().integer().min(18).required(),
+  // age: yup.number().positive().integer().min(18).required(),
   sex: yup.string().oneOf(['Male', 'Female', 'Other']),
   phoneNumber: yup.string().matches(phoneRegExp, 'Phone Number is not valid'),
   whatsappNumber: yup.string().matches(phoneRegExp, 'WhatsApp Number number is not valid'),
@@ -35,7 +35,7 @@ const schema = yup.object().shape({
 
 const AddStaffForm = () => {
   const navigation = useNavigation()
-  const [selectedLanguage, setSelectedLanguage] = useState();
+  // const [selectedLanguage, setSelectedLanguage] = useState();
 
   // 2. Initialize useForm with the Yup resolver
   const { control, handleSubmit, formState: { errors } } = useForm({
@@ -50,16 +50,16 @@ const AddStaffForm = () => {
   // 3. Define the submit handler
   const onSubmit = async (data) => {
     // This function only runs if validation passes
-    console.log('Form Submitted (Validation Passed):', data);
+    console.log('Form Submitted (Validation Passed):', data)
 
     try {
       // Perform your authentication logic or API call here
       // const response = await api.post('/login', data);
       // If successful, navigate to the Login page or another desired screen
-      navigation.navigate('RegisterComplete');
+      navigation.navigate('RegisterComplete')
     } catch (error) {
       // Handle API errors (React Hook Form does not swallow errors here)
-      console.error("Login failed:", error);
+      console.error("Login failed:", error)
       // Optionally, show an error message to the user
     }
   }
