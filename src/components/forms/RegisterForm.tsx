@@ -326,7 +326,12 @@ const RegisterForm = () => {
             name="gymLocation"
             render={({ field: { onChange, onBlur, value } }) => (
               <GymLocationPicker
-                style={styles.inputField}
+                style={[
+                  // styles.inputField,
+                  // styles.selectList,
+                  // isPressed ? styles.pressed : styles.normal,
+                  // isActive ? styles.active : null
+                ]}
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
@@ -359,20 +364,20 @@ export default RegisterForm
 
 const styles = StyleSheet.create({
   fieldset: {
-    marginBottom: s(32)
+    marginBottom: 32
   },
   email: {},
   formLabel: {
-    fontSize: s(12),
-    marginTop: s(16),
-    // marginBottom: s(-10)
+    fontSize: 12,
+    marginTop: 16,
+    marginBottom: 4
   },
   inputField: {
-    marginTop: s(5),
+    marginTop: 5,
     borderWidth: 1,
     borderColor: AppColors.textInputBorderColor,
-    height: s(48),
-    borderRadius: s(8),
+    height: 48,
+    borderRadius: 8,
     // width: windowWidth - 64,
     backgroundColor: AppColors.grey
   },
@@ -398,4 +403,7 @@ const styles = StyleSheet.create({
     fontSize: s(14),
     fontFamily: 'Montserrat-Medium'
   },
+  selectList: {
+    marginBottom: 80,
+  }
 })
