@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native'
 import Feather from '@expo/vector-icons/Feather'
 import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
-import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
+// import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import TabNavigator from '../TabNavigator'
 
@@ -36,7 +36,7 @@ const TemplateScreen = () => {
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.headingContainer}>
             <Text style={styles.title}>Template</Text>
-            <PinkLeafSvg style={styles.pinkLeaf} />
+            {/* <PinkLeafSvg style={styles.pinkLeaf} /> */}
           </View>
           <View style={styles.body}>
 
