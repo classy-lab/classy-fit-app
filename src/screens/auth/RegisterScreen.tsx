@@ -1,15 +1,12 @@
-import { StyleSheet, Text, View, Dimensions, ScrollView } from 'react-native'
+import { StyleSheet, Text, View, ScrollView } from 'react-native'
 import { AppColors } from '../../styles/colors'
 import { useNavigation } from '@react-navigation/native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import Feather from '@expo/vector-icons/Feather'
-import { s, vs } from 'react-native-size-matters'
 import VectorImageSvg from '../../components/svg/VectorImageSvg'
 import RegisterForm from '../../components/forms/RegisterForm'
 import ProfileImage from '../../components/svg/ProfileImage'
-
-// const windowHeight = Dimensions.get('window').height
 
 const RegisterScreen = () => {
   const navigation = useNavigation()
@@ -96,11 +93,11 @@ const styles = StyleSheet.create({
     marginBottom: 40,
     alignItems: 'center',
   },
-  card: { alignSelf: 'center', marginTop: s(16) },
+  card: { alignSelf: 'center', marginTop: 16 },
   subHead: {
     fontFamily: 'Montserrat',
-    fontSize: s(20),
-    lineHeight: s(24)
+    fontSize: 20,
+    lineHeight: 24
   },
   scrollView: {}
 })
