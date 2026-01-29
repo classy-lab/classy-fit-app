@@ -7,7 +7,7 @@ import Feather from '@expo/vector-icons/Feather'
 import VectorImageSvg from '../../components/svg/VectorImageSvg'
 import RegisterForm from '../../components/forms/RegisterForm'
 
-const AddStaffScreen = () => {
+const AddProductScreen = () => {
   const navigation = useNavigation()
   return (
     <>
@@ -18,7 +18,7 @@ const AddStaffScreen = () => {
         </View>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.headingContainer}>
-            <Text style={styles.title}>Add Staff</Text>
+            <Text style={styles.title}>Add Product</Text>
           </View>
           <View style={styles.body}>
             <RegisterForm />
@@ -29,7 +29,7 @@ const AddStaffScreen = () => {
   )
 }
 
-export default AddStaffScreen
+export default AddProductScreen
 
 const styles = StyleSheet.create({
   container: {
