@@ -46,7 +46,7 @@ const TemplateScreen = () => {
           </View>
           <View style={[styles.body, { height: height }]}>
             <Text style={styles.bodyText}>
-              Your account has been created.{"\n"}Please check your email and click on activation link to activate your account.
+              Lorem Ipsum is simply dummy text of the printing and typesetting industry.
             </Text>
           </View>
         </ScrollView>
