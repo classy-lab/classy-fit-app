@@ -202,6 +202,13 @@ const MainAppStack = () => {
           component={AddProductScreen}
         />
         <Drawer.Screen
+          name='AddContactScreen'
+          options={{
+            // drawerItemStyle: { display: 'none' },
+          }}
+          component={AddContactScreen}
+        />
+        <Drawer.Screen
           name='TemplateScreen'
           options={{
             // drawerItemStyle: { display: 'none' },
