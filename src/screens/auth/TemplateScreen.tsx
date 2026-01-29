@@ -2,6 +2,7 @@ import { StyleSheet, Text, View, Dimensions, ScrollView, TouchableOpacity, Image
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import Feather from '@expo/vector-icons/Feather'
+import Ionicons from '@expo/vector-icons/Ionicons'
 import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
 // import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
