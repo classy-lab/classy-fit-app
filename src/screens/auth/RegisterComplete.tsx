@@ -79,10 +79,11 @@ const styles = StyleSheet.create({
     top: -68,
     right: -40
   },
-  body: {},
-  bodyText: {
+  body: {
     paddingLeft: 24,
     paddingRight: 24,
+  },
+  bodyText: {
     marginBottom: 8,
     // flex: 1,
     // borderWidth: 1, borderColor: 'red',
