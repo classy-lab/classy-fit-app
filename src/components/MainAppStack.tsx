@@ -107,7 +107,7 @@ const MainAppStack = () => {
         />
         <Drawer.Screen
           name='RegisterComplete'
-          options={{ drawerItemStyle: { display: 'none' }, }}
+          // options={{ drawerItemStyle: { display: 'none' }, }}
           component={RegisterComplete}
         />
         <Drawer.Screen
