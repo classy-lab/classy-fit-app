@@ -28,6 +28,7 @@ import Contractors from '../screens/auth/Contractors'
 import TotalCost from '../screens/auth/TotalCost'
 import ThankYou from '../screens/auth/ThankYou'
 import ProfileScreen from '../screens/auth/ProfileScreen'
+import AddStaffScreen from '../screens/auth/AddStaffScreen'
 
 const Stack = createStackNavigator()
 
@@ -81,6 +82,11 @@ const MainAppStack = () => {
         <Drawer.Screen name="Contact" component={Contact} options={{ title: 'Contact' }} />
         <Drawer.Screen name="GymHours" component={GymHours} options={{ title: 'Gym Hours' }} />
 
+        <Drawer.Screen
+          name='StartScreen'
+          options={{ drawerItemStyle: { display: 'none' }, }}
+          component={StartScreen}
+        />
         <Drawer.Screen
           name='RegisterScreen'
           options={{ drawerItemStyle: { display: 'none' }, }}
@@ -170,6 +176,13 @@ const MainAppStack = () => {
             // drawerItemStyle: { display: 'none' },
           }}
           component={ProfileScreen}
+        />
+        <Drawer.Screen
+          name='AddStaffScreen'
+          options={{
+            // drawerItemStyle: { display: 'none' },
+          }}
+          component={AddStaffScreen}
         />
         <Drawer.Screen
           name='TemplateScreen'
