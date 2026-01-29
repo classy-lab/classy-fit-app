@@ -4,10 +4,8 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { StyleSheet, View, Text, TouchableOpacity, TextInput, Dimensions } from 'react-native'
 import { AppColors } from '../../styles/colors'
 import { useNavigation } from '@react-navigation/native'
-import { s, vs } from 'react-native-size-matters'
 import { useState } from 'react'
 import SelectedRolePicker from './SelectedRolePicker'
-import CheckboxComponent from './CheckboxComponent'
 import SexPicker from './SexPicker';
 import PreferredContact from './PreferredContact';
 import GymLocationPicker from './GymLocationPicker';
