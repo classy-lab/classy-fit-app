@@ -29,6 +29,9 @@ import TotalCost from '../screens/auth/TotalCost'
 import ThankYou from '../screens/auth/ThankYou'
 import ProfileScreen from '../screens/auth/ProfileScreen'
 import AddStaffScreen from '../screens/auth/AddStaffScreen'
+import AddMemberScreen from '../screens/auth/AddMemberScreen'
+import AddProductScreen from '../screens/auth/AddProductScreen'
+import AddContactScreen from '../screens/auth/AddContactScreen'
 
 const Stack = createStackNavigator()
 
@@ -183,6 +186,13 @@ const MainAppStack = () => {
             // drawerItemStyle: { display: 'none' },
           }}
           component={AddStaffScreen}
+        />
+        <Drawer.Screen
+          name='AddMemberScreen'
+          options={{
+            // drawerItemStyle: { display: 'none' },
+          }}
+          component={AddMemberScreen}
         />
         <Drawer.Screen
           name='TemplateScreen'
