@@ -18,7 +18,7 @@ const About = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView>
+      <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.navs}>
           <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
           <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
@@ -29,7 +29,7 @@ const About = () => {
         </View>
         <View style={styles.body}>
           <Text style={styles.bodyText}>
-            V-fitness Center & Gym in Koheda has a wide range of products and / or services to cater to the varied requirements of their customers. The staff at this establishment are courteous and prompt at providing any assistance. They readily answer any queries or questions that you may have. This establishment is functional from 05:30 - 21:00.
+            V-fitness Center & Gym in Koheda has a wide range of products and / or services to cater to the varied requirements of their customers. The staff at this establishment are courteous and prompt at providing any assistance. {'\n\n'}They readily answer any queries or questions that you may have. This establishment is functional from 05:30 - 21:00.
           </Text>
         </View>
         <View style={styles.imageContainer}>
