@@ -342,8 +342,6 @@ const AddStaffForm = () => {
           {errors.gymLocation && <Text style={styles.errorText}>{errors.gymLocation.message}</Text>}
         </View>
 
-        <CheckboxComponent />
-
         <View style={styles.loginBtnContainer}>
           <TouchableOpacity
             style={styles.loginBtn}
