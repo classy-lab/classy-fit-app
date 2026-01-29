@@ -342,14 +342,22 @@ const AddStaffForm = () => {
           {errors.gymLocation && <Text style={styles.errorText}>{errors.gymLocation.message}</Text>}
         </View>
 
-        <View style={styles.loginBtnContainer}>
+        <View style={styles.row}>
+          <TouchableOpacity
+            style={styles.registerBtn}
+            title="Register"
+            onPress={handleSubmit(onSubmit)}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.registerBtnText}>Register</Text>
+          </TouchableOpacity>
           <TouchableOpacity
             style={styles.loginBtn}
-            title="loginSubmit"
-            activeOpacity={0.7}
+            title="Login"
             onPress={handleSubmit(onSubmit)}
+            activeOpacity={0.7}
           >
-            <Text style={styles.loginBtnText}>Create Account</Text>
+            <Text style={styles.loginBtnText}>Login</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -382,11 +390,14 @@ const styles = StyleSheet.create({
   },
   createAcctBtn: {},
   createAcctBtnText: {},
-  loginBtnContainer: {
+  row: {
+    justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: s(16)
+    marginTop: s(16),
+    marginBottom: 22,
+    height: 120
   },
-  loginBtn: {
+  registerBtn: {
     backgroundColor: AppColors.blue,
     borderRadius: 40,
     width: 250,
@@ -394,10 +405,23 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  registerBtnText: {
+    color: '#fff',
+    fontSize: 16
+  },
+  loginBtn: {
+    backgroundColor: 'white',
+    borderWidth: 1,
+    borderColor: AppColors.blue,
+    borderRadius: 40,
+    width: 250,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   loginBtnText: {
-    color: AppColors.white,
-    fontSize: s(14),
-    fontFamily: 'Montserrat-Medium'
+    color: AppColors.blue,
+    fontSize: 16
   },
   selectList: {
     marginBottom: 80,
