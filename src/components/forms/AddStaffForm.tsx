@@ -349,7 +349,7 @@ const AddStaffForm = () => {
             onPress={handleSubmit(onSubmit)}
             activeOpacity={0.7}
           >
-            <Text style={styles.registerBtnText}>Register</Text>
+            <Text style={styles.registerBtnText}>Create</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.loginBtn}
@@ -357,7 +357,7 @@ const AddStaffForm = () => {
             onPress={handleSubmit(onSubmit)}
             activeOpacity={0.7}
           >
-            <Text style={styles.loginBtnText}>Login</Text>
+            <Text style={styles.loginBtnText}>Cancel</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -393,33 +393,35 @@ const styles = StyleSheet.create({
   row: {
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: s(16),
+    marginTop: 32,
     marginBottom: 22,
     height: 120
   },
   registerBtn: {
     backgroundColor: AppColors.blue,
     borderRadius: 40,
-    width: 250,
+    width: 248,
     height: 50,
     justifyContent: 'center',
     alignItems: 'center',
   },
   registerBtnText: {
-    color: '#fff',
-    fontSize: 16
+    fontFamily: 'Montserrat',
+    fontSize: 16,
+    color: '#fff'
   },
   loginBtn: {
     backgroundColor: 'white',
     borderWidth: 1,
     borderColor: AppColors.blue,
     borderRadius: 40,
-    width: 250,
+    width: 248,
     height: 50,
     justifyContent: 'center',
     alignItems: 'center',
   },
   loginBtnText: {
+    fontFamily: 'Montserrat',
     color: AppColors.blue,
     fontSize: 16
   },
