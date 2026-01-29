@@ -4,8 +4,7 @@ import { useNavigation } from '@react-navigation/native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import Feather from '@expo/vector-icons/Feather'
-import VectorImageSvg from '../../components/svg/VectorImageSvg'
-import RegisterForm from '../../components/forms/RegisterForm'
+import AddStaffForm from '../../components/forms/AddStaffForm'
 
 const AddStaffScreen = () => {
   const navigation = useNavigation()
@@ -21,7 +20,7 @@ const AddStaffScreen = () => {
             <Text style={styles.title}>Add Staff</Text>
           </View>
           <View style={styles.body}>
-            <RegisterForm />
+            <AddStaffForm />
           </View>
         </ScrollView>
       </SafeAreaView>
