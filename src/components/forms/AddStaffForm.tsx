@@ -1,4 +1,4 @@
-import * as yup from 'yup';
+import * as yup from 'yup'
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { StyleSheet, View, Text, TouchableOpacity, TextInput, Dimensions } from 'react-native'
@@ -6,9 +6,9 @@ import { AppColors } from '../../styles/colors'
 import { useNavigation } from '@react-navigation/native'
 import { useState } from 'react'
 import SelectedRolePicker from './SelectedRolePicker'
-import SexPicker from './SexPicker';
-import PreferredContact from './PreferredContact';
-import GymLocationPicker from './GymLocationPicker';
+import SexPicker from './SexPicker'
+import PreferredContact from './PreferredContact'
+import GymLocationPicker from './GymLocationPicker'
 
 const phoneRegExp = /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/
 
@@ -360,8 +360,8 @@ const AddStaffForm = () => {
         </View>
       </View>
     </>
-  );
-};
+  )
+}
 
 export default AddStaffForm
 
