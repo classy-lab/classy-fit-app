@@ -9,7 +9,6 @@ import { AppColors } from '../styles/colors'
 
 import GymScreen from './auth/GymScreen'
 import StartScreen from './auth/StartScreen'
-import About from './auth/About'
 import StaffScreen from './auth/StaffScreen'
 import Products from './auth/Products'
 import ProfileScreen from './auth/ProfileScreen'
@@ -29,7 +28,7 @@ const screenOptions = {
     // borderTopRightRadius: 24,      // Apply top right radius
     // borderTopColor: AppColors.grey,   // Border color
     // overflow: 'hidden',            // Hide overflow to make radius work properly
-    // height: 88,                       // Adjust height as needed
+    height: 88,                       // Adjust height as needed
     bottom: 96,
     // borderWidth: 1, borderColor: 'red',
   },
@@ -46,7 +45,7 @@ const TabNavigator = () => {
       <Tab.Screen
         options={{
           title: "Home",
-          tabBarIcon: () => <AntDesign name="dashboard" size={24} color='black' />
+          tabBarIcon: () => <AntDesign name="dashboard" size={24} color='black' onPress={() => { navigation.navigate('StartScreen') }} />
         }}
         name="Dashboard"
         component={StartScreen}
