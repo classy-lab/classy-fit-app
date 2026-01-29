@@ -12,7 +12,6 @@ import SexPicker from './SexPicker';
 import PreferredContact from './PreferredContact';
 import GymLocationPicker from './GymLocationPicker';
 
-const windowWidth = Dimensions.get('window').width
 const phoneRegExp = /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/
 
 // 1. Define the Yup validation schema
@@ -378,7 +377,6 @@ const styles = StyleSheet.create({
     borderColor: AppColors.textInputBorderColor,
     height: 48,
     borderRadius: 8,
-    // width: windowWidth - 64,
     backgroundColor: AppColors.grey
   },
   errorText: {
