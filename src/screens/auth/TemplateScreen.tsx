@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Dimensions, ScrollView, TouchableOpacity, Image } from 'react-native'
+import { StyleSheet, Text, View, Dimensions, ScrollView, TouchableOpacity, Image, useWindowDimensions } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import Feather from '@expo/vector-icons/Feather'
@@ -8,9 +8,10 @@ import { useFonts } from 'expo-font'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import TabNavigator from '../TabNavigator'
 
-const windowHeight = Dimensions.get('window').height
+// const windowHeight = Dimensions.get('window').height
 
 const TemplateScreen = () => {
+  const { height, width } = useWindowDimensions()
   const navigation = useNavigation()
   const [fontsLoaded] = useFonts({
     "Montserrat": require("../../assets/fonts/montserrat/Montserrat-Regular.ttf"),
@@ -33,13 +34,19 @@ const TemplateScreen = () => {
             </View>
           </View>
         </View>
+        {/* <View style={styles.navs}>
+          <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
+          <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
+        </View> */}
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.headingContainer}>
             <Text style={styles.title}>Template</Text>
             {/* <PinkLeafSvg style={styles.pinkLeaf} /> */}
           </View>
-          <View style={styles.body}>
-
+          <View style={[styles.body, { height: height }]}>
+            <Text style={styles.bodyText}>
+              Your account has been created.{"\n"}Please check your email and click on activation link to activate your account.
+            </Text>
           </View>
         </ScrollView>
         <TabNavigator />
@@ -98,9 +105,18 @@ const styles = StyleSheet.create({
     paddingLeft: 24,
     paddingRight: 24,
     marginBottom: 8,
-    flex: 1,
-    height: windowHeight,
+    // flex: 1,
     // borderWidth: 1, borderColor: 'red',
+  },
+  bodyText: {
+    marginBottom: 8,
+    // flex: 1,
+    // borderWidth: 1, borderColor: 'red',
+    fontFamily: "Montserrat",
+    lineHeight: 32,
+    color: AppColors.blue,
+    fontSize: 20,
+    textAlign: 'center'
   },
   scrollView: {
   }
