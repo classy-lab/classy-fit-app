@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet } from 'react-native'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { useNavigation } from '@react-navigation/native'
 import AntDesign from '@expo/vector-icons/AntDesign'
@@ -29,7 +29,7 @@ const screenOptions = {
     // borderTopRightRadius: 24,      // Apply top right radius
     // borderTopColor: AppColors.grey,   // Border color
     // overflow: 'hidden',            // Hide overflow to make radius work properly
-    height: 88,                       // Adjust height as needed
+    // height: 88,                       // Adjust height as needed
     bottom: 96,
     // borderWidth: 1, borderColor: 'red',
   },
