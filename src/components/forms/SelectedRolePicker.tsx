@@ -11,6 +11,7 @@ const SelectedRolePicker = () => {
     { key: '1', value: 'Gym Owner', disabled: false },
     { key: '2', value: 'Member' },
     { key: '3', value: 'Trainer' },
+    { key: '4', value: 'Contractor' }
   ]
 
   return (
