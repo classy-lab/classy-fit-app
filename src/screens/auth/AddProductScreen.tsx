@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import Feather from '@expo/vector-icons/Feather'
-import AddStaffForm from '../../components/forms/AddStaffForm'
+import AddProductForm from '../../components/forms/AddProductForm'
 
 const AddProductScreen = () => {
   const navigation = useNavigation()
@@ -20,7 +20,7 @@ const AddProductScreen = () => {
             <Text style={styles.title}>Add Product</Text>
           </View>
           <View style={styles.body}>
-            <AddStaffForm />
+            <AddProductForm />
           </View>
         </ScrollView>
       </SafeAreaView>
