@@ -1,14 +1,11 @@
 import * as yup from 'yup'
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { StyleSheet, View, Text, TouchableOpacity, TextInput, Dimensions } from 'react-native'
+import { StyleSheet, View, Text, TouchableOpacity, TextInput } from 'react-native'
 import { AppColors } from '../../styles/colors'
 import { useNavigation } from '@react-navigation/native'
 import { useState } from 'react'
-import SelectedRolePicker from './SelectedRolePicker'
-import SexPicker from './SexPicker'
-import PreferredContact from './PreferredContact'
-import GymLocationPicker from './GymLocationPicker'
+import ImagePickerExample from '../../screens/auth/ImagePickerExample'
 
 const phoneRegExp = /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/
 
@@ -114,13 +111,7 @@ const AddProductForm = () => {
             control={control}
             name="productImages"
             render={({ field: { onChange, onBlur, value } }) => (
-              <SelectedRolePicker
-                style={styles.inputField}
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-                keyboardType="default"
-                autoCapitalize="none" />
+              <ImagePickerExample />
             )}
           />
           {errors.productImages && <Text style={styles.errorText}>{errors.productImages.message}</Text>}
