@@ -33,7 +33,8 @@ const screenOptions = {
     // borderWidth: 1, borderColor: 'red',
   },
   tabBarLabelStyle: {
-    fontSize: 14,
+    fontFamily: 'Montserrat',
+    fontSize: 12,
   }
 }
 
