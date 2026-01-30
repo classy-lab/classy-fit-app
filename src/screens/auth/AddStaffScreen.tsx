@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import Feather from '@expo/vector-icons/Feather'
 import AddStaffForm from '../../components/forms/AddStaffForm'
+import TabNavigator from '../TabNavigator'
 
 const AddStaffScreen = () => {
   const navigation = useNavigation()
@@ -13,7 +14,7 @@ const AddStaffScreen = () => {
       <SafeAreaView style={styles.container}>
         <View style={styles.navs}>
           <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
-          <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
+          {/* <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} /> */}
         </View>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.headingContainer}>
@@ -23,6 +24,7 @@ const AddStaffScreen = () => {
             <AddStaffForm />
           </View>
         </ScrollView>
+        <TabNavigator />
       </SafeAreaView>
     </>
   )
