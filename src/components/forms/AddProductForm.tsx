@@ -27,7 +27,6 @@ const schema = yup.object().shape({
   whatsappNumber: yup.string().matches(phoneRegExp, 'WhatsApp Number number is not valid'),
   preferredContact: yup.string().oneOf(['Phone', 'Email', 'WhatsApp']),
   job: yup.string(),
-  // gymLocation: ''
 });
 
 const AddProductForm = () => {
