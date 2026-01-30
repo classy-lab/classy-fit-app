@@ -6,7 +6,6 @@ import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
 import VectorImageSvg from '../../components/svg/VectorImageSvg'
 import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
-import { s, vs } from 'react-native-size-matters'
 
 const StartScreen = () => {
   const navigation = useNavigation()
@@ -101,7 +100,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   bodyText: {
-    fontSize: s(16),
+    fontSize: 16,
     fontFamily: "Montserrat",
     lineHeight: 24,
     color: AppColors.primary,
@@ -151,13 +150,13 @@ const styles = StyleSheet.create({
     alignItems: "center"
   },
   boxText: {
-    fontSize: s(16),
+    fontSize: 16,
   },
   subTitle: {
     fontFamily: "Montserrat",
     color: AppColors.blue,
-    fontSize: s(16),
-    lineHeight: s(32),
+    fontSize: 16,
+    lineHeight: 32,
     textAlign: 'center',
     marginTop: 24,
     marginBottom: 24,
