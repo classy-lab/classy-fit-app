@@ -270,7 +270,7 @@ const AddProductForm = () => {
             control={control}
             name="manufacturer"
             render={({ field: { onChange, onBlur, value } }) => (
-              <PreferredContact
+              <TextInput
                 style={styles.inputField}
                 onBlur={onBlur}
                 onChangeText={onChange}
