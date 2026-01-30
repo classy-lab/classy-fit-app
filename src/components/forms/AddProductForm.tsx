@@ -246,10 +246,10 @@ const AddProductForm = () => {
         </View>
 
         <View style={styles.field}>
-          <Text style={styles.formLabel}>WhatsApp Number</Text>
+          <Text style={styles.formLabel}>Model Name</Text>
           <Controller
             control={control}
-            name="whatsappNumber"
+            name="modelName"
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
                 style={styles.inputField}
@@ -257,12 +257,11 @@ const AddProductForm = () => {
                 onChangeText={onChange}
                 value={value}
                 keyboardType="default"
-                placeholder="518-555-5555"
                 autoCapitalize="none"
               />
             )}
           />
-          {errors.whatsappNumber && <Text style={styles.errorText}>{errors.whatsappNumber.message}</Text>}
+          {errors.modelName && <Text style={styles.errorText}>{errors.modelName.message}</Text>}
         </View>
 
         <View style={styles.field}>
