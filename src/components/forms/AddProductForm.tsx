@@ -265,10 +265,10 @@ const AddProductForm = () => {
         </View>
 
         <View style={styles.field}>
-          <Text style={styles.formLabel}>Preferred Contact</Text>
+          <Text style={styles.formLabel}>Manufacturer</Text>
           <Controller
             control={control}
-            name="preferredContact"
+            name="manufacturer"
             render={({ field: { onChange, onBlur, value } }) => (
               <PreferredContact
                 style={styles.inputField}
@@ -280,7 +280,7 @@ const AddProductForm = () => {
               />
             )}
           />
-          {errors.preferredContact && <Text style={styles.errorText}>{errors.preferredContact.message}</Text>}
+          {errors.manufacturer && <Text style={styles.errorText}>{errors.manufacturer.message}</Text>}
         </View>
 
         <View style={styles.field}>
