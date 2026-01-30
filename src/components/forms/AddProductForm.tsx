@@ -209,9 +209,9 @@ const AddProductForm = () => {
           <Text style={styles.formLabel}>Type</Text>
           <Controller
             control={control}
-            name="type"
+            name="productType"
             render={({ field: { onChange, onBlur, value } }) => (
-              <SexPicker
+              <TextInput
                 style={styles.inputField}
                 onBlur={onBlur}
                 onChangeText={onChange}
@@ -221,7 +221,7 @@ const AddProductForm = () => {
               />
             )}
           />
-          {errors.type && <Text style={styles.errorText}>{errors.type.message}</Text>}
+          {errors.productType && <Text style={styles.errorText}>{errors.productType.message}</Text>}
         </View>
 
         <View style={styles.field}>
