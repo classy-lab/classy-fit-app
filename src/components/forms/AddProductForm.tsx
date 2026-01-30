@@ -284,10 +284,10 @@ const AddProductForm = () => {
         </View>
 
         <View style={styles.field}>
-          <Text style={styles.formLabel}>Job</Text>
+          <Text style={styles.formLabel}>Part Number</Text>
           <Controller
             control={control}
-            name="job"
+            name="partNumber"
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
                 style={styles.inputField}
@@ -299,22 +299,17 @@ const AddProductForm = () => {
               />
             )}
           />
-          {errors.job && <Text style={styles.errorText}>{errors.job.message}</Text>}
+          {errors.partNumber && <Text style={styles.errorText}>{errors.partNumber.message}</Text>}
         </View>
 
         <View style={styles.field}>
-          <Text style={styles.formLabel}>Gym Location / Fitness Center</Text>
+          <Text style={styles.formLabel}>Item Weight</Text>
           <Controller
             control={control}
-            name="gymLocation"
+            name="itemWeight"
             render={({ field: { onChange, onBlur, value } }) => (
-              <GymLocationPicker
-                style={[
-                  // styles.inputField,
-                  // styles.selectList,
-                  // isPressed ? styles.pressed : styles.normal,
-                  // isActive ? styles.active : null
-                ]}
+              <TextInput
+                style={styles.inputField}
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
@@ -323,7 +318,64 @@ const AddProductForm = () => {
               />
             )}
           />
-          {errors.gymLocation && <Text style={styles.errorText}>{errors.gymLocation.message}</Text>}
+          {errors.itemWeight && <Text style={styles.errorText}>{errors.itemWeight.message}</Text>}
+        </View>
+
+        <View style={styles.field}>
+          <Text style={styles.formLabel}>Rating</Text>
+          <Controller
+            control={control}
+            name="rating"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styles.inputField}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                keyboardType="default"
+                autoCapitalize="none"
+              />
+            )}
+          />
+          {errors.rating && <Text style={styles.errorText}>{errors.rating.message}</Text>}
+        </View>
+
+        <View style={styles.field}>
+          <Text style={styles.formLabel}>Item Dimensions (L x W x H)</Text>
+          <Controller
+            control={control}
+            name="itemDimentions"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styles.inputField}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                keyboardType="default"
+                autoCapitalize="none"
+              />
+            )}
+          />
+          {errors.itemDimentions && <Text style={styles.errorText}>{errors.itemDimentions.message}</Text>}
+        </View>
+
+        <View style={styles.field}>
+          <Text style={styles.formLabel}>Material</Text>
+          <Controller
+            control={control}
+            name="material"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styles.inputField}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                keyboardType="default"
+                autoCapitalize="none"
+              />
+            )}
+          />
+          {errors.material && <Text style={styles.errorText}>{errors.material.message}</Text>}
         </View>
 
         <View style={styles.row}>
