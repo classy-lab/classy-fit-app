@@ -101,6 +101,7 @@ const styles = StyleSheet.create({
   },
   totalCost: {
     fontSize: 32,
+    fontFamily: 'Montserrat',
     color: AppColors.blue,
     marginTop: 8
   },
@@ -115,6 +116,7 @@ const styles = StyleSheet.create({
     marginBottom: 24
   },
   registerBtnText: {
+    fontFamily: 'Montserrat',
     color: '#fff',
     fontSize: 12
   },
