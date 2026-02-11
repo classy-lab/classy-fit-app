@@ -12,6 +12,7 @@ import GymScreen from './auth/GymScreen'
 import StaffScreen from './auth/StaffScreen'
 import Products from './auth/Products'
 import ProfileScreen from './auth/ProfileScreen'
+import HomeStack from './auth/HomeStack'
 
 const Tab = createBottomTabNavigator()
 
@@ -43,15 +44,9 @@ const TabNavigator = () => {
 
   return (
     <Tab.Navigator style={{ flexGrow: 1 }} screenOptions={screenOptions}>
-      <Tab.Screen
-        name="Dashboard"
-        component={DashboardScreen}
-        options={{
-          title: "Home",
-          tabBarIcon: () => <AntDesign name="dashboard" size={24} color='black' onPress={() => { navigation.navigate('DashboardScreen') }} />
-        }}
-      />
-      <Tab.Screen
+      <Tab.Screen name="HomeTab" component={HomeStack} />
+      {/* <Tab.Screen name="ProfileTab" component={ProfileStack} /> */}
+      {/* <Tab.Screen
         name="Gym"
         component={GymScreen}
         options={{
@@ -82,7 +77,7 @@ const TabNavigator = () => {
           title: "Profile",
           tabBarIcon: () => <FontAwesome6 name="circle-user" size={24} color="black" onPress={() => { navigation.navigate('ProfileScreen') }} />
         }}
-      />
+      /> */}
     </Tab.Navigator>
   )
 }
