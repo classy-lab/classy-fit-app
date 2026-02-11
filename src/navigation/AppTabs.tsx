@@ -1,11 +1,16 @@
 // navigation/AppTabs.js
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-import DashboardScreen from '../screens/auth/DashboardScreen'
 import { AppColors } from '../styles/colors'
-import EarningsScreen from '../screens/auth/EarningsScreen'
-import GymScreen from '../screens/auth/GymScreen'
 import Ionicons from '@expo/vector-icons/Ionicons'
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5'
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
+import { useNavigation } from '@react-navigation/native'
+import DashboardScreen from '../screens/app/DashboardScreen'
+import GymScreen from '../screens/app/GymScreen'
+import StaffScreen from '../screens/app/StaffScreen'
+import Products from '../screens/app/Products'
+import ProfileScreen from '../screens/app/ProfileScreen'
 
 const Tab = createBottomTabNavigator()
 
@@ -33,6 +38,8 @@ const screenOptions = {
 }
 
 const AppTabs = () => {
+  const navigation = useNavigation()
+
   return (
     <Tab.Navigator screenOptions={screenOptions}>
       <Tab.Screen name="DashboardScreen" component={DashboardScreen}
@@ -44,8 +51,38 @@ const AppTabs = () => {
           ),
         }}
       />
-      <Tab.Screen name="Earnings" component={EarningsScreen} />
-      <Tab.Screen name="GymScreen" component={GymScreen} />
+      <Tab.Screen
+        name="Gym"
+        component={GymScreen}
+        options={{
+          title: "Gym",
+          tabBarIcon: () => <FontAwesome5 name="dumbbell" size={20} color="black" onPress={() => { navigation.navigate('GymScreen') }} />
+        }}
+      />
+      <Tab.Screen
+        name="Staff"
+        component={StaffScreen}
+        options={{
+          title: "Staff",
+          tabBarIcon: () => <FontAwesome6 name="bolt-lightning" size={20} color="black" onPress={() => { navigation.navigate('StaffScreen') }} />
+        }}
+      />
+      <Tab.Screen
+        name="Products"
+        component={Products}
+        options={{
+          title: "Products",
+          tabBarIcon: () => <Ionicons name="bag-check-outline" size={24} color="black" onPress={() => { navigation.navigate('Products') }} />
+        }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{
+          title: "Profile",
+          tabBarIcon: () => <FontAwesome6 name="circle-user" size={24} color="black" onPress={() => { navigation.navigate('ProfileScreen') }} />
+        }}
+      />
     </Tab.Navigator>
   );
 };
