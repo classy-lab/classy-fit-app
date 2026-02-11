@@ -6,7 +6,6 @@ import { useFonts } from 'expo-font'
 import { s } from 'react-native-size-matters'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import Feather from '@expo/vector-icons/Feather'
-import TabNavigator from '../TabNavigator'
 import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
 import * as yup from 'yup'
 import { useForm, Controller } from 'react-hook-form'
@@ -139,7 +138,6 @@ const StaffScreen = () => {
 
           </View>
         </ScrollView>
-        <TabNavigator />
       </SafeAreaView>
     </>
   )
