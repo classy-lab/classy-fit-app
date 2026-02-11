@@ -6,7 +6,6 @@ import { useFonts } from 'expo-font'
 import Feather from '@expo/vector-icons/Feather'
 import { s } from 'react-native-size-matters'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
-import TabNavigator from '../TabNavigator'
 import EarningsBarGraph from '../../assets/svg/EarningsBarGraph'
 import Entypo from '@expo/vector-icons/Entypo'
 
@@ -109,7 +108,6 @@ const EarningsScreen = () => {
             </View>
           </View>
         </ScrollView>
-        <TabNavigator />
       </SafeAreaView>
     </>
   )
