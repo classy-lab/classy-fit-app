@@ -5,15 +5,14 @@ import Ionicons from '@expo/vector-icons/Ionicons'
 import { DrawerContentScrollView, DrawerItemList, createDrawerNavigator } from '@react-navigation/drawer'
 import { DrawerActions, useNavigation } from '@react-navigation/native'
 
-import StartScreen from '../screens/auth/StartScreen'
-import About from '../screens/auth/About'
-import Contact from '../screens/auth/Contact'
-import GymHours from '../screens/auth/GymHours'
-import RegisterScreen from '../screens/auth/RegisterScreen'
-import RegisterComplete from '../screens/auth/RegisterComplete'
-import TemplateScreen from '../screens/auth/TemplateScreen'
-import LoginScreen from '../screens/auth/LoginScreen'
-
+import StartScreen from '../screens/auth/StartScreen';
+import About from '../screens/auth/About';
+import Contact from '../screens/auth/Contact';
+import GymHours from '../screens/auth/GymHours';
+import RegisterScreen from '../screens/auth/RegisterScreen';
+import RegisterComplete from '../screens/auth/RegisterComplete';
+import TemplateScreen from '../screens/auth/TemplateScreen';
+import LoginScreen from '../screens/auth/LoginScreen';
 
 const screenOptionsStyle = {
   // overlayColor: 'rgba(0, 0, 0, 0.3)',
