@@ -50,7 +50,7 @@ const TemplateScreen = () => {
             </Text>
           </View>
         </ScrollView>
-        <TabNavigator />
+        {/* <TabNavigator /> */}
       </SafeAreaView>
     </>
   )
