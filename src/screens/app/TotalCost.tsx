@@ -5,7 +5,6 @@ import Feather from '@expo/vector-icons/Feather'
 import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
-import TabNavigator from '../TabNavigator'
 
 const windowHeight = Dimensions.get('window').height
 
@@ -44,7 +43,6 @@ const TotalCost = () => {
             <Image style={styles.paymentIcons} source={require('../../assets/images/paymentIcons.png')} />
           </View>
         </ScrollView>
-        <TabNavigator />
       </SafeAreaView>
     </>
   )
