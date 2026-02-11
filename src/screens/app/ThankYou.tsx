@@ -6,7 +6,6 @@ import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
 import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
 import Ionicons from '@expo/vector-icons/Ionicons'
-import TabNavigator from '../TabNavigator'
 import DesignerSvg from '../../components/svg/DesignerSvg'
 
 const windowHeight = Dimensions.get('window').height
@@ -43,7 +42,6 @@ const ThankYou = () => {
 
           </View>
         </ScrollView>
-        <TabNavigator />
       </SafeAreaView>
     </>
   )
