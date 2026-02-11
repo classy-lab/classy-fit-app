@@ -6,7 +6,7 @@ import AuthStack from './src/navigation/AuthStack'; // Contains Login/Signup scr
 import AppTabs from './src/navigation/AppTabs';     // Contains Home/Dashboard/Settings screens
 
 export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(true); // Check user login status
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Check user login status
 
   return (
     <>
