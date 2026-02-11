@@ -18,6 +18,7 @@ const screenOptions = {
   tabBarActiveTintColor: AppColors.blue,
   tabBarInactiveTintColor: AppColors.primary,
   tabBarLabelPosition: 'below-icon',
+  headerShown: false,
   tabBarStyle: {
     backgroundColor: AppColors.white, // Tab bar background color
     elevation: 0,                     // for Android
