@@ -6,7 +6,6 @@ import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
 import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
-import TabNavigator from '../TabNavigator'
 
 const windowHeight = Dimensions.get('window').height
 
@@ -42,7 +41,6 @@ const ProfileScreen = () => {
 
           </View>
         </ScrollView>
-        <TabNavigator />
       </SafeAreaView>
     </>
   )
