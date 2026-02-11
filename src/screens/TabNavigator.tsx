@@ -1,5 +1,4 @@
 import { StyleSheet } from 'react-native'
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { useNavigation } from '@react-navigation/native'
 import AntDesign from '@expo/vector-icons/AntDesign'
 import Ionicons from '@expo/vector-icons/Ionicons'
@@ -7,8 +6,9 @@ import FontAwesome5 from '@expo/vector-icons/FontAwesome5'
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
 import { AppColors } from '../styles/colors'
 
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import DashboardScreen from './auth/DashboardScreen'
 import GymScreen from './auth/GymScreen'
-import StartScreen from './auth/StartScreen'
 import StaffScreen from './auth/StaffScreen'
 import Products from './auth/Products'
 import ProfileScreen from './auth/ProfileScreen'
@@ -42,46 +42,46 @@ const TabNavigator = () => {
   const navigation = useNavigation()
 
   return (
-    <Tab.Navigator style={{ flexGrow: 1 }} screenOptions={screenOptions} >
+    <Tab.Navigator style={{ flexGrow: 1 }} screenOptions={screenOptions}>
       <Tab.Screen
+        name="Dashboard"
+        component={DashboardScreen}
         options={{
           title: "Home",
-          tabBarIcon: () => <AntDesign name="dashboard" size={24} color='black' onPress={() => { navigation.navigate('StartScreen') }} />
+          tabBarIcon: () => <AntDesign name="dashboard" size={24} color='black' onPress={() => { navigation.navigate('DashboardScreen') }} />
         }}
-        name="Dashboard"
-        component={StartScreen}
       />
       <Tab.Screen
+        name="Gym"
+        component={GymScreen}
         options={{
           title: "Gym",
           tabBarIcon: () => <FontAwesome5 name="dumbbell" size={20} color="black" onPress={() => { navigation.navigate('GymScreen') }} />
         }}
-        name="Gym"
-        component={GymScreen}
       />
       <Tab.Screen
+        name="Staff"
+        component={StaffScreen}
         options={{
           title: "Staff",
           tabBarIcon: () => <FontAwesome6 name="bolt-lightning" size={20} color="black" onPress={() => { navigation.navigate('StaffScreen') }} />
         }}
-        name="Staff"
-        component={StaffScreen}
       />
       <Tab.Screen
+        name="Products"
+        component={Products}
         options={{
           title: "Products",
           tabBarIcon: () => <Ionicons name="bag-check-outline" size={24} color="black" onPress={() => { navigation.navigate('Products') }} />
         }}
-        name="Products"
-        component={Products}
       />
       <Tab.Screen
+        name="Profile"
+        component={ProfileScreen}
         options={{
           title: "Profile",
           tabBarIcon: () => <FontAwesome6 name="circle-user" size={24} color="black" onPress={() => { navigation.navigate('ProfileScreen') }} />
         }}
-        name="Profile"
-        component={ProfileScreen}
       />
     </Tab.Navigator>
   )
