@@ -32,6 +32,7 @@ import AddStaffScreen from '../screens/auth/AddStaffScreen'
 import AddMemberScreen from '../screens/auth/AddMemberScreen'
 import AddProductScreen from '../screens/auth/AddProductScreen'
 import AddContactScreen from '../screens/auth/AddContactScreen'
+import TabNavigator from '../screens/TabNavigator'
 
 const Stack = createStackNavigator()
 
@@ -77,47 +78,33 @@ const MainAppStack = () => {
 
   return (
     <>
-      <Drawer.Navigator
-        screenOptions={screenOptionsStyle}
-        drawerContent={props => <CustomDrawerContent {...props} />}>
+      <Drawer.Navigator screenOptions={screenOptionsStyle} drawerContent={props => <CustomDrawerContent {...props} />}>
+        {/* Tab navigator is a screen in the root stack */}
+        <Drawer.Screen name="MainTabs" component={TabNavigator} options={{ headerShown: false }} />
+        {/* Screens outside the tabs cover the whole screen, including hiding the tab bar */}
         <Drawer.Screen name="Home" component={StartScreen} />
         <Drawer.Screen name="About" component={About} options={{ title: 'About' }} />
         <Drawer.Screen name="Contact" component={Contact} options={{ title: 'Contact' }} />
         <Drawer.Screen name="GymHours" component={GymHours} options={{ title: 'Gym Hours' }} />
-
-        <Drawer.Screen
-          name='StartScreen'
-          options={{ drawerItemStyle: { display: 'none' }, }}
-          component={StartScreen}
-        />
-        <Drawer.Screen
-          name='RegisterScreen'
-          options={{ drawerItemStyle: { display: 'none' }, }}
-          component={RegisterScreen}
-        />
-        <Drawer.Screen
-          name='LoginScreen'
-          options={{ drawerItemStyle: { display: 'none' }, }}
-          component={LoginScreen}
-        />
-        <Drawer.Screen
+        <Drawer.Screen name='StartScreen' options={{ drawerItemStyle: { display: 'none' }, }} component={StartScreen} />
+        <Drawer.Screen name='RegisterScreen' options={{ drawerItemStyle: { display: 'none' }, }} component={RegisterScreen} />
+        <Drawer.Screen name='LoginScreen' options={{ drawerItemStyle: { display: 'none' }, }} component={LoginScreen} />
+        <Drawer.Screen name='RegisterComplete' options={{ drawerItemStyle: { display: 'none' }, }} component={RegisterComplete} />
+        <Drawer.Screen name='TemplateScreen' options={{}} component={TemplateScreen} />
+        {/* <Drawer.Screen
           name='DashboardScreen'
           // options={{ drawerItemStyle: { display: 'none' }, }}
           component={DashboardScreen}
-        />
-        <Drawer.Screen
-          name='RegisterComplete'
-          // options={{ drawerItemStyle: { display: 'none' }, }}
-          component={RegisterComplete}
-        />
-        <Drawer.Screen
+        /> */}
+
+        {/* <Drawer.Screen
           name='Earnings'
           options={{
             // drawerItemStyle: { display: 'none' },
           }}
           component={Earnings}
-        />
-        <Drawer.Screen
+        /> */}
+        {/* <Drawer.Screen
           name='GymScreen'
           options={{
             // drawerItemStyle: { display: 'none' },
@@ -137,8 +124,8 @@ const MainAppStack = () => {
             // drawerItemStyle: { display: 'none' },
           }}
           component={Members}
-        />
-        <Drawer.Screen
+        /> */}
+        {/* <Drawer.Screen
           name='Products'
           options={{
             // drawerItemStyle: { display: 'none' },
@@ -158,8 +145,8 @@ const MainAppStack = () => {
             // drawerItemStyle: { display: 'none' },
           }}
           component={TotalCost}
-        />
-        <Drawer.Screen
+        /> */}
+        {/* <Drawer.Screen
           name='ThankYou'
           options={{
             // drawerItemStyle: { display: 'none' },
@@ -186,8 +173,8 @@ const MainAppStack = () => {
             // drawerItemStyle: { display: 'none' },
           }}
           component={AddStaffScreen}
-        />
-        <Drawer.Screen
+        /> */}
+        {/* <Drawer.Screen
           name='AddMemberScreen'
           options={{
             // drawerItemStyle: { display: 'none' },
@@ -207,14 +194,7 @@ const MainAppStack = () => {
             // drawerItemStyle: { display: 'none' },
           }}
           component={AddContactScreen}
-        />
-        <Drawer.Screen
-          name='TemplateScreen'
-          options={{
-            // drawerItemStyle: { display: 'none' },
-          }}
-          component={TemplateScreen}
-        />
+        /> */}
       </Drawer.Navigator>
     </>
   )
