@@ -5,9 +5,8 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import Feather from '@expo/vector-icons/Feather'
 import AddStaffForm from '../../components/forms/AddStaffForm'
-import TabNavigator from '../TabNavigator'
 
-const AddContactScreen = () => {
+const AddMemberScreen = () => {
   const navigation = useNavigation()
   return (
     <>
@@ -18,19 +17,18 @@ const AddContactScreen = () => {
         </View>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.headingContainer}>
-            <Text style={styles.title}>Add Contact</Text>
+            <Text style={styles.title}>Add Member</Text>
           </View>
           <View style={styles.body}>
             <AddStaffForm />
           </View>
         </ScrollView>
-        <TabNavigator />
       </SafeAreaView>
     </>
   )
 }
 
-export default AddContactScreen
+export default AddMemberScreen
 
 const styles = StyleSheet.create({
   container: {

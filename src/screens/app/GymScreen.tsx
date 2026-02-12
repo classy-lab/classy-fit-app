@@ -1,6 +1,5 @@
 import { StyleSheet, Text, View, Dimensions, TouchableOpacity, ScrollView } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { useNavigation } from '@react-navigation/native'
 import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
 import { s } from 'react-native-size-matters'
@@ -10,7 +9,6 @@ import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
 import BuildingSvg from '../../components/svg/BuildingSvg'
 import ClassesSvg from '../../components/svg/ClassesSvg'
 import PersonalTrainingSvg from '../../components/svg/PersonalTrainingSvg'
-import TabNavigator from '../TabNavigator'
 import Elliptical from '../../assets/svg/Elliptical'
 import Dumbbell from '../../assets/svg/Dumbbell'
 import MemberNotification from '../../assets/svg/MemberNotification'
@@ -18,8 +16,7 @@ import Treadmill from '../../assets/svg/Treadmill'
 
 const windowWidth = Dimensions.get('window').width
 
-const GymScreen = () => {
-  const navigation = useNavigation()
+const GymScreen = ({ navigation, route }) => {
   const [fontsLoaded] = useFonts({
     "Montserrat": require("../../assets/fonts/montserrat/Montserrat-Regular.ttf"),
     "Montserrat-Bold": require("../../assets/fonts/montserrat/Montserrat-Bold.ttf")
@@ -32,9 +29,9 @@ const GymScreen = () => {
           <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
           <View style={styles.signOut}>
             <Text style={styles.signOutText}>Sign out</Text>
-            <View style={styles.circle}>
+            {/* <View style={styles.circle}>
               <MaterialIcons name="logout" color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
-            </View>
+            </View> */}
           </View>
         </View>
         <ScrollView showsVerticalScrollIndicator={false}>
@@ -136,7 +133,6 @@ const GymScreen = () => {
             </View>
           </View>
         </ScrollView>
-        <TabNavigator />
       </SafeAreaView>
     </>
   )

@@ -4,12 +4,13 @@ import { useNavigation } from '@react-navigation/native'
 import Feather from '@expo/vector-icons/Feather'
 import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
-import MaterialIcons from '@expo/vector-icons/MaterialIcons'
-import TabNavigator from '../TabNavigator'
+import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
+import Ionicons from '@expo/vector-icons/Ionicons'
+import DesignerSvg from '../../components/svg/DesignerSvg'
 
 const windowHeight = Dimensions.get('window').height
 
-const TotalCost = () => {
+const ThankYou = () => {
   const navigation = useNavigation()
   const [fontsLoaded] = useFonts({
     "Montserrat": require("../../assets/fonts/montserrat/Montserrat-Regular.ttf"),
@@ -20,37 +21,33 @@ const TotalCost = () => {
     <>
       <SafeAreaView style={styles.container}>
         <View style={styles.navs}>
-          <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
+          <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
         </View>
+
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.headingContainer}>
-
+            <Text style={styles.title}>Thank you!</Text>
           </View>
           <View style={styles.body}>
-            <Text style={styles.title}>Total Cost</Text>
-            <Text style={styles.totalCost}>$40.00</Text>
 
-            <View style={styles.loginBtnContainer}>
-              <TouchableOpacity
-                style={styles.registerBtn}
-                title="loginSubmit"
-                activeOpacity={0.7}
-              // onPress={handleSubmit(onSubmit)}
-              >
-                <Text style={styles.registerBtnText}>Pay with Debit or Credit Card</Text>
-              </TouchableOpacity>
+            <Text style={styles.bodyText}>
+              Your Order is complete. Your Order number is: {'\n'}
+              <Text style={styles.boldText}>100</Text> {'\n'}
+              A confirmation email has been sent to: <Text style={styles.boldText}>emma56@gmail.com</Text>
+            </Text>
+
+            <View style={styles.imageContainer}>
+              <DesignerSvg />
             </View>
 
-            <Image style={styles.paymentIcons} source={require('../../assets/images/paymentIcons.png')} />
           </View>
         </ScrollView>
-        <TabNavigator />
       </SafeAreaView>
     </>
   )
 }
 
-export default TotalCost
+export default ThankYou
 
 const styles = StyleSheet.create({
   container: {
@@ -58,7 +55,7 @@ const styles = StyleSheet.create({
   },
   navs: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     paddingLeft: 24,
     paddingRight: 24,
   },
@@ -84,6 +81,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20
   },
+  title: {
+    color: AppColors.blue,
+    fontFamily: 'Montserrat',
+    fontSize: 32,
+    marginTop: 60,
+  },
+  pinkLeaf: {
+    position: 'relative',
+    zIndex: -1,
+    top: -68,
+    right: -40
+  },
   body: {
     paddingLeft: 24,
     paddingRight: 24,
@@ -93,32 +102,20 @@ const styles = StyleSheet.create({
     alignItems: 'center'
     // borderWidth: 1, borderColor: 'red',
   },
-  title: {
+  bodyText: {
     color: AppColors.primary,
-    fontFamily: 'Montserrat',
-    fontSize: 32,
-    marginTop: 60,
+    fontSize: 16,
+    textAlign: 'center',
+    marginTop: 40
   },
-  totalCost: {
-    fontSize: 32,
-    fontFamily: 'Montserrat',
-    color: AppColors.blue,
-    marginTop: 8
+  boldText: {
+    fontFamily: 'Montserrat-Bold'
   },
-  registerBtn: {
-    backgroundColor: AppColors.blue,
-    borderRadius: 40,
-    width: 250,
-    height: 50,
-    justifyContent: 'center',
+  imageContainer: {
+    marginBottom: 8,
     alignItems: 'center',
-    marginTop: 16,
-    marginBottom: 24
-  },
-  registerBtnText: {
-    fontFamily: 'Montserrat',
-    color: '#fff',
-    fontSize: 12
+    marginTop: 132
+    // borderWidth: 1, borderColor: 'red',
   },
   scrollView: {
   }

@@ -6,7 +6,6 @@ import { useFonts } from 'expo-font'
 import { s } from 'react-native-size-matters'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import Feather from '@expo/vector-icons/Feather'
-import TabNavigator from '../TabNavigator'
 import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
 import * as yup from 'yup'
 import { useForm, Controller } from 'react-hook-form'
@@ -14,7 +13,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 
 const windowHeight = Dimensions.get('window').height
 
-const Contractors = () => {
+const Members = () => {
   const navigation = useNavigation()
 
   // 1. Define the Yup validation schema
@@ -68,7 +67,7 @@ const Contractors = () => {
         </View>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.headingContainer}>
-            <Text style={styles.title}>Contractors</Text>
+            <Text style={styles.title}>Members</Text>
             <PinkLeafSvg style={styles.pinkLeaf} />
           </View>
           <View style={styles.body}>
@@ -99,51 +98,80 @@ const Contractors = () => {
 
             <View style={styles.section}>
               <View style={styles.sectionHeading}>
-                <Text style={styles.sectionTitle}>Products</Text>
-                <Text style={styles.countText}>Count: 6</Text>
+                <Text style={styles.sectionTitle}>Owner</Text>
+                <Text style={styles.countText}>Count: 105</Text>
               </View>
               <View style={styles.boxes}>
                 <TouchableOpacity>
                   <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/headshots/chinna.png')} resizeMode="contain" />
-                    <Text style={styles.personName}>Boxing Gloves</Text>
-                    <Text style={styles.job}>Electrician</Text>
-                  </View>
-                </TouchableOpacity>
-
-                <TouchableOpacity>
-                  <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/headshots/rani.png')} resizeMode="contain" />
-                    <Text style={styles.personName}>Protein Shaker</Text>
-                    <Text style={styles.job}>Plumber</Text>
+                    <Image style={styles.image} source={require('../../assets/images/headshots/jenniferHeadshot.png')} />
+                    <Text style={styles.personName}>Jenniffer P.</Text>
                   </View>
                 </TouchableOpacity>
                 <TouchableOpacity>
                   <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/headshots/imran.png')} resizeMode="contain" />
-                    <Text style={styles.personName}>Protein Shaker</Text>
-                    <Text style={styles.job}>Repair Technician</Text>
+                    <Image style={styles.image} source={require('../../assets/images/headshots/patrickHeadshot.png')} />
+                    <Text style={styles.personName}>Patrick P.</Text>
                   </View>
                 </TouchableOpacity>
                 <TouchableOpacity>
                   <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/headshots/radeep.png')} resizeMode="contain" />
-                    <Text style={styles.personName}>Radeep K.</Text>
-                    <Text style={styles.job}>Repair Technician</Text>
+                    <Image style={styles.image} source={require('../../assets/images/headshots/MarkS.png')} />
+                    <Text style={styles.personName}>Mark S.</Text>
                   </View>
                 </TouchableOpacity>
                 <TouchableOpacity>
                   <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/headshots/inna.png')} resizeMode="contain" />
-                    <Text style={styles.personName}>Inna K.</Text>
-                    <Text style={styles.job}>Cleaner</Text>
+                    <Image style={styles.image} source={require('../../assets/images/headshots/lisaM.png')} />
+                    <Text style={styles.personName}>Lisa M.</Text>
                   </View>
                 </TouchableOpacity>
                 <TouchableOpacity>
                   <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/headshots/saloni.png')} resizeMode="contain" />
-                    <Text style={styles.personName}>Saloni K.</Text>
-                    <Text style={styles.job}>Cleaner</Text>
+                    <Image style={styles.image} source={require('../../assets/images/headshots/AndronicusP.png')} />
+                    <Text style={styles.personName}>Andronicus P.</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity>
+                  <View style={styles.box}>
+                    <Image style={styles.image} source={require('../../assets/images/headshots/sona.png')} />
+                    <Text style={styles.personName}>Sona M.</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity>
+                  <View style={styles.box}>
+                    <Image style={styles.image} source={require('../../assets/images/headshots/lisa.png')} />
+                    <Text style={styles.personName}>Sarah B.</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity>
+                  <View style={styles.box}>
+                    <Image style={styles.image} source={require('../../assets/images/headshots/andy.png')} />
+                    <Text style={styles.personName}>Jenniffer P.</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity>
+                  <View style={styles.box}>
+                    <Image style={styles.image} source={require('../../assets/images/headshots/jessica.png')} />
+                    <Text style={styles.personName}>Maria K.</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity>
+                  <View style={styles.box}>
+                    <Image style={styles.image} source={require('../../assets/images/headshots/candy.png')} />
+                    <Text style={styles.personName}>Sarah B.</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity>
+                  <View style={styles.box}>
+                    <Image style={styles.image} source={require('../../assets/images/headshots/sam.png')} />
+                    <Text style={styles.personName}>Jenniffer P.</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity>
+                  <View style={styles.box}>
+                    <Image style={styles.image} source={require('../../assets/images/headshots/rajesh.png')} />
+                    <Text style={styles.personName}>Maria K.</Text>
                   </View>
                 </TouchableOpacity>
               </View>
@@ -151,13 +179,12 @@ const Contractors = () => {
 
           </View>
         </ScrollView>
-        <TabNavigator />
       </SafeAreaView>
     </>
   )
 }
 
-export default Contractors
+export default Members
 
 const styles = StyleSheet.create({
   container: {
@@ -168,6 +195,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingLeft: 24,
     paddingRight: 24,
+    width: '100%',
   },
   signOut: {
     flexDirection: 'row',
@@ -207,7 +235,6 @@ const styles = StyleSheet.create({
   body: {
     paddingLeft: 24,
     paddingRight: 24,
-    marginBottom: 8,
     flex: 1,
     height: windowHeight,
     // borderWidth: 1, borderColor: 'red',
@@ -224,8 +251,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: AppColors.textInputBorderColor,
     backgroundColor: AppColors.grey,
-    marginTop: 20,
     paddingLeft: 22,
+    marginTop: 20,
     height: s(48),
     borderRadius: s(8),
   },
@@ -242,17 +269,12 @@ const styles = StyleSheet.create({
     fontSize: 24,
     // marginBottom: 16,
   },
-  countText: {
-    fontSize: 12
-  },
   boxes: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     columnGap: 26,
     justifyContent: 'space-evenly',
-  },
-  box: {
-    alignItems: 'center'
+    // alignItems: 'center',
   },
   image: {
     marginTop: 16,
@@ -262,11 +284,6 @@ const styles = StyleSheet.create({
   personName: {
     marginTop: 10,
     textAlign: 'center'
-  },
-  job: {
-    marginTop: 8,
-    textAlign: 'center',
-    color: AppColors.grey2
   },
   scrollView: {
     marginBottom: 32

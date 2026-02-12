@@ -1,15 +1,18 @@
+import React, { useState, useEffect } from 'react';
 import { StyleSheet } from 'react-native'
 import FlashMessage from 'react-native-flash-message'
 import { NavigationContainer } from '@react-navigation/native'
-import MainAppStack from './src/components/MainAppStack'
+import AuthStack from './src/navigation/AuthStack'; // Contains Login/Signup screens
+import AppTabs from './src/navigation/AppTabs';     // Contains Home/Dashboard/Settings screens
 
 export default function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(true); // Check user login status
 
   return (
     <>
       <NavigationContainer>
         <FlashMessage position={'top'} />
-        <MainAppStack />
+        {isLoggedIn ? <AppTabs /> : <AuthStack />}
       </NavigationContainer>
     </>
   )

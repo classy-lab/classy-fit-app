@@ -6,7 +6,6 @@ import { useFonts } from 'expo-font'
 import { s } from 'react-native-size-matters'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import Feather from '@expo/vector-icons/Feather'
-import TabNavigator from '../TabNavigator'
 import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
 import * as yup from 'yup'
 import { useForm, Controller } from 'react-hook-form'
@@ -14,7 +13,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 
 const windowHeight = Dimensions.get('window').height
 
-const Products = () => {
+const Contractors = () => {
   const navigation = useNavigation()
 
   // 1. Define the Yup validation schema
@@ -68,7 +67,7 @@ const Products = () => {
         </View>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.headingContainer}>
-            <Text style={styles.title}>Products</Text>
+            <Text style={styles.title}>Contractors</Text>
             <PinkLeafSvg style={styles.pinkLeaf} />
           </View>
           <View style={styles.body}>
@@ -105,49 +104,45 @@ const Products = () => {
               <View style={styles.boxes}>
                 <TouchableOpacity>
                   <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/products/boxingGloves.png')} resizeMode="contain" />
+                    <Image style={styles.image} source={require('../../assets/images/headshots/chinna.png')} resizeMode="contain" />
                     <Text style={styles.personName}>Boxing Gloves</Text>
-                    <Text style={styles.cost}>$25.00</Text>
+                    <Text style={styles.job}>Electrician</Text>
                   </View>
                 </TouchableOpacity>
 
                 <TouchableOpacity>
                   <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/products/proteinShaker.png')} resizeMode="contain" />
+                    <Image style={styles.image} source={require('../../assets/images/headshots/rani.png')} resizeMode="contain" />
                     <Text style={styles.personName}>Protein Shaker</Text>
-                    <Text style={styles.cost}>$10.00</Text>
+                    <Text style={styles.job}>Plumber</Text>
                   </View>
                 </TouchableOpacity>
-
                 <TouchableOpacity>
                   <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/products/proteinShaker2.png')} resizeMode="contain" />
+                    <Image style={styles.image} source={require('../../assets/images/headshots/imran.png')} resizeMode="contain" />
                     <Text style={styles.personName}>Protein Shaker</Text>
-                    <Text style={styles.cost}>$10.00</Text>
+                    <Text style={styles.job}>Repair Technician</Text>
                   </View>
                 </TouchableOpacity>
-
                 <TouchableOpacity>
                   <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/products/tShirt.png')} resizeMode="contain" />
-                    <Text style={styles.personName}>T Shirt</Text>
-                    <Text style={styles.cost}>$21.00</Text>
+                    <Image style={styles.image} source={require('../../assets/images/headshots/radeep.png')} resizeMode="contain" />
+                    <Text style={styles.personName}>Radeep K.</Text>
+                    <Text style={styles.job}>Repair Technician</Text>
                   </View>
                 </TouchableOpacity>
-
                 <TouchableOpacity>
                   <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/products/wristBand.png')} resizeMode="contain" />
-                    <Text style={styles.personName}>Wrist band</Text>
-                    <Text style={styles.cost}>$20.50</Text>
+                    <Image style={styles.image} source={require('../../assets/images/headshots/inna.png')} resizeMode="contain" />
+                    <Text style={styles.personName}>Inna K.</Text>
+                    <Text style={styles.job}>Cleaner</Text>
                   </View>
                 </TouchableOpacity>
-
                 <TouchableOpacity>
                   <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/products/headPhones.png')} resizeMode="contain" />
-                    <Text style={styles.personName}>Headphones</Text>
-                    <Text style={styles.cost}>$100.00</Text>
+                    <Image style={styles.image} source={require('../../assets/images/headshots/saloni.png')} resizeMode="contain" />
+                    <Text style={styles.personName}>Saloni K.</Text>
+                    <Text style={styles.job}>Cleaner</Text>
                   </View>
                 </TouchableOpacity>
               </View>
@@ -155,13 +150,12 @@ const Products = () => {
 
           </View>
         </ScrollView>
-        <TabNavigator />
       </SafeAreaView>
     </>
   )
 }
 
-export default Products
+export default Contractors
 
 const styles = StyleSheet.create({
   container: {
@@ -172,7 +166,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingLeft: 24,
     paddingRight: 24,
-    width: '100%',
   },
   signOut: {
     flexDirection: 'row',
@@ -229,8 +222,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: AppColors.textInputBorderColor,
     backgroundColor: AppColors.grey,
-    paddingLeft: 22,
     marginTop: 20,
+    paddingLeft: 22,
     height: s(48),
     borderRadius: s(8),
   },
@@ -255,7 +248,9 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     columnGap: 26,
     justifyContent: 'space-evenly',
-    // alignItems: 'center',
+  },
+  box: {
+    alignItems: 'center'
   },
   image: {
     marginTop: 16,
@@ -266,12 +261,12 @@ const styles = StyleSheet.create({
     marginTop: 10,
     textAlign: 'center'
   },
-  scrollView: {
-    marginBottom: 32
-  },
-  cost: {
+  job: {
     marginTop: 8,
     textAlign: 'center',
     color: AppColors.grey2
+  },
+  scrollView: {
+    marginBottom: 32
   }
 })

@@ -5,7 +5,6 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import Feather from '@expo/vector-icons/Feather'
 import AddProductForm from '../../components/forms/AddProductForm'
-import TabNavigator from '../TabNavigator'
 
 const AddProductScreen = () => {
   const navigation = useNavigation()
@@ -24,7 +23,6 @@ const AddProductScreen = () => {
             <AddProductForm />
           </View>
         </ScrollView>
-        <TabNavigator />
       </SafeAreaView>
     </>
   )

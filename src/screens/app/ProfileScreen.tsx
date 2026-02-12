@@ -1,36 +1,49 @@
-import { StyleSheet, Text, View, ScrollView } from 'react-native'
-import { AppColors } from '../../styles/colors'
-import { useNavigation } from '@react-navigation/native'
+import { StyleSheet, Text, View, Dimensions, ScrollView, TouchableOpacity, Image } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import Ionicons from '@expo/vector-icons/Ionicons'
 import Feather from '@expo/vector-icons/Feather'
-import AddStaffForm from '../../components/forms/AddStaffForm'
-import TabNavigator from '../TabNavigator'
+import { AppColors } from '../../styles/colors'
+import { useFonts } from 'expo-font'
+import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
+import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 
-const AddMemberScreen = () => {
-  const navigation = useNavigation()
+const windowHeight = Dimensions.get('window').height
+
+const ProfileScreen = ({ navigation, route }) => {
+  const [fontsLoaded] = useFonts({
+    "Montserrat": require("../../assets/fonts/montserrat/Montserrat-Regular.ttf"),
+  })
+
   return (
     <>
       <SafeAreaView style={styles.container}>
         <View style={styles.navs}>
           <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
-          {/* <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} /> */}
+          <View style={styles.signOut}>
+            <Text style={styles.signOutText}>Add</Text>
+            <View style={styles.circle}>
+              <Feather name="plus" color={AppColors.white} size={24} onPress={() => { navigation.navigate('SignoutScreen') }} />
+            </View>
+            <Text style={styles.signOutText}>Sign out</Text>
+            <View style={styles.circle}>
+              <MaterialIcons name="logout" color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
+            </View>
+          </View>
         </View>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.headingContainer}>
-            <Text style={styles.title}>Add Member</Text>
+            <Text style={styles.title}>Template</Text>
+            <PinkLeafSvg style={styles.pinkLeaf} />
           </View>
           <View style={styles.body}>
-            <AddStaffForm />
+
           </View>
         </ScrollView>
-        <TabNavigator />
       </SafeAreaView>
     </>
   )
 }
 
-export default AddMemberScreen
+export default ProfileScreen
 
 const styles = StyleSheet.create({
   container: {
@@ -81,18 +94,9 @@ const styles = StyleSheet.create({
     paddingRight: 24,
     marginBottom: 8,
     flex: 1,
-    // height: windowHeight,
+    height: windowHeight,
     // borderWidth: 1, borderColor: 'red',
   },
-  imageContainer: {
-    marginBottom: 40,
-    alignItems: 'center',
-  },
-  card: { alignSelf: 'center', marginTop: 16 },
-  subHead: {
-    fontFamily: 'Montserrat',
-    fontSize: 20,
-    lineHeight: 24
-  },
-  scrollView: {}
+  scrollView: {
+  }
 })

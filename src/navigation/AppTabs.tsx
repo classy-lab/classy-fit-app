@@ -1,17 +1,17 @@
-import { StyleSheet } from 'react-native'
-import { useNavigation } from '@react-navigation/native'
-import AntDesign from '@expo/vector-icons/AntDesign'
+// navigation/AppTabs.js
+import React from 'react';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import { AppColors } from '../styles/colors'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5'
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
-import { AppColors } from '../styles/colors'
+import { useNavigation } from '@react-navigation/native'
 
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-import DashboardScreen from './auth/DashboardScreen'
-import GymScreen from './auth/GymScreen'
-import StaffScreen from './auth/StaffScreen'
-import Products from './auth/Products'
-import ProfileScreen from './auth/ProfileScreen'
+import DashboardScreen from '../screens/app/DashboardScreen'
+import GymScreen from '../screens/app/GymScreen'
+import StaffScreen from '../screens/app/StaffScreen'
+import ProductsScreen from '../screens/app/ProductsScreen'
+import ProfileScreen from '../screens/app/ProfileScreen'
 
 const Tab = createBottomTabNavigator()
 
@@ -19,17 +19,18 @@ const screenOptions = {
   tabBarActiveTintColor: AppColors.blue,
   tabBarInactiveTintColor: AppColors.primary,
   tabBarLabelPosition: 'below-icon',
+  headerShown: false,
   tabBarStyle: {
     backgroundColor: AppColors.white, // Tab bar background color
     elevation: 0,                     // for Android
-    // shadowOpacity: 0,                 // for iOS
-    // borderTopWidth: 1,                // for iOS // Add top border
+    // shadowOpacity: 0,              // for iOS
+    // borderTopWidth: 1,             // for iOS // Add top border
     // borderTopLeftRadius: 24,       // Apply top left radius
     // borderTopRightRadius: 24,      // Apply top right radius
-    // borderTopColor: AppColors.grey,   // Border color
+    // borderTopColor: AppColors.grey,// Border color
     // overflow: 'hidden',            // Hide overflow to make radius work properly
-    height: 88,                       // Adjust height as needed
-    bottom: 96,
+    // height: 88,                    // Adjust height as needed
+    // bottom: 96,
     // borderWidth: 1, borderColor: 'red',
   },
   tabBarLabelStyle: {
@@ -38,21 +39,24 @@ const screenOptions = {
   }
 }
 
-const TabNavigator = () => {
+const AppTabs = () => {
   const navigation = useNavigation()
 
   return (
-    <Tab.Navigator style={{ flexGrow: 1 }} screenOptions={screenOptions}>
+    <Tab.Navigator screenOptions={screenOptions}>
       <Tab.Screen
-        name="Dashboard"
+        name="DashboardScreen"
         component={DashboardScreen}
         options={{
-          title: "Home",
-          tabBarIcon: () => <AntDesign name="dashboard" size={24} color='black' onPress={() => { navigation.navigate('DashboardScreen') }} />
+          // Customize the tab label and icon here
+          tabBarLabel: 'Home',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="home" color={color} size={size} />
+          ),
         }}
       />
       <Tab.Screen
-        name="Gym"
+        name="GymScreen"
         component={GymScreen}
         options={{
           title: "Gym",
@@ -60,7 +64,7 @@ const TabNavigator = () => {
         }}
       />
       <Tab.Screen
-        name="Staff"
+        name="StaffScreen"
         component={StaffScreen}
         options={{
           title: "Staff",
@@ -68,15 +72,15 @@ const TabNavigator = () => {
         }}
       />
       <Tab.Screen
-        name="Products"
-        component={Products}
+        name="ProductsScreen"
+        component={ProductsScreen}
         options={{
           title: "Products",
-          tabBarIcon: () => <Ionicons name="bag-check-outline" size={24} color="black" onPress={() => { navigation.navigate('Products') }} />
+          tabBarIcon: () => <Ionicons name="bag-check-outline" size={24} color="black" onPress={() => { navigation.navigate('ProductsScreen') }} />
         }}
       />
       <Tab.Screen
-        name="Profile"
+        name="ProfileScreen"
         component={ProfileScreen}
         options={{
           title: "Profile",
@@ -84,9 +88,7 @@ const TabNavigator = () => {
         }}
       />
     </Tab.Navigator>
-  )
-}
+  );
+};
 
-export default TabNavigator
-
-const styles = StyleSheet.create({})
+export default AppTabs;

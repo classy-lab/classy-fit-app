@@ -6,7 +6,6 @@ import Ionicons from '@expo/vector-icons/Ionicons'
 import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
 import HealthyLifestyleSvg from '../../components/svg/HealthyLifestyleSvg'
-import TabNavigator from '../TabNavigator'
 
 const RegisterComplete = () => {
   const { height, width } = useWindowDimensions()
@@ -45,7 +44,6 @@ const RegisterComplete = () => {
             </View>
           </View>
         </ScrollView>
-        <TabNavigator />
       </SafeAreaView>
     </>
   )

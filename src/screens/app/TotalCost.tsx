@@ -4,14 +4,11 @@ import { useNavigation } from '@react-navigation/native'
 import Feather from '@expo/vector-icons/Feather'
 import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
-import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
-import Ionicons from '@expo/vector-icons/Ionicons'
-import TabNavigator from '../TabNavigator'
-import DesignerSvg from '../../components/svg/DesignerSvg'
+import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 
 const windowHeight = Dimensions.get('window').height
 
-const SignoutScreen = () => {
+const TotalCost = () => {
   const navigation = useNavigation()
   const [fontsLoaded] = useFonts({
     "Montserrat": require("../../assets/fonts/montserrat/Montserrat-Regular.ttf"),
@@ -22,42 +19,36 @@ const SignoutScreen = () => {
     <>
       <SafeAreaView style={styles.container}>
         <View style={styles.navs}>
-          <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
+          <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
         </View>
-
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.headingContainer}>
-            <Text style={styles.title}>Signed Out</Text>
-            <PinkLeafSvg style={styles.pinkLeaf} />
+
           </View>
           <View style={styles.body}>
+            <Text style={styles.title}>Total Cost</Text>
+            <Text style={styles.totalCost}>$40.00</Text>
 
-            <Text style={styles.bodyText}>
-              You have successfully signed out of your account.
-            </Text>
-            <TouchableOpacity
-              style={styles.loginBtn}
-              title="Login"
-              onPress={() => { navigation.navigate('LoginScreen') }}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.loginBtnText}>
-                Login
-              </Text>
-            </TouchableOpacity>
-            <View style={styles.imageContainer}>
-              <DesignerSvg />
+            <View style={styles.loginBtnContainer}>
+              <TouchableOpacity
+                style={styles.registerBtn}
+                title="loginSubmit"
+                activeOpacity={0.7}
+              // onPress={handleSubmit(onSubmit)}
+              >
+                <Text style={styles.registerBtnText}>Pay with Debit or Credit Card</Text>
+              </TouchableOpacity>
             </View>
 
+            <Image style={styles.paymentIcons} source={require('../../assets/images/paymentIcons.png')} />
           </View>
         </ScrollView>
-        <TabNavigator />
       </SafeAreaView>
     </>
   )
 }
 
-export default SignoutScreen
+export default TotalCost
 
 const styles = StyleSheet.create({
   container: {
@@ -65,7 +56,7 @@ const styles = StyleSheet.create({
   },
   navs: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
     paddingLeft: 24,
     paddingRight: 24,
   },
@@ -91,18 +82,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20
   },
-  title: {
-    color: AppColors.blue,
-    fontFamily: 'Montserrat',
-    fontSize: 32,
-    marginTop: 20,
-  },
-  pinkLeaf: {
-    position: 'absolute',
-    // zIndex: -1,
-    // top: 0,
-    right: 88
-  },
   body: {
     paddingLeft: 24,
     paddingRight: 24,
@@ -112,32 +91,32 @@ const styles = StyleSheet.create({
     alignItems: 'center'
     // borderWidth: 1, borderColor: 'red',
   },
-  bodyText: {
-    color: AppColors.blue,
-    fontSize: 20,
-    lineHeight: 32,
-    textAlign: 'center',
-    marginBottom: 24
+  title: {
+    color: AppColors.primary,
+    fontFamily: 'Montserrat',
+    fontSize: 32,
+    marginTop: 60,
   },
-  loginBtn: {
-    backgroundColor: 'white',
-    borderWidth: 1,
-    borderColor: AppColors.blue,
+  totalCost: {
+    fontSize: 32,
+    fontFamily: 'Montserrat',
+    color: AppColors.blue,
+    marginTop: 8
+  },
+  registerBtn: {
+    backgroundColor: AppColors.blue,
     borderRadius: 40,
-    width: 140,
+    width: 250,
     height: 50,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 80,
+    marginTop: 16,
+    marginBottom: 24
   },
-  loginBtnText: {
-    color: AppColors.blue,
-    fontSize: 16
-  },
-  imageContainer: {
-    marginBottom: 8,
-    alignItems: 'center',
-    // borderWidth: 1, borderColor: 'red',
+  registerBtnText: {
+    fontFamily: 'Montserrat',
+    color: '#fff',
+    fontSize: 12
   },
   scrollView: {
   }

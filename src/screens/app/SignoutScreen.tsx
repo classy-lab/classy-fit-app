@@ -6,12 +6,11 @@ import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
 import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
 import Ionicons from '@expo/vector-icons/Ionicons'
-import TabNavigator from '../TabNavigator'
 import DesignerSvg from '../../components/svg/DesignerSvg'
 
 const windowHeight = Dimensions.get('window').height
 
-const ThankYou = () => {
+const SignoutScreen = () => {
   const navigation = useNavigation()
   const [fontsLoaded] = useFonts({
     "Montserrat": require("../../assets/fonts/montserrat/Montserrat-Regular.ttf"),
@@ -27,29 +26,36 @@ const ThankYou = () => {
 
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.headingContainer}>
-            <Text style={styles.title}>Thank you!</Text>
+            <Text style={styles.title}>Signed Out</Text>
+            <PinkLeafSvg style={styles.pinkLeaf} />
           </View>
           <View style={styles.body}>
 
             <Text style={styles.bodyText}>
-              Your Order is complete. Your Order number is: {'\n'}
-              <Text style={styles.boldText}>100</Text> {'\n'}
-              A confirmation email has been sent to: <Text style={styles.boldText}>emma56@gmail.com</Text>
+              You have successfully signed out of your account.
             </Text>
-
+            <TouchableOpacity
+              style={styles.loginBtn}
+              title="Login"
+              onPress={() => { navigation.navigate('LoginScreen') }}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.loginBtnText}>
+                Login
+              </Text>
+            </TouchableOpacity>
             <View style={styles.imageContainer}>
               <DesignerSvg />
             </View>
 
           </View>
         </ScrollView>
-        <TabNavigator />
       </SafeAreaView>
     </>
   )
 }
 
-export default ThankYou
+export default SignoutScreen
 
 const styles = StyleSheet.create({
   container: {
@@ -87,13 +93,13 @@ const styles = StyleSheet.create({
     color: AppColors.blue,
     fontFamily: 'Montserrat',
     fontSize: 32,
-    marginTop: 60,
+    marginTop: 20,
   },
   pinkLeaf: {
-    position: 'relative',
-    zIndex: -1,
-    top: -68,
-    right: -40
+    position: 'absolute',
+    // zIndex: -1,
+    // top: 0,
+    right: 88
   },
   body: {
     paddingLeft: 24,
@@ -105,18 +111,30 @@ const styles = StyleSheet.create({
     // borderWidth: 1, borderColor: 'red',
   },
   bodyText: {
-    color: AppColors.primary,
-    fontSize: 16,
+    color: AppColors.blue,
+    fontSize: 20,
+    lineHeight: 32,
     textAlign: 'center',
-    marginTop: 40
+    marginBottom: 24
   },
-  boldText: {
-    fontFamily: 'Montserrat-Bold'
+  loginBtn: {
+    backgroundColor: 'white',
+    borderWidth: 1,
+    borderColor: AppColors.blue,
+    borderRadius: 40,
+    width: 140,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 80,
+  },
+  loginBtnText: {
+    color: AppColors.blue,
+    fontSize: 16
   },
   imageContainer: {
     marginBottom: 8,
     alignItems: 'center',
-    marginTop: 132
     // borderWidth: 1, borderColor: 'red',
   },
   scrollView: {

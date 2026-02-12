@@ -5,7 +5,6 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import Feather from '@expo/vector-icons/Feather'
 import AddStaffForm from '../../components/forms/AddStaffForm'
-import TabNavigator from '../TabNavigator'
 
 const AddStaffScreen = () => {
   const navigation = useNavigation()
@@ -24,7 +23,6 @@ const AddStaffScreen = () => {
             <AddStaffForm />
           </View>
         </ScrollView>
-        <TabNavigator />
       </SafeAreaView>
     </>
   )

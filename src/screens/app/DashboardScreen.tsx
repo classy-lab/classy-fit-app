@@ -1,24 +1,14 @@
 import { StyleSheet, Text, View, Dimensions, TouchableOpacity, ScrollView } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { useNavigation } from '@react-navigation/native'
 import { AppColors } from '../../styles/colors'
-import { useFonts } from 'expo-font'
 import { s } from 'react-native-size-matters'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5'
 import Ionicons from '@expo/vector-icons/Ionicons'
-// import TabNavigator from '../TabNavigator'
-import { createStackNavigator } from '@react-navigation/stack'
 
 const windowWidth = Dimensions.get('window').width
 
-const DashboardScreen = () => {
-  const navigation = useNavigation()
-  const [fontsLoaded] = useFonts({
-    "Montserrat": require("../../assets/fonts/montserrat/Montserrat-Regular.ttf"),
-    "Montserrat-Bold": require("../../assets/fonts/montserrat/Montserrat-Bold.ttf")
-  })
-
+const DashboardScreen = ({ navigation, route }) => {
   return (
     <>
       <SafeAreaView style={styles.container}>
@@ -36,10 +26,10 @@ const DashboardScreen = () => {
           </View>
           <View style={styles.body}>
             <View style={{ alignItems: 'center', }}>
-              <TouchableOpacity style={styles.blueRectangle} activeOpacity={0.7} onPress={() => { navigation.navigate('Earnings') }}>
+              <TouchableOpacity style={styles.blueRectangle} activeOpacity={0.7} onPress={() => { navigation.navigate('EarningsScreen') }}>
                 <Text style={styles.earningsText}>Earnings</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.blueRectangle} activeOpacity={0.7}>
+              <TouchableOpacity style={styles.blueRectangle} activeOpacity={0.7} onPress={() => { navigation.navigate('GymScreen') }}>
                 <Text style={styles.earningsText}>Gym</Text>
               </TouchableOpacity>
             </View>
@@ -71,7 +61,6 @@ const DashboardScreen = () => {
             </View>
           </View>
         </ScrollView>
-        <TabNavigator />
       </SafeAreaView>
 
     </>
