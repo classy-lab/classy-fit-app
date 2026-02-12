@@ -9,7 +9,7 @@ import { useNavigation } from '@react-navigation/native'
 import DashboardScreen from '../screens/app/DashboardScreen'
 import GymScreen from '../screens/app/GymScreen'
 import StaffScreen from '../screens/app/StaffScreen'
-import Products from '../screens/app/Products'
+import ProductsScreen from '../screens/app/ProductsScreen'
 import ProfileScreen from '../screens/app/ProfileScreen'
 
 const Tab = createBottomTabNavigator()
@@ -43,7 +43,9 @@ const AppTabs = () => {
 
   return (
     <Tab.Navigator screenOptions={screenOptions}>
-      <Tab.Screen name="DashboardScreen" component={DashboardScreen}
+      <Tab.Screen
+        name="DashboardScreen"
+        component={DashboardScreen}
         options={{
           // Customize the tab label and icon here
           tabBarLabel: 'Home',
@@ -53,7 +55,7 @@ const AppTabs = () => {
         }}
       />
       <Tab.Screen
-        name="Gym"
+        name="GymScreen"
         component={GymScreen}
         options={{
           title: "Gym",
@@ -69,11 +71,11 @@ const AppTabs = () => {
         }}
       />
       <Tab.Screen
-        name="Products"
-        component={Products}
+        name="ProductsScreen"
+        component={ProductsScreen}
         options={{
           title: "Products",
-          tabBarIcon: () => <Ionicons name="bag-check-outline" size={24} color="black" onPress={() => { navigation.navigate('Products') }} />
+          tabBarIcon: () => <Ionicons name="bag-check-outline" size={24} color="black" onPress={() => { navigation.navigate('ProductsScreen') }} />
         }}
       />
       <Tab.Screen
