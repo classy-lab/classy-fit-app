@@ -1,6 +1,5 @@
 import { StyleSheet, Text, View, Dimensions, TouchableOpacity, ScrollView, TextInput, Image } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { useNavigation } from '@react-navigation/native'
 import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
 import { s } from 'react-native-size-matters'
@@ -13,8 +12,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 
 const windowHeight = Dimensions.get('window').height
 
-const StaffScreen = () => {
-  const navigation = useNavigation()
+const StaffScreen = ({ navigation, route }) => {
 
   // 1. Define the Yup validation schema
   const schema = yup.object().shape({
@@ -54,7 +52,7 @@ const StaffScreen = () => {
       <SafeAreaView style={styles.container}>
         <View style={styles.navs}>
           <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
-          <View style={styles.signOut}>
+          {/* <View style={styles.signOut}>
             <Text style={styles.signOutText}>Add</Text>
             <View style={styles.circle}>
               <Feather name="plus" size={24} color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
@@ -63,7 +61,7 @@ const StaffScreen = () => {
             <View style={styles.circle}>
               <MaterialIcons name="logout" color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
             </View>
-          </View>
+          </View> */}
         </View>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.headingContainer}>
