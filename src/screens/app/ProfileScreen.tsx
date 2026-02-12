@@ -1,6 +1,5 @@
 import { StyleSheet, Text, View, Dimensions, ScrollView, TouchableOpacity, Image } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { useNavigation } from '@react-navigation/native'
 import Feather from '@expo/vector-icons/Feather'
 import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
@@ -9,8 +8,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 
 const windowHeight = Dimensions.get('window').height
 
-const ProfileScreen = () => {
-  const navigation = useNavigation()
+const ProfileScreen = ({ navigation, route }) => {
   const [fontsLoaded] = useFonts({
     "Montserrat": require("../../assets/fonts/montserrat/Montserrat-Regular.ttf"),
     "Montserrat-Bold": require("../../assets/fonts/montserrat/Montserrat-Bold.ttf")
@@ -24,7 +22,7 @@ const ProfileScreen = () => {
           <View style={styles.signOut}>
             <Text style={styles.signOutText}>Add</Text>
             <View style={styles.circle}>
-              <Feather name="plus" size={24} color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
+              <Feather name="plus" color={AppColors.white} size={24} onPress={() => { navigation.navigate('SignoutScreen') }} />
             </View>
             <Text style={styles.signOutText}>Sign out</Text>
             <View style={styles.circle}>
