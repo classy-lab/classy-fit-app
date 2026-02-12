@@ -6,11 +6,13 @@ import Ionicons from '@expo/vector-icons/Ionicons'
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5'
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
 import { useNavigation } from '@react-navigation/native'
+
 import DashboardScreen from '../screens/app/DashboardScreen'
 import GymScreen from '../screens/app/GymScreen'
 import StaffScreen from '../screens/app/StaffScreen'
 import ProductsScreen from '../screens/app/ProductsScreen'
 import ProfileScreen from '../screens/app/ProfileScreen'
+import EarningsScreen from '../screens/app/EarningsScreen'
 
 const Tab = createBottomTabNavigator()
 
@@ -63,7 +65,7 @@ const AppTabs = () => {
         }}
       />
       <Tab.Screen
-        name="Staff"
+        name="StaffScreen"
         component={StaffScreen}
         options={{
           title: "Staff",
@@ -79,7 +81,7 @@ const AppTabs = () => {
         }}
       />
       <Tab.Screen
-        name="Profile"
+        name="ProfileScreen"
         component={ProfileScreen}
         options={{
           title: "Profile",
