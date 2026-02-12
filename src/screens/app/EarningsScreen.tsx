@@ -1,6 +1,5 @@
-import { StyleSheet, Text, View, Dimensions, TouchableOpacity, ScrollView } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { useNavigation } from '@react-navigation/native'
 import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
 import Feather from '@expo/vector-icons/Feather'
@@ -14,10 +13,7 @@ import LineChart2 from '../../assets/svg/LineChart2'
 import LineChart3 from '../../assets/svg/LineChart3'
 import LineChart4 from '../../assets/svg/LineChart4'
 
-const windowWidth = Dimensions.get('window').width
-
-const EarningsScreen = () => {
-  const navigation = useNavigation()
+const EarningsScreen = ({ navigation, route }) => {
   const [fontsLoaded] = useFonts({
     "Montserrat": require("../../assets/fonts/montserrat/Montserrat-Regular.ttf"),
     "Montserrat-Bold": require("../../assets/fonts/montserrat/Montserrat-Bold.ttf")
