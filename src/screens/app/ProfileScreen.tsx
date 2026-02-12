@@ -11,7 +11,6 @@ const windowHeight = Dimensions.get('window').height
 const ProfileScreen = ({ navigation, route }) => {
   const [fontsLoaded] = useFonts({
     "Montserrat": require("../../assets/fonts/montserrat/Montserrat-Regular.ttf"),
-    "Montserrat-Bold": require("../../assets/fonts/montserrat/Montserrat-Bold.ttf")
   })
 
   return (
