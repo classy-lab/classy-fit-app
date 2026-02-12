@@ -12,7 +12,6 @@ import GymScreen from '../screens/app/GymScreen'
 import StaffScreen from '../screens/app/StaffScreen'
 import ProductsScreen from '../screens/app/ProductsScreen'
 import ProfileScreen from '../screens/app/ProfileScreen'
-import EarningsScreen from '../screens/app/EarningsScreen'
 
 const Tab = createBottomTabNavigator()
 
