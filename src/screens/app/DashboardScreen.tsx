@@ -34,7 +34,7 @@ const DashboardScreen = ({ navigation, route }) => {
               </TouchableOpacity>
             </View>
             <View style={styles.greySquares}>
-              <TouchableOpacity style={styles.greySquare}>
+              <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('StaffScreen')}>
                 <View style={styles.whiteSquare}>
                   <FontAwesome5 name="user-friends" size={24} color={AppColors.blue} />
                 </View>
