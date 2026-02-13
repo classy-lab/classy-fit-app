@@ -52,7 +52,7 @@ const DashboardScreen = ({ navigation, route }) => {
                 </View>
                 <Text>Products</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.greySquare}>
+              <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('ContractorsScreen')}>
                 <View style={styles.whiteSquare}>
                   <FontAwesome5 name="user-alt" size={24} color={AppColors.blue} />
                 </View>
