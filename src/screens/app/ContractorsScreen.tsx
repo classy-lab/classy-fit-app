@@ -13,7 +13,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 
 const windowHeight = Dimensions.get('window').height
 
-const Contractors = () => {
+const ContractorsScreen = () => {
   const navigation = useNavigation()
 
   // 1. Define the Yup validation schema
@@ -155,7 +155,7 @@ const Contractors = () => {
   )
 }
 
-export default Contractors
+export default ContractorsScreen
 
 const styles = StyleSheet.create({
   container: {

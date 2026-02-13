@@ -1,6 +1,7 @@
 // navigation/AppTabs.js
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import { createStackNavigator } from '@react-navigation/stack';
 import { AppColors } from '../styles/colors'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5'
@@ -10,10 +11,27 @@ import { useNavigation } from '@react-navigation/native'
 import DashboardScreen from '../screens/app/DashboardScreen'
 import GymScreen from '../screens/app/GymScreen'
 import StaffScreen from '../screens/app/StaffScreen'
+import MembersScreen from '../screens/app/MembersScreen'
 import ProductsScreen from '../screens/app/ProductsScreen'
 import ProfileScreen from '../screens/app/ProfileScreen'
+import EarningsScreen from '../screens/app/EarningsScreen'
+import ContractorsScreen from '../screens/app/ContractorsScreen';
 
 const Tab = createBottomTabNavigator()
+const HomeStack = createStackNavigator()
+
+function HomeStackScreen() {
+  return (
+    <HomeStack.Navigator screenOptions={screenOptions}>
+      <HomeStack.Screen name="DashboardScreen" component={DashboardScreen} />
+      <HomeStack.Screen name="EarningsScreen" component={EarningsScreen} />
+      <HomeStack.Screen name="StaffScreen" component={StaffScreen} />
+      <HomeStack.Screen name="MembersScreen" component={MembersScreen} />
+      <HomeStack.Screen name="ProductsScreen" component={ProductsScreen} />
+      <HomeStack.Screen name="ContractorsScreen" component={ContractorsScreen} />
+    </HomeStack.Navigator>
+  );
+}
 
 const screenOptions = {
   tabBarActiveTintColor: AppColors.blue,
@@ -44,9 +62,10 @@ const AppTabs = () => {
 
   return (
     <Tab.Navigator screenOptions={screenOptions}>
+      {/* Clicking this tab shows the HomeStack, with the tab bar still at the bottom */}
       <Tab.Screen
-        name="DashboardScreen"
-        component={DashboardScreen}
+        name="HomeTab"
+        component={HomeStackScreen}
         options={{
           // Customize the tab label and icon here
           tabBarLabel: 'Home',
@@ -88,7 +107,7 @@ const AppTabs = () => {
         }}
       />
     </Tab.Navigator>
-  );
-};
+  )
+}
 
 export default AppTabs;
