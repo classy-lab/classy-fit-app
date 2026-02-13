@@ -26,33 +26,33 @@ const DashboardScreen = ({ navigation, route }) => {
           </View>
           <View style={styles.body}>
             <View style={{ alignItems: 'center', }}>
-              <TouchableOpacity style={styles.blueRectangle} activeOpacity={0.7} onPress={() => { navigation.navigate('EarningsScreen') }}>
+              <TouchableOpacity style={styles.blueRectangle} onPress={() => { navigation.navigate('EarningsScreen') }}>
                 <Text style={styles.earningsText}>Earnings</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.blueRectangle} activeOpacity={0.7} onPress={() => { navigation.navigate('GymScreen') }}>
+              <TouchableOpacity style={styles.blueRectangle} onPress={() => { navigation.navigate('GymScreen') }}>
                 <Text style={styles.earningsText}>Gym</Text>
               </TouchableOpacity>
             </View>
             <View style={styles.greySquares}>
-              <TouchableOpacity style={styles.greySquare}>
+              <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('StaffScreen')}>
                 <View style={styles.whiteSquare}>
                   <FontAwesome5 name="user-friends" size={24} color={AppColors.blue} />
                 </View>
                 <Text>Staff</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.greySquare}>
+              <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('MembersScreen')}>
                 <View style={styles.whiteSquare}>
                   <FontAwesome5 name="users" size={24} color={AppColors.blue} />
                 </View>
                 <Text>Members</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.greySquare}>
+              <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('ProductsScreen')}>
                 <View style={styles.whiteSquare}>
                   <Ionicons name="bag-handle" size={24} color={AppColors.blue} />
                 </View>
                 <Text>Products</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.greySquare}>
+              <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('ContractorsScreen')}>
                 <View style={styles.whiteSquare}>
                   <FontAwesome5 name="user-alt" size={24} color={AppColors.blue} />
                 </View>
