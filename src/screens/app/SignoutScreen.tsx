@@ -1,7 +1,5 @@
 import { StyleSheet, Text, View, Dimensions, ScrollView, TouchableOpacity, Image } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { useNavigation } from '@react-navigation/native'
-import Feather from '@expo/vector-icons/Feather'
 import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
 import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
@@ -10,11 +8,9 @@ import DesignerSvg from '../../components/svg/DesignerSvg'
 
 const windowHeight = Dimensions.get('window').height
 
-const SignoutScreen = () => {
-  const navigation = useNavigation()
+const SignoutScreen = ({ navigation, route }) => {
   const [fontsLoaded] = useFonts({
     "Montserrat": require("../../assets/fonts/montserrat/Montserrat-Regular.ttf"),
-    "Montserrat-Bold": require("../../assets/fonts/montserrat/Montserrat-Bold.ttf")
   })
 
   return (
