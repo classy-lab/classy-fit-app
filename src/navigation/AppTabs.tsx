@@ -18,6 +18,7 @@ import EarningsScreen from '../screens/app/EarningsScreen'
 import ContractorsScreen from '../screens/app/ContractorsScreen'
 import SignoutScreen from '../screens/app/SignoutScreen'
 import LoginScreen from '../screens/auth/LoginScreen'
+import ProductDetailScreen from '../screens/app/ProductDetailScreen'
 
 const Tab = createBottomTabNavigator()
 const HomeStack = createStackNavigator()
@@ -33,6 +34,7 @@ function HomeStackScreen() {
       <HomeStack.Screen name="ContractorsScreen" component={ContractorsScreen} />
       <HomeStack.Screen name="SignoutScreen" component={SignoutScreen} />
       <HomeStack.Screen name="LoginScreen" component={LoginScreen} />
+      <HomeStack.Screen name="ProductDetailScreen" component={ProductDetailScreen} />
     </HomeStack.Navigator>
   );
 }
