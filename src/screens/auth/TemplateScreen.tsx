@@ -43,7 +43,7 @@ const TemplateScreen = () => {
             <Text style={styles.title}>Template</Text>
             {/* <PinkLeafSvg style={styles.pinkLeaf} /> */}
           </View>
-          <View style={[styles.body, { height: height }]}>
+          <View style={[styles.body]}>
             <Text style={styles.bodyText}>
               Lorem Ipsum is simply dummy text of the printing and typesetting industry.
             </Text>
