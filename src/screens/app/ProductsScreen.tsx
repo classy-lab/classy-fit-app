@@ -53,7 +53,7 @@ const ProductsScreen = ({ navigation, route }) => {
           <View style={styles.signOut}>
             <Text style={styles.signOutText}>Add</Text>
             <View style={styles.circle}>
-              <Feather name="plus" size={24} color={AppColors.white} onPress={() => { navigation.navigate('SignoutScreen') }} />
+              <Feather name="plus" size={24} color={AppColors.white} onPress={() => { navigation.navigate('AddProductScreen') }} />
             </View>
             <Text style={styles.signOutText}>Sign out</Text>
             <View style={styles.circle}>
