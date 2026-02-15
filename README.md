@@ -1,4 +1,4 @@
-# Classy Gym React Native App
+# React Native App
 
 A concise, one-paragraph summary of your project and its purpose. This is often the first thing people read, so make it clear and engaging. You can include badges here for build status, version number, or compliance (e.g., standard-readme).
 
