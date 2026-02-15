@@ -1,26 +1,45 @@
-import { StyleSheet, Text, View, ScrollView } from 'react-native'
-import { AppColors } from '../../styles/colors'
-import { useNavigation } from '@react-navigation/native'
+import { StyleSheet, Text, View, Dimensions, ScrollView, TouchableOpacity, Image, useWindowDimensions } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import Ionicons from '@expo/vector-icons/Ionicons'
+import { useNavigation } from '@react-navigation/native'
 import Feather from '@expo/vector-icons/Feather'
-import AddProductForm from '../../components/forms/AddProductForm'
+import Ionicons from '@expo/vector-icons/Ionicons'
+import { AppColors } from '../../styles/colors'
+import MaterialIcons from '@expo/vector-icons/MaterialIcons'
+
 
 const AddProductScreen = () => {
+  const { height, width } = useWindowDimensions()
   const navigation = useNavigation()
+
   return (
     <>
       <SafeAreaView style={styles.container}>
         <View style={styles.navs}>
           <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
-          {/* <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} /> */}
+          <View style={styles.signOut}>
+            <Text style={styles.signOutText}>Add</Text>
+            <View style={styles.circle}>
+              <Feather name="plus" size={24} color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
+            </View>
+            <Text style={styles.signOutText}>Sign out</Text>
+            <View style={styles.circle}>
+              <MaterialIcons name="logout" color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
+            </View>
+          </View>
         </View>
+        {/* <View style={styles.navs}>
+          <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
+          <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
+        </View> */}
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.headingContainer}>
-            <Text style={styles.title}>Add Product</Text>
+            <Text style={styles.title}>Template</Text>
+            {/* <PinkLeafSvg style={styles.pinkLeaf} /> */}
           </View>
-          <View style={styles.body}>
-            <AddProductForm />
+          <View style={[styles.body, { height: height }]}>
+            <Text style={styles.bodyText}>
+              Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+            </Text>
           </View>
         </ScrollView>
       </SafeAreaView>
@@ -64,7 +83,6 @@ const styles = StyleSheet.create({
   },
   title: {
     color: AppColors.blue,
-    fontFamily: 'Montserrat',
     fontSize: 32,
     marginTop: 60,
   },
@@ -78,19 +96,16 @@ const styles = StyleSheet.create({
     paddingLeft: 24,
     paddingRight: 24,
     marginBottom: 8,
-    flex: 1,
-    // height: windowHeight,
+    // flex: 1,
     // borderWidth: 1, borderColor: 'red',
   },
-  imageContainer: {
-    marginBottom: 40,
-    alignItems: 'center',
-  },
-  card: { alignSelf: 'center', marginTop: 16 },
-  subHead: {
-    fontFamily: 'Montserrat',
+  bodyText: {
+    marginBottom: 8,
+    // flex: 1,
+    // borderWidth: 1, borderColor: 'red',
+    lineHeight: 32,
+    color: AppColors.blue,
     fontSize: 20,
-    lineHeight: 24
-  },
-  scrollView: {}
+    textAlign: 'center'
+  }
 })
