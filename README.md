@@ -1,6 +1,6 @@
 # React Native App
 
-This repository contains code for a React Native app. It is an app that provides income for Gyms. The app contains several features including membership renewals, product sales, group class registrations, private training registrations and more. The app provides features and benefits helpful for business owners, trainers and members. It generates income for a gyms and provides a clean UI that is fun and easy to use. The app provides a complete solution to help gyms run and maintain their business.
+This repository contains code for a React Native app. It is an app that provides income for Gyms and is fun for members to use. The app contains features for gym owners, trainers and members which include: Membership renewals, product sales, group class registrations, private training registrations, gym earnings per category for week, month, year. It shows current business expenses, can list all gym equipment, manufacturer and repair technician contacts, member notifications and more. This app provides a clean UI that is fun to use. The app provides a complete solution to help gyms run and maintain their business.
 
 ## Getting Started
 
