@@ -22,6 +22,7 @@ import ProductDetailScreen from '../screens/app/ProductDetailScreen'
 
 const Tab = createBottomTabNavigator()
 const HomeStack = createStackNavigator()
+const ProductStack = createStackNavigator()
 
 function HomeStackScreen() {
   return (
@@ -30,13 +31,20 @@ function HomeStackScreen() {
       <HomeStack.Screen name="EarningsScreen" component={EarningsScreen} />
       <HomeStack.Screen name="StaffScreen" component={StaffScreen} />
       <HomeStack.Screen name="MembersScreen" component={MembersScreen} />
-      <HomeStack.Screen name="ProductsScreen" component={ProductsScreen} />
       <HomeStack.Screen name="ContractorsScreen" component={ContractorsScreen} />
       <HomeStack.Screen name="SignoutScreen" component={SignoutScreen} />
       <HomeStack.Screen name="LoginScreen" component={LoginScreen} />
-      <HomeStack.Screen name="ProductDetailScreen" component={ProductDetailScreen} />
     </HomeStack.Navigator>
   );
+}
+
+function ProductStackScreen() {
+  return (
+    <ProductStack.Navigator screenOptions={screenOptions}>
+      <ProductStack.Screen name="ProductsScreen" component={ProductsScreen} />
+      <ProductStack.Screen name="ProductDetailScreen" component={ProductDetailScreen} />
+    </ProductStack.Navigator>
+  )
 }
 
 const screenOptions = {
@@ -96,11 +104,11 @@ const AppTabs = () => {
         }}
       />
       <Tab.Screen
-        name="ProductsScreen"
-        component={ProductsScreen}
+        name="ProductsTab"
+        component={ProductStackScreen}
         options={{
-          title: "Products",
-          tabBarIcon: () => <Ionicons name="bag-check-outline" size={24} color="black" onPress={() => { navigation.navigate('ProductsScreen') }} />
+          title: "ProductsTab",
+          tabBarIcon: () => <Ionicons name="bag-check-outline" size={24} color="black" />
         }}
       />
       <Tab.Screen

@@ -4,6 +4,7 @@ import { AppColors } from '../../styles/colors'
 import { s } from 'react-native-size-matters'
 import Feather from '@expo/vector-icons/Feather'
 import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
+import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import * as yup from 'yup'
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -11,7 +12,6 @@ import { yupResolver } from '@hookform/resolvers/yup'
 const windowHeight = Dimensions.get('window').height
 
 const ProductsScreen = ({ navigation, route }) => {
-
   // 1. Define the Yup validation schema
   const schema = yup.object().shape({
     search: yup.string().required('Search field is required').matches(
@@ -50,16 +50,16 @@ const ProductsScreen = ({ navigation, route }) => {
       <SafeAreaView style={styles.container}>
         <View style={styles.navs}>
           <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
-          {/* <View style={styles.signOut}>
+          <View style={styles.signOut}>
             <Text style={styles.signOutText}>Add</Text>
             <View style={styles.circle}>
-              <Feather name="plus" size={24} color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
+              <Feather name="plus" size={24} color={AppColors.white} onPress={() => { navigation.navigate('SignoutScreen') }} />
             </View>
             <Text style={styles.signOutText}>Sign out</Text>
             <View style={styles.circle}>
               <MaterialIcons name="logout" color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
             </View>
-          </View> */}
+          </View>
         </View>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.headingContainer}>
@@ -98,10 +98,10 @@ const ProductsScreen = ({ navigation, route }) => {
                 <Text style={styles.countText}>Count: 6</Text>
               </View>
               <View style={styles.boxes}>
-                <TouchableOpacity onPress={() => navigation.navigate('HomeTab', { screen: 'ProductDetailScreen' })}>
+                <TouchableOpacity onPress={() => navigation.navigate('ProductsTab', { screen: 'ProductDetailScreen' })}>
                   <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/products/boxingGloves.png')} resizeMode="contain" />
-                    <Text style={styles.personName}>Boxing Gloves</Text>
+                    <Image style={styles.image} source={require('../../assets/images/products/boxingGloves.jpg')} resizeMode="contain" />
+                    <Text style={styles.productTitle}>Boxing Gloves</Text>
                     <Text style={styles.cost}>$25.00</Text>
                   </View>
                 </TouchableOpacity>
@@ -109,7 +109,7 @@ const ProductsScreen = ({ navigation, route }) => {
                 <TouchableOpacity>
                   <View style={styles.box}>
                     <Image style={styles.image} source={require('../../assets/images/products/proteinShaker.png')} resizeMode="contain" />
-                    <Text style={styles.personName}>Protein Shaker</Text>
+                    <Text style={styles.productTitle}>Protein Shaker</Text>
                     <Text style={styles.cost}>$10.00</Text>
                   </View>
                 </TouchableOpacity>
@@ -117,7 +117,7 @@ const ProductsScreen = ({ navigation, route }) => {
                 <TouchableOpacity>
                   <View style={styles.box}>
                     <Image style={styles.image} source={require('../../assets/images/products/proteinShaker2.png')} resizeMode="contain" />
-                    <Text style={styles.personName}>Protein Shaker</Text>
+                    <Text style={styles.productTitle}>Protein Shaker</Text>
                     <Text style={styles.cost}>$10.00</Text>
                   </View>
                 </TouchableOpacity>
@@ -125,7 +125,7 @@ const ProductsScreen = ({ navigation, route }) => {
                 <TouchableOpacity>
                   <View style={styles.box}>
                     <Image style={styles.image} source={require('../../assets/images/products/tShirt.png')} resizeMode="contain" />
-                    <Text style={styles.personName}>T Shirt</Text>
+                    <Text style={styles.productTitle}>T Shirt</Text>
                     <Text style={styles.cost}>$21.00</Text>
                   </View>
                 </TouchableOpacity>
@@ -133,7 +133,7 @@ const ProductsScreen = ({ navigation, route }) => {
                 <TouchableOpacity>
                   <View style={styles.box}>
                     <Image style={styles.image} source={require('../../assets/images/products/wristBand.png')} resizeMode="contain" />
-                    <Text style={styles.personName}>Wrist band</Text>
+                    <Text style={styles.productTitle}>Wrist band</Text>
                     <Text style={styles.cost}>$20.50</Text>
                   </View>
                 </TouchableOpacity>
@@ -141,7 +141,7 @@ const ProductsScreen = ({ navigation, route }) => {
                 <TouchableOpacity>
                   <View style={styles.box}>
                     <Image style={styles.image} source={require('../../assets/images/products/headPhones.png')} resizeMode="contain" />
-                    <Text style={styles.personName}>Headphones</Text>
+                    <Text style={styles.productTitle}>Headphones</Text>
                     <Text style={styles.cost}>$100.00</Text>
                   </View>
                 </TouchableOpacity>
@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
     width: 96,
     height: 96
   },
-  personName: {
+  productTitle: {
     marginTop: 10,
     textAlign: 'center'
   },
