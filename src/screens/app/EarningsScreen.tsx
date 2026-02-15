@@ -129,13 +129,11 @@ const styles = StyleSheet.create({
   },
   title: {
     color: AppColors.blue,
-    fontFamily: 'Montserrat',
     fontSize: 32,
     marginTop: 20,
   },
   bodyText: {
     fontSize: s(14),
-    fontFamily: "Montserrat",
     lineHeight: 24,
     color: AppColors.primary,
   },

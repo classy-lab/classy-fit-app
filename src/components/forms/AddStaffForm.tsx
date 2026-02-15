@@ -4,7 +4,6 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { StyleSheet, View, Text, TouchableOpacity, TextInput, Dimensions } from 'react-native'
 import { AppColors } from '../../styles/colors'
 import { useNavigation } from '@react-navigation/native'
-import { useState } from 'react'
 import SelectedRolePicker from './SelectedRolePicker'
 import SexPicker from './SexPicker'
 import PreferredContact from './PreferredContact'
@@ -404,7 +403,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   registerBtnText: {
-    fontFamily: 'Montserrat',
     fontSize: 16,
     color: '#fff'
   },
@@ -419,7 +417,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   loginBtnText: {
-    fontFamily: 'Montserrat',
     color: AppColors.blue,
     fontSize: 16
   },

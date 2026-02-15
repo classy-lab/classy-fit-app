@@ -440,7 +440,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   registerBtnText: {
-    fontFamily: 'Montserrat',
     fontSize: 16,
     color: '#fff'
   },
@@ -455,7 +454,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   loginBtnText: {
-    fontFamily: 'Montserrat',
     color: AppColors.blue,
     fontSize: 16
   },

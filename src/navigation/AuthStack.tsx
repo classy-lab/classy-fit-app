@@ -30,7 +30,6 @@ const screenOptionsStyle = {
   drawerItemStyle: { marginVertical: 4 },       // Apply a style to all items
   drawerLabelStyle: {
     fontSize: 20,
-    fontFamily: 'Montserrat',
   },
 }
 

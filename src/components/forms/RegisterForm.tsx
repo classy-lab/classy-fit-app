@@ -399,7 +399,6 @@ const styles = StyleSheet.create({
   loginBtnText: {
     color: AppColors.white,
     fontSize: s(14),
-    fontFamily: 'Montserrat-Medium'
   },
   selectList: {
     marginBottom: 80,
