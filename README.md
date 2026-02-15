@@ -1,6 +1,6 @@
 # React Native App
 
-A concise, one-paragraph summary of your project and its purpose. This is often the first thing people read, so make it clear and engaging. You can include badges here for build status, version number, or compliance (e.g., standard-readme).
+This repository contains React Native for a project that provides a Gym app. The Gym app contains several features including membership renewals, product sales, group class registrations, private training with available trainers and others. The app provides several features and benefits to business owners, trainers and members. It aims to provide a clean and enjoyable UI that is fun and easy to use.
 
 ## Getting Started
 
