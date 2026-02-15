@@ -100,7 +100,7 @@ const ProductsScreen = ({ navigation, route }) => {
                 <Text style={styles.countText}>Count: 6</Text>
               </View>
               <View style={styles.boxes}>
-                <TouchableOpacity onPress={() => navigation.navigate('HomeTab', { screen: 'ProductDetailScreen' })}>
+                <TouchableOpacity onPress={() => navigation.navigate('ProductsTab', { screen: 'ProductDetailScreen' })}>
                   <View style={styles.box}>
                     <Image style={styles.image} source={require('../../assets/images/products/boxingGloves.png')} resizeMode="contain" />
                     <Text style={styles.personName}>Boxing Gloves</Text>
