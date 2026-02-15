@@ -1,14 +1,22 @@
-import { StyleSheet, Text, View, ScrollView, Image, useWindowDimensions } from 'react-native'
+import { StyleSheet, Text, View, ScrollView, Image, useWindowDimensions, TouchableOpacity } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import Feather from '@expo/vector-icons/Feather'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { AppColors } from '../../styles/colors'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
+import { s } from 'react-native-size-matters'
+import ProductSizepicker from '../../components/forms/ProductSizePicker'
+import QuantityPicker from '../../components/forms/QuantityPicker'
+import ColorPicker from '../../components/forms/ColorPicker'
 
 const ProductDetailScreen = () => {
   const { height } = useWindowDimensions()
   const navigation = useNavigation()
+
+  const handleSubmit = () => {
+    console.log('handleSubmit() pressed')
+  }
 
   return (
     <>
@@ -17,7 +25,7 @@ const ProductDetailScreen = () => {
           <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
         </View>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-          <View style={[styles.body, { height: height }]}>
+          <View style={styles.body}>
             <View>
               <View style={styles.heroImageContainer}>
                 <Image style={styles.heroImage} source={require('../../assets/images/products/boxingGloves.jpg')} />
@@ -31,6 +39,48 @@ const ProductDetailScreen = () => {
             </View>
             <View style={styles.content}>
               <Text style={styles.productTitle}>Boxing Gloves</Text>
+              <Text style={styles.productDesc}>
+                About this item:{'\n'}
+                Enhanced Protection and Comfort. The updated design features a three-layer foam construction, providing superior cushioning and impact absorption during training sessions. The curved anatomical grip ensures a snug fit, allowing for optimal hand positioning and reduced fatigue. This thoughtful design enables athletes to maintain proper form throughout extended workout periods, enhancing both performance and safety.{'\n'}
+                Cost: $40.00 USD{'\n'}
+                Material: Synthetic{'\n'}
+                Glove Type: Bag{'\n'}
+                Brand Name: Everlast{'\n'}
+                Warranty Description: 120 days{'\n'}
+                Model Name: Prostyle 2{'\n'}
+                Manufacturer: Everlast{'\n'}
+                Part Number: 925330-70{'\n'}
+                Item Dimensions LxWxH: 11.81 x 6.69 x 4.72 inches{'\n'}
+                Item Weight: 1.3 Pounds
+              </Text>
+              <View style={styles.selectList}>
+                <Text style={styles.formLabel}>Size</Text>
+                <ProductSizepicker />
+              </View>
+              <View style={styles.selectList}>
+                <Text style={styles.formLabel}>Quantity</Text>
+                <QuantityPicker />
+              </View>
+              <View style={styles.selectList}>
+                <Text style={styles.formLabel}>Color</Text>
+                <ColorPicker />
+              </View>
+              <View style={styles.row}>
+                <TouchableOpacity
+                  style={styles.registerBtn}
+                  title="Add to Cart"
+                  onPress={() => { handleSubmit() }}
+                >
+                  <Text style={styles.registerBtnText}>Add to Cart</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.loginBtn}
+                  title="View Cart"
+                  onPress={() => { handleSubmit() }}
+                >
+                  <Text style={styles.loginBtnText}>View Cart</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </ScrollView>
@@ -87,7 +137,7 @@ const styles = StyleSheet.create({
   body: {
     paddingLeft: 24,
     paddingRight: 24,
-    marginBottom: 8,
+    marginBottom: 24,
     // flex: 1,
     // borderWidth: 1, borderColor: 'red',
   },
@@ -112,7 +162,50 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   productTitle: {
-    fontSize: 32,
+    fontSize: s(32),
     color: AppColors.blue
-  }
+  },
+  productDesc: {
+    marginTop: s(24),
+    lineHeight: s(24),
+    marginBottom: s(24)
+  },
+  formLabel: {
+    marginBottom: s(8)
+  },
+  selectList: {
+    marginBottom: s(24)
+  },
+  row: {
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
+    height: 120
+  },
+  registerBtn: {
+    backgroundColor: AppColors.blue,
+    borderRadius: 40,
+    width: 248,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  registerBtnText: {
+    fontSize: 16,
+    color: '#fff'
+  },
+  loginBtn: {
+    backgroundColor: 'white',
+    borderWidth: 1,
+    borderColor: AppColors.blue,
+    borderRadius: 40,
+    width: 248,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loginBtnText: {
+    color: AppColors.blue,
+    fontSize: 16
+  },
 })
