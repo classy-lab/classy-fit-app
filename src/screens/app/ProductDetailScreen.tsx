@@ -10,9 +10,6 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 const ProductDetailScreen = () => {
   const { height } = useWindowDimensions()
   const navigation = useNavigation()
-  const [fontsLoaded] = useFonts({
-    "Montserrat": require("../../assets/fonts/montserrat/Montserrat-Regular.ttf"),
-  })
 
   return (
     <>
