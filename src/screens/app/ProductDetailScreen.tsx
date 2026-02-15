@@ -4,7 +4,6 @@ import { useNavigation } from '@react-navigation/native'
 import Feather from '@expo/vector-icons/Feather'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { AppColors } from '../../styles/colors'
-import { useFonts } from 'expo-font'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 
 const ProductDetailScreen = () => {
@@ -16,26 +15,23 @@ const ProductDetailScreen = () => {
       <SafeAreaView style={styles.container}>
         <View style={styles.navs}>
           <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
-          <View style={styles.signOut}>
-            <Text style={styles.signOutText}>Add</Text>
-            <View style={styles.circle}>
-              <Feather name="plus" size={24} color={AppColors.white} onPress={() => { navigation.navigate('SignoutScreen') }} />
-            </View>
-            <Text style={styles.signOutText}>Sign out</Text>
-            <View style={styles.circle}>
-              <MaterialIcons name="logout" color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
-            </View>
-          </View>
         </View>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-          <View style={styles.headingContainer}>
-            <Text style={styles.title}>Product Detail Screen</Text>
-            {/* <PinkLeafSvg style={styles.pinkLeaf} /> */}
-          </View>
           <View style={[styles.body, { height: height }]}>
-            <Text style={styles.bodyText}>
-              Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-            </Text>
+            <View>
+              <View style={styles.heroImageContainer}>
+                <Image style={styles.heroImage} source={require('../../assets/images/products/boxingGloves.jpg')} />
+              </View>
+              <View style={styles.heroImageThumbnails}>
+                <Image style={styles.thumbnail} source={require('../../assets/images/products/boxingGloves2.jpg')} />
+                <Image style={styles.thumbnail} source={require('../../assets/images/products/boxingGloves3.jpg')} />
+                <Image style={styles.thumbnail} source={require('../../assets/images/products/boxingGloves4.jpg')} />
+                <Image style={styles.thumbnail} source={require('../../assets/images/products/boxingGloves5.jpg')} />
+              </View>
+            </View>
+            <View style={styles.content}>
+              <Text style={styles.productTitle}>Boxing Gloves</Text>
+            </View>
           </View>
         </ScrollView>
       </SafeAreaView>
@@ -79,7 +75,6 @@ const styles = StyleSheet.create({
   },
   title: {
     color: AppColors.blue,
-    fontFamily: 'Montserrat',
     fontSize: 32,
     marginTop: 60,
   },
@@ -96,16 +91,28 @@ const styles = StyleSheet.create({
     // flex: 1,
     // borderWidth: 1, borderColor: 'red',
   },
-  bodyText: {
-    marginBottom: 8,
-    // flex: 1,
+  heroImageContainer: {
+    alignItems: 'center',
+    marginBottom: 16,
     // borderWidth: 1, borderColor: 'red',
-    fontFamily: "Montserrat",
-    lineHeight: 32,
-    color: AppColors.blue,
-    fontSize: 20,
-    textAlign: 'center'
   },
-  scrollView: {
+  heroImage: {
+    width: 232,
+  },
+  heroImageThumbnails: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    // borderWidth: 1, borderColor: 'red',
+  },
+  thumbnail: {
+    marginRight: 8,
+    // borderWidth: 1, borderColor: 'blue',
+  },
+  content: {
+    marginTop: 24,
+  },
+  productTitle: {
+    fontSize: 32,
+    color: AppColors.blue
   }
 })
