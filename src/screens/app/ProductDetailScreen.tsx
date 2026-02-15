@@ -32,7 +32,7 @@ const ProductDetailScreen = () => {
         </View>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.headingContainer}>
-            <Text style={styles.title}>Template</Text>
+            <Text style={styles.title}>Product Detail Screen</Text>
             {/* <PinkLeafSvg style={styles.pinkLeaf} /> */}
           </View>
           <View style={[styles.body, { height: height }]}>
