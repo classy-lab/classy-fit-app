@@ -11,10 +11,6 @@ import { yupResolver } from '@hookform/resolvers/yup'
 const windowHeight = Dimensions.get('window').height
 
 const ProductsScreen = ({ navigation, route }) => {
-  const [fontsLoaded] = useFonts({
-    "Montserrat": require("../../assets/fonts/montserrat/Montserrat-Regular.ttf"),
-  })
-
   // 1. Define the Yup validation schema
   const schema = yup.object().shape({
     search: yup.string().required('Search field is required').matches(
