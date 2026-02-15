@@ -4,6 +4,7 @@ import { AppColors } from '../../styles/colors'
 import { s } from 'react-native-size-matters'
 import Feather from '@expo/vector-icons/Feather'
 import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
+import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import * as yup from 'yup'
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -49,16 +50,16 @@ const ProductsScreen = ({ navigation, route }) => {
       <SafeAreaView style={styles.container}>
         <View style={styles.navs}>
           <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
-          {/* <View style={styles.signOut}>
+          <View style={styles.signOut}>
             <Text style={styles.signOutText}>Add</Text>
             <View style={styles.circle}>
-              <Feather name="plus" size={24} color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
+              <Feather name="plus" size={24} color={AppColors.white} onPress={() => { navigation.navigate('SignoutScreen') }} />
             </View>
             <Text style={styles.signOutText}>Sign out</Text>
             <View style={styles.circle}>
               <MaterialIcons name="logout" color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
             </View>
-          </View> */}
+          </View>
         </View>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.headingContainer}>
@@ -99,7 +100,7 @@ const ProductsScreen = ({ navigation, route }) => {
               <View style={styles.boxes}>
                 <TouchableOpacity onPress={() => navigation.navigate('ProductsTab', { screen: 'ProductDetailScreen' })}>
                   <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/products/boxingGloves.png')} resizeMode="contain" />
+                    <Image style={styles.image} source={require('../../assets/images/products/boxingGloves.jpg')} resizeMode="contain" />
                     <Text style={styles.productTitle}>Boxing Gloves</Text>
                     <Text style={styles.cost}>$25.00</Text>
                   </View>
