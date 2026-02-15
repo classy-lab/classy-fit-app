@@ -3,7 +3,6 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
 import { s } from 'react-native-size-matters'
-import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import Feather from '@expo/vector-icons/Feather'
 import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
 import * as yup from 'yup'
@@ -13,6 +12,9 @@ import { yupResolver } from '@hookform/resolvers/yup'
 const windowHeight = Dimensions.get('window').height
 
 const ProductsScreen = ({ navigation, route }) => {
+  const [fontsLoaded] = useFonts({
+    "Montserrat": require("../../assets/fonts/montserrat/Montserrat-Regular.ttf"),
+  })
 
   // 1. Define the Yup validation schema
   const schema = yup.object().shape({
@@ -103,7 +105,7 @@ const ProductsScreen = ({ navigation, route }) => {
                 <TouchableOpacity onPress={() => navigation.navigate('ProductsTab', { screen: 'ProductDetailScreen' })}>
                   <View style={styles.box}>
                     <Image style={styles.image} source={require('../../assets/images/products/boxingGloves.png')} resizeMode="contain" />
-                    <Text style={styles.personName}>Boxing Gloves</Text>
+                    <Text style={styles.productTitle}>Boxing Gloves</Text>
                     <Text style={styles.cost}>$25.00</Text>
                   </View>
                 </TouchableOpacity>
@@ -111,7 +113,7 @@ const ProductsScreen = ({ navigation, route }) => {
                 <TouchableOpacity>
                   <View style={styles.box}>
                     <Image style={styles.image} source={require('../../assets/images/products/proteinShaker.png')} resizeMode="contain" />
-                    <Text style={styles.personName}>Protein Shaker</Text>
+                    <Text style={styles.productTitle}>Protein Shaker</Text>
                     <Text style={styles.cost}>$10.00</Text>
                   </View>
                 </TouchableOpacity>
@@ -119,7 +121,7 @@ const ProductsScreen = ({ navigation, route }) => {
                 <TouchableOpacity>
                   <View style={styles.box}>
                     <Image style={styles.image} source={require('../../assets/images/products/proteinShaker2.png')} resizeMode="contain" />
-                    <Text style={styles.personName}>Protein Shaker</Text>
+                    <Text style={styles.productTitle}>Protein Shaker</Text>
                     <Text style={styles.cost}>$10.00</Text>
                   </View>
                 </TouchableOpacity>
@@ -127,7 +129,7 @@ const ProductsScreen = ({ navigation, route }) => {
                 <TouchableOpacity>
                   <View style={styles.box}>
                     <Image style={styles.image} source={require('../../assets/images/products/tShirt.png')} resizeMode="contain" />
-                    <Text style={styles.personName}>T Shirt</Text>
+                    <Text style={styles.productTitle}>T Shirt</Text>
                     <Text style={styles.cost}>$21.00</Text>
                   </View>
                 </TouchableOpacity>
@@ -135,7 +137,7 @@ const ProductsScreen = ({ navigation, route }) => {
                 <TouchableOpacity>
                   <View style={styles.box}>
                     <Image style={styles.image} source={require('../../assets/images/products/wristBand.png')} resizeMode="contain" />
-                    <Text style={styles.personName}>Wrist band</Text>
+                    <Text style={styles.productTitle}>Wrist band</Text>
                     <Text style={styles.cost}>$20.50</Text>
                   </View>
                 </TouchableOpacity>
@@ -143,7 +145,7 @@ const ProductsScreen = ({ navigation, route }) => {
                 <TouchableOpacity>
                   <View style={styles.box}>
                     <Image style={styles.image} source={require('../../assets/images/products/headPhones.png')} resizeMode="contain" />
-                    <Text style={styles.personName}>Headphones</Text>
+                    <Text style={styles.productTitle}>Headphones</Text>
                     <Text style={styles.cost}>$100.00</Text>
                   </View>
                 </TouchableOpacity>
@@ -258,7 +260,7 @@ const styles = StyleSheet.create({
     width: 96,
     height: 96
   },
-  personName: {
+  productTitle: {
     marginTop: 10,
     textAlign: 'center'
   },
