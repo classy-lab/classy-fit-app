@@ -4,8 +4,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { StyleSheet, View, Text, TouchableOpacity, TextInput, Dimensions, Button } from 'react-native'
 import { AppColors } from '../../styles/colors'
 import { useNavigation } from '@react-navigation/native'
-import { useFonts } from 'expo-font'
-import { s, vs } from 'react-native-size-matters'
+import { s } from 'react-native-size-matters'
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -145,6 +144,5 @@ const styles = StyleSheet.create({
   loginBtnText: {
     color: AppColors.white,
     fontSize: s(14),
-    fontFamily: 'Montserrat-Medium'
   },
 })
