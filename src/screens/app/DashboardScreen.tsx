@@ -46,7 +46,8 @@ const DashboardScreen = ({ navigation, route }) => {
                 </View>
                 <Text>Members</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('ProductsScreen')}>
+              <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('ProductsTab', { screen: 'ProductsScreen' })
+              }>
                 <View style={styles.whiteSquare}>
                   <Ionicons name="bag-handle" size={24} color={AppColors.blue} />
                 </View>
