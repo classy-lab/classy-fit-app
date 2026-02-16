@@ -19,9 +19,12 @@ import ContractorsScreen from '../screens/app/ContractorsScreen'
 import SignoutScreen from '../screens/app/SignoutScreen'
 import LoginScreen from '../screens/auth/LoginScreen'
 import ProductDetailScreen from '../screens/app/ProductDetailScreen'
+import AddProductScreen from '../screens/app/AddProductScreen'
+import ViewCartScreen from '../screens/app/ViewCartScreen'
 
 const Tab = createBottomTabNavigator()
 const HomeStack = createStackNavigator()
+const ProductStack = createStackNavigator()
 
 function HomeStackScreen() {
   return (
@@ -37,6 +40,17 @@ function HomeStackScreen() {
       <HomeStack.Screen name="ProductDetailScreen" component={ProductDetailScreen} />
     </HomeStack.Navigator>
   );
+}
+
+function ProductStackScreen() {
+  return (
+    <ProductStack.Navigator screenOptions={screenOptions}>
+      <ProductStack.Screen name="ProductsScreen" component={ProductsScreen} />
+      <ProductStack.Screen name="ProductDetailScreen" component={ProductDetailScreen} />
+      <ProductStack.Screen name="AddProductScreen" component={AddProductScreen} />
+      <ProductStack.Screen name="ViewCartScreen" component={ViewCartScreen} />
+    </ProductStack.Navigator>
+  )
 }
 
 const screenOptions = {
