@@ -25,7 +25,10 @@ const ViewCartScreen = () => {
               <TouchableOpacity
                 style={styles.registerBtn}
                 title="Proceed to Checkout"
-                onPress={() => { console.log('Proceed to Checkout pressed') }}
+                onPress={() => {
+                  console.log('Proceed to Checkout pressed')
+                  navigation.navigate('ThankYouScreen')
+                }}
               >
                 <Text style={styles.registerBtnText}>Proceed to Checkout</Text>
               </TouchableOpacity>

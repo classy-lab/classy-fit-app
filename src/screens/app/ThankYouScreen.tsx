@@ -1,27 +1,16 @@
-import { StyleSheet, Text, View, Dimensions, ScrollView, TouchableOpacity, Image } from 'react-native'
+import { StyleSheet, Text, View, ScrollView } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { useNavigation } from '@react-navigation/native'
-import Feather from '@expo/vector-icons/Feather'
 import { AppColors } from '../../styles/colors'
-import { useFonts } from 'expo-font'
-import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
-import Ionicons from '@expo/vector-icons/Ionicons'
 import DesignerSvg from '../../components/svg/DesignerSvg'
+import Feather from '@expo/vector-icons/Feather'
 
-const windowHeight = Dimensions.get('window').height
-
-const ThankYou = () => {
-  const navigation = useNavigation()
-  const [fontsLoaded] = useFonts({
-    "Montserrat": require("../../assets/fonts/montserrat/Montserrat-Regular.ttf"),
-    "Montserrat-Bold": require("../../assets/fonts/montserrat/Montserrat-Bold.ttf")
-  })
+const ThankYouScreen = ({ navigation, route }) => {
 
   return (
     <>
       <SafeAreaView style={styles.container}>
         <View style={styles.navs}>
-          <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
+          <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
         </View>
 
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
@@ -47,35 +36,18 @@ const ThankYou = () => {
   )
 }
 
-export default ThankYou
+export default ThankYouScreen
 
 const styles = StyleSheet.create({
   container: {
     backgroundColor: AppColors.white,
+    flex: 1,
   },
   navs: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
     paddingLeft: 24,
     paddingRight: 24,
-  },
-  signOut: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  signOutText: {
-    marginLeft: 10,
-    marginRight: 4,
-    color: AppColors.blue,
-    fontSize: 14
-  },
-  circle: {
-    width: 30,
-    height: 30,
-    borderRadius: '50%',
-    backgroundColor: AppColors.blue,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   headingContainer: {
     alignItems: 'center',
@@ -83,22 +55,13 @@ const styles = StyleSheet.create({
   },
   title: {
     color: AppColors.blue,
-    fontFamily: 'Montserrat',
     fontSize: 32,
     marginTop: 60,
-  },
-  pinkLeaf: {
-    position: 'relative',
-    zIndex: -1,
-    top: -68,
-    right: -40
   },
   body: {
     paddingLeft: 24,
     paddingRight: 24,
     marginBottom: 8,
-    flex: 1,
-    height: windowHeight,
     alignItems: 'center'
     // borderWidth: 1, borderColor: 'red',
   },
@@ -109,14 +72,11 @@ const styles = StyleSheet.create({
     marginTop: 40
   },
   boldText: {
-    fontFamily: 'Montserrat-Bold'
+    fontWeight: 'bold',
   },
   imageContainer: {
     marginBottom: 8,
     alignItems: 'center',
     marginTop: 132
-    // borderWidth: 1, borderColor: 'red',
-  },
-  scrollView: {
   }
 })
