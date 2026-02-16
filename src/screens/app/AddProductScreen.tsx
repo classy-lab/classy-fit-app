@@ -2,7 +2,6 @@ import { StyleSheet, Text, View, ScrollView } from 'react-native'
 import { AppColors } from '../../styles/colors'
 import { useNavigation } from '@react-navigation/native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import Ionicons from '@expo/vector-icons/Ionicons'
 import Feather from '@expo/vector-icons/Feather'
 import AddProductForm from '../../components/forms/AddProductForm'
 
