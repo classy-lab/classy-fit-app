@@ -76,7 +76,7 @@ const ProductDetailScreen = () => {
                 <TouchableOpacity
                   style={styles.loginBtn}
                   title="View Cart"
-                  onPress={() => { handleSubmit() }}
+                  onPress={() => { navigation.navigate('ViewCartScreen') }}
                 >
                   <Text style={styles.loginBtnText}>View Cart</Text>
                 </TouchableOpacity>
