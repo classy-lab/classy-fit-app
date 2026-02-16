@@ -20,6 +20,7 @@ import SignoutScreen from '../screens/app/SignoutScreen'
 import LoginScreen from '../screens/auth/LoginScreen'
 import ProductDetailScreen from '../screens/app/ProductDetailScreen'
 import AddProductScreen from '../screens/app/AddProductScreen'
+import ViewCartScreen from '../screens/app/ViewCartScreen'
 
 const Tab = createBottomTabNavigator()
 const HomeStack = createStackNavigator()
@@ -45,6 +46,7 @@ function ProductStackScreen() {
       <ProductStack.Screen name="ProductsScreen" component={ProductsScreen} />
       <ProductStack.Screen name="ProductDetailScreen" component={ProductDetailScreen} />
       <ProductStack.Screen name="AddProductScreen" component={AddProductScreen} />
+      <ProductStack.Screen name="ViewCartScreen" component={ViewCartScreen} />
     </ProductStack.Navigator>
   )
 }
