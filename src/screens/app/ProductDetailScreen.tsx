@@ -1,18 +1,13 @@
 import { StyleSheet, Text, View, ScrollView, Image, useWindowDimensions, TouchableOpacity } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { useNavigation } from '@react-navigation/native'
 import Feather from '@expo/vector-icons/Feather'
-import Ionicons from '@expo/vector-icons/Ionicons'
 import { AppColors } from '../../styles/colors'
-import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import { s } from 'react-native-size-matters'
 import ProductSizepicker from '../../components/forms/ProductSizePicker'
 import QuantityPicker from '../../components/forms/QuantityPicker'
 import ColorPicker from '../../components/forms/ColorPicker'
 
-const ProductDetailScreen = () => {
-  const { height } = useWindowDimensions()
-  const navigation = useNavigation()
+const ProductDetailScreen = ({ navigation, route }) => {
 
   const handleSubmit = () => {
     console.log('handleSubmit() pressed')
