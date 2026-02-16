@@ -21,6 +21,16 @@ const ViewCartScreen = () => {
             <Text style={styles.bodyText}>
               $40.00 USD
             </Text>
+            <View style={styles.row}>
+              <TouchableOpacity
+                style={styles.registerBtn}
+                title="Proceed to Checkout"
+                onPress={() => { console.log('Proceed to Checkout pressed') }}
+              >
+                <Text style={styles.registerBtnText}>Proceed to Checkout</Text>
+              </TouchableOpacity>
+            </View>
+            <Image style={styles.paymentIcons} source={require('../../assets/images/products/payment-icons.png')} />
           </View>
         </ScrollView>
       </SafeAreaView>
@@ -33,6 +43,8 @@ export default ViewCartScreen
 const styles = StyleSheet.create({
   container: {
     backgroundColor: AppColors.white,
+    flex: 1,
+    // borderWidth: 1, borderColor: 'red'
   },
   navs: {
     flexDirection: 'row',
@@ -40,45 +52,45 @@ const styles = StyleSheet.create({
     paddingLeft: 24,
     paddingRight: 24,
   },
-  signOut: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  signOutText: {
-    marginLeft: 10,
-    marginRight: 4,
-    color: AppColors.blue,
-    fontSize: 14
-  },
-  circle: {
-    width: 30,
-    height: 30,
-    borderRadius: '50%',
-    backgroundColor: AppColors.blue,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   headingContainer: {
     alignItems: 'center',
     marginBottom: 20
   },
   title: {
-    color: AppColors.blue,
+    color: AppColors.primary,
     fontSize: 32,
     marginTop: 60,
-  },
-  pinkLeaf: {
-    position: 'relative',
-    zIndex: -1,
-    top: -68,
-    right: -40
   },
   body: {
     paddingLeft: 24,
     paddingRight: 24,
-    marginBottom: 8,
+    // flex: 1,
   },
   bodyText: {
+    color: AppColors.blue,
+    fontSize: 32,
+    marginTop: 8,
     marginBottom: 8,
+    textAlign: 'center'
+  },
+  row: {
+    alignItems: 'center',
+    marginTop: 24,
+  },
+  registerBtn: {
+    backgroundColor: AppColors.blue,
+    borderRadius: 40,
+    width: 248,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  registerBtnText: {
+    fontSize: 16,
+    color: '#fff'
+  },
+  paymentIcons: {
+    marginTop: 24,
+    alignSelf: 'center'
   }
 })
