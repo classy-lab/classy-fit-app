@@ -20,7 +20,6 @@ import SignoutScreen from '../screens/app/SignoutScreen'
 import LoginScreen from '../screens/auth/LoginScreen'
 import ProductDetailScreen from '../screens/app/ProductDetailScreen'
 import AddProductScreen from '../screens/app/AddProductScreen'
-import ViewCartScreen from '../screens/app/ViewCartScreen'
 
 const Tab = createBottomTabNavigator()
 const HomeStack = createStackNavigator()
@@ -33,11 +32,9 @@ function HomeStackScreen() {
       <HomeStack.Screen name="EarningsScreen" component={EarningsScreen} />
       <HomeStack.Screen name="StaffScreen" component={StaffScreen} />
       <HomeStack.Screen name="MembersScreen" component={MembersScreen} />
-      <HomeStack.Screen name="ProductsScreen" component={ProductsScreen} />
       <HomeStack.Screen name="ContractorsScreen" component={ContractorsScreen} />
       <HomeStack.Screen name="SignoutScreen" component={SignoutScreen} />
       <HomeStack.Screen name="LoginScreen" component={LoginScreen} />
-      <HomeStack.Screen name="ProductDetailScreen" component={ProductDetailScreen} />
     </HomeStack.Navigator>
   );
 }
@@ -48,7 +45,6 @@ function ProductStackScreen() {
       <ProductStack.Screen name="ProductsScreen" component={ProductsScreen} />
       <ProductStack.Screen name="ProductDetailScreen" component={ProductDetailScreen} />
       <ProductStack.Screen name="AddProductScreen" component={AddProductScreen} />
-      <ProductStack.Screen name="ViewCartScreen" component={ViewCartScreen} />
     </ProductStack.Navigator>
   )
 }
@@ -110,11 +106,11 @@ const AppTabs = () => {
         }}
       />
       <Tab.Screen
-        name="ProductsScreen"
-        component={ProductsScreen}
+        name="ProductsTab"
+        component={ProductStackScreen}
         options={{
-          title: "Products",
-          tabBarIcon: () => <Ionicons name="bag-check-outline" size={24} color="black" onPress={() => { navigation.navigate('ProductsScreen') }} />
+          title: "ProductsTab",
+          tabBarIcon: () => <Ionicons name="bag-check-outline" size={24} color="black" />
         }}
       />
       <Tab.Screen

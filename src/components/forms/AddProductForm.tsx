@@ -5,7 +5,7 @@ import { StyleSheet, View, Text, TouchableOpacity, TextInput } from 'react-nativ
 import { AppColors } from '../../styles/colors'
 import { useNavigation } from '@react-navigation/native'
 import { useState } from 'react'
-import ImagePickerExample from '../../screens/auth/ImagePickerExample'
+import ImagePickerExample from '../../screens/app/ImagePickerExample'
 
 const phoneRegExp = /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/
 
@@ -375,7 +375,7 @@ const AddProductForm = () => {
             onPress={handleSubmit(onSubmit)}
             activeOpacity={0.7}
           >
-            <Text style={styles.registerBtnText}>Create</Text>
+            <Text style={styles.registerBtnText}>Create Product</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.loginBtn}
