@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native'
+import { StyleSheet } from 'react-native'
 import { SelectList } from 'react-native-dropdown-select-list'
-
-const windowWidth = Dimensions.get('window').width
+import { AppColors } from '../../styles/colors';
 
 const SelectedRolePicker = () => {
   const [selected, setSelected] = React.useState("");
@@ -16,6 +15,16 @@ const SelectedRolePicker = () => {
 
   return (
     <SelectList
+      boxStyles={{
+        borderColor: AppColors.grey,
+        borderWidth: 1,
+        paddingHorizontal: 8,
+      }}
+      dropdownStyles={{
+        borderColor: AppColors.grey2,
+        borderWidth: 1,
+        marginTop: 8,
+      }}
       setSelected={(val) => setSelected(val)}
       data={data}
       save="value"
@@ -23,21 +32,6 @@ const SelectedRolePicker = () => {
   )
 };
 
-const styles = StyleSheet.create({
-  // container: {
-  //   flex: 1,
-  //   paddingTop: 40,
-  //   alignItems: 'center',
-  // },
-  // pickerStyles: {
-  //   borderWidth: 1,
-  //   borderColor: AppColors.textInputBorderColor,
-  //   height: s(48),
-  //   borderRadius: s(8),
-  //   width: windowWidth - 64,
-  //   backgroundColor: AppColors.grey,
-  //   marginTop: s(-24) // check
-  // }
-});
+const styles = StyleSheet.create({});
 
 export default SelectedRolePicker
