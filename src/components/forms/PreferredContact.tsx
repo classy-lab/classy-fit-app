@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native'
+import { StyleSheet } from 'react-native'
 import { SelectList } from 'react-native-dropdown-select-list'
+import { AppColors } from '../../styles/colors'
 
 const PreferredContact = () => {
   const [selected, setSelected] = React.useState("");
@@ -11,6 +12,16 @@ const PreferredContact = () => {
   ]
   return (
     <SelectList
+      boxStyles={{
+        borderColor: AppColors.grey,
+        borderWidth: 1,
+        paddingHorizontal: 8,
+      }}
+      dropdownStyles={{
+        borderColor: AppColors.grey2,
+        borderWidth: 1,
+        marginTop: 8,
+      }}
       setSelected={(val) => setSelected(val)}
       data={data}
       save="value"
