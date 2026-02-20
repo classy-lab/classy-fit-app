@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from 'react-native'
+import { StyleSheet, Text, View, Image, TouchableOpacity, ImageBackground, ScrollView } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
@@ -12,6 +12,7 @@ import LineChart from '../../assets/svg/LineChart'
 import LineChart2 from '../../assets/svg/LineChart2'
 import LineChart3 from '../../assets/svg/LineChart3'
 import LineChart4 from '../../assets/svg/LineChart4'
+const imageSource = require('../../assets/images/ovalBg.png')
 
 const EarningsScreen = ({ navigation, route }) => {
   const [fontsLoaded] = useFonts({
@@ -21,90 +22,93 @@ const EarningsScreen = ({ navigation, route }) => {
 
   return (
     <>
-      <SafeAreaView style={styles.container}>
-        <View style={styles.navs}>
-          <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
-          <View style={styles.signOut}>
-            <Text style={styles.signOutText}>Sign out</Text>
-            <View style={styles.circle}>
-              <MaterialIcons name="logout" color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
-            </View>
-          </View>
-        </View>
-        <ScrollView style={styles.scrollViewStyles} showsVerticalScrollIndicator={false}>
-          <View style={styles.heading}>
-            <Text style={styles.headingTitle}>Earnings</Text>
-            <Text style={styles.headingSubTitle}>September 2025</Text>
-            <View style={styles.calendarControls}>
-              <TouchableOpacity>
-                <Text style={styles.calendarControlText}>{'<'} Previous</Text>
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <Text style={styles.calendarControlText}>Full Year</Text>
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <Text style={styles.calendarControlText}>Next {'>'}</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-          <View style={styles.body}>
-            <TouchableOpacity>
-              <View style={styles.squareCard}>
-                <View style={styles.squareCardHeadingContainer}>
-                  <View style={styles.squareCardHeading}>
-                    <Text style={styles.SquareCardTitle}>October</Text>
-                    <Text style={styles.SquareCardSubTitle}>7 Day Business Earnings Graph</Text>
-                  </View>
-                  <View style={styles.SquareCardSettingsIcon}>
-                    <Entypo name="sound-mix" size={24} color={AppColors.grey3} />
-                  </View>
-                </View>
-                <View style={styles.barGraph}>
-                  <EarningsBarGraph />
-                </View>
+      <ImageBackground source={imageSource} style={styles.background}>
+        <SafeAreaView style={styles.container}>
+          <View style={styles.navs}>
+            <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
+            <View style={styles.signOut}>
+              <Text style={styles.signOutText}>Sign out</Text>
+              <View style={styles.circle}>
+                <MaterialIcons name="logout" color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
               </View>
-            </TouchableOpacity>
-            <View style={styles.cards}>
-              <TouchableOpacity>
-                <View style={styles.square}>
-                  <Text style={styles.smallSquareCardTitle}>Membership</Text>
-                  <Text style={styles.smallSquareCardSubTitle}>Earnings</Text>
-                  <View style={styles.smallBarGraph}>
-                    <LineChart />
-                  </View>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <View style={styles.square}>
-                  <Text style={styles.smallSquareCardTitle}>Product</Text>
-                  <Text style={styles.smallSquareCardSubTitle}>Earnings</Text>
-                  <View style={styles.smallBarGraph}>
-                    <LineChart2 />
-                  </View>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <View style={styles.square}>
-                  <Text style={styles.smallSquareCardTitle}>Class</Text>
-                  <Text style={styles.smallSquareCardSubTitle}>Earnings</Text>
-                  <View style={styles.smallBarGraph}>
-                    <LineChart3 />
-                  </View>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <View style={styles.square}>
-                  <Text style={styles.smallSquareCardTitle}>Personal Training</Text>
-                  <Text style={styles.smallSquareCardSubTitle}>Earnings</Text>
-                  <View style={styles.smallBarGraph}>
-                    <LineChart4 />
-                  </View>
-                </View>
-              </TouchableOpacity>
             </View>
           </View>
-        </ScrollView>
-      </SafeAreaView>
+
+          <ScrollView style={styles.scrollViewStyles} showsVerticalScrollIndicator={false}>
+            <View style={styles.heading}>
+              <Text style={styles.headingTitle}>Earnings</Text>
+              <Text style={styles.headingSubTitle}>September 2025</Text>
+              <View style={styles.calendarControls}>
+                <TouchableOpacity>
+                  <Text style={styles.calendarControlText}>{'<'} Previous</Text>
+                </TouchableOpacity>
+                <TouchableOpacity>
+                  <Text style={styles.calendarControlText}>Full Year</Text>
+                </TouchableOpacity>
+                <TouchableOpacity>
+                  <Text style={styles.calendarControlText}>Next {'>'}</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+            <View style={styles.body}>
+              <TouchableOpacity>
+                <View style={styles.squareCard}>
+                  <View style={styles.squareCardHeadingContainer}>
+                    <View style={styles.squareCardHeading}>
+                      <Text style={styles.SquareCardTitle}>October</Text>
+                      <Text style={styles.SquareCardSubTitle}>7 Day Business Earnings Graph</Text>
+                    </View>
+                    <View style={styles.SquareCardSettingsIcon}>
+                      <Entypo name="sound-mix" size={24} color={AppColors.grey3} />
+                    </View>
+                  </View>
+                  <View style={styles.barGraph}>
+                    <EarningsBarGraph />
+                  </View>
+                </View>
+              </TouchableOpacity>
+              <View style={styles.cards}>
+                <TouchableOpacity>
+                  <View style={styles.square}>
+                    <Text style={styles.smallSquareCardTitle}>Membership</Text>
+                    <Text style={styles.smallSquareCardSubTitle}>Earnings</Text>
+                    <View style={styles.smallBarGraph}>
+                      <LineChart />
+                    </View>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity>
+                  <View style={styles.square}>
+                    <Text style={styles.smallSquareCardTitle}>Product</Text>
+                    <Text style={styles.smallSquareCardSubTitle}>Earnings</Text>
+                    <View style={styles.smallBarGraph}>
+                      <LineChart2 />
+                    </View>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity>
+                  <View style={styles.square}>
+                    <Text style={styles.smallSquareCardTitle}>Class</Text>
+                    <Text style={styles.smallSquareCardSubTitle}>Earnings</Text>
+                    <View style={styles.smallBarGraph}>
+                      <LineChart3 />
+                    </View>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity>
+                  <View style={styles.square}>
+                    <Text style={styles.smallSquareCardTitle}>Personal Training</Text>
+                    <Text style={styles.smallSquareCardSubTitle}>Earnings</Text>
+                    <View style={styles.smallBarGraph}>
+                      <LineChart4 />
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </ScrollView>
+        </SafeAreaView>
+      </ImageBackground>
     </>
   )
 }
@@ -113,7 +117,15 @@ export default EarningsScreen
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: AppColors.grey,
+    // backgroundColor: AppColors.grey,
+    backgroundColor: 'transparent',
+  },
+  background: {
+    flex: 1,
+    // width: '100%',
+    // height: '100%',
+    // jusifyContent: 'center',
+    // alignItems: 'center',
   },
   navs: {
     flexDirection: 'row',
@@ -128,7 +140,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   title: {
-    color: AppColors.blue,
+    color: AppColors.white,
     fontSize: 32,
     marginTop: 20,
   },
@@ -144,7 +156,7 @@ const styles = StyleSheet.create({
   },
   signOutText: {
     marginRight: 4,
-    color: AppColors.blue,
+    color: AppColors.white,
     fontSize: 14
   },
   circle: {
@@ -168,7 +180,7 @@ const styles = StyleSheet.create({
     marginBottom: 20
   },
   headingTitle: {
-    color: AppColors.blue,
+    color: AppColors.white,
     fontSize: 32,
     marginTop: 16,
     // fontFamily: 'Montserrat-Bold'
@@ -176,12 +188,12 @@ const styles = StyleSheet.create({
   headingSubTitle: {
     marginTop: 6,
     fontSize: 16,
-    color: AppColors.blue,
+    color: AppColors.white,
   },
   calendarControls: {
     marginTop: 16,
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-evenly',
     // borderWidth: 1, borderColor: 'red',
     width: '100%'
   },
@@ -254,7 +266,8 @@ const styles = StyleSheet.create({
   },
   smallSquareCardTitle: {
     fontSize: 12,
-    fontFamily: 'Montserrat-Bold'
+    fontFamily: 'Montserrat-Bold',
+    // borderWidth: 1, borderColor: 'red',
   },
   smallSquareCardSubTitle: {
     marginTop: 6,
