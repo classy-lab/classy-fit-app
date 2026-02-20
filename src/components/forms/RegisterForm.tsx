@@ -348,7 +348,6 @@ const RegisterForm = () => {
           <TouchableOpacity
             style={styles.loginBtn}
             title="loginSubmit"
-            activeOpacity={0.7}
             onPress={handleSubmit(onSubmit)}
           >
             <Text style={styles.loginBtnText}>Create Account</Text>
