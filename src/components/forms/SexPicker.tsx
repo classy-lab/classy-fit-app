@@ -18,6 +18,7 @@ const SexPicker = () => {
         borderColor: AppColors.grey,
         borderWidth: 1,
         paddingHorizontal: 8,
+        backgroundColor: '#F5F6FA'
       }}
       dropdownStyles={{
         borderColor: AppColors.grey2,
