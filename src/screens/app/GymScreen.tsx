@@ -1,7 +1,6 @@
 import { StyleSheet, Text, View, Dimensions, TouchableOpacity, ScrollView } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { AppColors } from '../../styles/colors'
-import { useFonts } from 'expo-font'
 import { s } from 'react-native-size-matters'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import Feather from '@expo/vector-icons/Feather'
@@ -17,10 +16,6 @@ import Treadmill from '../../assets/svg/Treadmill'
 const windowWidth = Dimensions.get('window').width
 
 const GymScreen = ({ navigation, route }) => {
-  const [fontsLoaded] = useFonts({
-    "Montserrat": require("../../assets/fonts/montserrat/Montserrat-Regular.ttf"),
-    "Montserrat-Bold": require("../../assets/fonts/montserrat/Montserrat-Bold.ttf")
-  })
 
   return (
     <>
@@ -81,7 +76,7 @@ const GymScreen = ({ navigation, route }) => {
                 showsHorizontalScrollIndicator={false}
               >
                 <View style={styles.greySquareContainer}>
-                  <TouchableOpacity style={styles.greySquare}>
+                  <TouchableOpacity style={styles.greySquare} onPress={navigation.navigate('TreadmillEquipmentScreen')}>
                     <View style={styles.whiteSquare}>
                       <Treadmill />
                     </View>
