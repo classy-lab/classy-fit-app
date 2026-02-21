@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet } from 'react-native'
 import { SelectList } from 'react-native-dropdown-select-list'
+import { AppColors } from '../../styles/colors'
 
 const ProductSizepicker = () => {
   const [selected, setSelected] = React.useState("")
@@ -29,33 +30,20 @@ export default ProductSizepicker
 
 const styles = StyleSheet.create({
   listBox: {
-    // margin: 10,
-    borderColor: 'gray',
-    borderWidth: 0,
-    borderRadius: 16,
-    backgroundColor: '#F5F6FA',
+    borderColor: AppColors.grey,
+    borderWidth: 1,
+    paddingHorizontal: 8,
+    backgroundColor: '#F5F6FA'
   },
   inputText: {
     color: 'black',
     fontSize: 16,
   },
   dropdown: {
-    // position: 'absolute', // Ensures the dropdown overlays other elements
-    // top: 50, // Adjust position relative to the input box
-    // width: '100%',
-    // zIndex: 999, // Ensures the dropdown is on top
-    // backgroundColor: 'white',
-    // borderColor: 'gray',
-    // borderWidth: 1,
-    // borderRadius: 8,
+    borderColor: AppColors.grey2,
+    borderWidth: 1,
+    marginTop: 8,
   },
-  dropdownItem: {
-    // padding: 10,
-    // borderBottomWidth: 1,
-    // borderBottomColor: '#ccc',
-  },
-  dropdownText: {
-    // color: 'blue', // Custom color for the items
-    // fontSize: 14,
-  },
-});
+  dropdownItem: {},
+  dropdownText: {},
+})
