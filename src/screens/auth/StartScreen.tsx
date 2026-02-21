@@ -36,7 +36,7 @@ const StartScreen = () => {
       // Perform your authentication logic or API call here
       // const response = await api.post('/login', data);
       // If successful, navigate to the Login page or another desired screen
-      navigation.navigate('RegisterComplete');
+      navigation.navigate('LoginScreen');
     } catch (error) {
       // Handle API errors (React Hook Form does not swallow errors here)
       console.error("Login failed:", error);
