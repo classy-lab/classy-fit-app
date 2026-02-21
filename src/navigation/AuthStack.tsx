@@ -5,17 +5,17 @@ import Ionicons from '@expo/vector-icons/Ionicons'
 import { DrawerContentScrollView, DrawerItemList, createDrawerNavigator } from '@react-navigation/drawer'
 import { DrawerActions, useNavigation } from '@react-navigation/native'
 
-import StartScreen from '../screens/auth/StartScreen';
-import About from '../screens/auth/About';
-import Contact from '../screens/auth/Contact';
-import GymHours from '../screens/auth/GymHours';
-import RegisterScreen from '../screens/auth/RegisterScreen';
-import RegisterComplete from '../screens/auth/RegisterComplete';
-import TemplateScreen from '../screens/auth/TemplateScreen';
-import LoginScreen from '../screens/auth/LoginScreen';
+import StartScreen from '../screens/auth/StartScreen'
+import About from '../screens/auth/About'
+import Contact from '../screens/auth/Contact'
+import GymHours from '../screens/auth/GymHours'
+import RegisterScreen from '../screens/auth/RegisterScreen'
+import RegisterComplete from '../screens/auth/RegisterComplete'
+import TemplateScreen from '../screens/auth/TemplateScreen'
+import LoginScreen from '../screens/auth/LoginScreen'
+import TreadmillEquipmentScreen from '../screens/app/TreadmillEquipmentScreen'
 
 const screenOptionsStyle = {
-  // overlayColor: 'rgba(0, 0, 0, 0.3)',
   overlayColor: 'rgba(255, 255, 255, 0.3)',
   drawerStyle: {
     backgroundColor: AppColors.grey,
@@ -64,12 +64,13 @@ const AuthStack = () => {
       <Drawer.Screen name='LoginScreen' component={LoginScreen} />
       <Drawer.Screen name='RegisterComplete' component={RegisterComplete} />
       <Drawer.Screen name='TemplateScreen' options={{}} component={TemplateScreen} />
+      <Drawer.Screen name='TreadmillEquipmentScreen' options={{}} component={TreadmillEquipmentScreen} />
       {/* <Drawer.Screen name='RegisterComplete' options={{ drawerItemStyle: { display: 'none' }, }} component={RegisterComplete} /> */}
     </Drawer.Navigator>
   );
 };
 
-export default AuthStack;
+export default AuthStack
 
 const styles = StyleSheet.create({
   header: {
@@ -87,4 +88,4 @@ const styles = StyleSheet.create({
   overlay: {
     backgroundColor: 'red'
   }
-});
+})
