@@ -143,9 +143,6 @@ export default GymScreen
 const styles = StyleSheet.create({
   container: {
     backgroundColor: AppColors.white,
-    // flex: 1,
-    // alignItems: 'center',
-    // width: "100%",
   },
   navs: {
     flexDirection: 'row',
@@ -166,8 +163,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   body: {
-    // flex: 1,
-    // borderWidth: 1, borderColor: 'red',
     paddingLeft: 24,
     paddingRight: 24,
     paddingBottom: 88
@@ -191,7 +186,6 @@ const styles = StyleSheet.create({
     marginBottom: 8
   },
   signOut: {
-    // borderWidth: 1, borderColor: 'red',
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -262,7 +256,6 @@ const styles = StyleSheet.create({
   },
   cardText: {
     textAlign: 'center',
-    // borderWidth: 1, borderColor: 'red',
     marginTop: 8
   }
 })
