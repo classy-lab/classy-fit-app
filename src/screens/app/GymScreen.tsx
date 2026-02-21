@@ -83,18 +83,18 @@ const GymScreen = ({ navigation, route }) => {
                 <View style={styles.greySquareContainer}>
                   <TouchableOpacity style={styles.greySquare}>
                     <View style={styles.whiteSquare}>
-                      <Elliptical />
-                    </View>
-                  </TouchableOpacity>
-                  <Text style={styles.cardText}>Elliptical</Text>
-                </View>
-                <View style={styles.greySquareContainer}>
-                  <TouchableOpacity style={styles.greySquare}>
-                    <View style={styles.whiteSquare}>
                       <Treadmill />
                     </View>
                   </TouchableOpacity>
                   <Text style={styles.cardText}>Treadmill</Text>
+                </View>
+                <View style={styles.greySquareContainer}>
+                  <TouchableOpacity style={styles.greySquare}>
+                    <View style={styles.whiteSquare}>
+                      <Elliptical />
+                    </View>
+                  </TouchableOpacity>
+                  <Text style={styles.cardText}>Elliptical</Text>
                 </View>
                 <View style={styles.greySquareContainer}>
                   <TouchableOpacity style={styles.greySquare}>
