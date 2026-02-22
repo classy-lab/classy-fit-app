@@ -67,9 +67,6 @@ const screenOptions = {
     // borderTopRightRadius: 24,      // Apply top right radius
     // borderTopColor: AppColors.grey,// Border color
     // overflow: 'hidden',            // Hide overflow to make radius work properly
-    // height: 88,                    // Adjust height as needed
-    // bottom: 96,
-    // borderWidth: 1, borderColor: 'red',
   },
   tabBarLabelStyle: {
     fontSize: 12,
