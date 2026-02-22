@@ -22,10 +22,12 @@ import ProductDetailScreen from '../screens/app/ProductDetailScreen'
 import AddProductScreen from '../screens/app/AddProductScreen'
 import ViewCartScreen from '../screens/app/ViewCartScreen'
 import ThankYouScreen from '../screens/app/ThankYouScreen'
+import TreadmillEquipmentScreen from '../screens/app/TreadmillEquipmentScreen'
 
 const Tab = createBottomTabNavigator()
 const HomeStack = createStackNavigator()
 const ProductStack = createStackNavigator()
+const GymStack = createStackNavigator()
 
 function HomeStackScreen() {
   return (
@@ -50,6 +52,15 @@ function ProductStackScreen() {
       <ProductStack.Screen name="ViewCartScreen" component={ViewCartScreen} />
       <ProductStack.Screen name="ThankYouScreen" component={ThankYouScreen} />
     </ProductStack.Navigator>
+  )
+}
+
+function GymStackScreen() {
+  return (
+    <GymStack.Navigator screenOptions={screenOptions}>
+      <GymStack.Screen name="GymScreen" component={GymScreen} />
+      <GymStack.Screen name="TreadmillEquipmentScreen" component={TreadmillEquipmentScreen} />
+    </GymStack.Navigator>
   )
 }
 
@@ -94,11 +105,11 @@ const AppTabs = () => {
         }}
       />
       <Tab.Screen
-        name="GymScreen"
-        component={GymScreen}
+        name="GymTab"
+        component={GymStackScreen}
         options={{
           title: "Gym",
-          tabBarIcon: () => <FontAwesome5 name="dumbbell" size={20} color="black" onPress={() => { navigation.navigate('GymScreen') }} />
+          tabBarIcon: () => <FontAwesome5 name="dumbbell" size={20} color="black" />
         }}
       />
       <Tab.Screen
@@ -113,7 +124,7 @@ const AppTabs = () => {
         name="ProductsTab"
         component={ProductStackScreen}
         options={{
-          title: "ProductsTab",
+          title: "Products",
           tabBarIcon: () => <Ionicons name="bag-check-outline" size={24} color="black" />
         }}
       />
