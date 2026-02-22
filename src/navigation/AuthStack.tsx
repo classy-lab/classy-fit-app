@@ -13,7 +13,6 @@ import RegisterScreen from '../screens/auth/RegisterScreen'
 import RegisterComplete from '../screens/auth/RegisterComplete'
 import TemplateScreen from '../screens/auth/TemplateScreen'
 import LoginScreen from '../screens/auth/LoginScreen'
-import TreadmillEquipmentScreen from '../screens/app/TreadmillEquipmentScreen'
 
 const screenOptionsStyle = {
   overlayColor: 'rgba(255, 255, 255, 0.3)',
@@ -64,7 +63,6 @@ const AuthStack = () => {
       <Drawer.Screen name='LoginScreen' component={LoginScreen} />
       <Drawer.Screen name='RegisterComplete' component={RegisterComplete} />
       <Drawer.Screen name='TemplateScreen' options={{}} component={TemplateScreen} />
-      <Drawer.Screen name='TreadmillEquipmentScreen' options={{}} component={TreadmillEquipmentScreen} />
       {/* <Drawer.Screen name='RegisterComplete' options={{ drawerItemStyle: { display: 'none' }, }} component={RegisterComplete} /> */}
     </Drawer.Navigator>
   );
