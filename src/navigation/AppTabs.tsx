@@ -76,7 +76,7 @@ const screenOptions = {
     // borderTopWidth: 1,             // for iOS // Add top border
     // borderTopLeftRadius: 24,       // Apply top left radius
     // borderTopRightRadius: 24,      // Apply top right radius
-    // borderTopColor: AppColors.grey,// Border color
+    // borderTopColor: AppColors.grey2,// Border color
     // overflow: 'hidden',            // Hide overflow to make radius work properly
   },
   tabBarLabelStyle: {
@@ -137,4 +137,4 @@ const AppTabs = () => {
   )
 }
 
-export default AppTabs;
+export default AppTabs
