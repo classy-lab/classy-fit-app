@@ -2,7 +2,9 @@ import { StyleSheet, Text, View, ScrollView } from 'react-native'
 import { AppColors } from '../../styles/colors'
 import { useNavigation } from '@react-navigation/native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import Ionicons from '@expo/vector-icons/Ionicons'
+import MaterialIcons from '@expo/vector-icons/MaterialIcons'
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import Octicons from '@expo/vector-icons/Octicons';
 import Feather from '@expo/vector-icons/Feather'
 import VectorImageSvg from '../../components/svg/VectorImageSvg'
 import ProfileScreenForm from '../../components/forms/ProfileScreenForm'
@@ -15,7 +17,17 @@ const ProfileScreen = () => {
       <SafeAreaView style={styles.container}>
         <View style={styles.navs}>
           <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
-          <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
+          <View style={styles.signOut}>
+            <Text style={styles.signOutText}>Edit Profile</Text>
+            <View style={styles.circle}>
+              {/* <FontAwesome6 name="pencil" size={14} color={AppColors.white} /> */}
+              <Octicons name="pencil" size={16} color={AppColors.white} />
+            </View>
+            <Text style={styles.signOutText}>Sign out</Text>
+            <View style={styles.circle}>
+              <MaterialIcons name="logout" color={AppColors.white} size={18} />
+            </View>
+          </View>
         </View>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.headingContainer}>
