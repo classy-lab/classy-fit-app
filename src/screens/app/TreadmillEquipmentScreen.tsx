@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, ScrollView, Image, useWindowDimensions, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
 import { AppColors } from '../../styles/colors'
@@ -23,13 +23,14 @@ const TreadmillEquipmentScreen = ({ navigation, route }) => {
           <View style={styles.body}>
             <View>
               <View style={styles.heroImageContainer}>
-                <Image style={styles.heroImage} source={require('../../assets/images/products/boxingGloves.jpg')} />
+                <Image style={styles.heroImage} source={require('../../assets/images/equipment/treadmill1.jpg')} />
               </View>
               <View style={styles.heroImageThumbnails}>
-                <Image style={styles.thumbnail} source={require('../../assets/images/products/boxingGloves2.jpg')} />
-                <Image style={styles.thumbnail} source={require('../../assets/images/products/boxingGloves3.jpg')} />
-                <Image style={styles.thumbnail} source={require('../../assets/images/products/boxingGloves4.jpg')} />
-                <Image style={styles.thumbnail} source={require('../../assets/images/products/boxingGloves5.jpg')} />
+                <Image style={styles.thumbnail} source={require('../../assets/images/equipment/treadmill2.jpg')} />
+                <Image style={styles.thumbnail} source={require('../../assets/images/equipment/treadmill3.jpg')} />
+                <Image style={styles.thumbnail} source={require('../../assets/images/equipment/treadmill4.jpg')} />
+                <Image style={styles.thumbnail} source={require('../../assets/images/equipment/treadmill5.jpg')} />
+                <Image style={styles.thumbnail} source={require('../../assets/images/equipment/treadmill6.jpg')} />
               </View>
             </View>
             <View style={styles.content}>
@@ -151,7 +152,8 @@ const styles = StyleSheet.create({
   },
   heroImageThumbnails: {
     flexDirection: 'row',
-    justifyContent: 'space-evenly',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-start',
     // borderWidth: 1, borderColor: 'red',
   },
   thumbnail: {

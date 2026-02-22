@@ -76,7 +76,7 @@ const GymScreen = ({ navigation, route }) => {
                 showsHorizontalScrollIndicator={false}
               >
                 <View style={styles.greySquareContainer}>
-                  <TouchableOpacity style={styles.greySquare} onPress={navigation.navigate('TreadmillEquipmentScreen')}>
+                  <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('GymTab', { screen: 'TreadmillEquipmentScreen' })}>
                     <View style={styles.whiteSquare}>
                       <Treadmill />
                     </View>
@@ -84,7 +84,7 @@ const GymScreen = ({ navigation, route }) => {
                   <Text style={styles.cardText}>Treadmill</Text>
                 </View>
                 <View style={styles.greySquareContainer}>
-                  <TouchableOpacity style={styles.greySquare}>
+                  <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('GymTab', { screen: 'TreadmillEquipmentScreen' })}>
                     <View style={styles.whiteSquare}>
                       <Elliptical />
                     </View>
@@ -92,7 +92,7 @@ const GymScreen = ({ navigation, route }) => {
                   <Text style={styles.cardText}>Elliptical</Text>
                 </View>
                 <View style={styles.greySquareContainer}>
-                  <TouchableOpacity style={styles.greySquare}>
+                  <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('GymTab', { screen: 'TreadmillEquipmentScreen' })}>
                     <View style={styles.whiteSquare}>
                       <Dumbbell />
                     </View>
@@ -100,7 +100,7 @@ const GymScreen = ({ navigation, route }) => {
                   <Text style={styles.cardText}>Dumbbells</Text>
                 </View>
                 <View style={styles.greySquareContainer}>
-                  <TouchableOpacity style={styles.greySquare}>
+                  <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('GymTab', { screen: 'TreadmillEquipmentScreen' })}>
                     <View style={styles.whiteSquare}>
                       <Dumbbell />
                     </View>

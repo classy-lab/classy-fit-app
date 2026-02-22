@@ -29,7 +29,7 @@ const DashboardScreen = ({ navigation, route }) => {
               <TouchableOpacity style={styles.blueRectangle} onPress={() => { navigation.navigate('EarningsScreen') }}>
                 <Text style={styles.earningsText}>Earnings</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.blueRectangle} onPress={() => { navigation.navigate('GymScreen') }}>
+              <TouchableOpacity style={styles.blueRectangle} onPress={() => navigation.navigate('GymTab', { screen: 'GymScreen' })}>
                 <Text style={styles.earningsText}>Gym</Text>
               </TouchableOpacity>
             </View>
