@@ -23,6 +23,7 @@ import AddProductScreen from '../screens/app/AddProductScreen'
 import ViewCartScreen from '../screens/app/ViewCartScreen'
 import ThankYouScreen from '../screens/app/ThankYouScreen'
 import TreadmillEquipmentScreen from '../screens/app/TreadmillEquipmentScreen'
+import AllEarnings from '../screens/app/AllEarnings'
 
 const Tab = createBottomTabNavigator()
 const HomeStack = createStackNavigator()
@@ -39,6 +40,7 @@ function HomeStackScreen() {
       <HomeStack.Screen name="ContractorsScreen" component={ContractorsScreen} />
       <HomeStack.Screen name="SignoutScreen" component={SignoutScreen} />
       <HomeStack.Screen name="LoginScreen" component={LoginScreen} />
+      <HomeStack.Screen name="AllEarnings" component={AllEarnings} />
     </HomeStack.Navigator>
   );
 }
