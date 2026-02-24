@@ -36,19 +36,8 @@ const AllEarnings = ({ navigation, route }) => {
 
           <ScrollView style={styles.scrollViewStyles} showsVerticalScrollIndicator={false}>
             <View style={styles.heading}>
-              <Text style={styles.headingTitle}>Earnings</Text>
-              <Text style={styles.headingSubTitle}>September 2025</Text>
-              <View style={styles.calendarControls}>
-                <TouchableOpacity>
-                  <Text style={styles.calendarControlText}>{'<'} Previous</Text>
-                </TouchableOpacity>
-                <TouchableOpacity>
-                  <Text style={styles.calendarControlText}>Full Year</Text>
-                </TouchableOpacity>
-                <TouchableOpacity>
-                  <Text style={styles.calendarControlText}>Next {'>'}</Text>
-                </TouchableOpacity>
-              </View>
+              <Text style={styles.headingTitle}>October</Text>
+              <Text style={styles.headingSubTitle}>All Earnings</Text>
             </View>
             <View style={styles.body}>
               <TouchableOpacity>
