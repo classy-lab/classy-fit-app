@@ -1,7 +1,6 @@
 import { StyleSheet, Text, View, Image, TouchableOpacity, ImageBackground, ScrollView } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { AppColors } from '../../styles/colors'
-import { useFonts } from 'expo-font'
 import Feather from '@expo/vector-icons/Feather'
 import { s } from 'react-native-size-matters'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
@@ -15,10 +14,6 @@ import LineChart4 from '../../assets/svg/LineChart4'
 const imageSource = require('../../assets/images/ovalBg.png')
 
 const EarningsScreen = ({ navigation, route }) => {
-  const [fontsLoaded] = useFonts({
-    "Montserrat": require("../../assets/fonts/montserrat/Montserrat-Regular.ttf"),
-    "Montserrat-Bold": require("../../assets/fonts/montserrat/Montserrat-Bold.ttf")
-  })
 
   return (
     <>
@@ -51,7 +46,7 @@ const EarningsScreen = ({ navigation, route }) => {
               </View>
             </View>
             <View style={styles.body}>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate('HomeTab', { screen: 'AllEarnings' })}>
                 <View style={styles.squareCard}>
                   <View style={styles.squareCardHeadingContainer}>
                     <View style={styles.squareCardHeading}>
