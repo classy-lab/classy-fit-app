@@ -20,7 +20,7 @@ const EarningsScreen = ({ navigation, route }) => {
       <ImageBackground source={imageSource} style={styles.background}>
         <SafeAreaView style={styles.container}>
           <View style={styles.navs}>
-            <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
+            <Feather name="arrow-left" color={AppColors.white} size={36} onPress={() => { navigation.goBack() }} />
             <View style={styles.signOut}>
               <Text style={styles.signOutText}>Sign out</Text>
               <View style={styles.circle}>
@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
     fontSize: 24
   },
   heading: {
-    marginTop: 16,
+    // marginTop: 8,
     alignItems: 'center',
     width: '100%',
     // borderWidth: 1, borderColor: 'red',
