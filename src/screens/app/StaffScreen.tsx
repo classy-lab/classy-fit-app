@@ -105,7 +105,7 @@ const StaffScreen = ({ navigation, route }) => {
             </View>
 
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Owner</Text>
+              <Text style={styles.sectionTitle}>Admin</Text>
               <View style={styles.boxes}>
                 <TouchableOpacity>
                   <View style={styles.box}>
@@ -117,7 +117,7 @@ const StaffScreen = ({ navigation, route }) => {
             </View>
 
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Staff / Personal Trainers</Text>
+              <Text style={styles.sectionTitle}>Trainers</Text>
               <View style={styles.boxes}>
                 <TouchableOpacity>
                   <View style={styles.box}>
