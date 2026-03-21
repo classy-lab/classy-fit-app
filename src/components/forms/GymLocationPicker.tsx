@@ -6,7 +6,7 @@ import { AppColors } from '../../styles/colors'
 const GymLocationPicker = () => {
   const [selected, setSelected] = React.useState("")
   const data = [
-    { key: '1', value: 'Classy Fitness Studio', disabled: false },
+    { key: '1', value: 'Classy Fitness Studio, Clifton park, NY', disabled: false },
     { key: '2', value: 'Other' },
   ]
 
