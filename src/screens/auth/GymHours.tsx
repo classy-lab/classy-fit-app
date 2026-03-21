@@ -25,7 +25,7 @@ const GymHours = () => {
           <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
         </View>
         <View style={styles.headingContainer}>
-          <Text style={styles.title}>Gym Hours</Text>
+          <Text style={styles.title}>Classy Fitness Studio</Text>
           <PinkLeafSvg style={styles.pinkLeaf} />
         </View>
         <View style={styles.body}>
