@@ -64,7 +64,7 @@ const StartScreen = () => {
         <Text style={styles.subTitle}>Helping gyms and workouts be productive for everyone</Text>
         <View style={styles.fieldset}>
           <View style={styles.field}>
-            <Text style={styles.formLabel}>Gym Location / Fitness Center</Text>
+            <Text style={styles.formLabel}>SELECT A GYM</Text>
             <Controller
               control={control}
               name="gymLocation"
@@ -86,12 +86,13 @@ const StartScreen = () => {
             />
             {errors.gymLocation && <Text style={styles.errorText}>{errors.gymLocation.message}</Text>}
           </View>
+          {/* <Text style={styles.subTitle}>Register a Gym</Text> */}
           <View style={styles.row}>
             <TouchableOpacity
               style={styles.registerBtn}
               title="Register"
-              // onPress={() => { navigation.navigate('RegisterScreen') }}
-              onPress={handleSubmit(onSubmit)}
+              onPress={() => { navigation.navigate('RegisterScreen') }}
+              // onPress={handleSubmit(onSubmit)}
             >
               <Text style={styles.registerBtnText}>
                 Register
@@ -100,14 +101,15 @@ const StartScreen = () => {
             <TouchableOpacity
               style={styles.loginBtn}
               title="Login"
-              // onPress={() => { navigation.navigate('LoginScreen') }}
-              onPress={handleSubmit(onSubmit)}
+              onPress={() => { navigation.navigate('LoginScreen') }}
+              // onPress={handleSubmit(onSubmit)}
             >
               <Text style={styles.loginBtnText}>
                 Login
               </Text>
             </TouchableOpacity>
           </View>
+          
         </View>
       </View>
       <View style={styles.imageContainer}>
