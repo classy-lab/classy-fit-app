@@ -31,8 +31,8 @@ const EarningsScreen = ({ navigation, route }) => {
 
           <ScrollView style={styles.scrollViewStyles} showsVerticalScrollIndicator={false}>
             <View style={styles.heading}>
-              <Text style={styles.headingTitle}>Earnings</Text>
-              <Text style={styles.headingSubTitle}>September 2025</Text>
+              <Text style={styles.headingTitle}>Statements</Text>
+              <Text style={styles.headingSubTitle}>March 2026</Text>
               <View style={styles.calendarControls}>
                 <TouchableOpacity>
                   <Text style={styles.calendarControlText}>{'<'} Previous</Text>
@@ -50,7 +50,7 @@ const EarningsScreen = ({ navigation, route }) => {
                 <View style={styles.squareCard}>
                   <View style={styles.squareCardHeadingContainer}>
                     <View style={styles.squareCardHeading}>
-                      <Text style={styles.SquareCardTitle}>October</Text>
+                      <Text style={styles.SquareCardTitle}>March</Text>
                       <Text style={styles.SquareCardSubTitle}>7 Day Business Earnings Graph</Text>
                     </View>
                     <View style={styles.SquareCardSettingsIcon}>
@@ -84,7 +84,7 @@ const EarningsScreen = ({ navigation, route }) => {
                 <TouchableOpacity>
                   <View style={styles.square}>
                     <Text style={styles.smallSquareCardTitle}>Class</Text>
-                    <Text style={styles.smallSquareCardSubTitle}>Earnings</Text>
+                    <Text style={styles.smallSquareCardSubTitle}>Statements</Text>
                     <View style={styles.smallBarGraph}>
                       <LineChart3 />
                     </View>
