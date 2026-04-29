@@ -189,8 +189,9 @@ const styles = StyleSheet.create({
     fontSize: 16
   },
   imageContainer: {
-    marginBottom: 8
+    marginBottom: 8,
     // borderWidth: 1, borderColor: 'red',
+    zIndex: -1
   },
   row: {
     flexDirection: "row",
