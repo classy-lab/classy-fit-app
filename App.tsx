@@ -14,7 +14,7 @@ const customTextProps = {
 setCustomText(customTextProps)
 
 export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(true); // Check user login status
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Check user login status
 
   return (
     <>
