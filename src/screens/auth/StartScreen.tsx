@@ -1,6 +1,3 @@
-import * as yup from 'yup';
-import { useForm, Controller } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup'
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
@@ -10,39 +7,8 @@ import VectorImageSvg from '../../components/svg/VectorImageSvg'
 import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
 import GymLocationPicker from '../../components/forms/GymLocationPicker'
 
-// 1. Define the Yup validation schema
-const schema = yup.object().shape({
-  gymLocation: ''
-});
-
 const StartScreen = () => {
   const navigation = useNavigation()
-
-  // 2. Initialize useForm with the Yup resolver
-  const { control, handleSubmit, formState: { errors } } = useForm({
-    resolver: yupResolver(schema),
-    defaultValues: {
-      // email: '',
-      // password: '',
-    },
-  })
-
-  // 3. Define the submit handler
-  const onSubmit = async (data) => {
-    // This function only runs if validation passes
-    console.log('Form Submitted (Validation Passed):', data)
-
-    try {
-      // Perform your authentication logic or API call here
-      // const response = await api.post('/login', data);
-      // If successful, navigate to the Login page or another desired screen
-      navigation.navigate('LoginScreen');
-    } catch (error) {
-      // Handle API errors (React Hook Form does not swallow errors here)
-      console.error("Login failed:", error);
-      // Optionally, show an error message to the user
-    }
-  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -65,34 +31,13 @@ const StartScreen = () => {
         <View style={styles.fieldset}>
           <View style={styles.field}>
             <Text style={styles.formLabel}>SELECT A GYM</Text>
-            <Controller
-              control={control}
-              name="gymLocation"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <GymLocationPicker
-                  style={[
-                    // styles.inputField,
-                    // styles.selectList,
-                    // isPressed ? styles.pressed : styles.normal,
-                    // isActive ? styles.active : null
-                  ]}
-                  onBlur={onBlur}
-                  onChangeText={onChange}
-                  value={value}
-                  keyboardType="default"
-                  autoCapitalize="none"
-                />
-              )}
-            />
-            {errors.gymLocation && <Text style={styles.errorText}>{errors.gymLocation.message}</Text>}
+              <GymLocationPicker />
           </View>
-          {/* <Text style={styles.subTitle}>Register a Gym</Text> */}
           <View style={styles.row}>
             <TouchableOpacity
               style={styles.registerBtn}
-              title="Register"
+              // title="Register"
               onPress={() => { navigation.navigate('RegisterScreen') }}
-              // onPress={handleSubmit(onSubmit)}
             >
               <Text style={styles.registerBtnText}>
                 Register
@@ -100,9 +45,8 @@ const StartScreen = () => {
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.loginBtn}
-              title="Login"
+              // title="Login"
               onPress={() => { navigation.navigate('LoginScreen') }}
-              // onPress={handleSubmit(onSubmit)}
             >
               <Text style={styles.loginBtnText}>
                 Login
