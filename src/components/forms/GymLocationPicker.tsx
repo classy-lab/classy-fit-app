@@ -41,7 +41,6 @@ const GymLocationPicker = () => {
       data={gyms}
       save="value"
     />
-
   )
 };
 
