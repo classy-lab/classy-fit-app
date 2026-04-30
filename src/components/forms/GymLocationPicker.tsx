@@ -42,11 +42,6 @@ const GymLocationPicker = () => {
       save="value"
     />
 
-    // <FlatList
-    //   data={gyms}
-    //   keyExtractor={(item) => item.id.toString()}
-    //   renderItem={({ item }) => <Text>{item.gym_name}, {item.city}</Text>}
-    // />
   )
 };
 
