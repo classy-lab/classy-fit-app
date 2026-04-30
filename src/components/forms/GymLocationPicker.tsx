@@ -1,22 +1,28 @@
-import React, { useState } from 'react';
-import { StyleSheet } from 'react-native'
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, FlatList, Text } from 'react-native'
 import { SelectList } from 'react-native-dropdown-select-list'
 import { AppColors } from '../../styles/colors'
 
 const GymLocationPicker = () => {
   const [selected, setSelected] = React.useState("")
-  const data = [
-    { key: '1', value: 'Kinderhook Fitness, Valatie', disabled: false },
-    { key: '2', value: 'Vent Fitness, Clifton Park' },
-    { key: '3', value: 'The Body Shop Gym, Cobleskill' },
-    // { key: '4', value: 'The Clark Sports Center, Cooperstown' },
-    // { key: '5', value: 'New Slate Fitness Club, Schoharie' },
-    // { key: '6', value: 'ABC Sports & Fitness, Latham' },
-    // { key: '7', value: 'Mule Fitness, Amsterdam' },
-    // { key: '8', value: '724 Fitness, Stamford' },
-    // { key: '9', value: 'Middle Village Gym, Schoharie' },
-    
-  ]
+  const [gyms, setGyms] = useState([])
+
+  useEffect(() => {
+    const fetchGyms = async() => {
+      try{
+        const response = await fetch('http://localhost:8080/udemy/create-api/api/gymList.php');
+        const json = await response.json();
+        setGyms(json);
+      } catch(error){
+        console.error(error);
+      }
+    }
+
+    fetchGyms()
+  }, []); // <--- Empty array ensures it runs once on mount 
+
+  // console.log(gyms);
+  // console.log(selected);
 
   return (
     <SelectList
@@ -32,9 +38,15 @@ const GymLocationPicker = () => {
         backgroundColor: 'white',
       }}
       setSelected={(val) => setSelected(val)}
-      data={data}
+      data={gyms}
       save="value"
     />
+
+    // <FlatList
+    //   data={gyms}
+    //   keyExtractor={(item) => item.id.toString()}
+    //   renderItem={({ item }) => <Text>{item.gym_name}, {item.city}</Text>}
+    // />
   )
 };
 
