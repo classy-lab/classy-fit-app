@@ -5,15 +5,16 @@ import { s, vs } from 'react-native-size-matters'
 import { AppColors } from '../../styles/colors';
 
 export default function CheckboxComponent() {
-  const [isChecked, setChecked] = useState(false);
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  // console.log(acceptTerms);
 
   return (
     <View style={styles.section}>
       <Checkbox
         style={styles.checkbox}
-        value={isChecked}
-        onValueChange={setChecked}
-        color={isChecked ? AppColors.blue : undefined}
+        value={acceptTerms}
+        onValueChange={setAcceptTerms}
+        color={acceptTerms ? AppColors.blue : undefined}
       />
       <Text>I agree to terms and conditions</Text>
     </View>
