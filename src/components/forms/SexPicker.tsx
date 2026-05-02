@@ -4,7 +4,7 @@ import { SelectList } from 'react-native-dropdown-select-list'
 import { AppColors } from '../../styles/colors'
 
 const SexPicker = () => {
-  const [selected, setSelected] = React.useState("")
+  const [sex, setSex] = React.useState("")
 
   const data = [
     { key: '1', value: 'Male', disabled: false },
@@ -25,7 +25,7 @@ const SexPicker = () => {
         borderWidth: 1,
         marginTop: 8,
       }}
-      setSelected={(val) => setSelected(val)}
+      setSelected={(val) => setSex(val)}
       data={data}
       save="value"
     />
