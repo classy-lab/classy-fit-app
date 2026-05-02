@@ -4,10 +4,10 @@ import { SelectList } from 'react-native-dropdown-select-list'
 import { AppColors } from '../../styles/colors';
 
 const SelectedRolePicker = () => {
-  const [selected, setSelected] = React.useState("");
+  const [role, setRole] = React.useState("");
 
   const data = [
-    { key: '1', value: 'Gym Owner', disabled: false },
+    { key: '1', value: 'Gym Owner', disabled: true },
     { key: '2', value: 'Member' },
     { key: '3', value: 'Trainer' },
     { key: '4', value: 'Contractor' }
@@ -26,7 +26,7 @@ const SelectedRolePicker = () => {
         borderWidth: 1,
         marginTop: 8,
       }}
-      setSelected={(val) => setSelected(val)}
+      setSelected={(val) => setRole(val)}
       data={data}
       save="value"
     />
