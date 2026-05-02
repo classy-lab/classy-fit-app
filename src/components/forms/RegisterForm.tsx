@@ -1,16 +1,16 @@
 import * as yup from 'yup';
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { StyleSheet, View, Text, TouchableOpacity, TextInput, Dimensions } from 'react-native'
+import { StyleSheet, View, Text, TouchableOpacity, TextInput } from 'react-native'
 import { AppColors } from '../../styles/colors'
 import { useNavigation } from '@react-navigation/native'
-import { s, vs } from 'react-native-size-matters'
-import { useState } from 'react'
+import { s } from 'react-native-size-matters'
 import SelectedRolePicker from './SelectedRolePicker'
 import CheckboxComponent from './CheckboxComponent'
 import SexPicker from './SexPicker';
 import PreferredContact from './PreferredContact';
 import GymLocationPicker from './GymLocationPicker';
+import axios from 'axios';
 
 const phoneRegExp = /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/
 
@@ -35,7 +35,6 @@ const schema = yup.object().shape({
 
 const RegisterForm = () => {
   const navigation = useNavigation()
-  const [selectedLanguage, setSelectedLanguage] = useState();
 
   // 2. Initialize useForm with the Yup resolver
   const { control, handleSubmit, formState: { errors } } = useForm({
@@ -48,21 +47,19 @@ const RegisterForm = () => {
   })
 
   // 3. Define the submit handler
-  const onSubmit = async (data) => {
-    // This function only runs if validation passes
-    console.log('Form Submitted (Validation Passed):', data);
-
+  const registerUser = async (data) => {
     try {
-      // Perform your authentication logic or API call here
-      // const response = await api.post('/login', data);
-      // If successful, navigate to the Login page or another desired screen
-      navigation.navigate('RegisterComplete');
+      const response = await axios.post('http://localhost:8080/udemy/create-api/api/register.php', {
+        fname: data.fname,
+        email: data.email,
+        password: data.password,
+      });
+
+      console.log(response.data);
     } catch (error) {
-      // Handle API errors (React Hook Form does not swallow errors here)
-      console.error("Login failed:", error);
-      // Optionally, show an error message to the user
+      console.error(error.response?.data || error.message);
     }
-  }
+  };
 
   return (
     <>
@@ -285,12 +282,6 @@ const RegisterForm = () => {
             name="gymLocation"
             render={({ field: { onChange, onBlur, value } }) => (
               <GymLocationPicker
-                style={[
-                  // styles.inputField,
-                  // styles.selectList,
-                  // isPressed ? styles.pressed : styles.normal,
-                  // isActive ? styles.active : null
-                ]}
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
@@ -308,7 +299,7 @@ const RegisterForm = () => {
           <TouchableOpacity
             style={styles.loginBtn}
             title="loginSubmit"
-            onPress={handleSubmit(onSubmit)}
+            onPress={handleSubmit(registerUser)}
           >
             <Text style={styles.loginBtnText}>Create Account</Text>
           </TouchableOpacity>
