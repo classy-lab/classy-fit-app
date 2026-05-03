@@ -36,7 +36,7 @@ const schema = yup.object().shape({
   phoneNumber: yup.string().matches(phoneRegExp, 'Phone Number is not valid'),
   whatsappNumber: yup.string().matches(phoneRegExp, 'WhatsApp Number number is not valid'),
   preferredContact: yup.string().oneOf(['Phone', 'Email', 'WhatsApp']),
-  gymId: yup.string(),
+  gymId: yup.string().required('Category selection is required'),
 });
 
 const RegisterForm = () => {
@@ -113,7 +113,7 @@ const RegisterForm = () => {
         phone: data.phoneNumber,
         whatsapp: data.whatsappNumber,
         preferred_contact: data.preferredContact,
-        user_picture_url: 'https://i.pravatar.cc/300'
+        user_picture_url: 'https://i.pravatar.cc/300' // hard coded. Needs update?
       });
 
       console.log(response.data);
@@ -397,7 +397,7 @@ const RegisterForm = () => {
               />
             )}
           />
-          {errors.gymLocation && <Text style={styles.errorText}>{errors.gymLocation.message}</Text>}
+          {errors.gymId && <Text style={styles.errorText}>{errors.gymId.message}</Text>}
         </View>
 
         <CheckboxComponent />
