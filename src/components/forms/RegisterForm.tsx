@@ -34,7 +34,7 @@ const schema = yup.object().shape({
   phoneNumber: yup.string().matches(phoneRegExp, 'Phone Number is not valid'),
   whatsappNumber: yup.string().matches(phoneRegExp, 'WhatsApp Number number is not valid'),
   preferredContact: yup.string().oneOf(['Phone', 'Email', 'WhatsApp']),
-  gymLocation: yup.string(),
+  gymId: yup.string(),
 });
 
 const RegisterForm = () => {
@@ -98,7 +98,7 @@ const RegisterForm = () => {
 
     try {
       const response = await axios.post('http://localhost:8080/udemy/classy-api/api/register.php', {
-        gym_id: 1,
+        gym_id: data.gymId,
         username: '',
         email: data.email,
         password: data.password,
@@ -339,12 +339,12 @@ const RegisterForm = () => {
           <Text style={styles.formLabel}>Gym Location / Fitness Center</Text>
           <Controller
             control={control}
-            name="gymLocation"
+            name="gymId"
             render={({ field: { onChange, onBlur, value } }) => (
               <SelectList 
                 setSelected={(val) => onChange(val)} // Send selection to hook-form
                 data={gyms} 
-                save="value"
+                save="key"
                 placeholder="Select Category"
                 // If you need to force the value from the parent (e.g., reset)
                 // defaultOption={data.find(item => item.value === value)} 
