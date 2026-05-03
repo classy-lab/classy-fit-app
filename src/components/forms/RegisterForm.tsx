@@ -63,7 +63,7 @@ const RegisterForm = () => {
   useEffect(() => {
     const fetchGyms = async() => {
       try{
-        const response = await fetch('http://localhost:8080/udemy/create-api/api/gymList.php');
+        const response = await fetch('http://localhost:8080/udemy/classy-api/api/gymList.php');
         const json = await response.json();
         setGyms(json);
       } catch(error){
@@ -97,7 +97,7 @@ const RegisterForm = () => {
     // console.log(selected);
 
     try {
-      const response = await axios.post('http://localhost:8080/udemy/create-api/api/register.php', {
+      const response = await axios.post('http://localhost:8080/udemy/classy-api/api/register.php', {
         gym_id: 1,
         username: '',
         email: data.email,
