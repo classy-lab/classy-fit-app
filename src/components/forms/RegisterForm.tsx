@@ -30,7 +30,9 @@ const schema = yup.object().shape({
   fname: yup.string().required().min(3),
   lname: yup.string().required().min(2),
   dateOfBirth: yup.string().required('Date of Birth is required'),
-  sex: yup.string().oneOf(['Male', 'Female', 'Other']),
+  sex: yup.string()
+    .oneOf(['Male', 'Female', 'Other'], 'Please select a valid category')
+    .required('Category selection is required'),
   phoneNumber: yup.string().matches(phoneRegExp, 'Phone Number is not valid'),
   whatsappNumber: yup.string().matches(phoneRegExp, 'WhatsApp Number number is not valid'),
   preferredContact: yup.string().oneOf(['Phone', 'Email', 'WhatsApp']),
@@ -191,6 +193,17 @@ const RegisterForm = () => {
                 data={roleData} 
                 save="value"
                 placeholder="Select Category"
+                boxStyles={{
+                  borderColor: AppColors.grey,
+                  borderWidth: 1,
+                  paddingHorizontal: 8,
+                }}
+                dropdownStyles={{
+                  borderColor: AppColors.grey2,
+                  borderWidth: 1,
+                  marginTop: 8,
+                  backgroundColor: 'white',
+                }}
                 // If you need to force the value from the parent (e.g., reset)
                 // defaultOption={data.find(item => item.value === value)} 
               />
@@ -268,6 +281,17 @@ const RegisterForm = () => {
                 data={sexData} 
                 save="value"
                 placeholder="Select Category"
+                boxStyles={{
+                  borderColor: AppColors.grey,
+                  borderWidth: 1,
+                  paddingHorizontal: 8,
+                }}
+                dropdownStyles={{
+                  borderColor: AppColors.grey2,
+                  borderWidth: 1,
+                  marginTop: 8,
+                  backgroundColor: 'white',
+                }}
                 // If you need to force the value from the parent (e.g., reset)
                 // defaultOption={data.find(item => item.value === value)} 
               />
@@ -327,6 +351,17 @@ const RegisterForm = () => {
                 data={preferredContactData} 
                 save="value"
                 placeholder="Select Category"
+                boxStyles={{
+                  borderColor: AppColors.grey,
+                  borderWidth: 1,
+                  paddingHorizontal: 8,
+                }}
+                dropdownStyles={{
+                  borderColor: AppColors.grey2,
+                  borderWidth: 1,
+                  marginTop: 8,
+                  backgroundColor: 'white',
+                }}
                 // If you need to force the value from the parent (e.g., reset)
                 // defaultOption={data.find(item => item.value === value)} 
               />
@@ -346,6 +381,17 @@ const RegisterForm = () => {
                 data={gyms} 
                 save="key"
                 placeholder="Select Category"
+                boxStyles={{
+                  borderColor: AppColors.grey,
+                  borderWidth: 1,
+                  paddingHorizontal: 8,
+                }}
+                dropdownStyles={{
+                  borderColor: AppColors.grey2,
+                  borderWidth: 1,
+                  marginTop: 8,
+                  backgroundColor: 'white',
+                }}
                 // If you need to force the value from the parent (e.g., reset)
                 // defaultOption={data.find(item => item.value === value)} 
               />
