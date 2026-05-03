@@ -29,10 +29,6 @@ const StartScreen = () => {
         </View>
         <Text style={styles.subTitle}>Helping gyms and workouts be productive for everyone</Text>
         <View style={styles.fieldset}>
-          <View style={styles.field}>
-            <Text style={styles.formLabel}>SELECT A GYM</Text>
-              <GymLocationPicker />
-          </View>
           <View style={styles.row}>
             <TouchableOpacity
               style={styles.registerBtn}
