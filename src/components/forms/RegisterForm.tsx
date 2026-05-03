@@ -118,6 +118,7 @@ const RegisterForm = () => {
 
       console.log(response.data);
     } catch (error) {
+      //console.error('There was an error');
       console.error(error.response?.data || error.message);
     }
   };
