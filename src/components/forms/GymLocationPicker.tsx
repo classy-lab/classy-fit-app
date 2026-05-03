@@ -4,7 +4,7 @@ import { SelectList } from 'react-native-dropdown-select-list'
 import { AppColors } from '../../styles/colors'
 
 const GymLocationPicker = () => {
-  const [selected, setSelected] = React.useState("")
+  const [selectedGym, setSelectedGym] = React.useState("")
   const [gyms, setGyms] = useState([])
 
   useEffect(() => {
@@ -22,7 +22,7 @@ const GymLocationPicker = () => {
   }, []); // <--- Empty array ensures it runs once on mount 
 
   // console.log(gyms);
-  // console.log(selected);
+  // console.log(selectedGym);
 
   return (
     <SelectList
@@ -37,7 +37,7 @@ const GymLocationPicker = () => {
         marginTop: 8,
         backgroundColor: 'white',
       }}
-      setSelected={(val) => setSelected(val)}
+      setSelected={(val) => setSelectedGym(val)}
       data={gyms}
       save="value"
     />
