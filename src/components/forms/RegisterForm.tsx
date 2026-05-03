@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react'
 import * as yup from 'yup';
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -10,6 +11,7 @@ import CheckboxComponent from './CheckboxComponent'
 import SexPicker from './SexPicker';
 import PreferredContact from './PreferredContact';
 import GymLocationPicker from './GymLocationPicker';
+import { SelectList } from 'react-native-dropdown-select-list';
 import axios from 'axios';
 
 const phoneRegExp = /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/
@@ -21,11 +23,13 @@ const schema = yup.object().shape({
     /^[a-zA-Z0-9]+$/,
     'Password must only contain alphanumeric characters (letters and numbers)'
   ),
-  confirmPassword: yup.string().oneOf([yup.ref('password'), null]).required(),
-  role: yup.string().oneOf(['Owner', 'Gym Member', 'Trainer']),
+  confirmPassword: yup.string()
+    .oneOf([yup.ref('password')], 'Passwords must match') 
+    .required('Please confirm your password'),
+  role: yup.string().oneOf(['Owner', 'Member', 'Trainer']),
   fname: yup.string().required().min(3),
   lname: yup.string().required().min(2),
-  dateOfBirth: yup.string(),
+  dateOfBirth: yup.string().required('Date of Birth is required'),
   sex: yup.string().oneOf(['Male', 'Female', 'Other']),
   phoneNumber: yup.string().matches(phoneRegExp, 'Phone Number is not valid'),
   whatsappNumber: yup.string().matches(phoneRegExp, 'WhatsApp Number number is not valid'),
@@ -36,23 +40,78 @@ const schema = yup.object().shape({
 const RegisterForm = () => {
   const navigation = useNavigation()
 
+  // 1. Parent controls the selected value
+  const [sex, setSelected] = useState(""); // sex state lives here
+  const sexData = [
+    { key: '1', value: 'Male', disabled: false },
+    { key: '2', value: 'Female' },
+    { key: '3', value: 'Other' },
+  ];
+
+  // 1. Parent controls the selected value
+  const [PreferredContact, setPreferredContact] = React.useState("");
+  const preferredContactData = [
+    { key: '1', value: 'Phone', disabled: false },
+    { key: '2', value: 'WhatsApp' },
+    { key: '3', value: 'Email' },
+  ]
+  
+  // 1. Parent controls the selected value
+  const [selectedGym, setSelectedGym] = React.useState("")
+  const [gyms, setGyms] = useState([])
+
+  useEffect(() => {
+    const fetchGyms = async() => {
+      try{
+        const response = await fetch('http://localhost:8080/udemy/create-api/api/gymList.php');
+        const json = await response.json();
+        setGyms(json);
+      } catch(error){
+        console.error(error);
+      }
+    }
+
+    fetchGyms()
+  }, []); // <--- Empty array ensures it runs once on mount 
+
+  // console.log(gyms);
+  // console.log(selectedGym);
+
+  // 1. Parent controls the selected value
+  const [role, setRole] = React.useState("");
+  const roleData = [
+    { key: '1', value: 'Gym Owner', disabled: true },
+    { key: '2', value: 'Member' },
+    { key: '3', value: 'Trainer' },
+    { key: '4', value: 'Contractor' }
+  ]
+  
   // 2. Initialize useForm with the Yup resolver
   const { control, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
-    defaultValues: {
-      email: '',
-      password: '',
-      SexPicker: 'gymMember' // working?
-    },
   })
 
   // 3. Define the submit handler
   const registerUser = async (data) => {
+    console.log(data);
+    // console.log(selected);
+
     try {
       const response = await axios.post('http://localhost:8080/udemy/create-api/api/register.php', {
-        fname: data.fname,
+        gym_id: 1,
+        username: '',
         email: data.email,
         password: data.password,
+        confirm_password: data.confirmPassword,
+        role: data.role,
+        fname: data.fname,
+        lname: data.lname,
+        date_of_birth: data.dateOfBirth,
+        sex: data.sex,
+        phone: data.phoneNumber,
+        whatsapp: data.whatsappNumber,
+        preferred_contact: data.preferredContact,
+        user_picture_url: 'https://i.pravatar.cc/300'
       });
 
       console.log(response.data);
@@ -127,13 +186,14 @@ const RegisterForm = () => {
             control={control}
             name="role"
             render={({ field: { onChange, onBlur, value } }) => (
-              <SelectedRolePicker
-                style={styles.inputField}
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-                keyboardType="default"
-                autoCapitalize="none" />
+              <SelectList 
+                setSelected={(val) => onChange(val)} // Send selection to hook-form
+                data={roleData} 
+                save="value"
+                placeholder="Select Category"
+                // If you need to force the value from the parent (e.g., reset)
+                // defaultOption={data.find(item => item.value === value)} 
+              />
             )}
           />
           {errors.role && <Text style={styles.errorText}>{errors.role.message}</Text>}
@@ -190,7 +250,7 @@ const RegisterForm = () => {
                 value={value}
                 keyboardType="default"
                 autoCapitalize="none"
-                placeholder="mm/dd/yyyy"
+                placeholder="yyyy/mm/dd"
               /> // needs date picker added. check
             )}
           />
@@ -200,16 +260,16 @@ const RegisterForm = () => {
         <View style={styles.field}>
           <Text style={styles.formLabel}>Sex</Text>
           <Controller
-            control={control}
             name="sex"
+            control={control}
             render={({ field: { onChange, onBlur, value } }) => (
-              <SexPicker
-                style={styles.inputField}
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-                keyboardType="default"
-                autoCapitalize="none"
+              <SelectList 
+                setSelected={(val) => onChange(val)} // Send selection to hook-form
+                data={sexData} 
+                save="value"
+                placeholder="Select Category"
+                // If you need to force the value from the parent (e.g., reset)
+                // defaultOption={data.find(item => item.value === value)} 
               />
             )}
           />
@@ -262,13 +322,13 @@ const RegisterForm = () => {
             control={control}
             name="preferredContact"
             render={({ field: { onChange, onBlur, value } }) => (
-              <PreferredContact
-                style={styles.inputField}
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-                keyboardType="default"
-                autoCapitalize="none"
+              <SelectList 
+                setSelected={(val) => onChange(val)} // Send selection to hook-form
+                data={preferredContactData} 
+                save="value"
+                placeholder="Select Category"
+                // If you need to force the value from the parent (e.g., reset)
+                // defaultOption={data.find(item => item.value === value)} 
               />
             )}
           />
@@ -281,12 +341,13 @@ const RegisterForm = () => {
             control={control}
             name="gymLocation"
             render={({ field: { onChange, onBlur, value } }) => (
-              <GymLocationPicker
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-                keyboardType="default"
-                autoCapitalize="none"
+              <SelectList 
+                setSelected={(val) => onChange(val)} // Send selection to hook-form
+                data={gyms} 
+                save="value"
+                placeholder="Select Category"
+                // If you need to force the value from the parent (e.g., reset)
+                // defaultOption={data.find(item => item.value === value)} 
               />
             )}
           />
