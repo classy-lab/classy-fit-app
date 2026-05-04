@@ -14,6 +14,7 @@ import PreferredContact from './PreferredContact';
 import GymLocationPicker from './GymLocationPicker';
 import { SelectList } from 'react-native-dropdown-select-list';
 import ProfileImage from '../svg/ProfileImage';
+import UploadPhoto from '../../screens/app/UploadPhoto';
 import axios from 'axios';
 
 const phoneRegExp = /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/
@@ -67,7 +68,7 @@ const RegisterForm = () => {
   useEffect(() => {
     const fetchGyms = async() => {
       try{
-        const response = await fetch('http://localhost:8080/udemy/classy-api/api/gymList.php');
+        const response = await fetch('http://localhost:8080/udemy/classy-api/api/upload-photo.php');
         const json = await response.json();
         setGyms(json);
       } catch(error){
@@ -129,11 +130,7 @@ const RegisterForm = () => {
     <>
       <View style={styles.fieldset}>
         <View style={styles.field}>
-          <TouchableOpacity onPress={() => {console.log('image pressed')}}>
-            <View style={styles.card}>
-              <Image style={styles.image} source={require('../../assets/images/profile-img.jpg')} resizeMode="contain" />
-            </View>
-        </TouchableOpacity>
+          <UploadPhoto />
         </View>
         <View style={styles.field}>
           <Text style={styles.formLabel}>E-mail</Text>
