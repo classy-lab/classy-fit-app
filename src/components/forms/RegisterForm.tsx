@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import {Image} from 'react-native'
 import * as yup from 'yup';
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -128,7 +129,11 @@ const RegisterForm = () => {
     <>
       <View style={styles.fieldset}>
         <View style={styles.field}>
-          <ProfileImage style={styles.card} />
+          <TouchableOpacity onPress={() => {console.log('image pressed')}}>
+            <View style={styles.card}>
+              <Image style={styles.image} source={require('../../assets/images/profile-img.jpg')} resizeMode="contain" />
+            </View>
+        </TouchableOpacity>
         </View>
         <View style={styles.field}>
           <Text style={styles.formLabel}>E-mail</Text>
