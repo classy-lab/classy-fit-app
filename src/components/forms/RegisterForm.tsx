@@ -12,6 +12,7 @@ import SexPicker from './SexPicker';
 import PreferredContact from './PreferredContact';
 import GymLocationPicker from './GymLocationPicker';
 import { SelectList } from 'react-native-dropdown-select-list';
+import ProfileImage from '../svg/ProfileImage';
 import axios from 'axios';
 
 const phoneRegExp = /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/
@@ -126,6 +127,9 @@ const RegisterForm = () => {
   return (
     <>
       <View style={styles.fieldset}>
+        <View style={styles.field}>
+          <ProfileImage style={styles.card} />
+        </View>
         <View style={styles.field}>
           <Text style={styles.formLabel}>E-mail</Text>
           <Controller
@@ -423,6 +427,7 @@ const styles = StyleSheet.create({
   fieldset: {
     marginBottom: 32
   },
+  card: { alignSelf: 'center', marginTop: 16 },
   email: {},
   formLabel: {
     fontSize: 12,
