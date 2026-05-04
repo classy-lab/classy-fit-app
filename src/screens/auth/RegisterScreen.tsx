@@ -6,7 +6,6 @@ import Ionicons from '@expo/vector-icons/Ionicons'
 import Feather from '@expo/vector-icons/Feather'
 import VectorImageSvg from '../../components/svg/VectorImageSvg'
 import RegisterForm from '../../components/forms/RegisterForm'
-import ProfileImage from '../../components/svg/ProfileImage'
 
 const RegisterScreen = () => {
   const navigation = useNavigation()
@@ -21,7 +20,6 @@ const RegisterScreen = () => {
           <View style={styles.headingContainer}>
             <Text style={styles.title}>Register</Text>
             <Text style={styles.subHead}>Create an account to start.</Text>
-            <ProfileImage style={styles.card} />
           </View>
           <View style={styles.body}>
             <RegisterForm />
@@ -93,7 +91,6 @@ const styles = StyleSheet.create({
     marginBottom: 40,
     alignItems: 'center',
   },
-  card: { alignSelf: 'center', marginTop: 16 },
   subHead: {
     fontFamily: 'Montserrat',
     fontSize: 20,
