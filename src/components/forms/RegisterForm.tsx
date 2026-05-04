@@ -410,7 +410,7 @@ const RegisterForm = () => {
           {errors.gymId && <Text style={styles.errorText}>{errors.gymId.message}</Text>}
         </View>
 
-        <CheckboxComponent />
+        <Text>By registering a new account, you agree to our terms and conditions.</Text>
 
         <View style={styles.loginBtnContainer}>
           <TouchableOpacity
