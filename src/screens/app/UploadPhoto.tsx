@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Button, Image, Alert } from 'react-native';
+import { View, Button, Image, Alert, TouchableOpacity, StyleSheet} from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import axios from 'axios';
 
@@ -51,17 +51,38 @@ const UploadPhoto = () => {
   };
 
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Button title="Select Photo" onPress={selectPhoto} />
-      {photo && (
-        <Image
-          source={{ uri: photo.uri }}
-          style={{ width: 200, height: 200, marginVertical: 20 }}
-        />
-      )}
-      <Button title="Upload Photo" onPress={uploadPhoto} />
-    </View>
+    <>
+      <TouchableOpacity onPress={selectPhoto}>
+          <View style={styles.card}>
+            {photo ?
+              <>
+                <Image
+                  source={{ uri: photo.uri }}
+                  style={{ width: 200, height: 200, marginVertical: 20 }}
+                />
+                <Button title="Upload Photo" onPress={uploadPhoto} />
+              </>
+              :
+              <Image style={styles.image} source={require('../../assets/images/profile-img.jpg')} resizeMode="contain" />
+            }
+          </View>
+      </TouchableOpacity>
+      {/* <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Button title="Select Photo" onPress={selectPhoto} />
+        {photo && (
+          <Image
+            source={{ uri: photo.uri }}
+            style={{ width: 200, height: 200, marginVertical: 20 }}
+          />
+        )}
+        <Button title="Upload Photo" onPress={uploadPhoto} />
+      </View> */}
+    </>
   );
 };
 
 export default UploadPhoto;
+
+const styles = StyleSheet.create({
+  card: { alignSelf: 'center', marginTop: 16 },
+});
