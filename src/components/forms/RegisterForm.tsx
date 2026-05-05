@@ -429,7 +429,6 @@ const styles = StyleSheet.create({
   fieldset: {
     marginBottom: 32
   },
-  card: { alignSelf: 'center', marginTop: 16 },
   email: {},
   formLabel: {
     fontSize: 12,
