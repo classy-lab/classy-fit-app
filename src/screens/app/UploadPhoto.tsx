@@ -3,8 +3,8 @@ import { View, Button, Image, Alert, TouchableOpacity, StyleSheet} from 'react-n
 import { launchImageLibrary } from 'react-native-image-picker';
 import axios from 'axios';
 
-const UploadPhoto = () => {
-  const [photo, setPhoto] = useState(null);
+const UploadPhoto = ({photo, setPhoto, uploadPhoto}) => {
+  // const [photo, setPhoto] = useState(null);
 
   const selectPhoto = () => {
     launchImageLibrary({ mediaType: 'photo' }, (response) => {
@@ -20,36 +20,6 @@ const UploadPhoto = () => {
     });
   };
 
-  const uploadPhoto = async () => {
-    if (!photo) {
-      Alert.alert('No photo selected!');
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('photo', {
-      uri: photo.uri,
-      type: photo.type,
-      name: photo.fileName || 'photo.jpg',
-    });
-
-    try {
-      const response = await axios.post(
-        'http://localhost:8080/udemy/classy-api/api/upload-photo.php',
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }
-      );
-      Alert.alert('Upload Success', response.data.message || 'Photo uploaded!');
-    } catch (error) {
-      console.error(error);
-      Alert.alert('Upload Failed', 'Something went wrong.');
-    }
-  };
-
   return (
     <>
       <TouchableOpacity onPress={selectPhoto}>
@@ -58,7 +28,7 @@ const UploadPhoto = () => {
               <>
                 <Image
                   source={{ uri: photo.uri }}
-                  style={{ width: 200, height: 200, marginVertical: 20 }}
+                  style={styles.square}
                 />
                 <Button title="Upload Photo" onPress={uploadPhoto} />
               </>
@@ -84,5 +54,13 @@ const UploadPhoto = () => {
 export default UploadPhoto;
 
 const styles = StyleSheet.create({
-  card: { alignSelf: 'center', marginTop: 16 },
+  square: {
+    alignSelf: 'center',
+    width: 100,
+    height: 100,
+    backgroundColor: 'royalblue',
+    borderRadius: 22,
+    boxShadow: '0px 5px 13px rgba(0, 0, 0, 0.4)',
+  },
+  image: { alignSelf: 'center', marginTop: 16 },
 });
