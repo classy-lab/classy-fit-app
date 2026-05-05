@@ -3,7 +3,7 @@ import {Image} from 'react-native'
 import * as yup from 'yup';
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { StyleSheet, View, Text, TouchableOpacity, TextInput } from 'react-native'
+import { StyleSheet, View, Text, TouchableOpacity, TextInput, Alert } from 'react-native'
 import { AppColors } from '../../styles/colors'
 import { useNavigation } from '@react-navigation/native'
 import { s } from 'react-native-size-matters'
@@ -15,14 +15,19 @@ import GymLocationPicker from './GymLocationPicker';
 import { SelectList } from 'react-native-dropdown-select-list';
 import ProfileImage from '../svg/ProfileImage';
 import UploadPhoto from '../../screens/app/UploadPhoto';
+import Checkbox from 'expo-checkbox';
 import axios from 'axios';
 
 const phoneRegExp = /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/
 
 // 1. Define the Yup validation schema
 const schema = yup.object().shape({
-  email: yup.string().required('Email is required').email('Invalid email'),
-  password: yup.string().required('Password is required').min(13, 'Password must contain at least 13 characters').matches(
+  email: yup.string()
+  .required('Email is required')
+  .email('Invalid email'),
+  password: yup.string().required('Password is required')
+  .min(13, 'Password must contain at least 13 characters')
+  .matches(
     /^[a-zA-Z0-9]+$/,
     'Password must only contain alphanumeric characters (letters and numbers)'
   ),
@@ -36,14 +41,52 @@ const schema = yup.object().shape({
   sex: yup.string()
     .oneOf(['Male', 'Female', 'Other'], 'Please select a valid category')
     .required('Category selection is required'),
-  phoneNumber: yup.string().matches(phoneRegExp, 'Phone Number is not valid'),
-  whatsappNumber: yup.string().matches(phoneRegExp, 'WhatsApp Number number is not valid'),
-  preferredContact: yup.string().oneOf(['Phone', 'Email', 'WhatsApp']),
-  gymId: yup.string().required('Category selection is required'),
+  phoneNumber: yup.string()
+  .matches(phoneRegExp, 'Phone Number is not valid'),
+  whatsappNumber: yup.string()
+  .matches(phoneRegExp, 'WhatsApp Number number is not valid'),
+  preferredContact: yup.string()
+  .oneOf(['Phone', 'Email', 'WhatsApp']),
+  gymId: yup.string()
+  .required('Category selection is required'),
+  //  agreeToTerms: yup.boolean()
+  //   .oneOf([true], 'You must accept the terms and conditions')
+  //   .required('Required'),
 });
 
 const RegisterForm = () => {
   const navigation = useNavigation()
+  const [photo, setPhoto] = useState(null);
+  
+  const uploadPhoto = async () => {
+      if (!photo) {
+        Alert.alert('No photo selected!');
+        return;
+      }
+  
+      const formData = new FormData();
+      formData.append('photo', {
+        uri: photo.uri,
+        type: photo.type,
+        name: photo.fileName || 'photo.jpg',
+      });
+  
+      try {
+        const response = await axios.post(
+          'http://localhost:8080/udemy/classy-api/api/upload-photo.php',
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          }
+        );
+        Alert.alert('Upload Success', response.data.message || 'Photo uploaded!');
+      } catch (error) {
+        console.error(error);
+        Alert.alert('Upload Failed', 'Something went wrong.');
+      }
+    };
 
   // 1. Parent controls the selected value
   const [sex, setSelected] = useState(""); // sex state lives here
@@ -68,7 +111,7 @@ const RegisterForm = () => {
   useEffect(() => {
     const fetchGyms = async() => {
       try{
-        const response = await fetch('http://localhost:8080/udemy/classy-api/api/upload-photo.php');
+        const response = await fetch('http://localhost:8080/udemy/classy-api/api/GymList.php');
         const json = await response.json();
         setGyms(json);
       } catch(error){
@@ -116,7 +159,8 @@ const RegisterForm = () => {
         phone: data.phoneNumber,
         whatsapp: data.whatsappNumber,
         preferred_contact: data.preferredContact,
-        user_picture_url: 'https://i.pravatar.cc/300' // hard coded. Needs update?
+        user_picture_url: 'https://i.pravatar.cc/300', // hard coded. Needs update?
+        // agreeToTerms: data.agreeToTerms,
       });
 
       console.log(response.data);
@@ -129,9 +173,11 @@ const RegisterForm = () => {
   return (
     <>
       <View style={styles.fieldset}>
+        
         <View style={styles.field}>
-          <UploadPhoto />
+          <UploadPhoto photo={photo} setPhoto={setPhoto} uploadPhoto={uploadPhoto} />
         </View>
+
         <View style={styles.field}>
           <Text style={styles.formLabel}>E-mail</Text>
           <Controller
@@ -406,8 +452,6 @@ const RegisterForm = () => {
           />
           {errors.gymId && <Text style={styles.errorText}>{errors.gymId.message}</Text>}
         </View>
-
-        <Text>By registering a new account, you agree to our terms and conditions.</Text>
 
         <View style={styles.loginBtnContainer}>
           <TouchableOpacity
