@@ -30,7 +30,7 @@ const UploadPhoto = ({photo, setPhoto, uploadPhoto}) => {
                   source={{ uri: photo.uri }}
                   style={styles.square}
                 />
-                <Button title="Upload Photo" onPress={uploadPhoto} />
+                {/* <Button title="Upload Photo" onPress={uploadPhoto} /> */}
               </>
               :
               <Image style={styles.image} source={require('../../assets/images/profile-img.jpg')} resizeMode="contain" />
