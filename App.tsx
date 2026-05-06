@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, createContext, useContext } from 'react';
 import { StyleSheet } from 'react-native'
 import FlashMessage from 'react-native-flash-message'
 import { NavigationContainer } from '@react-navigation/native'
@@ -14,14 +14,19 @@ const customTextProps = {
 setCustomText(customTextProps)
 
 export default function App() {
+  // 1. Initialize the context
+  const LoginContext = createContext();
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Check user login status
 
   return (
     <>
+    {/* 2. Wrap Navigator in Provider */}
+    <LoginContext.Provider value={{isLoggedIn, setIsLoggedIn}}>
       <NavigationContainer>
         <FlashMessage position={'top'} />
         {isLoggedIn ? <AppTabs /> : <AuthStack />}
       </NavigationContainer>
+    </LoginContext.Provider>
     </>
   )
 }
