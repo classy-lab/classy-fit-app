@@ -55,10 +55,11 @@ const schema = yup.object().shape({
 });
 
 const RegisterForm = () => {
-  const navigation = useNavigation()
+  const navigation = useNavigation();
   const [photo, setPhoto] = useState(null);
   
-  const uploadPhoto = async () => {
+  const uploadPhoto = async (last_id) => {
+    // console.log('last_id: ' + last_id);
       if (!photo) {
         Alert.alert('No photo selected!');
         return;
@@ -69,11 +70,12 @@ const RegisterForm = () => {
         uri: photo.uri,
         type: photo.type,
         name: photo.fileName || 'photo.jpg',
+        last_id: last_id
       });
   
       try {
         const response = await axios.post(
-          'http://localhost:8080/udemy/classy-api/api/upload-photo.php',
+          'http://localhost:8080/udemy/classy-api/api/upload-photo.php?last_id=' + last_id,
           formData,
           {
             headers: {
@@ -141,7 +143,7 @@ const RegisterForm = () => {
 
   // 3. Define the submit handler
   const registerUser = async (data) => {
-    console.log(data);
+    // console.log(data);
     // console.log(selected);
 
     try {
@@ -159,11 +161,15 @@ const RegisterForm = () => {
         phone: data.phoneNumber,
         whatsapp: data.whatsappNumber,
         preferred_contact: data.preferredContact,
-        user_picture_url: 'https://i.pravatar.cc/300', // hard coded. Needs update?
+        // user_picture_url: photo,
         // agreeToTerms: data.agreeToTerms,
       });
 
       console.log(response.data);
+
+      if(response.data.status == 'success'){
+        uploadPhoto(response.data.last_id);
+      }
     } catch (error) {
       //console.error('There was an error');
       console.error(error.response?.data || error.message);
