@@ -84,6 +84,7 @@ const RegisterForm = () => {
           }
         );
         Alert.alert('Upload Success', response.data.message || 'Photo uploaded!');
+        navigation.navigate('LoginScreen');
       } catch (error) {
         console.error(error);
         Alert.alert('Upload Failed', 'Something went wrong.');
