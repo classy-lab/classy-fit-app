@@ -35,8 +35,8 @@ const schema = yup.object().shape({
     .oneOf([yup.ref('password')], 'Passwords must match') 
     .required('Please confirm your password'),
   role: yup.string().oneOf(['Owner', 'Member', 'Trainer']),
-  fname: yup.string().required().min(3),
-  lname: yup.string().required().min(2),
+  fname: yup.string().required('First name is required').min(3),
+  lname: yup.string().required('Last name is required').min(2),
   dateOfBirth: yup.string().required('Date of Birth is required'),
   sex: yup.string()
     .oneOf(['Male', 'Female', 'Other'], 'Please select a valid category')
