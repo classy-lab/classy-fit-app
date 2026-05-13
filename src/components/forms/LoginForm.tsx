@@ -7,20 +7,15 @@ import { AppColors } from '../../styles/colors'
 import { useNavigation } from '@react-navigation/native'
 import { s } from 'react-native-size-matters'
 import { UserContext } from '../../context/UserContext';
+import base64 from 'react-native-base64';
 
 const windowWidth = Dimensions.get('window').width;
 
 const LoginForm = () => {
-  const navigation = useNavigation()
-  const {tokens, setTokens} = useContext(UserContext);
-  const {user, setUser} = useContext(UserContext);
-  const { darkMode, toggleTheme } = useContext(UserContext);
-
-  // useEffect( () => {
-  //   console.log('tokens: ' + tokens);
-  //   console.log('user: ' + user);
-  //   console.log('darkMode: ' + darkMode);
-  // }, []);
+  const navigation = useNavigation();
+  const { user, setUser } = useContext(UserContext);
+  const { tokens, setTokens } = useContext(UserContext);
+  const { isLoggedIn, setIsLoggedIn } = useContext(UserContext);
 
   // 1. Define the Yup validation schema
   const schema = yup.object().shape({
@@ -63,7 +58,12 @@ const LoginForm = () => {
       const obj = JSON.parse(json);
 
       if(response.status == 200){
-        console.log(obj);
+        setTokens(obj);                 // store access_token, refresh_token in app memory
+        const payload = obj.access_token.split('.');
+        const decoded_token_payload = base64.decode(payload[1]); 
+        setUser(decoded_token_payload); // store token payload user info
+        setIsLoggedIn('true');          // set loggedIn status to true
+        
       } else{
         console.log(obj.message);
       }
