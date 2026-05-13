@@ -5,9 +5,9 @@ export const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
   // Variables to store user object and login status for app
-  const [darkMode, setDarkMode] = useState(true);
-  const [user, setUser] = useState(null);
-  const [tokens, setTokens] = useState(null);
+  // const [darkMode, setDarkMode] = useState(true);
+  const {user, setUser} = useState(null);
+  const {tokens, setTokens} = useState(null);
 
   const toggleTheme = () => {
     setDarkMode(prev => !prev);
@@ -18,7 +18,7 @@ export const UserProvider = ({ children }) => {
       value={{
         tokens, setTokens,
         user, setUser,
-        darkMode, toggleTheme
+        // darkMode, toggleTheme
       }}
     >
       {children}
