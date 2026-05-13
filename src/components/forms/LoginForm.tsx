@@ -16,11 +16,11 @@ const LoginForm = () => {
   const {user, setUser} = useContext(UserContext);
   const { darkMode, toggleTheme } = useContext(UserContext);
 
-  useEffect( () => {
-    console.log('tokens: ' + tokens);
-    console.log('user: ' + user);
-    console.log('darkMode: ' + darkMode);
-  }, []);
+  // useEffect( () => {
+  //   console.log('tokens: ' + tokens);
+  //   console.log('user: ' + user);
+  //   console.log('darkMode: ' + darkMode);
+  // }, []);
 
   // 1. Define the Yup validation schema
   const schema = yup.object().shape({
