@@ -60,10 +60,10 @@ const LoginForm = () => {
       if(response.status == 200){
         setTokens(obj);                 // store access_token, refresh_token in app memory
         const payload = obj.access_token.split('.');
-        const decoded_token_payload = base64.decode(payload[1]); 
-        setUser(decoded_token_payload); // store token payload user info
+        const decoded_access_token_payload = base64.decode(payload[1]); 
+        setUser(decoded_access_token_payload); // store token payload user info
         setIsLoggedIn('true');          // set loggedIn status to true
-        
+        console.log(decoded_access_token_payload);
       } else{
         console.log(obj.message);
       }
