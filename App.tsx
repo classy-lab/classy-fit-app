@@ -18,15 +18,12 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Check user login status
 
   return (
-    <>
-    {/* 2. Wrap Navigator in Provider */}
     <UserProvider>
       <NavigationContainer>
         <FlashMessage position={'top'} />
         {isLoggedIn ? <AppTabs /> : <AuthStack />}
       </NavigationContainer>
     </UserProvider>
-    </>
   )
 }
 
