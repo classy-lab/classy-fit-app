@@ -1,3 +1,4 @@
+import React, { useContext } from 'react';
 import * as yup from 'yup';
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -5,11 +6,16 @@ import { StyleSheet, View, Text, TouchableOpacity, TextInput, Dimensions, Button
 import { AppColors } from '../../styles/colors'
 import { useNavigation } from '@react-navigation/native'
 import { s } from 'react-native-size-matters'
+import { ThemeContext } from '../../context/ThemeContext';
 
 const windowWidth = Dimensions.get('window').width;
 
 const LoginForm = () => {
   const navigation = useNavigation()
+  const { darkMode, toggleTheme } = useContext(ThemeContext);
+  console.log('darkMode: ' + darkMode);
+  toggleTheme();
+  console.log('darkMode: ' + darkMode);
 
   // 1. Define the Yup validation schema
   const schema = yup.object().shape({
