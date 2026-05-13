@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import * as yup from 'yup';
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -6,16 +6,21 @@ import { StyleSheet, View, Text, TouchableOpacity, TextInput, Dimensions, Button
 import { AppColors } from '../../styles/colors'
 import { useNavigation } from '@react-navigation/native'
 import { s } from 'react-native-size-matters'
-import { ThemeContext } from '../../context/ThemeContext';
+import { UserContext } from '../../context/UserContext';
 
 const windowWidth = Dimensions.get('window').width;
 
 const LoginForm = () => {
   const navigation = useNavigation()
-  const { darkMode, toggleTheme } = useContext(ThemeContext);
-  console.log('darkMode: ' + darkMode);
-  toggleTheme();
-  console.log('darkMode: ' + darkMode);
+  const {tokens, setTokens} = useContext(UserContext);
+  const {user, setUser} = useContext(UserContext);
+  const { darkMode, toggleTheme } = useContext(UserContext);
+
+  useEffect( () => {
+    console.log('tokens: ' + tokens);
+    console.log('user: ' + user);
+    console.log('darkMode: ' + darkMode);
+  }, []);
 
   // 1. Define the Yup validation schema
   const schema = yup.object().shape({
@@ -44,7 +49,25 @@ const LoginForm = () => {
       // Perform your authentication logic or API call here
       // const response = await api.post('/login', data);
       // If successful, navigate to the Login page or another desired screen
-      navigation.navigate('DashboardScreen');
+      // navigation.navigate('DashboardScreen');
+
+      const response = await fetch('http://localhost:8080/udemy/classy-api/api/login.php', {
+        method: 'POST',
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password
+        })
+      });
+
+      const json = await response.text();
+      const obj = JSON.parse(json);
+
+      if(response.status == 200){
+        console.log(obj);
+      } else{
+        console.log(obj.message);
+      }
+
     } catch (error) {
       // Handle API errors (React Hook Form does not swallow errors here)
       console.error("Login failed:", error);
