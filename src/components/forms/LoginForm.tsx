@@ -123,7 +123,7 @@ const LoginForm = () => {
             activeOpacity={0.7}
             onPress={handleSubmit(onSubmit)}
           >
-            <Text style={styles.loginBtnText}>Create Account</Text>
+            <Text style={styles.loginBtnText}>Login</Text>
           </TouchableOpacity>
         </View>
       </View>
