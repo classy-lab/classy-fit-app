@@ -34,7 +34,7 @@ const schema = yup.object().shape({
   confirmPassword: yup.string()
     .oneOf([yup.ref('password')], 'Passwords must match') 
     .required('Please confirm your password'),
-  role: yup.string().oneOf(['Owner', 'Member', 'Trainer']),
+  role: yup.string().oneOf(['Owner', 'Member', 'Trainer', 'Contractor']),
   fname: yup.string().required('First name is required').min(3),
   lname: yup.string().required('Last name is required').min(2),
   dateOfBirth: yup.string().required('Date of Birth is required'),
