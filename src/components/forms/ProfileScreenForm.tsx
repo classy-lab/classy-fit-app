@@ -23,7 +23,7 @@ const schema = yup.object().shape({
     'Password must only contain alphanumeric characters (letters and numbers)'
   ),
   confirmPassword: yup.string().oneOf([yup.ref('password'), null]).required(),
-  role: yup.string().oneOf(['Owner', 'Gym Member', 'Trainer']),
+  role: yup.string().oneOf(['Owner', 'Member', 'Trainer', 'Contractor']),
   fname: yup.string().required().min(3),
   lname: yup.string().required().min(2),
   // dateOfBirth: '',
@@ -46,13 +46,12 @@ const ProfileScreenForm = () => {
   const { control, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      email: user.email,
+      email: user?.email,
       password: '',
-      SexPicker: 'gymMember', // working?
-      role: user.role, // not working ?
-      fname: user.given_name,
-      lname: user.family_name,
-      sex: user.gender,
+      role: '',
+      fname: user?.given_name,
+      lname: user?.family_name,
+      sex: '',
     },
   })
 
