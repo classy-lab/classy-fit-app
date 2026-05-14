@@ -24,7 +24,6 @@ const SignOut = () => {
                 setUser(null);          // store token payload user info
                 setIsLoggedIn(false);   // set loggedIn status to true
                 setTokens(null);
-                console.log(tokens?.refresh_token);
                 console.log('logout successful');
             }
         } catch (error) {
