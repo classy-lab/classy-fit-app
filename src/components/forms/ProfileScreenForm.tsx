@@ -1,3 +1,5 @@
+import React, { useContext, useEffect } from 'react'
+import { UserContext } from '../../context/UserContext'
 import * as yup from 'yup';
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -37,14 +39,20 @@ const schema = yup.object().shape({
 const ProfileScreenForm = () => {
   const navigation = useNavigation()
   const [selectedLanguage, setSelectedLanguage] = useState();
+  const { user, setUser } = useContext(UserContext);
+  const { tokens, setTokens } = useContext(UserContext);
 
   // 2. Initialize useForm with the Yup resolver
   const { control, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      email: '',
+      email: user.email,
       password: '',
-      SexPicker: 'gymMember' // working?
+      SexPicker: 'gymMember', // working?
+      role: user.role, // not working ?
+      fname: user.given_name,
+      lname: user.family_name,
+      sex: user.gender,
     },
   })
 
