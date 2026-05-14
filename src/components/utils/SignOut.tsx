@@ -11,24 +11,20 @@ const SignOut = () => {
 
   return (
     <TouchableOpacity onPress={ async () => { 
-        console.log('signout pressed'); 
-        setUser(null);          // store token payload user info
-        setIsLoggedIn('false'); // set loggedIn status to true
-        console.log(tokens.refresh_token);
-
         // make an api call to logout.php sending it refresh_token and check for 200 response code from api server
         try{
             const response = await fetch('http://localhost:8080/udemy/classy-api/api/logout.php', {
                 method: 'POST',
                 body: JSON.stringify({
-                    token: tokens.refresh_token,
+                    token: tokens?.refresh_token,
                 }),
             });
             
-            // const json = await response.text();
-
             if(response.status == 200){
+                setUser(null);          // store token payload user info
+                setIsLoggedIn(false);   // set loggedIn status to true
                 setTokens(null);
+                console.log(tokens?.refresh_token);
                 console.log('logout successful');
             }
         } catch (error) {
