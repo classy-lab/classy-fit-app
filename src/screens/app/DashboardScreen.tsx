@@ -2,9 +2,9 @@ import { StyleSheet, Text, View, Dimensions, TouchableOpacity, ScrollView } from
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { AppColors } from '../../styles/colors'
 import { s } from 'react-native-size-matters'
-import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5'
 import Ionicons from '@expo/vector-icons/Ionicons'
+import SignOut from '../../components/utils/SignOut'
 
 const windowWidth = Dimensions.get('window').width
 
@@ -13,12 +13,7 @@ const DashboardScreen = ({ navigation, route }) => {
     <>
       <SafeAreaView style={styles.container}>
         <View style={styles.navs}>
-          <View style={styles.signOut}>
-            <Text style={styles.signOutText}>Sign out</Text>
-            <View style={styles.circle}>
-              <MaterialIcons name="logout" color={AppColors.white} size={16} onPress={() => { navigation.navigate('SignoutScreen') }} />
-            </View>
-          </View>
+          <SignOut />
         </View>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.headingContainer}>
@@ -98,24 +93,7 @@ const styles = StyleSheet.create({
     paddingRight: 24,
     marginBottom: 8,
   },
-  signOut: {
-    // borderWidth: 1, borderColor: 'red',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  signOutText: {
-    marginRight: 4,
-    color: AppColors.blue,
-    fontSize: 14
-  },
-  circle: {
-    width: 30,
-    height: 30,
-    borderRadius: '50%',
-    backgroundColor: AppColors.blue,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+  
   blueRectangle: {
     backgroundColor: AppColors.blue,
     borderRadius: 24,

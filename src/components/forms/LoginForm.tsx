@@ -44,7 +44,7 @@ const LoginForm = () => {
       // Perform your authentication logic or API call here
       // const response = await api.post('/login', data);
       // If successful, navigate to the Login page or another desired screen
-      // navigation.navigate('DashboardScreen');
+      
 
       const response = await fetch('http://localhost:8080/udemy/classy-api/api/login.php', {
         method: 'POST',
@@ -58,12 +58,13 @@ const LoginForm = () => {
       const obj = JSON.parse(json);
 
       if(response.status == 200){
-        setTokens(obj);                 // store access_token, refresh_token in app memory
+        setTokens(obj);                         // store access_token, refresh_token in app memory
         const payload = obj.access_token.split('.');
         const decoded_access_token_payload = base64.decode(payload[1]); 
-        setUser(decoded_access_token_payload); // store token payload user info
-        setIsLoggedIn('true');          // set loggedIn status to true
+        setUser(decoded_access_token_payload);  // store token payload user info
+        setIsLoggedIn('true');                  // set loggedIn status to true
         console.log(decoded_access_token_payload);
+        // navigation.navigate('DashboardScreen'); // needed ? should automatically redirect without this line
       } else{
         console.log(obj.message);
       }
