@@ -1,3 +1,5 @@
+import React, { useContext, useEffect } from 'react'
+import { UserContext } from '../../context/UserContext'
 import { StyleSheet, Text, View, ScrollView } from 'react-native'
 import { AppColors } from '../../styles/colors'
 import { useNavigation } from '@react-navigation/native'
@@ -11,6 +13,7 @@ import ProfileImage from '../../components/svg/ProfileImage'
 
 const ProfileScreen = () => {
   const navigation = useNavigation()
+  const { user, setUser } = useContext(UserContext);
   return (
     <>
       <SafeAreaView style={styles.container}>
@@ -29,8 +32,8 @@ const ProfileScreen = () => {
         </View>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.headingContainer}>
-            <Text style={styles.title}>Sarah M.</Text>
-            <Text style={styles.subHead}>Member</Text>
+            <Text value={user.given_name} style={styles.title}>{user.given_name} {user.family_name}</Text>
+            <Text style={styles.subHead}>{user.role}</Text>
             <ProfileImage style={styles.card} />
           </View>
           <View style={styles.body}>
