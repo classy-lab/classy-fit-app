@@ -1,16 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
+import { UserContext } from '../../context/UserContext';
 import { StyleSheet } from 'react-native'
 import { SelectList } from 'react-native-dropdown-select-list'
 import { AppColors } from '../../styles/colors';
 
 const SelectedRolePicker = () => {
+  const { user, setUser } = useContext(UserContext);
   const [role, setRole] = React.useState("");
 
   const data = [
-    { key: '1', value: 'Gym Owner', disabled: true },
+    { key: '1', value: 'Owner', disabled: true },
     { key: '2', value: 'Member' },
     { key: '3', value: 'Trainer' },
-    { key: '4', value: 'Contractor' }
+    { key: '4', value: 'Contractor' },
   ]
 
   return (
@@ -29,6 +31,7 @@ const SelectedRolePicker = () => {
       setSelected={(val) => setRole(val)}
       data={data}
       save="value"
+      defaultOption={{ key:'2', value: user?.role }} // Set the default option value here using the token payload user role value
     />
   )
 };
