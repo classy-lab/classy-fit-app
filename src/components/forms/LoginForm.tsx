@@ -58,12 +58,12 @@ const LoginForm = () => {
       const obj = JSON.parse(json);
 
       if(response.status == 200){
-        setTokens(obj);                         // store access_token, refresh_token in app memory
+        setTokens(obj);                           // store access_token, refresh_token in app memory
         const payload = obj.access_token.split('.');
-        const decoded_access_token_payload = base64.decode(payload[1]); 
-        setUser(decoded_access_token_payload);  // store token payload user info
-        setIsLoggedIn('true');                  // set loggedIn status to true
-        console.log(decoded_access_token_payload);
+        const userPayload = JSON.parse(atob(payload[1]));
+        setUser(userPayload);                     // store token payload user info
+        setIsLoggedIn('true');                    // set loggedIn status to true
+        console.log(userPayload);
         // navigation.navigate('DashboardScreen'); // needed ? should automatically redirect without this line
       } else{
         console.log(obj.message);
