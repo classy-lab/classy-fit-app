@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, Dimensions } from 'react-native'
+import { StyleSheet, Text, View, Image, Dimensions, ScrollView } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import Ionicons from '@expo/vector-icons/Ionicons'
@@ -25,18 +25,20 @@ const LoginScreen = () => {
         <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
         <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
       </View>
-      <View style={styles.headingContainer}>
-        <AvatarBoyKid style={styles.avatarBoyKidSvg} />
-        <Text style={styles.title}>Sign In</Text>
-        <Text style={styles.subHead}>Please sign in to proceed to your account.</Text>
-      </View>
-      <LoginForm />
-      <View style={styles.body}>
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <View style={styles.headingContainer}>
+          <AvatarBoyKid style={styles.avatarBoyKidSvg} />
+          <Text style={styles.title}>Sign In</Text>
+          <Text style={styles.subHead}>Please sign in to proceed to your account.</Text>
+        </View>
+        <LoginForm />
+        <View style={styles.body}>
 
-      </View>
-      <View style={styles.imageContainer}>
-        <VectorImageSvg />
-      </View>
+        </View>
+        <View style={styles.imageContainer}>
+          <VectorImageSvg />
+        </View>
+      </ScrollView>
     </SafeAreaView >
   )
 }
@@ -48,6 +50,7 @@ const styles = StyleSheet.create({
     backgroundColor: AppColors.white,
     flex: 1,
     // justifyContent: 'flex-end',
+    // borderWidth: 1, borderColor: 'red',
     alignItems: 'center',
     width: "100%",
     paddingLeft: 24,
@@ -112,12 +115,17 @@ const styles = StyleSheet.create({
     fontSize: 14
   },
   imageContainer: {
-    marginBottom: 8
+    marginTop: 40,
+    // justifyContent: 'flex-end',
+    alignSelf: 'center',
+    // borderWidth: 1, borderColor: 'red',
+    // alignItems: 'center',
     // borderWidth: 1, bordeerColor: 'red',
   },
   subHead: {
     fontFamily: 'Montserrat',
     fontSize: s(20),
     lineHeight: s(24)
-  }
+  },
+  scrollView: {}
 })
