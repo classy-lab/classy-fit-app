@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import {Image} from 'react-native'
 import * as yup from 'yup';
 import { useForm, Controller } from 'react-hook-form'
@@ -17,8 +17,12 @@ import ProfileImage from '../svg/ProfileImage';
 import UploadPhoto from '../../screens/app/UploadPhoto';
 import Checkbox from 'expo-checkbox';
 import axios from 'axios';
+import HoneypotField from './input_fields/HoneypotField';
+
 
 const phoneRegExp = /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/
+
+const MIN_SUBMISSION_TIME_MS = 15000; // 15 seconds threshold before reg form can be submitted
 
 // 1. Define the Yup validation schema
 const schema = yup.object().shape({
@@ -57,6 +61,15 @@ const schema = yup.object().shape({
 const RegisterForm = () => {
   const navigation = useNavigation();
   const [photo, setPhoto] = useState(null);
+  const [website, setWebsite] = useState('');
+  
+  // Use a ref to store the load time without triggering re-renders
+  const formLoadTime = useRef(Date.now());
+
+  // Reset the timer if the user navigates back to this screen
+  useEffect(() => {
+    formLoadTime.current = Date.now();
+  }, []);
   
   const uploadPhoto = async (last_id) => {
     // console.log('last_id: ' + last_id);
@@ -144,8 +157,22 @@ const RegisterForm = () => {
 
   // 3. Define the submit handler
   const registerUser = async (data) => {
+    const totalTimeElapsed = Date.now() - formLoadTime.current;
     // console.log(data);
     // console.log(selected);
+
+    console.log(website);
+    // 1. Honeypot check
+    if (website.trim() !== '') {
+      console.log("Submission failed", "Bot behavior detected.");
+      return;
+    }
+
+    // 2. Timestamp check
+    if (totalTimeElapsed < MIN_SUBMISSION_TIME_MS) {
+      console.log("Submission failed", "Form submitted too quickly.");
+      return;
+    }
 
     try {
       const response = await axios.post('http://localhost:8080/udemy/classy-api/api/register.php', {
@@ -309,6 +336,9 @@ const RegisterForm = () => {
           />
           {errors.lname && <Text style={styles.errorText}>{errors.lname.message}</Text>}
         </View>
+
+        {/* 3. Include the honeypot trap in your form */}
+        <HoneypotField value={website} onChangeText={setWebsite} />
 
         <View style={styles.field}>
           <Text style={styles.formLabel}>Date of Birth</Text>
