@@ -32,13 +32,11 @@ const LoginScreen = () => {
           <Text style={styles.subHead}>Please sign in to proceed to your account.</Text>
         </View>
         <LoginForm />
-        <View style={styles.body}>
-
-        </View>
-        <View style={styles.imageContainer}>
-          <VectorImageSvg />
-        </View>
+        <View style={styles.body}></View>
       </ScrollView>
+      <View style={styles.imageContainer}>
+        <VectorImageSvg />
+      </View>
     </SafeAreaView >
   )
 }
@@ -114,18 +112,13 @@ const styles = StyleSheet.create({
     color: AppColors.blue,
     fontSize: 14
   },
-  imageContainer: {
-    marginTop: 40,
-    // justifyContent: 'flex-end',
-    alignSelf: 'center',
-    // borderWidth: 1, borderColor: 'red',
-    // alignItems: 'center',
-    // borderWidth: 1, bordeerColor: 'red',
-  },
+  imageContainer: {},
   subHead: {
     fontFamily: 'Montserrat',
     fontSize: s(20),
     lineHeight: s(24)
   },
-  scrollView: {}
+  scrollView: {
+    // borderWidth: 1, borderColor: 'red',
+  }
 })
