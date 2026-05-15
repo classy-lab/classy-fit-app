@@ -7,7 +7,6 @@ import { AppColors } from '../../styles/colors'
 import { useNavigation } from '@react-navigation/native'
 import { s } from 'react-native-size-matters'
 import { UserContext } from '../../context/UserContext';
-import base64 from 'react-native-base64';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -30,8 +29,8 @@ const LoginForm = () => {
   const { control, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      email: '',
-      password: '',
+      email: 'v@v.com',
+      password: 'ppppppppppppp',
     },
   })
 
