@@ -161,16 +161,15 @@ const RegisterForm = () => {
     // console.log(data);
     // console.log(selected);
 
-    console.log(website);
     // 1. Honeypot check
     if (website.trim() !== '') {
-      console.log("Submission failed", "Bot behavior detected.");
+      // console.log("Submission failed", "Bot behavior detected.");
       return;
     }
 
     // 2. Timestamp check
     if (totalTimeElapsed < MIN_SUBMISSION_TIME_MS) {
-      console.log("Submission failed", "Form submitted too quickly.");
+      // console.log("Submission failed", "Form submitted too quickly.");
       return;
     }
 
