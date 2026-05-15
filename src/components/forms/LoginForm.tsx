@@ -29,7 +29,7 @@ const LoginForm = () => {
   const { control, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      email: 'v@v.com',
+      email: 'help@simplecssjs.com',
       password: 'ppppppppppppp',
     },
   })
