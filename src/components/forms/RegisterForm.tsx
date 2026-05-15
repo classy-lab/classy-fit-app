@@ -74,7 +74,7 @@ const RegisterForm = () => {
   const uploadPhoto = async (last_id) => {
     // console.log('last_id: ' + last_id);
       if (!photo) {
-        Alert.alert('No photo selected!');
+        console.log('No photo selected!');
         return;
       }
   
