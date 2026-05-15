@@ -459,7 +459,9 @@ const RegisterForm = () => {
           />
           {errors.gymId && <Text style={styles.errorText}>{errors.gymId.message}</Text>}
         </View>
-
+        <Text style={styles.agreement}>
+          By registering, you agree to our terms and conditions.
+        </Text>
         <View style={styles.loginBtnContainer}>
           <TouchableOpacity
             style={styles.loginBtn}
@@ -501,7 +503,7 @@ const styles = StyleSheet.create({
   createAcctBtnText: {},
   loginBtnContainer: {
     alignItems: 'center',
-    marginTop: s(16)
+    marginTop: 16
   },
   loginBtn: {
     backgroundColor: AppColors.blue,
@@ -513,9 +515,16 @@ const styles = StyleSheet.create({
   },
   loginBtnText: {
     color: AppColors.white,
-    fontSize: s(14),
+    fontSize: 14,
   },
   selectList: {
     marginBottom: 80,
+  },
+  agreement: {
+    color: AppColors.blue,
+    fontSize: 12,
+    marginTop: 20,
+    marginBottom: 20,
+    lineHeight: 24,
   }
 })
