@@ -1,36 +1,29 @@
+import React, { useContext, useEffect } from 'react'
+import { UserContext } from '../../context/UserContext'
 import { StyleSheet, Text, View, ScrollView } from 'react-native'
 import { AppColors } from '../../styles/colors'
 import { useNavigation } from '@react-navigation/native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import MaterialIcons from '@expo/vector-icons/MaterialIcons'
-import Octicons from '@expo/vector-icons/Octicons'
 import Feather from '@expo/vector-icons/Feather'
 import VectorImageSvg from '../../components/svg/VectorImageSvg'
 import ProfileScreenForm from '../../components/forms/ProfileScreenForm'
 import ProfileImage from '../../components/svg/ProfileImage'
+import SignOut from '../../components/utils/SignOut'
 
 const ProfileScreen = () => {
   const navigation = useNavigation()
+  const { user, setUser } = useContext(UserContext);
   return (
     <>
       <SafeAreaView style={styles.container}>
         <View style={styles.navs}>
           <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
-          <View style={styles.signOut}>
-            <Text style={styles.signOutText}>Edit Profile</Text>
-            <View style={styles.circle}>
-              <Octicons name="pencil" size={16} color={AppColors.white} />
-            </View>
-            <Text style={styles.signOutText}>Sign out</Text>
-            <View style={styles.circle}>
-              <MaterialIcons name="logout" color={AppColors.white} size={18} />
-            </View>
-          </View>
+          <SignOut />
         </View>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.headingContainer}>
-            <Text style={styles.title}>Sarah M.</Text>
-            <Text style={styles.subHead}>Member</Text>
+            <Text value={user?.given_name} style={styles.title}>{user?.given_name} {user?.family_name}</Text>
+            <Text style={styles.subHead}>{user?.role}</Text>
             <ProfileImage style={styles.card} />
           </View>
           <View style={styles.body}>

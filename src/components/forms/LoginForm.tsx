@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import * as yup from 'yup';
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -7,15 +7,26 @@ import { AppColors } from '../../styles/colors'
 import { useNavigation } from '@react-navigation/native'
 import { s } from 'react-native-size-matters'
 import { UserContext } from '../../context/UserContext';
-import base64 from 'react-native-base64';
+import HoneypotField from './input_fields/HoneypotField';
 
 const windowWidth = Dimensions.get('window').width;
+
+const MIN_SUBMISSION_TIME_MS = 5000; // 5 seconds threshold before reg form can be submitted
 
 const LoginForm = () => {
   const navigation = useNavigation();
   const { user, setUser } = useContext(UserContext);
   const { tokens, setTokens } = useContext(UserContext);
   const { isLoggedIn, setIsLoggedIn } = useContext(UserContext);
+  const [website, setWebsite] = useState('');
+
+  // Use a ref to store the load time without triggering re-renders
+    const formLoadTime = useRef(Date.now());
+  
+  // Reset the timer if the user navigates back to this screen
+  useEffect(() => {
+    formLoadTime.current = Date.now();
+  }, []);
 
   // 1. Define the Yup validation schema
   const schema = yup.object().shape({
@@ -30,13 +41,27 @@ const LoginForm = () => {
   const { control, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      email: '',
-      password: '',
+      email: 'help@simplecssjs.com',
+      password: 'ppppppppppppp',
     },
   })
 
   // 3. Define the submit handler
   const onSubmit = async (data) => {
+    const totalTimeElapsed = Date.now() - formLoadTime.current;
+
+    // 1. Honeypot check
+    if (website.trim() !== '') {
+      // console.log("Submission failed", "Bot behavior detected.");
+      return;
+    }
+
+    // 2. Timestamp check
+    if (totalTimeElapsed < MIN_SUBMISSION_TIME_MS) {
+      // console.log("Submission failed", "Form submitted too quickly.");
+      return;
+    }
+
     // This function only runs if validation passes
     console.log('Form Submitted (Validation Passed):', data);
 
@@ -115,6 +140,9 @@ const LoginForm = () => {
           />
           {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
         </View>
+
+        <HoneypotField value={website} onChangeText={setWebsite} />
+
         {/* Render other form inputs and their corresponding error messages */}
         <View style={styles.loginBtnContainer}>
           <TouchableOpacity

@@ -1,3 +1,5 @@
+import React, { useContext, useEffect } from 'react'
+import { UserContext } from '../../context/UserContext'
 import * as yup from 'yup';
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -21,7 +23,7 @@ const schema = yup.object().shape({
     'Password must only contain alphanumeric characters (letters and numbers)'
   ),
   confirmPassword: yup.string().oneOf([yup.ref('password'), null]).required(),
-  role: yup.string().oneOf(['Owner', 'Gym Member', 'Trainer']),
+  role: yup.string().oneOf(['Owner', 'Member', 'Trainer', 'Contractor']),
   fname: yup.string().required().min(3),
   lname: yup.string().required().min(2),
   // dateOfBirth: '',
@@ -30,23 +32,56 @@ const schema = yup.object().shape({
   phoneNumber: yup.string().matches(phoneRegExp, 'Phone Number is not valid'),
   whatsappNumber: yup.string().matches(phoneRegExp, 'WhatsApp Number number is not valid'),
   preferredContact: yup.string().oneOf(['Phone', 'Email', 'WhatsApp']),
-  job: yup.string(),
+  // job: yup.string(),
   // gymLocation: ''
 });
 
 const ProfileScreenForm = () => {
   const navigation = useNavigation()
   const [selectedLanguage, setSelectedLanguage] = useState();
+  const { user, setUser } = useContext(UserContext);
+  const { tokens, setTokens } = useContext(UserContext);
 
   // 2. Initialize useForm with the Yup resolver
   const { control, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      email: '',
+      email: user?.email,
       password: '',
-      SexPicker: 'gymMember' // working?
+      role: '',
+      fname: user?.given_name,
+      lname: user?.family_name,
+      sex: '',
     },
   })
+
+  useEffect( () => {
+    const fetchData = async() => {
+      try{
+        const response = await fetch("http://localhost:8080/udemy/classy-api/api/tasks", {
+            headers: {
+                "Authorization": "Bearer " + tokens?.access_token
+            }
+        });
+
+        const json = await response.text();
+        const obj = JSON.parse(json);
+        // console.log('line 69: ' + obj);
+        // console.log(tokens.access_token);
+
+        if(response.status == 200){
+          obj.forEach(async function (task){
+            console.log(task);
+          })
+        }
+      } catch (error){
+        console.log(error);
+      }
+    }
+
+    fetchData();
+
+  }, []);
 
   // 3. Define the submit handler
   const onSubmit = async (data) => {
@@ -298,7 +333,7 @@ const ProfileScreenForm = () => {
           {errors.preferredContact && <Text style={styles.errorText}>{errors.preferredContact.message}</Text>}
         </View>
 
-        <View style={styles.field}>
+        {/* <View style={styles.field}>
           <Text style={styles.formLabel}>Job</Text>
           <Controller
             control={control}
@@ -315,7 +350,7 @@ const ProfileScreenForm = () => {
             )}
           />
           {errors.job && <Text style={styles.errorText}>{errors.job.message}</Text>}
-        </View>
+        </View> */}
 
         <View style={styles.loginBtnContainer}>
           <TouchableOpacity
