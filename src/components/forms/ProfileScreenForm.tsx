@@ -55,6 +55,34 @@ const ProfileScreenForm = () => {
     },
   })
 
+  useEffect( () => {
+    const fetchData = async() => {
+      try{
+        const response = await fetch("http://localhost:8080/udemy/classy-api/api/tasks", {
+            headers: {
+                "Authorization": "Bearer " + tokens?.access_token
+            }
+        });
+
+        const json = await response.text();
+        const obj = JSON.parse(json);
+        // console.log('line 69: ' + obj);
+        // console.log(tokens.access_token);
+
+        if(response.status == 200){
+          obj.forEach(async function (task){
+            console.log(task);
+          })
+        }
+      } catch (error){
+        console.log(error);
+      }
+    }
+
+    fetchData();
+
+  }, []);
+
   // 3. Define the submit handler
   const onSubmit = async (data) => {
     // This function only runs if validation passes
