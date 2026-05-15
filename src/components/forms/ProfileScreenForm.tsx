@@ -32,7 +32,7 @@ const schema = yup.object().shape({
   phoneNumber: yup.string().matches(phoneRegExp, 'Phone Number is not valid'),
   whatsappNumber: yup.string().matches(phoneRegExp, 'WhatsApp Number number is not valid'),
   preferredContact: yup.string().oneOf(['Phone', 'Email', 'WhatsApp']),
-  job: yup.string(),
+  // job: yup.string(),
   // gymLocation: ''
 });
 
@@ -333,7 +333,7 @@ const ProfileScreenForm = () => {
           {errors.preferredContact && <Text style={styles.errorText}>{errors.preferredContact.message}</Text>}
         </View>
 
-        <View style={styles.field}>
+        {/* <View style={styles.field}>
           <Text style={styles.formLabel}>Job</Text>
           <Controller
             control={control}
@@ -350,7 +350,7 @@ const ProfileScreenForm = () => {
             )}
           />
           {errors.job && <Text style={styles.errorText}>{errors.job.message}</Text>}
-        </View>
+        </View> */}
 
         <View style={styles.loginBtnContainer}>
           <TouchableOpacity
