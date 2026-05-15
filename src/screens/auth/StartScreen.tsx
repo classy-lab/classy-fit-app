@@ -16,7 +16,7 @@ const StartScreen = () => {
         <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
       </View>
       <View style={styles.headingContainer}>
-        <Text style={styles.title}>Lift Smart</Text>
+        <Text style={styles.title}>Classy Fit</Text>
         <PinkLeafSvg style={styles.pinkLeaf} />
       </View>
       <View style={styles.body}>
