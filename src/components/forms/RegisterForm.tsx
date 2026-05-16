@@ -6,7 +6,6 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { StyleSheet, View, Text, TouchableOpacity, TextInput, Alert } from 'react-native'
 import { AppColors } from '../../styles/colors'
 import { useNavigation } from '@react-navigation/native'
-import { s } from 'react-native-size-matters'
 import SelectedRolePicker from './SelectedRolePicker'
 import CheckboxComponent from './CheckboxComponent'
 import SexPicker from './SexPicker';
@@ -188,7 +187,6 @@ const RegisterForm = () => {
         phone: data.phoneNumber,
         whatsapp: data.whatsappNumber,
         preferred_contact: data.preferredContact,
-        // user_picture_url: photo,
         // agreeToTerms: data.agreeToTerms,
       });
 
@@ -198,7 +196,6 @@ const RegisterForm = () => {
         uploadPhoto(response.data.last_id);
       }
     } catch (error) {
-      //console.error('There was an error');
       console.error(error.response?.data || error.message);
     }
   };
