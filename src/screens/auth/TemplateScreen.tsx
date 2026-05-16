@@ -5,10 +5,9 @@ import Feather from '@expo/vector-icons/Feather'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
-// import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
+import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
+import WorkoutSvg from '../../components/svg/WorkoutSvg'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
-
-// const windowHeight = Dimensions.get('window').height
 
 const TemplateScreen = () => {
   const { height, width } = useWindowDimensions()
@@ -21,7 +20,7 @@ const TemplateScreen = () => {
   return (
     <>
       <SafeAreaView style={styles.container}>
-        <View style={styles.navs}>
+        {/* <View style={styles.navs}>
           <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
           <View style={styles.signOut}>
             <Text style={styles.signOutText}>Add</Text>
@@ -33,15 +32,15 @@ const TemplateScreen = () => {
               <MaterialIcons name="logout" color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
             </View>
           </View>
-        </View>
-        {/* <View style={styles.navs}>
+        </View> */}
+        <View style={styles.navs}>
           <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
           <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
-        </View> */}
+        </View>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.headingContainer}>
             <Text style={styles.title}>Template</Text>
-            {/* <PinkLeafSvg style={styles.pinkLeaf} /> */}
+            <PinkLeafSvg style={styles.pinkLeaf} />
           </View>
           <View style={[styles.body]}>
             <Text style={styles.bodyText}>
@@ -49,6 +48,9 @@ const TemplateScreen = () => {
             </Text>
           </View>
         </ScrollView>
+        <View style={styles.imageContainer}>
+          <WorkoutSvg />
+        </View>
       </SafeAreaView>
     </>
   )
@@ -59,6 +61,7 @@ export default TemplateScreen
 const styles = StyleSheet.create({
   container: {
     backgroundColor: AppColors.white,
+    flex: 1
   },
   navs: {
     flexDirection: 'row',
@@ -104,13 +107,9 @@ const styles = StyleSheet.create({
     paddingLeft: 24,
     paddingRight: 24,
     marginBottom: 8,
-    // flex: 1,
-    // borderWidth: 1, borderColor: 'red',
   },
   bodyText: {
     marginBottom: 8,
-    // flex: 1,
-    // borderWidth: 1, borderColor: 'red',
     fontFamily: "Montserrat",
     lineHeight: 32,
     color: AppColors.blue,
@@ -118,5 +117,10 @@ const styles = StyleSheet.create({
     textAlign: 'center'
   },
   scrollView: {
+    flex: 1,
+  },
+  imageContainer: {
+    alignItems: 'center',
+    marginBottom: 8,
   }
 })
