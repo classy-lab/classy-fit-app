@@ -73,7 +73,6 @@ const styles = StyleSheet.create({
     backgroundColor: AppColors.white,
     flex: 1,
     alignItems: 'center',
-    width: "100%",
     paddingLeft: 24,
     paddingRight: 24,
   },
@@ -83,7 +82,6 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   headingContainer: {
-    width: 375,
     alignItems: 'center'
   },
   title: {
