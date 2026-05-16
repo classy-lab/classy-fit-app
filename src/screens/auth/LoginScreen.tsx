@@ -120,5 +120,6 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     // borderWidth: 1, borderColor: 'red',
+    flex: 1
   }
 })
