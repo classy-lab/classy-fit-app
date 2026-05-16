@@ -520,6 +520,7 @@ const styles = StyleSheet.create({
   inputField: {
     marginTop: 5,
     borderWidth: 1,
+    paddingLeft: 8,
     borderColor: AppColors.textInputBorderColor,
     height: 48,
     borderRadius: 8,
