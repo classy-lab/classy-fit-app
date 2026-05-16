@@ -177,6 +177,7 @@ const styles = StyleSheet.create({
   },
   inputField: {
     borderWidth: 1,
+    paddingLeft: 8,
     borderColor: AppColors.textInputBorderColor,
     height: s(48),
     borderRadius: s(8),
