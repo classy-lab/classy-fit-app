@@ -1,8 +1,10 @@
 import * as React from "react";
+import { TouchableOpacity } from 'react-native'
 import Svg, { G, Rect, Path, Ellipse, Circle } from "react-native-svg";
 /* SVGR has dropped some elements not supported by react-native-svg: title */
 const HealthyLifestyleSvg = (props) => (
-  <Svg
+  <TouchableOpacity>
+    <Svg
     width="240px"
     height="176.9808px"
     viewBox="0 0 240 176.9808"
@@ -1345,5 +1347,6 @@ const HealthyLifestyleSvg = (props) => (
       </G>
     </G>
   </Svg>
+  </TouchableOpacity>  
 );
 export default HealthyLifestyleSvg;
