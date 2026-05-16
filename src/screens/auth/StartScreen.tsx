@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import Ionicons from '@expo/vector-icons/Ionicons'
@@ -15,43 +15,50 @@ const StartScreen = () => {
       <View style={styles.navs}>
         <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
       </View>
-      <View style={styles.headingContainer}>
-        <Text style={styles.title}>Classy Fit</Text>
-        <PinkLeafSvg style={styles.pinkLeaf} />
-      </View>
-      <View style={styles.body}>
-        <View style={styles.row}>
-          <View style={styles.box}><Text style={styles.boxText}>Gyms</Text></View>
-          <View style={styles.box}><Text style={styles.boxText}>Classes</Text></View>
-        </View>
-        <View style={styles.row}>
-          <View style={styles.box}><Text style={styles.boxText}>Training</Text></View>
-        </View>
-        <Text style={styles.subTitle}>Helping gyms and workouts be productive for everyone</Text>
-        <View style={styles.fieldset}>
-          <View style={styles.row}>
-            <TouchableOpacity
-              style={styles.registerBtn}
-              // title="Register"
-              onPress={() => { navigation.navigate('RegisterScreen') }}
-            >
-              <Text style={styles.registerBtnText}>
-                Register
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.loginBtn}
-              // title="Login"
-              onPress={() => { navigation.navigate('LoginScreen') }}
-            >
-              <Text style={styles.loginBtnText}>
-                Login
-              </Text>
-            </TouchableOpacity>
+      
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        
+        <TouchableOpacity>
+          <View style={styles.headingContainer}>
+            <Text style={styles.title}>Classy Fit</Text>
+            <PinkLeafSvg style={styles.pinkLeaf} />
           </View>
-          
+        </TouchableOpacity>
+
+        <View style={styles.body}>
+          <View style={styles.row}>
+            <TouchableOpacity><View style={styles.box}><Text style={styles.boxText}>Gyms</Text></View></TouchableOpacity>
+            <TouchableOpacity><View style={styles.box}><Text style={styles.boxText}>Classes</Text></View></TouchableOpacity>
+          </View>
+          <View style={styles.row}>
+            <TouchableOpacity><View style={styles.box}><Text style={styles.boxText}>Training</Text></View></TouchableOpacity>
+          </View>
+          <Text style={styles.subTitle}>Helping gyms and workouts be productive for everyone</Text>
+          <View style={styles.fieldset}>
+            <View style={styles.row}>
+              <TouchableOpacity
+                style={styles.registerBtn}
+                // title="Register"
+                onPress={() => { navigation.navigate('RegisterScreen') }}
+              >
+                <Text style={styles.registerBtnText}>
+                  Register
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.loginBtn}
+                // title="Login"
+                onPress={() => { navigation.navigate('LoginScreen') }}
+              >
+                <Text style={styles.loginBtnText}>
+                  Login
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
-      </View>
+      </ScrollView>
+
       <View style={styles.imageContainer}>
         <VectorImageSvg />
       </View>
@@ -65,7 +72,6 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: AppColors.white,
     flex: 1,
-    // justifyContent: 'flex-end',
     alignItems: 'center',
     width: "100%",
     paddingLeft: 24,
@@ -169,5 +175,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 24,
     marginBottom: 24,
+  },
+  scrollView: {
+    flex: 1
   }
 })
