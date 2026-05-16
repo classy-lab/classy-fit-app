@@ -19,13 +19,13 @@ const GymHours = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.navs}>
-          <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
-          <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
-        </View>
+      <View style={styles.navs}>
+        <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
+        <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
+      </View>
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         <View style={styles.headingContainer}>
-          <Text style={styles.title}>Classy Fitness Studio</Text>
+          <Text style={styles.title}>Vent Fitness</Text>
           <PinkLeafSvg style={styles.pinkLeaf} />
         </View>
         <View style={styles.body}>
@@ -54,10 +54,10 @@ const GymHours = () => {
             +91  095536 27654
           </Text>
         </View>
-        <View style={styles.imageContainer}>
-          <Jogging width="360" />
-        </View>
       </ScrollView>
+      <View style={styles.imageContainer}>
+        <Jogging width="360" />
+      </View>
     </SafeAreaView >
   )
 }
@@ -67,10 +67,11 @@ export default GymHours
 const styles = StyleSheet.create({
   container: {
     backgroundColor: AppColors.white,
-    // flex: 1,
+    flex: 1,
     paddingLeft: 24,
     paddingRight: 24,
   },
+  scrollView: {flex: 1},
   navs: {
     flexDirection: 'row',
     justifyContent: 'space-between',
