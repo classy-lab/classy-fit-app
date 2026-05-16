@@ -19,11 +19,11 @@ const Contact = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.navs}>
-          <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
-          <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
-        </View>
+      <View style={styles.navs}>
+        <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
+        <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
+      </View>
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         <View style={styles.headingContainer}>
           <Text style={styles.title}>Contact Us</Text>
           <PinkShape style={styles.pinkShape} />
@@ -46,10 +46,10 @@ const Contact = () => {
             <PhoneSvg style={styles.phoneSvg} />
           </View>
         </View>
-        <View style={styles.imageContainer}>
-          <VectorImageSvg />
-        </View>
       </ScrollView>
+      <View style={styles.imageContainer}>
+        <VectorImageSvg />
+      </View>
     </SafeAreaView >
   )
 }
@@ -59,9 +59,13 @@ export default Contact
 const styles = StyleSheet.create({
   container: {
     backgroundColor: AppColors.white,
-    // flex: 1,
+    flex: 1,
     paddingLeft: 24,
     paddingRight: 24,
+  },
+  scrollView: {
+    flex: 1,
+    // borderWidth: 1, borderColor: 'red',
   },
   navs: {
     flexDirection: 'row',
