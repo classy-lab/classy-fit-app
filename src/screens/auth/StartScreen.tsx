@@ -33,7 +33,9 @@ const StartScreen = () => {
           <View style={styles.row}>
             <TouchableOpacity><View style={styles.box}><Text style={styles.boxText}>Training</Text></View></TouchableOpacity>
           </View>
-          <Text style={styles.subTitle}>Helping gyms and workouts be productive for everyone</Text>
+          <TouchableOpacity>
+            <Text style={styles.subTitle}>Helping gyms and workouts be productive for everyone</Text>
+          </TouchableOpacity>
           <View style={styles.fieldset}>
             <View style={styles.row}>
               <TouchableOpacity
