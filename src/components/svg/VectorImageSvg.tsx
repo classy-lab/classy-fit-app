@@ -1,8 +1,10 @@
 import * as React from "react";
+import { TouchableOpacity } from 'react-native'
 import Svg, { G, Image } from "react-native-svg";
 /* SVGR has dropped some elements not supported by react-native-svg: title */ const VectorImageSvg =
   (props) => (
-    <Svg
+    <TouchableOpacity>
+      <Svg
       width="300px"
       height="92.6910299px"
       viewBox="0 0 300 92.6910299"
@@ -29,5 +31,6 @@ import Svg, { G, Image } from "react-native-svg";
         </G>
       </G>
     </Svg>
+    </TouchableOpacity>
   );
 export default VectorImageSvg;
