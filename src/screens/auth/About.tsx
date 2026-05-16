@@ -18,11 +18,11 @@ const About = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.navs}>
+      <View style={styles.navs}>
           <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
           <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
-        </View>
+      </View>
+      <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.headingContainer}>
           <Text style={styles.title}>About</Text>
           <PinkLeafSvg style={styles.pinkLeaf} />
