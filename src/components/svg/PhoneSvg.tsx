@@ -1,15 +1,17 @@
 import * as React from "react";
+import { TouchableOpacity } from 'react-native'
 import Svg, { Defs, LinearGradient, Stop, G, Path } from "react-native-svg";
 /* SVGR has dropped some elements not supported by react-native-svg: title */
 const PhoneSvg = (props) => (
-  <Svg
-    width="50px"
-    height="50.0026114px"
-    viewBox="0 0 50 50.0026114"
-    xmlns="http://www.w3.org/2000/svg"
-    xmlnsXlink="http://www.w3.org/1999/xlink"
-    {...props}
-  >
+  <TouchableOpacity>
+    <Svg
+      width="50px"
+      height="50.0026114px"
+      viewBox="0 0 50 50.0026114"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlnsXlink="http://www.w3.org/1999/xlink"
+      {...props}
+    >
     <Defs>
       <LinearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
         <Stop stopColor="#0057FF" offset="0%" />
@@ -30,6 +32,7 @@ const PhoneSvg = (props) => (
         </G>
       </G>
     </G>
-  </Svg>
+    </Svg>
+  </TouchableOpacity>
 );
 export default PhoneSvg;
