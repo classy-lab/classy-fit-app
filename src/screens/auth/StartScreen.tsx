@@ -1,4 +1,6 @@
+import React, { useState, useEffect, useRef } from 'react'
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from 'react-native'
+import { SelectList } from 'react-native-dropdown-select-list';
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import Ionicons from '@expo/vector-icons/Ionicons'
@@ -9,6 +11,39 @@ import GymLocationPicker from '../../components/forms/GymLocationPicker'
 
 const StartScreen = () => {
   const navigation = useNavigation()
+  const [selectedGym, setSelectedGym] = React.useState('')
+  const [gyms, setGyms] = useState([])
+  
+  const fetchGymInfo = () => {
+    // console.log('text pressed from func');
+    const fetchGymDetails = async() => {
+      try{
+        const response = await fetch('http://localhost:8080/classy-api/api/GymList.php');
+        const json = await response.json();
+        console.log('a: ' + json);
+      } catch(error) {
+        console.log(error)
+      }
+    }
+    fetchGymDetails()
+  }
+
+  useEffect(() => {
+    const fetchGyms = async() => {
+      try{
+        const response = await fetch('http://localhost:8080/classy-api/api/GymList.php');
+        const json = await response.json();
+        setGyms(json);
+      } catch(error){
+        console.error(error);
+      }
+    }
+
+    fetchGyms()
+  }, []); // <--- Empty array ensures it runs once on mount 
+  
+  // console.log(gyms);
+  console.log(selectedGym);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -36,6 +71,35 @@ const StartScreen = () => {
           <TouchableOpacity>
             <Text style={styles.subTitle}>Helping gyms and workouts be productive for everyone</Text>
           </TouchableOpacity>
+
+          <View style={styles.fieldset}>
+            <View style={styles.field}>
+              <Text style={styles.formLabel}>Choose a Gym</Text>
+                  <SelectList 
+                    setSelected={(val) => setSelectedGym(val)} // Send selection to hook-form
+                    data={gyms} 
+                    save="value"
+                    placeholder="Select Category"
+                    boxStyles={{
+                      borderColor: AppColors.grey,
+                      borderWidth: 1,
+                      paddingHorizontal: 8,
+                    }}
+                    dropdownStyles={{
+                      borderColor: AppColors.grey2,
+                      borderWidth: 1,
+                      marginTop: 8,
+                      backgroundColor: 'white',
+                    }}
+                    // If you need to force the value from the parent (e.g., reset)
+                    // defaultOption={data.find(item => item.value === value)} 
+                  />
+              <TouchableOpacity onPress={() => {fetchGymInfo()}}>
+                <Text style={styles.chooseText}>Press to load data for chosen Gym</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
           <View style={styles.fieldset}>
             <View style={styles.row}>
               <TouchableOpacity
@@ -144,7 +208,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-evenly',
     marginBottom: 10,
   },
-  fieldset: {
+  fieldset: {},
+  chooseText: { 
+    marginTop: 8, 
+    marginBottom: 8, 
+    color: AppColors.blue
   },
   formLabel: {
     fontWeight: 'bold',
@@ -152,8 +220,7 @@ const styles = StyleSheet.create({
   },
   field: {
     marginBottom: 16,
-    width: 300
-    ,
+    width: 320,
     alignSelf: 'center'
   },
   box: {
