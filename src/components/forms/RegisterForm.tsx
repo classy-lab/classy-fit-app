@@ -87,7 +87,7 @@ const RegisterForm = () => {
   
       try {
         const response = await axios.post(
-          'http://localhost:8080/udemy/classy-api/api/upload-photo.php?last_id=' + last_id,
+          'http://localhost:8080/classy-api/api/upload-photo.php?last_id=' + last_id,
           formData,
           {
             headers: {
@@ -126,7 +126,7 @@ const RegisterForm = () => {
   useEffect(() => {
     const fetchGyms = async() => {
       try{
-        const response = await fetch('http://localhost:8080/udemy/classy-api/api/GymList.php');
+        const response = await fetch('http://localhost:8080/classy-api/api/GymList.php');
         const json = await response.json();
         setGyms(json);
       } catch(error){
@@ -173,7 +173,7 @@ const RegisterForm = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:8080/udemy/classy-api/api/register.php', {
+      const response = await axios.post('http://localhost:8080/classy-api/api/register.php', {
         gym_id: data.gymId,
         username: '',
         email: data.email,
