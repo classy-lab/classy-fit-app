@@ -71,7 +71,7 @@ const LoginForm = () => {
       // If successful, navigate to the Login page or another desired screen
       
 
-      const response = await fetch('http://localhost:8080/udemy/classy-api/api/login.php', {
+      const response = await fetch('http://localhost:8080/classy-api/api/login.php', {
         method: 'POST',
         body: JSON.stringify({
           email: data.email,
