@@ -10,7 +10,7 @@ const GymLocationPicker = () => {
   useEffect(() => {
     const fetchGyms = async() => {
       try{
-        const response = await fetch('http://localhost:8080/udemy/create-api/api/gymList.php');
+        const response = await fetch('http://localhost:8080/create-api/api/gymList.php');
         const json = await response.json();
         setGyms(json);
       } catch(error){
