@@ -1,57 +1,65 @@
-import React, { useState, useEffect, useRef } from 'react'
-import {Image} from 'react-native'
-import * as yup from 'yup';
-import { useForm, Controller } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup'
-import { StyleSheet, View, Text, TouchableOpacity, TextInput, Alert } from 'react-native'
-import { AppColors } from '../../styles/colors'
-import { useNavigation } from '@react-navigation/native'
-import SelectedRolePicker from './SelectedRolePicker'
-import CheckboxComponent from './CheckboxComponent'
-import SexPicker from './SexPicker';
-import PreferredContact from './PreferredContact';
-import GymLocationPicker from './GymLocationPicker';
-import { SelectList } from 'react-native-dropdown-select-list';
-import ProfileImage from '../svg/ProfileImage';
-import UploadPhoto from '../../screens/app/UploadPhoto';
-import Checkbox from 'expo-checkbox';
-import axios from 'axios';
-import HoneypotField from './input_fields/HoneypotField';
+import React, { useState, useEffect, useRef } from "react";
+import { Image } from "react-native";
+import * as yup from "yup";
+import { useForm, Controller } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  TextInput,
+  Alert,
+} from "react-native";
+import { AppColors } from "../../styles/colors";
+import { useNavigation } from "@react-navigation/native";
+import SelectedRolePicker from "./SelectedRolePicker";
+import CheckboxComponent from "./CheckboxComponent";
+import SexPicker from "./SexPicker";
+import PreferredContact from "./PreferredContact";
+import GymLocationPicker from "./GymLocationPicker";
+import { SelectList } from "react-native-dropdown-select-list";
+import ProfileImage from "../svg/ProfileImage";
+import UploadPhoto from "../../screens/app/UploadPhoto";
+import Checkbox from "expo-checkbox";
+import axios from "axios";
+import HoneypotField from "./input_fields/HoneypotField";
+import GymList from "../GymList";
 
-
-const phoneRegExp = /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/
+const phoneRegExp =
+  /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
 
 const MIN_SUBMISSION_TIME_MS = 15000; // 15 seconds threshold before reg form can be submitted
 
 // 1. Define the Yup validation schema
 const schema = yup.object().shape({
-  email: yup.string()
-  .required('Email is required')
-  .email('Invalid email'),
-  password: yup.string().required('Password is required')
-  .min(13, 'Password must contain at least 13 characters')
-  .matches(
-    /^[a-zA-Z0-9]+$/,
-    'Password must only contain alphanumeric characters (letters and numbers)'
-  ),
-  confirmPassword: yup.string()
-    .oneOf([yup.ref('password')], 'Passwords must match') 
-    .required('Please confirm your password'),
-  role: yup.string().oneOf(['Owner', 'Member', 'Trainer', 'Contractor']),
-  fname: yup.string().required('First name is required').min(3),
-  lname: yup.string().required('Last name is required').min(2),
-  dateOfBirth: yup.string().required('Date of Birth is required'),
-  sex: yup.string()
-    .oneOf(['Male', 'Female', 'Other'], 'Please select a valid category')
-    .required('Category selection is required'),
-  phoneNumber: yup.string()
-  .matches(phoneRegExp, 'Phone Number is not valid'),
-  whatsappNumber: yup.string()
-  .matches(phoneRegExp, 'WhatsApp Number number is not valid'),
-  preferredContact: yup.string()
-  .oneOf(['Phone', 'Email', 'WhatsApp']),
-  gymId: yup.string()
-  .required('Category selection is required'),
+  email: yup.string().required("Email is required").email("Invalid email"),
+  password: yup
+    .string()
+    .required("Password is required")
+    .min(13, "Password must contain at least 13 characters")
+    .matches(
+      /^[a-zA-Z0-9]+$/,
+      "Password must only contain alphanumeric characters (letters and numbers)",
+    ),
+  confirmPassword: yup
+    .string()
+    .oneOf([yup.ref("password")], "Passwords must match")
+    .required("Please confirm your password"),
+  role: yup.string().oneOf(["Owner", "Member", "Trainer", "Contractor"]),
+  fname: yup.string().required("First name is required").min(3),
+  lname: yup.string().required("Last name is required").min(2),
+  dateOfBirth: yup.string().required("Date of Birth is required"),
+  sex: yup
+    .string()
+    .oneOf(["Male", "Female", "Other"], "Please select a valid category")
+    .required("Category selection is required"),
+  phoneNumber: yup.string().matches(phoneRegExp, "Phone Number is not valid"),
+  whatsappNumber: yup
+    .string()
+    .matches(phoneRegExp, "WhatsApp Number number is not valid"),
+  preferredContact: yup.string().oneOf(["Phone", "Email", "WhatsApp"]),
+  gymId: yup.string().required("Category selection is required"),
   //  agreeToTerms: yup.boolean()
   //   .oneOf([true], 'You must accept the terms and conditions')
   //   .required('Required'),
@@ -60,8 +68,8 @@ const schema = yup.object().shape({
 const RegisterForm = () => {
   const navigation = useNavigation();
   const [photo, setPhoto] = useState(null);
-  const [website, setWebsite] = useState('');
-  
+  const [website, setWebsite] = useState("");
+
   // Use a ref to store the load time without triggering re-renders
   const formLoadTime = useRef(Date.now());
 
@@ -69,73 +77,75 @@ const RegisterForm = () => {
   useEffect(() => {
     formLoadTime.current = Date.now();
   }, []);
-  
+
   const uploadPhoto = async (last_id) => {
     // console.log('last_id: ' + last_id);
-      if (!photo) {
-        console.log('No photo selected!');
-        return;
-      }
-  
-      const formData = new FormData();
-      formData.append('photo', {
-        uri: photo.uri,
-        type: photo.type,
-        name: photo.fileName || 'photo.jpg',
-        last_id: last_id
-      });
-  
-      try {
-        const response = await axios.post(
-          'http://localhost:8080/classy-api/api/upload-photo.php?last_id=' + last_id,
-          formData,
-          {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-          }
-        );
-        Alert.alert('Upload Success', response.data.message || 'Photo uploaded!');
-        navigation.navigate('LoginScreen');
-      } catch (error) {
-        console.error(error);
-        Alert.alert('Upload Failed', 'Something went wrong.');
-      }
-    };
+    if (!photo) {
+      console.log("No photo selected!");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("photo", {
+      uri: photo.uri,
+      type: photo.type,
+      name: photo.fileName || "photo.jpg",
+      last_id: last_id,
+    });
+
+    try {
+      const response = await axios.post(
+        "http://localhost:8080/classy-api/api/upload-photo.php?last_id=" +
+          last_id,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        },
+      );
+      Alert.alert("Upload Success", response.data.message || "Photo uploaded!");
+      navigation.navigate("LoginScreen");
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Upload Failed", "Something went wrong.");
+    }
+  };
 
   // 1. Parent controls the selected value
   const [sex, setSelected] = useState(""); // sex state lives here
   const sexData = [
-    { key: '1', value: 'Male', disabled: false },
-    { key: '2', value: 'Female' },
-    { key: '3', value: 'Other' },
+    { key: "1", value: "Male", disabled: false },
+    { key: "2", value: "Female" },
+    { key: "3", value: "Other" },
   ];
 
   // 1. Parent controls the selected value
   const [PreferredContact, setPreferredContact] = React.useState("");
   const preferredContactData = [
-    { key: '1', value: 'Phone', disabled: false },
-    { key: '2', value: 'WhatsApp' },
-    { key: '3', value: 'Email' },
-  ]
-  
+    { key: "1", value: "Phone", disabled: false },
+    { key: "2", value: "WhatsApp" },
+    { key: "3", value: "Email" },
+  ];
+
   // 1. Parent controls the selected value
-  const [selectedGym, setSelectedGym] = React.useState("")
-  const [gyms, setGyms] = useState([])
+  const [gyms, setGyms] = useState([]);
 
   useEffect(() => {
-    const fetchGyms = async() => {
-      try{
-        const response = await fetch('http://localhost:8080/classy-api/api/GymList.php');
+    const fetchGyms = async () => {
+      try {
+        const response = await fetch(
+          "http://localhost:8080/classy-api/api/GymList.php",
+        );
         const json = await response.json();
         setGyms(json);
-      } catch(error){
+      } catch (error) {
         console.error(error);
       }
-    }
+    };
 
-    fetchGyms()
-  }, []); // <--- Empty array ensures it runs once on mount 
+    fetchGyms();
+  }, []); // <--- Empty array ensures it runs once on mount
 
   // console.log(gyms);
   // console.log(selectedGym);
@@ -143,16 +153,27 @@ const RegisterForm = () => {
   // 1. Parent controls the selected value
   const [role, setRole] = React.useState("");
   const roleData = [
-    { key: '1', value: 'Gym Owner', disabled: true },
-    { key: '2', value: 'Member' },
-    { key: '3', value: 'Trainer' },
-    { key: '4', value: 'Contractor' }
-  ]
-  
+    { key: "1", value: "Gym Owner", disabled: true },
+    { key: "2", value: "Member" },
+    { key: "3", value: "Trainer" },
+    { key: "4", value: "Contractor" },
+  ];
+
+  // This is the "onChange" logic for GymList
+  const handleSelectionChange = (val) => {
+    console.log("New value selected:", val);
+    setGyms(val);
+  };
+
   // 2. Initialize useForm with the Yup resolver
-  const { control, handleSubmit, formState: { errors } } = useForm({
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
     resolver: yupResolver(schema),
-  })
+    defaultValues: { gymId: "" },
+  });
 
   // 3. Define the submit handler
   const registerUser = async (data) => {
@@ -161,7 +182,7 @@ const RegisterForm = () => {
     // console.log(selected);
 
     // 1. Honeypot check
-    if (website.trim() !== '') {
+    if (website.trim() !== "") {
       // console.log("Submission failed", "Bot behavior detected.");
       return;
     }
@@ -173,26 +194,29 @@ const RegisterForm = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:8080/classy-api/api/register.php', {
-        gym_id: data.gymId,
-        username: '',
-        email: data.email,
-        password: data.password,
-        confirm_password: data.confirmPassword,
-        role: data.role,
-        fname: data.fname,
-        lname: data.lname,
-        date_of_birth: data.dateOfBirth,
-        sex: data.sex,
-        phone: data.phoneNumber,
-        whatsapp: data.whatsappNumber,
-        preferred_contact: data.preferredContact,
-        // agreeToTerms: data.agreeToTerms,
-      });
+      const response = await axios.post(
+        "http://localhost:8080/classy-api/api/register.php",
+        {
+          gym_id: data.gymId,
+          username: "",
+          email: data.email,
+          password: data.password,
+          confirm_password: data.confirmPassword,
+          role: data.role,
+          fname: data.fname,
+          lname: data.lname,
+          date_of_birth: data.dateOfBirth,
+          sex: data.sex,
+          phone: data.phoneNumber,
+          whatsapp: data.whatsappNumber,
+          preferred_contact: data.preferredContact,
+          // agreeToTerms: data.agreeToTerms,
+        },
+      );
 
       console.log(response.data);
 
-      if(response.data.status == 'success'){
+      if (response.data.status == "success") {
         uploadPhoto(response.data.last_id);
       }
     } catch (error) {
@@ -203,9 +227,12 @@ const RegisterForm = () => {
   return (
     <>
       <View style={styles.fieldset}>
-        
         <View style={styles.field}>
-          <UploadPhoto photo={photo} setPhoto={setPhoto} uploadPhoto={uploadPhoto} />
+          <UploadPhoto
+            photo={photo}
+            setPhoto={setPhoto}
+            uploadPhoto={uploadPhoto}
+          />
         </View>
 
         <View style={styles.field}>
@@ -224,7 +251,9 @@ const RegisterForm = () => {
               />
             )}
           />
-          {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
+          {errors.email && (
+            <Text style={styles.errorText}>{errors.email.message}</Text>
+          )}
         </View>
 
         <View style={styles.field}>
@@ -238,12 +267,14 @@ const RegisterForm = () => {
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
-                keyboardType='default'
+                keyboardType="default"
                 secureTextEntry
               />
             )}
           />
-          {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
+          {errors.password && (
+            <Text style={styles.errorText}>{errors.password.message}</Text>
+          )}
         </View>
 
         <View style={styles.field}>
@@ -257,12 +288,16 @@ const RegisterForm = () => {
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
-                keyboardType='default'
+                keyboardType="default"
                 secureTextEntry
               />
             )}
           />
-          {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword.message}</Text>}
+          {errors.confirmPassword && (
+            <Text style={styles.errorText}>
+              {errors.confirmPassword.message}
+            </Text>
+          )}
         </View>
 
         <View style={styles.field}>
@@ -271,9 +306,9 @@ const RegisterForm = () => {
             control={control}
             name="role"
             render={({ field: { onChange, onBlur, value } }) => (
-              <SelectList 
+              <SelectList
                 setSelected={(val) => onChange(val)} // Send selection to hook-form
-                data={roleData} 
+                data={roleData}
                 save="value"
                 placeholder="Select Category"
                 boxStyles={{
@@ -285,14 +320,16 @@ const RegisterForm = () => {
                   borderColor: AppColors.grey2,
                   borderWidth: 1,
                   marginTop: 8,
-                  backgroundColor: 'white',
+                  backgroundColor: "white",
                 }}
                 // If you need to force the value from the parent (e.g., reset)
-                // defaultOption={data.find(item => item.value === value)} 
+                // defaultOption={data.find(item => item.value === value)}
               />
             )}
           />
-          {errors.role && <Text style={styles.errorText}>{errors.role.message}</Text>}
+          {errors.role && (
+            <Text style={styles.errorText}>{errors.role.message}</Text>
+          )}
         </View>
 
         <View style={styles.field}>
@@ -311,7 +348,9 @@ const RegisterForm = () => {
               />
             )}
           />
-          {errors.fname && <Text style={styles.errorText}>{errors.fname.message}</Text>}
+          {errors.fname && (
+            <Text style={styles.errorText}>{errors.fname.message}</Text>
+          )}
         </View>
 
         <View style={styles.field}>
@@ -330,7 +369,9 @@ const RegisterForm = () => {
               />
             )}
           />
-          {errors.lname && <Text style={styles.errorText}>{errors.lname.message}</Text>}
+          {errors.lname && (
+            <Text style={styles.errorText}>{errors.lname.message}</Text>
+          )}
         </View>
 
         {/* 3. Include the honeypot trap in your form */}
@@ -353,7 +394,9 @@ const RegisterForm = () => {
               /> // needs date picker added. check
             )}
           />
-          {errors.dateOfBirth && <Text style={styles.errorText}>{errors.dateOfBirth.message}</Text>}
+          {errors.dateOfBirth && (
+            <Text style={styles.errorText}>{errors.dateOfBirth.message}</Text>
+          )}
         </View>
 
         <View style={styles.field}>
@@ -362,9 +405,9 @@ const RegisterForm = () => {
             name="sex"
             control={control}
             render={({ field: { onChange, onBlur, value } }) => (
-              <SelectList 
+              <SelectList
                 setSelected={(val) => onChange(val)} // Send selection to hook-form
-                data={sexData} 
+                data={sexData}
                 save="value"
                 placeholder="Select Category"
                 boxStyles={{
@@ -376,14 +419,16 @@ const RegisterForm = () => {
                   borderColor: AppColors.grey2,
                   borderWidth: 1,
                   marginTop: 8,
-                  backgroundColor: 'white',
+                  backgroundColor: "white",
                 }}
                 // If you need to force the value from the parent (e.g., reset)
-                // defaultOption={data.find(item => item.value === value)} 
+                // defaultOption={data.find(item => item.value === value)}
               />
             )}
           />
-          {errors.sex && <Text style={styles.errorText}>{errors.sex.message}</Text>}
+          {errors.sex && (
+            <Text style={styles.errorText}>{errors.sex.message}</Text>
+          )}
         </View>
 
         <View style={styles.field}>
@@ -403,7 +448,9 @@ const RegisterForm = () => {
               />
             )}
           />
-          {errors.phoneNumber && <Text style={styles.errorText}>{errors.phoneNumber.message}</Text>}
+          {errors.phoneNumber && (
+            <Text style={styles.errorText}>{errors.phoneNumber.message}</Text>
+          )}
         </View>
 
         <View style={styles.field}>
@@ -423,7 +470,11 @@ const RegisterForm = () => {
               />
             )}
           />
-          {errors.whatsappNumber && <Text style={styles.errorText}>{errors.whatsappNumber.message}</Text>}
+          {errors.whatsappNumber && (
+            <Text style={styles.errorText}>
+              {errors.whatsappNumber.message}
+            </Text>
+          )}
         </View>
 
         <View style={styles.field}>
@@ -432,9 +483,9 @@ const RegisterForm = () => {
             control={control}
             name="preferredContact"
             render={({ field: { onChange, onBlur, value } }) => (
-              <SelectList 
+              <SelectList
                 setSelected={(val) => onChange(val)} // Send selection to hook-form
-                data={preferredContactData} 
+                data={preferredContactData}
                 save="value"
                 placeholder="Select Category"
                 boxStyles={{
@@ -446,14 +497,18 @@ const RegisterForm = () => {
                   borderColor: AppColors.grey2,
                   borderWidth: 1,
                   marginTop: 8,
-                  backgroundColor: 'white',
+                  backgroundColor: "white",
                 }}
                 // If you need to force the value from the parent (e.g., reset)
-                // defaultOption={data.find(item => item.value === value)} 
+                // defaultOption={data.find(item => item.value === value)}
               />
             )}
           />
-          {errors.preferredContact && <Text style={styles.errorText}>{errors.preferredContact.message}</Text>}
+          {errors.preferredContact && (
+            <Text style={styles.errorText}>
+              {errors.preferredContact.message}
+            </Text>
+          )}
         </View>
 
         <View style={styles.field}>
@@ -461,29 +516,13 @@ const RegisterForm = () => {
           <Controller
             control={control}
             name="gymId"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <SelectList 
-                setSelected={(val) => onChange(val)} // Send selection to hook-form
-                data={gyms} 
-                save="key"
-                placeholder="Select Category"
-                boxStyles={{
-                  borderColor: AppColors.grey,
-                  borderWidth: 1,
-                  paddingHorizontal: 8,
-                }}
-                dropdownStyles={{
-                  borderColor: AppColors.grey2,
-                  borderWidth: 1,
-                  marginTop: 8,
-                  backgroundColor: 'white',
-                }}
-                // If you need to force the value from the parent (e.g., reset)
-                // defaultOption={data.find(item => item.value === value)} 
-              />
+            render={({ field: { onChange } }) => (
+              <GymList onSelectValue={onChange} />
             )}
           />
-          {errors.gymId && <Text style={styles.errorText}>{errors.gymId.message}</Text>}
+          {errors.gymId && (
+            <Text style={styles.errorText}>{errors.gymId.message}</Text>
+          )}
         </View>
         <Text style={styles.agreement}>
           By registering, you agree to our terms and conditions.
@@ -502,17 +541,17 @@ const RegisterForm = () => {
   );
 };
 
-export default RegisterForm
+export default RegisterForm;
 
 const styles = StyleSheet.create({
   fieldset: {
-    marginBottom: 32
+    marginBottom: 32,
   },
   email: {},
   formLabel: {
     fontSize: 12,
     marginTop: 16,
-    marginBottom: 4
+    marginBottom: 4,
   },
   inputField: {
     marginTop: 5,
@@ -521,24 +560,24 @@ const styles = StyleSheet.create({
     borderColor: AppColors.textInputBorderColor,
     height: 48,
     borderRadius: 8,
-    backgroundColor: AppColors.grey
+    backgroundColor: AppColors.grey,
   },
   errorText: {
-    color: AppColors.red
+    color: AppColors.red,
   },
   createAcctBtn: {},
   createAcctBtnText: {},
   loginBtnContainer: {
-    alignItems: 'center',
-    marginTop: 16
+    alignItems: "center",
+    marginTop: 16,
   },
   loginBtn: {
     backgroundColor: AppColors.blue,
     borderRadius: 40,
     width: 250,
     height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   loginBtnText: {
     color: AppColors.white,
@@ -553,5 +592,5 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 20,
     lineHeight: 24,
-  }
-})
+  },
+});
