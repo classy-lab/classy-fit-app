@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   TextInput,
   Alert,
+  Linking,
 } from "react-native";
 import { AppColors } from "../../styles/colors";
 import { useNavigation } from "@react-navigation/native";
@@ -60,9 +61,6 @@ const schema = yup.object().shape({
     .matches(phoneRegExp, "WhatsApp Number number is not valid"),
   preferredContact: yup.string().oneOf(["Phone", "Email", "WhatsApp"]),
   gymId: yup.string().required("Category selection is required"),
-  //  agreeToTerms: yup.boolean()
-  //   .oneOf([true], 'You must accept the terms and conditions')
-  //   .required('Required'),
 });
 
 const RegisterForm = () => {
@@ -112,7 +110,6 @@ const RegisterForm = () => {
     }
   };
 
-  // 1. Parent controls the selected value
   const [sex, setSelected] = useState(""); // sex state lives here
   const sexData = [
     { key: "1", value: "Male", disabled: false },
@@ -120,7 +117,6 @@ const RegisterForm = () => {
     { key: "3", value: "Other" },
   ];
 
-  // 1. Parent controls the selected value
   const [PreferredContact, setPreferredContact] = React.useState("");
   const preferredContactData = [
     { key: "1", value: "Phone", disabled: false },
@@ -128,29 +124,7 @@ const RegisterForm = () => {
     { key: "3", value: "Email" },
   ];
 
-  // 1. Parent controls the selected value
   const [gyms, setGyms] = useState([]);
-
-  useEffect(() => {
-    const fetchGyms = async () => {
-      try {
-        const response = await fetch(
-          "http://localhost:8080/classy-api/api/GymList.php",
-        );
-        const json = await response.json();
-        setGyms(json);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    fetchGyms();
-  }, []); // <--- Empty array ensures it runs once on mount
-
-  // console.log(gyms);
-  // console.log(selectedGym);
-
-  // 1. Parent controls the selected value
   const [role, setRole] = React.useState("");
   const roleData = [
     { key: "1", value: "Gym Owner", disabled: true },
@@ -161,8 +135,11 @@ const RegisterForm = () => {
 
   // This is the "onChange" logic for GymList
   const handleSelectionChange = (val) => {
-    console.log("New value selected:", val);
     setGyms(val);
+  };
+
+  const handleLinkPress = () => {
+    Linking.openURL("https://cleancodeusa.com/about.html");
   };
 
   // 2. Initialize useForm with the Yup resolver
@@ -210,7 +187,6 @@ const RegisterForm = () => {
           phone: data.phoneNumber,
           whatsapp: data.whatsappNumber,
           preferred_contact: data.preferredContact,
-          // agreeToTerms: data.agreeToTerms,
         },
       );
 
@@ -234,7 +210,6 @@ const RegisterForm = () => {
             uploadPhoto={uploadPhoto}
           />
         </View>
-
         <View style={styles.field}>
           <Text style={styles.formLabel}>E-mail</Text>
           <Controller
@@ -255,7 +230,6 @@ const RegisterForm = () => {
             <Text style={styles.errorText}>{errors.email.message}</Text>
           )}
         </View>
-
         <View style={styles.field}>
           <Text style={styles.formLabel}>Password</Text>
           <Controller
@@ -276,7 +250,6 @@ const RegisterForm = () => {
             <Text style={styles.errorText}>{errors.password.message}</Text>
           )}
         </View>
-
         <View style={styles.field}>
           <Text style={styles.formLabel}>Confirm Password</Text>
           <Controller
@@ -299,7 +272,6 @@ const RegisterForm = () => {
             </Text>
           )}
         </View>
-
         <View style={styles.field}>
           <Text style={styles.formLabel}>Role</Text>
           <Controller
@@ -331,7 +303,6 @@ const RegisterForm = () => {
             <Text style={styles.errorText}>{errors.role.message}</Text>
           )}
         </View>
-
         <View style={styles.field}>
           <Text style={styles.formLabel}>First Name</Text>
           <Controller
@@ -352,7 +323,6 @@ const RegisterForm = () => {
             <Text style={styles.errorText}>{errors.fname.message}</Text>
           )}
         </View>
-
         <View style={styles.field}>
           <Text style={styles.formLabel}>Last Name</Text>
           <Controller
@@ -373,10 +343,8 @@ const RegisterForm = () => {
             <Text style={styles.errorText}>{errors.lname.message}</Text>
           )}
         </View>
-
         {/* 3. Include the honeypot trap in your form */}
         <HoneypotField value={website} onChangeText={setWebsite} />
-
         <View style={styles.field}>
           <Text style={styles.formLabel}>Date of Birth</Text>
           <Controller
@@ -398,7 +366,6 @@ const RegisterForm = () => {
             <Text style={styles.errorText}>{errors.dateOfBirth.message}</Text>
           )}
         </View>
-
         <View style={styles.field}>
           <Text style={styles.formLabel}>Sex</Text>
           <Controller
@@ -430,7 +397,6 @@ const RegisterForm = () => {
             <Text style={styles.errorText}>{errors.sex.message}</Text>
           )}
         </View>
-
         <View style={styles.field}>
           <Text style={styles.formLabel}>Phone Number</Text>
           <Controller
@@ -452,7 +418,6 @@ const RegisterForm = () => {
             <Text style={styles.errorText}>{errors.phoneNumber.message}</Text>
           )}
         </View>
-
         <View style={styles.field}>
           <Text style={styles.formLabel}>WhatsApp Number</Text>
           <Controller
@@ -476,7 +441,6 @@ const RegisterForm = () => {
             </Text>
           )}
         </View>
-
         <View style={styles.field}>
           <Text style={styles.formLabel}>Preferred Contact</Text>
           <Controller
@@ -510,7 +474,6 @@ const RegisterForm = () => {
             </Text>
           )}
         </View>
-
         <View style={styles.field}>
           <Text style={styles.formLabel}>Gym Location / Fitness Center</Text>
           <Controller
@@ -525,7 +488,16 @@ const RegisterForm = () => {
           )}
         </View>
         <Text style={styles.agreement}>
-          By registering, you agree to our terms and conditions.
+          By using Classy Fit, you agree and consent to our:{" "}
+          <Text style={styles.linkText} onPress={handleLinkPress}>
+            Terms of Service -{" "}
+            <Text style={styles.linkText} onPress={handleLinkPress}>
+              Cookie Policy -{" "}
+            </Text>
+            <Text style={styles.linkText} onPress={handleLinkPress}>
+              Privacy Policy
+            </Text>
+          </Text>
         </Text>
         <View style={styles.loginBtnContainer}>
           <TouchableOpacity
@@ -587,10 +559,12 @@ const styles = StyleSheet.create({
     marginBottom: 80,
   },
   agreement: {
-    color: AppColors.blue,
     fontSize: 12,
     marginTop: 20,
-    marginBottom: 20,
     lineHeight: 24,
+  },
+  linkText: {
+    fontSize: 12,
+    color: AppColors.blue,
   },
 });
