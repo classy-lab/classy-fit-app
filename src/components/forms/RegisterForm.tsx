@@ -219,7 +219,7 @@ const RegisterForm = () => {
         autoHide: false, // prevents the message from disappearing automatically
         onPress: () => hideMessage(), // closes the message when pressed
       });
-      console.log("json: ", JSON.stringify(obj));
+      // console.log("json: ", JSON.stringify(obj));
       navigation.navigate("ThankYouScreen");
     } else if (response.status == 400) {
       showMessage({
