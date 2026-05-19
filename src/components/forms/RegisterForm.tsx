@@ -214,22 +214,23 @@ const RegisterForm = () => {
     if (response.status === 200) {
       showMessage({
         message: obj?.message,
-        description: "API Server Response",
+        // description: "API Server Response",
         type: "success",
         autoHide: false, // prevents the message from disappearing automatically
         onPress: () => hideMessage(), // closes the message when pressed
       });
       console.log("json: ", JSON.stringify(obj));
       navigation.navigate("ThankYouScreen");
-    } else {
-      console.log("json error: ", JSON.stringify(obj));
+    } else if (response.status == 400) {
       showMessage({
         message: obj?.message,
-        description: "API Server Response",
+        // description: "API Server Response",
         type: "danger",
         autoHide: false, // prevents the message from disappearing automatically
         onPress: () => hideMessage(), // closes the message when pressed
       });
+    } else {
+      console.log("json error: ", JSON.stringify(obj));
     }
   };
 
