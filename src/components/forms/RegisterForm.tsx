@@ -220,6 +220,7 @@ const RegisterForm = () => {
         onPress: () => hideMessage(), // closes the message when pressed
       });
       console.log("json: ", JSON.stringify(obj));
+      navigation.navigate("ThankYouScreen");
     } else {
       console.log("json error: ", JSON.stringify(obj));
       showMessage({
