@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Image } from "react-native";
+import { Image, Button } from "react-native";
 import * as yup from "yup";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -26,6 +26,10 @@ import Checkbox from "expo-checkbox";
 import axios from "axios";
 import HoneypotField from "./input_fields/HoneypotField";
 import GymList from "../GymList";
+import FlashMessage, {
+  showMessage,
+  hideMessage,
+} from "react-native-flash-message";
 
 const phoneRegExp =
   /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
@@ -38,18 +42,18 @@ const schema = yup.object().shape({
   password: yup
     .string()
     .required("Password is required")
-    .min(13, "Password must contain at least 13 characters")
+    .min(2, "Password must contain at least 2 characters")
     .matches(
-      /^[a-zA-Z0-9]+$/,
-      "Password must only contain alphanumeric characters (letters and numbers)",
+      /^[a-zA-Z0-9\s~!@#$%^&*()_+-]+$/,
+      "Only letters, numbers, spaces, hyphens, and underscores are allowed",
     ),
   confirmPassword: yup
     .string()
     .oneOf([yup.ref("password")], "Passwords must match")
     .required("Please confirm your password"),
   role: yup.string().oneOf(["Owner", "Member", "Trainer", "Contractor"]),
-  fname: yup.string().required("First name is required").min(3),
-  lname: yup.string().required("Last name is required").min(2),
+  fname: yup.string().required("First name is required").min(2).max(20),
+  lname: yup.string().required("Last name is required").min(2).max(20),
   dateOfBirth: yup.string().required("Date of Birth is required"),
   sex: yup
     .string()
@@ -60,13 +64,18 @@ const schema = yup.object().shape({
     .string()
     .matches(phoneRegExp, "WhatsApp Number number is not valid"),
   preferredContact: yup.string().oneOf(["Phone", "Email", "WhatsApp"]),
-  gymId: yup.string().required("Category selection is required"),
+  gymId: yup
+    .string()
+    .matches(/^\d+$/, "Gym location is required")
+    .required("Category selection is required"),
 });
 
 const RegisterForm = () => {
   const navigation = useNavigation();
   const [photo, setPhoto] = useState(null);
   const [website, setWebsite] = useState("");
+  const [apimessage, setApiMessage] = useState("");
+  const [apierror, setApiErrorMsg] = useState("");
 
   // Use a ref to store the load time without triggering re-renders
   const formLoadTime = useRef(Date.now());
@@ -149,7 +158,15 @@ const RegisterForm = () => {
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
-    defaultValues: { gymId: "" },
+    defaultValues: {
+      gymId: "",
+      email: "help@simplecssjs.com",
+      dateOfBirth: "2000/05/05",
+      fname: "asdf",
+      lname: "asdf",
+      whatsappNumber: "518-517-9866",
+      phoneNumber: "518-517-9866",
+    },
   });
 
   // 3. Define the submit handler
@@ -210,6 +227,8 @@ const RegisterForm = () => {
             uploadPhoto={uploadPhoto}
           />
         </View>
+        <Text style={styles.errorMsg}>{apierror}</Text>
+        <Text style={styles.apimessage}>{apimessage}</Text>
         <View style={styles.field}>
           <Text style={styles.formLabel}>E-mail</Text>
           <Controller
@@ -508,6 +527,22 @@ const RegisterForm = () => {
             <Text style={styles.loginBtnText}>Create Account</Text>
           </TouchableOpacity>
         </View>
+        {/* GLOBAL FLASH MESSAGE COMPONENT INSTANCE */}
+        {/* <FlashMessage ref="myLocalFlashMessage" position="top" /> */}
+        <View style={{ flex: 1 }}>
+          <Button
+            onPress={() => {
+              /* HERE WE GONE SHOW OUR FIRST MESSAGE */
+              showMessage({
+                message: "Hello World",
+                description: "This is our second desc message",
+                type: "success",
+              });
+            }}
+            title="Request Details"
+            color="#841584"
+          />
+        </View>
       </View>
     </>
   );
@@ -567,4 +602,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: AppColors.blue,
   },
+  errorMsg: {
+    color: "red",
+  },
+  apimessage: { color: AppColors.blue },
 });
