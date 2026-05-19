@@ -74,8 +74,6 @@ const RegisterForm = () => {
   const navigation = useNavigation();
   const [photo, setPhoto] = useState(null);
   const [website, setWebsite] = useState("");
-  const [apimessage, setApiMessage] = useState("");
-  const [apierror, setApiErrorMsg] = useState("");
 
   // Use a ref to store the load time without triggering re-renders
   const formLoadTime = useRef(Date.now());
@@ -187,10 +185,12 @@ const RegisterForm = () => {
       return;
     }
 
-    try {
-      const response = await axios.post(
-        "http://localhost:8080/classy-api/api/register.php",
-        {
+    const response = await fetch(
+      "http://localhost:8080/classy-api/api/register.php",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           gym_id: data.gymId,
           username: "",
           email: data.email,
@@ -204,16 +204,31 @@ const RegisterForm = () => {
           phone: data.phoneNumber,
           whatsapp: data.whatsappNumber,
           preferred_contact: data.preferredContact,
-        },
-      );
+        }),
+      },
+    );
 
-      console.log(response.data);
+    const json = await response.text();
+    const obj = JSON.parse(json);
 
-      if (response.data.status == "success") {
-        uploadPhoto(response.data.last_id);
-      }
-    } catch (error) {
-      console.error(error.response?.data || error.message);
+    if (response.status === 200) {
+      showMessage({
+        message: obj?.message,
+        description: "API Server Response",
+        type: "success",
+        autoHide: false, // prevents the message from disappearing automatically
+        onPress: () => hideMessage(), // closes the message when pressed
+      });
+      console.log("json: ", JSON.stringify(obj));
+    } else {
+      console.log("json error: ", JSON.stringify(obj));
+      showMessage({
+        message: obj?.message,
+        description: "API Server Response",
+        type: "danger",
+        autoHide: false, // prevents the message from disappearing automatically
+        onPress: () => hideMessage(), // closes the message when pressed
+      });
     }
   };
 
@@ -227,8 +242,6 @@ const RegisterForm = () => {
             uploadPhoto={uploadPhoto}
           />
         </View>
-        <Text style={styles.errorMsg}>{apierror}</Text>
-        <Text style={styles.apimessage}>{apimessage}</Text>
         <View style={styles.field}>
           <Text style={styles.formLabel}>E-mail</Text>
           <Controller
@@ -526,22 +539,6 @@ const RegisterForm = () => {
           >
             <Text style={styles.loginBtnText}>Create Account</Text>
           </TouchableOpacity>
-        </View>
-        {/* GLOBAL FLASH MESSAGE COMPONENT INSTANCE */}
-        {/* <FlashMessage ref="myLocalFlashMessage" position="top" /> */}
-        <View style={{ flex: 1 }}>
-          <Button
-            onPress={() => {
-              /* HERE WE GONE SHOW OUR FIRST MESSAGE */
-              showMessage({
-                message: "Hello World",
-                description: "This is our second desc message",
-                type: "success",
-              });
-            }}
-            title="Request Details"
-            color="#841584"
-          />
         </View>
       </View>
     </>
