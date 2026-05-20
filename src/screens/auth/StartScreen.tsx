@@ -44,6 +44,7 @@ const StartScreen = () => {
           <View style={styles.headingContainer}>
             <Text style={styles.title}>Classy Fit</Text>
             <PinkLeafSvg style={styles.pinkLeaf} />
+            <Text style={styles.subTitle}>Kinderhook Fitness</Text>
           </View>
         </TouchableOpacity>
 
@@ -103,7 +104,7 @@ const StartScreen = () => {
                   );
                 }}
               >
-                <Text style={styles.chooseText}>Press to see Gym info</Text>
+                <Text style={styles.chooseText}>Press to view Gym</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -164,14 +165,21 @@ const styles = StyleSheet.create({
     fontSize: 32,
     marginTop: 60,
   },
+  subTitle: {
+    color: AppColors.blue,
+    fontFamily: "Montserrat",
+    fontSize: 24,
+    marginTop: 16,
+  },
   pinkLeaf: {
-    position: "relative",
+    position: "absolute",
     zIndex: -1,
-    top: -68,
-    right: -40,
+    top: 24,
+    right: 124,
   },
   body: {
     // borderWidth: 1, borderColor: 'red',
+    marginTop: 16,
     flex: 1,
   },
   bodyText: {
