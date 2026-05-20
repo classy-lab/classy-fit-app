@@ -161,6 +161,7 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   headingContainer: {
+    justifyContent: "center",
     alignItems: "center",
   },
   title: {
@@ -182,10 +183,9 @@ const styles = StyleSheet.create({
     position: "absolute",
     zIndex: -1,
     top: 24,
-    right: 124,
+    right: 80,
   },
   body: {
-    // borderWidth: 1, borderColor: 'red',
     marginTop: 16,
     flex: 1,
   },
