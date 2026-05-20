@@ -17,13 +17,16 @@ import PinkLeafSvg from "../../assets/svg/PinkLeafSvg";
 const StartScreen = () => {
   const navigation = useNavigation();
   const [selectedGym, setSelectedGym] = React.useState("");
-  const [gyms, setGyms] = useState([]);
   const gymData = [
     { key: "1", value: "Kinderhook Fitness, Valatie, NY" },
     { key: "2", value: "Vent Fitness, Clifton Park, NY" },
     { key: "3", value: "The Bodyshop Gym, Cobleskill, NY" },
     { key: "4", value: "Sarah's Gym, Cobleskill, NY" },
   ];
+
+  const fetchGymInfo = () => {
+    console.log("fetch gym info here");
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -44,6 +47,7 @@ const StartScreen = () => {
           <View style={styles.headingContainer}>
             <Text style={styles.title}>Classy Fit</Text>
             <PinkLeafSvg style={styles.pinkLeaf} />
+            <Text style={styles.subTitle}>{selectedGym}</Text>
           </View>
         </TouchableOpacity>
 
@@ -69,7 +73,11 @@ const StartScreen = () => {
           </View>
           <TouchableOpacity>
             <Text style={styles.subTitle}>
-              Helping gyms and workouts be productive for everyone
+              Built for the modern gym experience
+              {/* Making gyms and workouts more productive for everyone */}
+              {/* Smarter workouts for every gym-goer */}
+              {/* Making fitness accessible and effective for all */}
+              {/* Designed for better training */}
             </Text>
           </TouchableOpacity>
 
@@ -97,13 +105,10 @@ const StartScreen = () => {
               />
               <TouchableOpacity
                 onPress={() => {
-                  // fetchGymInfo();
-                  console.log(
-                    `Load gym info here and update app for ${selectedGym}`,
-                  );
+                  fetchGymInfo();
                 }}
               >
-                <Text style={styles.chooseText}>Press to see Gym info</Text>
+                <Text style={styles.chooseText}>Press to view Gym</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -164,14 +169,24 @@ const styles = StyleSheet.create({
     fontSize: 32,
     marginTop: 60,
   },
+  subTitle: {
+    color: AppColors.blue,
+    fontFamily: "Montserrat",
+    fontSize: 16,
+    lineHeight: 32,
+    textAlign: "center",
+    marginTop: 24,
+    marginBottom: 24,
+  },
   pinkLeaf: {
-    position: "relative",
+    position: "absolute",
     zIndex: -1,
-    top: -68,
-    right: -40,
+    top: 24,
+    right: 124,
   },
   body: {
     // borderWidth: 1, borderColor: 'red',
+    marginTop: 16,
     flex: 1,
   },
   bodyText: {
@@ -241,15 +256,6 @@ const styles = StyleSheet.create({
   },
   boxText: {
     fontSize: 16,
-  },
-  subTitle: {
-    fontFamily: "Montserrat",
-    color: AppColors.blue,
-    fontSize: 16,
-    lineHeight: 32,
-    textAlign: "center",
-    marginTop: 24,
-    marginBottom: 24,
   },
   scrollView: {
     flex: 1,

@@ -83,17 +83,37 @@ const AuthStack = () => {
         component={GymHours}
         options={{ title: "Gym Hours" }}
       />
-      <Drawer.Screen name="StartScreen" component={StartScreen} />
-      <Drawer.Screen name="RegisterScreen" component={RegisterScreen} />
-      <Drawer.Screen name="LoginScreen" component={LoginScreen} />
-      <Drawer.Screen name="ThankYouScreen" component={ThankYouScreen} />
-      <Drawer.Screen name="RegisterComplete" component={RegisterComplete} />
+
+      <Drawer.Screen
+        name="StartScreen"
+        options={{ drawerItemStyle: { display: "none" } }}
+        component={StartScreen}
+      />
+      <Drawer.Screen
+        name="RegisterScreen"
+        options={{ drawerItemStyle: { display: "none" } }}
+        component={RegisterScreen}
+      />
+      <Drawer.Screen
+        name="LoginScreen"
+        options={{ drawerItemStyle: { display: "none" } }}
+        component={LoginScreen}
+      />
+      <Drawer.Screen
+        name="RegisterComplete"
+        options={{ drawerItemStyle: { display: "none" } }}
+        component={RegisterComplete}
+      />
       <Drawer.Screen
         name="TemplateScreen"
-        options={{}}
+        options={{ drawerItemStyle: { display: "none" } }}
         component={TemplateScreen}
       />
-      {/* <Drawer.Screen name='RegisterComplete' options={{ drawerItemStyle: { display: 'none' }, }} component={RegisterComplete} /> */}
+      {/* <Drawer.Screen
+        name="RegisterComplete"
+        options={{ drawerItemStyle: { display: "none" } }}
+        component={RegisterComplete}
+      /> */}
     </Drawer.Navigator>
   );
 };
