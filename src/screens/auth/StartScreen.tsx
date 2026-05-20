@@ -172,8 +172,11 @@ const styles = StyleSheet.create({
   subTitle: {
     color: AppColors.blue,
     fontFamily: "Montserrat",
-    fontSize: 24,
-    marginTop: 16,
+    fontSize: 16,
+    lineHeight: 32,
+    textAlign: "center",
+    marginTop: 24,
+    marginBottom: 24,
   },
   pinkLeaf: {
     position: "absolute",
@@ -253,15 +256,6 @@ const styles = StyleSheet.create({
   },
   boxText: {
     fontSize: 16,
-  },
-  subTitle: {
-    fontFamily: "Montserrat",
-    color: AppColors.blue,
-    fontSize: 16,
-    lineHeight: 32,
-    textAlign: "center",
-    marginTop: 24,
-    marginBottom: 24,
   },
   scrollView: {
     flex: 1,
