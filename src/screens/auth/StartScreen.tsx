@@ -17,13 +17,16 @@ import PinkLeafSvg from "../../assets/svg/PinkLeafSvg";
 const StartScreen = () => {
   const navigation = useNavigation();
   const [selectedGym, setSelectedGym] = React.useState("");
-  const [gyms, setGyms] = useState([]);
   const gymData = [
     { key: "1", value: "Kinderhook Fitness, Valatie, NY" },
     { key: "2", value: "Vent Fitness, Clifton Park, NY" },
     { key: "3", value: "The Bodyshop Gym, Cobleskill, NY" },
     { key: "4", value: "Sarah's Gym, Cobleskill, NY" },
   ];
+
+  const fetchGymInfo = () => {
+    console.log("fetch gym info here");
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -44,7 +47,7 @@ const StartScreen = () => {
           <View style={styles.headingContainer}>
             <Text style={styles.title}>Classy Fit</Text>
             <PinkLeafSvg style={styles.pinkLeaf} />
-            <Text style={styles.subTitle}>Kinderhook Fitness</Text>
+            <Text style={styles.subTitle}>{selectedGym}</Text>
           </View>
         </TouchableOpacity>
 
@@ -98,10 +101,7 @@ const StartScreen = () => {
               />
               <TouchableOpacity
                 onPress={() => {
-                  // fetchGymInfo();
-                  console.log(
-                    `Load gym info here and update app for ${selectedGym}`,
-                  );
+                  fetchGymInfo();
                 }}
               >
                 <Text style={styles.chooseText}>Press to view Gym</Text>
