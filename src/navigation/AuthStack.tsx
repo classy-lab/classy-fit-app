@@ -109,10 +109,15 @@ const AuthStack = () => {
         options={{ drawerItemStyle: { display: "none" } }}
         component={TemplateScreen}
       />
-      {/* <Drawer.Screen
-        name="RegisterComplete"
+      <Drawer.Screen
+        name="ThankYouScreen"
         options={{ drawerItemStyle: { display: "none" } }}
-        component={RegisterComplete}
+        component={ThankYouScreen}
+      />
+      {/* <Drawer.Screen
+        name="ThankYouScreen"
+        options={{ drawerItemStyle: { display: "none" } }}
+        component={ThankYouScreen}
       /> */}
     </Drawer.Navigator>
   );
