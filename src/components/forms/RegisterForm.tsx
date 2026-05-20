@@ -54,7 +54,13 @@ const schema = yup.object().shape({
   role: yup.string().oneOf(["Owner", "Member", "Trainer", "Contractor"]),
   fname: yup.string().required("First name is required").min(2).max(20),
   lname: yup.string().required("Last name is required").min(2).max(20),
-  dateOfBirth: yup.string().required("Date of Birth is required"),
+  dateOfBirth: yup
+    .string()
+    .matches(
+      /^\d{4}\/(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])$/,
+      "Date must be in YYYY/MM/DD format",
+    )
+    .required("Date of birth is required"),
   sex: yup
     .string()
     .oneOf(["Male", "Female", "Other"], "Please select a valid category")
