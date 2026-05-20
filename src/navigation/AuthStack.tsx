@@ -17,6 +17,7 @@ import RegisterScreen from "../screens/auth/RegisterScreen";
 import RegisterComplete from "../screens/auth/RegisterComplete";
 import TemplateScreen from "../screens/auth/TemplateScreen";
 import LoginScreen from "../screens/auth/LoginScreen";
+import ThankYouScreen from "../screens/app/ThankYouScreen";
 
 const screenOptionsStyle = {
   overlayColor: "rgba(255, 255, 255, 0.3)",
@@ -82,6 +83,7 @@ const AuthStack = () => {
         component={GymHours}
         options={{ title: "Gym Hours" }}
       />
+
       <Drawer.Screen
         name="StartScreen"
         options={{ drawerItemStyle: { display: "none" } }}
