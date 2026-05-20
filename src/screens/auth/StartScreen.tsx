@@ -169,8 +169,6 @@ const styles = StyleSheet.create({
     fontFamily: "Montserrat",
     fontSize: 32,
     marginTop: 60,
-    // borderWidth: 1,
-    // borderColor: "red",
     width: "100%",
     textAlign: "center",
   },
