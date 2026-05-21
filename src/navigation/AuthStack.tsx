@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useContext } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { AppColors } from "../styles/colors";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -18,6 +18,7 @@ import RegisterComplete from "../screens/auth/RegisterComplete";
 import TemplateScreen from "../screens/auth/TemplateScreen";
 import LoginScreen from "../screens/auth/LoginScreen";
 import ThankYouScreen from "../screens/app/ThankYouScreen";
+import { GymContext } from "../context/GymContext";
 
 const screenOptionsStyle = {
   overlayColor: "rgba(255, 255, 255, 0.3)",
@@ -40,6 +41,71 @@ const screenOptionsStyle = {
 const AuthStack = () => {
   const navigation = useNavigation();
   const Drawer = createDrawerNavigator();
+  const gyms = [
+    {
+      About: {
+        title: "About Us",
+        body: "At Kinderhook fitness, Our facility offers plenty of room to move, clean and well-maintained equipment, and a supportive community to help you achieve your fitness goals.\n\n Get started today and experience the difference at Kinderhook Fitness!",
+      },
+      Contact: {
+        title: "Contact Us",
+        body: `Your journey to a better you starts here at Kinderhook Fitness! \n 
+              3143 US Route 9  \n
+              Suite #4 \n
+              Valatie, NY 12184 \n
+              info@kinderhookfitnessny.com`,
+      },
+      GymHours: {
+        title: "Gym Hours",
+        body: `Weekdays 5:30am - 9:00pm\n Saturday 7:00am - 7:00pm\n Sunday 8:00am - 5:00pm`,
+      },
+    },
+    {
+      About: {
+        title: "About Us",
+        body: "This is the description",
+      },
+      Contact: {
+        title: "Contact Us",
+        body: "This is the description",
+      },
+      GymHours: {
+        title: "Gym Hours",
+        body: "This is the description",
+      },
+    },
+    {
+      About: {
+        title: "About Us",
+        body: "This is the description",
+      },
+      Contact: {
+        title: "Contact Us",
+        body: "This is the description",
+      },
+      GymHours: {
+        title: "Gym Hours",
+        body: "This is the description",
+      },
+    },
+    {
+      About: {
+        title: "About Us",
+        body: "This is the description for about section of Sarah's gym",
+      },
+      Contact: {
+        title: "Contact Us",
+        body: "This is the description",
+      },
+      GymHours: {
+        title: "Gym Hours",
+        body: "This is the description",
+      },
+    },
+  ];
+  const [gymID, setGymID] = useState(null);
+  const [gymsInfo, setGymsInfo] = useState(gyms);
+  // console.log(gymsInfo[0].About);
 
   function CustomDrawerContent(props) {
     return (
@@ -63,63 +129,65 @@ const AuthStack = () => {
   }
 
   return (
-    <Drawer.Navigator
-      screenOptions={screenOptionsStyle}
-      drawerContent={(props) => <CustomDrawerContent {...props} />}
-    >
-      <Drawer.Screen name="Home" component={StartScreen} />
-      <Drawer.Screen
-        name="About"
-        component={About}
-        options={{ title: "About" }}
-      />
-      <Drawer.Screen
-        name="Contact"
-        component={Contact}
-        options={{ title: "Contact" }}
-      />
-      <Drawer.Screen
-        name="GymHours"
-        component={GymHours}
-        options={{ title: "Gym Hours" }}
-      />
+    <GymContext.Provider value={{ gymsInfo, gymID, setGymID }}>
+      <Drawer.Navigator
+        screenOptions={screenOptionsStyle}
+        drawerContent={(props) => <CustomDrawerContent {...props} />}
+      >
+        <Drawer.Screen name="Home" component={StartScreen} />
+        <Drawer.Screen
+          name="About"
+          component={About}
+          options={{ title: "About" }}
+        />
+        <Drawer.Screen
+          name="Contact"
+          component={Contact}
+          options={{ title: "Contact" }}
+        />
+        <Drawer.Screen
+          name="GymHours"
+          component={GymHours}
+          options={{ title: "Gym Hours" }}
+        />
 
-      <Drawer.Screen
-        name="StartScreen"
-        options={{ drawerItemStyle: { display: "none" } }}
-        component={StartScreen}
-      />
-      <Drawer.Screen
-        name="RegisterScreen"
-        options={{ drawerItemStyle: { display: "none" } }}
-        component={RegisterScreen}
-      />
-      <Drawer.Screen
-        name="LoginScreen"
-        options={{ drawerItemStyle: { display: "none" } }}
-        component={LoginScreen}
-      />
-      <Drawer.Screen
-        name="RegisterComplete"
-        options={{ drawerItemStyle: { display: "none" } }}
-        component={RegisterComplete}
-      />
-      <Drawer.Screen
-        name="TemplateScreen"
-        options={{ drawerItemStyle: { display: "none" } }}
-        component={TemplateScreen}
-      />
-      <Drawer.Screen
-        name="ThankYouScreen"
-        options={{ drawerItemStyle: { display: "none" } }}
-        component={ThankYouScreen}
-      />
-      {/* <Drawer.Screen
+        <Drawer.Screen
+          name="StartScreen"
+          options={{ drawerItemStyle: { display: "none" } }}
+          component={StartScreen}
+        />
+        <Drawer.Screen
+          name="RegisterScreen"
+          options={{ drawerItemStyle: { display: "none" } }}
+          component={RegisterScreen}
+        />
+        <Drawer.Screen
+          name="LoginScreen"
+          options={{ drawerItemStyle: { display: "none" } }}
+          component={LoginScreen}
+        />
+        <Drawer.Screen
+          name="RegisterComplete"
+          options={{ drawerItemStyle: { display: "none" } }}
+          component={RegisterComplete}
+        />
+        <Drawer.Screen
+          name="TemplateScreen"
+          options={{ drawerItemStyle: { display: "none" } }}
+          component={TemplateScreen}
+        />
+        <Drawer.Screen
+          name="ThankYouScreen"
+          options={{ drawerItemStyle: { display: "none" } }}
+          component={ThankYouScreen}
+        />
+        {/* <Drawer.Screen
         name="ThankYouScreen"
         options={{ drawerItemStyle: { display: "none" } }}
         component={ThankYouScreen}
       /> */}
-    </Drawer.Navigator>
+      </Drawer.Navigator>
+    </GymContext.Provider>
   );
 };
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import {
   StyleSheet,
   Text,
@@ -13,20 +13,19 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { AppColors } from "../../styles/colors";
 import VectorImageSvg from "../../components/svg/VectorImageSvg";
 import PinkLeafSvg from "../../assets/svg/PinkLeafSvg";
+import { GymContext } from "../../context/GymContext";
 
 const StartScreen = () => {
   const navigation = useNavigation();
-  const [selectedGym, setSelectedGym] = React.useState("");
-  const gymData = [
-    { key: "1", value: "Kinderhook Fitness, Valatie, NY" },
-    { key: "2", value: "Vent Fitness, Clifton Park, NY" },
-    { key: "3", value: "The Bodyshop Gym, Cobleskill, NY" },
-    { key: "4", value: "Sarah's Gym, Cobleskill, NY" },
+  const gyms = [
+    { key: "0", value: "Kinderhook Fitness, Valatie, NY" },
+    { key: "1", value: "Vent Fitness, Clifton Park, NY" },
+    { key: "2", value: "The Bodyshop Gym, Cobleskill, NY" },
+    { key: "3", value: "Sarah's Gym, Cobleskill, NY" },
   ];
-
-  const fetchGymInfo = () => {
-    console.log("fetch gym info here");
-  };
+  // GymContext variables
+  const { gymID, setGymID } = useContext(GymContext);
+  const { gymsInfo } = useContext(GymContext);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -47,7 +46,7 @@ const StartScreen = () => {
           <View style={styles.headingContainer}>
             <Text style={styles.title}>Classy Fit</Text>
             <PinkLeafSvg style={styles.pinkLeaf} />
-            <Text style={styles.subTitle}>{selectedGym}</Text>
+            <Text style={styles.subTitle}>{gyms[gymID]?.value}</Text>
           </View>
         </TouchableOpacity>
 
@@ -85,9 +84,13 @@ const StartScreen = () => {
             <View style={styles.field}>
               <Text style={styles.formLabel}>Choose a Gym</Text>
               <SelectList
-                setSelected={(val) => setSelectedGym(val)} // Send selection to hook-form
-                data={gymData}
-                save="value"
+                setSelected={(val) => setGymID(val)} // Send selection to hook-form
+                data={gyms}
+                defaultOption={{
+                  key: "0",
+                  value: "Kinderhook Fitness, Valatie, NY",
+                }}
+                save="key"
                 placeholder="Select Category"
                 boxStyles={{
                   borderColor: AppColors.grey,
@@ -103,13 +106,6 @@ const StartScreen = () => {
                 // If you need to force the value from the parent (e.g., reset)
                 // defaultOption={data.find(item => item.value === value)}
               />
-              <TouchableOpacity
-                onPress={() => {
-                  fetchGymInfo();
-                }}
-              >
-                <Text style={styles.chooseText}>Press to view Gym</Text>
-              </TouchableOpacity>
             </View>
           </View>
 
@@ -180,6 +176,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 24,
     marginBottom: 24,
+    width: 320,
   },
   pinkLeaf: {
     position: "absolute",
