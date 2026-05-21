@@ -86,6 +86,10 @@ const StartScreen = () => {
               <SelectList
                 setSelected={(val) => setGymID(val)} // Send selection to hook-form
                 data={gyms}
+                defaultOption={{
+                  key: "0",
+                  value: "Kinderhook Fitness, Valatie, NY",
+                }}
                 save="key"
                 placeholder="Select Category"
                 boxStyles={{
