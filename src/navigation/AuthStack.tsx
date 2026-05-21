@@ -45,7 +45,7 @@ const AuthStack = () => {
     {
       About: {
         title: "About",
-        body: "At kinderhook fitness, Our facility offers plenty of room to move, clean and well-maintained equipment, and a supportive community to help you achieve your fitness goals.\n\n Get started today and experience the difference at Kinderhook Fitness!",
+        body: "At Kinderhook fitness, Our facility offers plenty of room to move, clean and well-maintained equipment, and a supportive community to help you achieve your fitness goals.\n\n Get started today and experience the difference at Kinderhook Fitness!",
       },
       Contact: {
         title: "Contact Us",
