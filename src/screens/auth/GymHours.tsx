@@ -95,6 +95,7 @@ const styles = StyleSheet.create({
   title: {
     color: AppColors.blue,
     fontFamily: "Montserrat",
+    width: 320,
     fontSize: 32,
     marginTop: 60,
   },
