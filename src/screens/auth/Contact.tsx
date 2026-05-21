@@ -51,8 +51,8 @@ const Contact = () => {
           {gymID ? (
             <Text style={styles.title}>{gymsInfo[gymID]?.Contact.title}</Text>
           ) : null}
-          {/* <PinkLeafSvg style={styles.pinkLeaf} /> */}
-          <PinkShape style={styles.pinkLeaf} />
+          <PinkLeafSvg style={styles.pinkLeaf} />
+          {/* <PinkShape style={styles.pinkLeaf} /> */}
         </View>
 
         <View style={styles.body}>
@@ -100,8 +100,8 @@ const styles = StyleSheet.create({
   pinkLeaf: {
     position: "relative",
     zIndex: -1,
-    top: -100,
-    right: -80,
+    top: -68,
+    right: -40,
   },
   body: {
     // borderWidth: 1, borderColor: 'red',
