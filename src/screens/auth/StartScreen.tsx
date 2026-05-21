@@ -176,6 +176,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 24,
     marginBottom: 24,
+    width: 320,
   },
   pinkLeaf: {
     position: "absolute",
