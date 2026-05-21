@@ -83,7 +83,7 @@ const LoginForm = () => {
     }
 
     // This function only runs if validation passes
-    console.log("Form Submitted (Validation Passed):", data);
+    // console.log("Form Submitted (Validation Passed):", data);
 
     try {
       // Perform your authentication logic or API call here
