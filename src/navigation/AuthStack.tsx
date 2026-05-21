@@ -44,7 +44,7 @@ const AuthStack = () => {
   const gyms = [
     {
       About: {
-        title: "About",
+        title: "About Us",
         body: "At Kinderhook fitness, Our facility offers plenty of room to move, clean and well-maintained equipment, and a supportive community to help you achieve your fitness goals.\n\n Get started today and experience the difference at Kinderhook Fitness!",
       },
       Contact: {
@@ -56,50 +56,50 @@ const AuthStack = () => {
         info@kinderhookfitnessny.com`,
       },
       GymHours: {
-        title: "Gym Hours for Kinderhook Fitness",
-        body: "This is the body",
+        title: "Gym Hours",
+        body: "This is the description",
       },
     },
     {
       About: {
-        title: "About Vent Fitness",
-        body: "This is the body",
+        title: "About Us",
+        body: "This is the description",
       },
       Contact: {
-        title: "Contact for Vent Fitness",
-        body: "This is the body",
+        title: "Contact Us",
+        body: "This is the description",
       },
       GymHours: {
-        title: "Gym Hours for Vent Fitness",
-        body: "This is the body",
+        title: "Gym Hours",
+        body: "This is the description",
       },
     },
     {
       About: {
-        title: "About The Bodyshop Gym",
-        body: "This is the body",
+        title: "About Us",
+        body: "This is the description",
       },
       Contact: {
-        title: "Contact for The Bodyshop Gym",
-        body: "This is the body",
+        title: "Contact Us",
+        body: "This is the description",
       },
       GymHours: {
-        title: "Gym Hours for The Bodyshop Gym",
-        body: "This is the body",
+        title: "Gym Hours",
+        body: "This is the description",
       },
     },
     {
       About: {
-        title: "About Sarah's Gym",
-        body: "This is the body for about section of Sarah's gym",
+        title: "About Us",
+        body: "This is the description for about section of Sarah's gym",
       },
       Contact: {
-        title: "Contact for Sarah's Gym",
-        body: "This is the body",
+        title: "Contact Us",
+        body: "This is the description",
       },
       GymHours: {
-        title: "Gym Hours for Sarah's Gym",
-        body: "This is the body",
+        title: "Gym Hours",
+        body: "This is the description",
       },
     },
   ];
