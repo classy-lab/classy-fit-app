@@ -44,12 +44,16 @@ const AuthStack = () => {
   const gyms = [
     {
       About: {
-        title: "About Kinderhook Fitness",
-        body: "This is the body",
+        title: "About",
+        body: "At kinderhook fitness, Our facility offers plenty of room to move, clean and well-maintained equipment, and a supportive community to help you achieve your fitness goals.\n\n Get started today and experience the difference at Kinderhook Fitness!",
       },
       Contact: {
-        title: "Contact for Kinderhook Fitness",
-        body: "This is the body",
+        title: "Contact Us",
+        body: `Your journey to a better you starts here at Kinderhook Fitness! \n 
+        3143 US Route 9  \n
+        Suite #4 \n
+        Valatie, NY 12184 \n
+        info@kinderhookfitnessny.com`,
       },
       GymHours: {
         title: "Gym Hours for Kinderhook Fitness",
