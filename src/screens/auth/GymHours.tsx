@@ -110,8 +110,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 32,
     color: AppColors.primary,
-    marginLeft: 24,
-    marginRight: 24,
+    // marginLeft: 24,
+    // marginRight: 24,
     textAlign: "center",
   },
   imageContainer: {
