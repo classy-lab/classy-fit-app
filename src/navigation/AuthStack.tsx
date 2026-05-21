@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useContext } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { AppColors } from "../styles/colors";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -18,6 +18,7 @@ import RegisterComplete from "../screens/auth/RegisterComplete";
 import TemplateScreen from "../screens/auth/TemplateScreen";
 import LoginScreen from "../screens/auth/LoginScreen";
 import ThankYouScreen from "../screens/app/ThankYouScreen";
+import { GymContext } from "../context/GymContext";
 
 const screenOptionsStyle = {
   overlayColor: "rgba(255, 255, 255, 0.3)",
@@ -40,6 +41,67 @@ const screenOptionsStyle = {
 const AuthStack = () => {
   const navigation = useNavigation();
   const Drawer = createDrawerNavigator();
+  const gyms = [
+    {
+      About: {
+        title: "About Kinderhook Fitness",
+        body: "This is the body",
+      },
+      Contact: {
+        title: "Contact for Kinderhook Fitness",
+        body: "This is the body",
+      },
+      GymHours: {
+        title: "Gym Hours for Kinderhook Fitness",
+        body: "This is the body",
+      },
+    },
+    {
+      About: {
+        title: "About Vent Fitness",
+        body: "This is the body",
+      },
+      Contact: {
+        title: "Contact for Vent Fitness",
+        body: "This is the body",
+      },
+      GymHours: {
+        title: "Gym Hours for Vent Fitness",
+        body: "This is the body",
+      },
+    },
+    {
+      About: {
+        title: "About The Bodyshop Gym",
+        body: "This is the body",
+      },
+      Contact: {
+        title: "Contact for The Bodyshop Gym",
+        body: "This is the body",
+      },
+      GymHours: {
+        title: "Gym Hours for The Bodyshop Gym",
+        body: "This is the body",
+      },
+    },
+    {
+      About: {
+        title: "About Sarah's Gym",
+        body: "This is the body for about section of Sarah's gym",
+      },
+      Contact: {
+        title: "Contact for Sarah's Gym",
+        body: "This is the body",
+      },
+      GymHours: {
+        title: "Gym Hours for Sarah's Gym",
+        body: "This is the body",
+      },
+    },
+  ];
+  const [gymID, setGymID] = useState(null);
+  const [gymsInfo, setGymsInfo] = useState(gyms);
+  // console.log(gymsInfo[0].About);
 
   function CustomDrawerContent(props) {
     return (
@@ -63,63 +125,65 @@ const AuthStack = () => {
   }
 
   return (
-    <Drawer.Navigator
-      screenOptions={screenOptionsStyle}
-      drawerContent={(props) => <CustomDrawerContent {...props} />}
-    >
-      <Drawer.Screen name="Home" component={StartScreen} />
-      <Drawer.Screen
-        name="About"
-        component={About}
-        options={{ title: "About" }}
-      />
-      <Drawer.Screen
-        name="Contact"
-        component={Contact}
-        options={{ title: "Contact" }}
-      />
-      <Drawer.Screen
-        name="GymHours"
-        component={GymHours}
-        options={{ title: "Gym Hours" }}
-      />
+    <GymContext.Provider value={{ gymsInfo, gymID, setGymID }}>
+      <Drawer.Navigator
+        screenOptions={screenOptionsStyle}
+        drawerContent={(props) => <CustomDrawerContent {...props} />}
+      >
+        <Drawer.Screen name="Home" component={StartScreen} />
+        <Drawer.Screen
+          name="About"
+          component={About}
+          options={{ title: "About" }}
+        />
+        <Drawer.Screen
+          name="Contact"
+          component={Contact}
+          options={{ title: "Contact" }}
+        />
+        <Drawer.Screen
+          name="GymHours"
+          component={GymHours}
+          options={{ title: "Gym Hours" }}
+        />
 
-      <Drawer.Screen
-        name="StartScreen"
-        options={{ drawerItemStyle: { display: "none" } }}
-        component={StartScreen}
-      />
-      <Drawer.Screen
-        name="RegisterScreen"
-        options={{ drawerItemStyle: { display: "none" } }}
-        component={RegisterScreen}
-      />
-      <Drawer.Screen
-        name="LoginScreen"
-        options={{ drawerItemStyle: { display: "none" } }}
-        component={LoginScreen}
-      />
-      <Drawer.Screen
-        name="RegisterComplete"
-        options={{ drawerItemStyle: { display: "none" } }}
-        component={RegisterComplete}
-      />
-      <Drawer.Screen
-        name="TemplateScreen"
-        options={{ drawerItemStyle: { display: "none" } }}
-        component={TemplateScreen}
-      />
-      <Drawer.Screen
-        name="ThankYouScreen"
-        options={{ drawerItemStyle: { display: "none" } }}
-        component={ThankYouScreen}
-      />
-      {/* <Drawer.Screen
+        <Drawer.Screen
+          name="StartScreen"
+          options={{ drawerItemStyle: { display: "none" } }}
+          component={StartScreen}
+        />
+        <Drawer.Screen
+          name="RegisterScreen"
+          options={{ drawerItemStyle: { display: "none" } }}
+          component={RegisterScreen}
+        />
+        <Drawer.Screen
+          name="LoginScreen"
+          options={{ drawerItemStyle: { display: "none" } }}
+          component={LoginScreen}
+        />
+        <Drawer.Screen
+          name="RegisterComplete"
+          options={{ drawerItemStyle: { display: "none" } }}
+          component={RegisterComplete}
+        />
+        <Drawer.Screen
+          name="TemplateScreen"
+          options={{ drawerItemStyle: { display: "none" } }}
+          component={TemplateScreen}
+        />
+        <Drawer.Screen
+          name="ThankYouScreen"
+          options={{ drawerItemStyle: { display: "none" } }}
+          component={ThankYouScreen}
+        />
+        {/* <Drawer.Screen
         name="ThankYouScreen"
         options={{ drawerItemStyle: { display: "none" } }}
         component={ThankYouScreen}
       /> */}
-    </Drawer.Navigator>
+      </Drawer.Navigator>
+    </GymContext.Provider>
   );
 };
 
