@@ -84,6 +84,9 @@ const styles = StyleSheet.create({
     fontFamily: "Montserrat",
     fontSize: 32,
     marginTop: 60,
+    width: 320,
+    // borderWidth: 1,
+    // borderColor: "red",
     textAlign: "center",
   },
   pinkLeaf: {
