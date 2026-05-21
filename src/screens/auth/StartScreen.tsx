@@ -27,6 +27,11 @@ const StartScreen = () => {
   const { gymID, setGymID } = useContext(GymContext);
   const { gymsInfo } = useContext(GymContext);
 
+  useEffect(() => {
+    setGymID(null);
+    console.log("setting gymID to null");
+  }, []);
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.navs}>
@@ -84,7 +89,9 @@ const StartScreen = () => {
             <View style={styles.field}>
               <Text style={styles.formLabel}>Choose a Gym</Text>
               <SelectList
-                setSelected={(val) => setGymID(val)} // Send selection to hook-form
+                setSelected={(val) => {
+                  setGymID(val);
+                }} // Send selection to hook-form
                 data={gyms}
                 defaultOption={{
                   key: "0",
