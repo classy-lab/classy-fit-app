@@ -56,8 +56,6 @@ const GymHours = () => {
           {gymID ? (
             <Text style={styles.title}>{gymsInfo[gymID]?.GymHours.title}</Text>
           ) : null}
-          <PinkLeafSvg style={styles.pinkLeaf} />
-          {/* <PinkShape style={styles.pinkLeaf} /> */}
         </View>
 
         <View style={styles.body}>
@@ -95,9 +93,10 @@ const styles = StyleSheet.create({
   title: {
     color: AppColors.blue,
     fontFamily: "Montserrat",
-    width: 320,
     fontSize: 32,
     marginTop: 60,
+    marginBottom: 40,
+    width: "auto",
   },
   pinkLeaf: {
     position: "relative",
@@ -105,14 +104,11 @@ const styles = StyleSheet.create({
     top: -68,
     right: -40,
   },
-  body: {},
   bodyText: {
     fontFamily: "Montserrat",
     fontSize: 16,
     lineHeight: 32,
     color: AppColors.primary,
-    // marginLeft: 24,
-    // marginRight: 24,
     textAlign: "center",
   },
   imageContainer: {
