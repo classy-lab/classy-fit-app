@@ -1,5 +1,4 @@
-import React, { useContext, useEffect } from "react";
-import { UserContext } from "../../context/UserContext";
+import React, { useState, useEffect, useRef } from "react";
 import * as yup from "yup";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -9,18 +8,26 @@ import {
   Text,
   TouchableOpacity,
   TextInput,
+  Alert,
+  Linking,
 } from "react-native";
 import { AppColors } from "../../styles/colors";
 import { useNavigation } from "@react-navigation/native";
-import { s, vs } from "react-native-size-matters";
-import { useState } from "react";
-import SelectedRolePicker from "./SelectedRolePicker";
-import SexPicker from "./SexPicker";
-import PreferredContact from "./PreferredContact";
+import { SelectList } from "react-native-dropdown-select-list";
+import UploadPhoto from "../../screens/app/UploadPhoto";
+import axios from "axios";
+import HoneypotField from "./input_fields/HoneypotField";
+import GymList from "../GymList";
+import FlashMessage, {
+  showMessage,
+  hideMessage,
+} from "react-native-flash-message";
 import { globalStyles } from "../../styles/globalStyles";
 
 const phoneRegExp =
   /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
+
+const MIN_SUBMISSION_TIME_MS = 5000; // 5 seconds threshold before reg form can be submitted
 
 // 1. Define the Yup validation schema
 const schema = yup.object().shape({
@@ -28,33 +35,118 @@ const schema = yup.object().shape({
   password: yup
     .string()
     .required("Password is required")
-    .min(13, "Password must contain at least 13 characters")
+    .min(12, "Password must contain at least 12 characters")
     .matches(
-      /^[a-zA-Z0-9]+$/,
-      "Password must only contain alphanumeric characters (letters and numbers)",
+      /^[a-zA-Z0-9\s~!@#$%^&*()_+-]+$/,
+      "Only letters, numbers, spaces, hyphens, and underscores are allowed",
     ),
   confirmPassword: yup
     .string()
-    .oneOf([yup.ref("password"), null])
-    .required(),
+    .oneOf([yup.ref("password")], "Passwords must match")
+    .required("Please confirm your password"),
   role: yup.string().oneOf(["Owner", "Member", "Trainer", "Contractor"]),
-  fname: yup.string().required().min(3),
-  lname: yup.string().required().min(2),
-  // dateOfBirth: '',
-  age: yup.number().positive().integer().min(18).required(),
-  sex: yup.string().oneOf(["Male", "Female", "Other"]),
+  fname: yup.string().required("First name is required").min(2).max(20),
+  lname: yup.string().required("Last name is required").min(2).max(20),
+  dateOfBirth: yup
+    .string()
+    .matches(
+      /^\d{4}\/(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])$/,
+      "Date must be in YYYY/MM/DD format",
+    )
+    .required("Date of birth is required"),
+  sex: yup
+    .string()
+    .oneOf(["Male", "Female", "Other"], "Please select a valid category")
+    .required("Category selection is required"),
   phoneNumber: yup.string().matches(phoneRegExp, "Phone Number is not valid"),
   whatsappNumber: yup
     .string()
     .matches(phoneRegExp, "WhatsApp Number number is not valid"),
   preferredContact: yup.string().oneOf(["Phone", "Email", "WhatsApp"]),
+  gymId: yup
+    .string()
+    .matches(/^\d+$/, "Gym location is required")
+    .required("Category selection is required"),
 });
 
 const ProfileScreenForm = () => {
   const navigation = useNavigation();
-  const [selectedLanguage, setSelectedLanguage] = useState();
-  const { user, setUser } = useContext(UserContext);
-  const { tokens, setTokens } = useContext(UserContext);
+  const [photo, setPhoto] = useState(null);
+  const [website, setWebsite] = useState("");
+
+  // Use a ref to store the load time without triggering re-renders
+  const formLoadTime = useRef(Date.now());
+
+  // Reset the timer if the user navigates back to this screen
+  useEffect(() => {
+    formLoadTime.current = Date.now();
+  }, []);
+
+  const uploadPhoto = async (last_id) => {
+    // console.log('last_id: ' + last_id);
+    if (!photo) {
+      console.log("No photo selected!");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("photo", {
+      uri: photo.uri,
+      type: photo.type,
+      name: photo.fileName || "photo.jpg",
+      last_id: last_id,
+    });
+
+    try {
+      const response = await axios.post(
+        "http://localhost:8080/classy-api/api/upload-photo.php?last_id=" +
+          last_id,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        },
+      );
+      Alert.alert("Upload Success", response.data.message || "Photo uploaded!");
+      navigation.navigate("LoginScreen");
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Upload Failed", "Something went wrong.");
+    }
+  };
+
+  const [sex, setSelected] = useState(""); // sex state lives here
+  const sexData = [
+    { key: "1", value: "Male", disabled: false },
+    { key: "2", value: "Female" },
+    { key: "3", value: "Other" },
+  ];
+
+  const [PreferredContact, setPreferredContact] = React.useState("");
+  const preferredContactData = [
+    { key: "1", value: "Phone", disabled: false },
+    { key: "2", value: "WhatsApp" },
+    { key: "3", value: "Email" },
+  ];
+
+  const [gyms, setGyms] = useState([]);
+  const [role, setRole] = React.useState("");
+  const roleData = [
+    { key: "1", value: "Gym Owner", disabled: true },
+    { key: "2", value: "Member" },
+    { key: "3", value: "Trainer" },
+    { key: "4", value: "Contractor" },
+  ];
+
+  // This is the "onChange" logic for GymList
+  const handleSelectionChange = (val) => {
+    setGyms(val);
+  };
+
+  const handleLinkPress = () => {
+    Linking.openURL("https://cleancodeusa.com/about.html");
+  };
 
   // 2. Initialize useForm with the Yup resolver
   const {
@@ -64,65 +156,93 @@ const ProfileScreenForm = () => {
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      email: user?.email,
-      password: "",
-      role: "",
-      fname: user?.given_name,
-      lname: user?.family_name,
-      sex: "",
+      gymId: "",
+      email: "help@simplecssjs.com",
+      dateOfBirth: "2000/05/05",
+      fname: "asdf",
+      lname: "asdf",
+      whatsappNumber: "518-517-9866",
+      phoneNumber: "518-517-9866",
     },
   });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(
-          "http://localhost:8080/udemy/classy-api/api/tasks",
-          {
-            headers: {
-              Authorization: "Bearer " + tokens?.access_token,
-            },
-          },
-        );
-
-        const json = await response.text();
-        const obj = JSON.parse(json);
-        // console.log('line 69: ' + obj);
-        // console.log(tokens.access_token);
-
-        if (response.status == 200) {
-          obj.forEach(async function (task) {
-            console.log(task);
-          });
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    fetchData();
-  }, []);
-
   // 3. Define the submit handler
-  const onSubmit = async (data) => {
-    // This function only runs if validation passes
-    console.log("Form Submitted (Validation Passed):", data);
+  const registerUser = async (data) => {
+    const totalTimeElapsed = Date.now() - formLoadTime.current;
+    console.log(data);
+    // console.log(selected);
 
-    try {
-      // Perform your authentication logic or API call here
-      // const response = await api.post('/login', data);
-      // If successful, navigate to the Login page or another desired screen
-      // navigation.navigate('RegisterComplete');
-    } catch (error) {
-      // Handle API errors (React Hook Form does not swallow errors here)
-      console.error("Login failed:", error);
-      // Optionally, show an error message to the user
+    // 1. Honeypot check
+    if (website.trim() !== "") {
+      // console.log("Submission failed", "Bot behavior detected.");
+      return;
     }
+
+    // 2. Timestamp check
+    if (totalTimeElapsed < MIN_SUBMISSION_TIME_MS) {
+      // console.log("Submission failed", "Form submitted too quickly.");
+      return;
+    }
+
+    // const response = await fetch(
+    //   "http://localhost:8080/classy-api/api/register.php",
+    //   {
+    //     method: "POST",
+    //     headers: { "Content-Type": "application/json" },
+    //     body: JSON.stringify({
+    //       gym_id: data.gymId,
+    //       username: "",
+    //       email: data.email,
+    //       password: data.password,
+    //       confirm_password: data.confirmPassword,
+    //       role: data.role,
+    //       fname: data.fname,
+    //       lname: data.lname,
+    //       date_of_birth: data.dateOfBirth,
+    //       sex: data.sex,
+    //       phone: data.phoneNumber,
+    //       whatsapp: data.whatsappNumber,
+    //       preferred_contact: data.preferredContact,
+    //     }),
+    //   },
+    // );
+
+    // const json = await response.text();
+    // const obj = JSON.parse(json);
+
+    // if (response.status === 200) {
+    //   showMessage({
+    //     message: obj?.message,
+    //     // description: "API Server Response",
+    //     type: "success",
+    //     autoHide: false, // prevents the message from disappearing automatically
+    //     onPress: () => hideMessage(), // closes the message when pressed
+    //   });
+    //   // console.log("json: ", JSON.stringify(obj));
+    //   navigation.navigate("ThankYouScreen");
+    // } else if (response.status == 400) {
+    //   showMessage({
+    //     message: obj?.message,
+    //     // description: "API Server Response",
+    //     type: "danger",
+    //     autoHide: false, // prevents the message from disappearing automatically
+    //     onPress: () => hideMessage(), // closes the message when pressed
+    //   });
+    // } else {
+    //   console.log("json error: ", JSON.stringify(obj));
+    // }
   };
 
   return (
     <>
       <View style={styles.fieldset}>
+        <View style={styles.field}>
+          <UploadPhoto
+            photo={photo}
+            setPhoto={setPhoto}
+            uploadPhoto={uploadPhoto}
+          />
+        </View>
         <View style={styles.field}>
           <Text style={styles.formLabel}>E-mail</Text>
           <Controller
@@ -143,7 +263,6 @@ const ProfileScreenForm = () => {
             <Text style={styles.errorText}>{errors.email.message}</Text>
           )}
         </View>
-
         <View style={styles.field}>
           <Text style={styles.formLabel}>Password</Text>
           <Controller
@@ -164,7 +283,6 @@ const ProfileScreenForm = () => {
             <Text style={styles.errorText}>{errors.password.message}</Text>
           )}
         </View>
-
         <View style={styles.field}>
           <Text style={styles.formLabel}>Confirm Password</Text>
           <Controller
@@ -187,20 +305,30 @@ const ProfileScreenForm = () => {
             </Text>
           )}
         </View>
-
         <View style={styles.field}>
           <Text style={styles.formLabel}>Role</Text>
           <Controller
             control={control}
             name="role"
             render={({ field: { onChange, onBlur, value } }) => (
-              <SelectedRolePicker
-                style={styles.inputField}
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-                keyboardType="default"
-                autoCapitalize="none"
+              <SelectList
+                setSelected={(val) => onChange(val)} // Send selection to hook-form
+                data={roleData}
+                save="value"
+                placeholder="Select Category"
+                boxStyles={{
+                  borderColor: AppColors.grey,
+                  borderWidth: 1,
+                  paddingHorizontal: 8,
+                }}
+                dropdownStyles={{
+                  borderColor: AppColors.grey2,
+                  borderWidth: 1,
+                  marginTop: 8,
+                  backgroundColor: "white",
+                }}
+                // If you need to force the value from the parent (e.g., reset)
+                // defaultOption={data.find(item => item.value === value)}
               />
             )}
           />
@@ -208,7 +336,6 @@ const ProfileScreenForm = () => {
             <Text style={styles.errorText}>{errors.role.message}</Text>
           )}
         </View>
-
         <View style={styles.field}>
           <Text style={styles.formLabel}>First Name</Text>
           <Controller
@@ -229,7 +356,6 @@ const ProfileScreenForm = () => {
             <Text style={styles.errorText}>{errors.fname.message}</Text>
           )}
         </View>
-
         <View style={styles.field}>
           <Text style={styles.formLabel}>Last Name</Text>
           <Controller
@@ -250,7 +376,8 @@ const ProfileScreenForm = () => {
             <Text style={styles.errorText}>{errors.lname.message}</Text>
           )}
         </View>
-
+        {/* 3. Include the honeypot trap in your form */}
+        <HoneypotField value={website} onChangeText={setWebsite} />
         <View style={styles.field}>
           <Text style={styles.formLabel}>Date of Birth</Text>
           <Controller
@@ -264,7 +391,7 @@ const ProfileScreenForm = () => {
                 value={value}
                 keyboardType="default"
                 autoCapitalize="none"
-                placeholder="mm/dd/yyyy"
+                placeholder="yyyy/mm/dd"
               /> // needs date picker added. check
             )}
           />
@@ -272,41 +399,30 @@ const ProfileScreenForm = () => {
             <Text style={styles.errorText}>{errors.dateOfBirth.message}</Text>
           )}
         </View>
-
-        <View style={styles.field}>
-          <Text style={styles.formLabel}>Age</Text>
-          <Controller
-            control={control}
-            name="age"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
-                style={styles.inputField}
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-                keyboardType="numeric"
-                autoCapitalize="none"
-              />
-            )}
-          />
-          {errors.age && (
-            <Text style={styles.errorText}>{errors.age.message}</Text>
-          )}
-        </View>
-
         <View style={styles.field}>
           <Text style={styles.formLabel}>Sex</Text>
           <Controller
-            control={control}
             name="sex"
+            control={control}
             render={({ field: { onChange, onBlur, value } }) => (
-              <SexPicker
-                style={styles.inputField}
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-                keyboardType="default"
-                autoCapitalize="none"
+              <SelectList
+                setSelected={(val) => onChange(val)} // Send selection to hook-form
+                data={sexData}
+                save="value"
+                placeholder="Select Category"
+                boxStyles={{
+                  borderColor: AppColors.grey,
+                  borderWidth: 1,
+                  paddingHorizontal: 8,
+                }}
+                dropdownStyles={{
+                  borderColor: AppColors.grey2,
+                  borderWidth: 1,
+                  marginTop: 8,
+                  backgroundColor: "white",
+                }}
+                // If you need to force the value from the parent (e.g., reset)
+                // defaultOption={data.find(item => item.value === value)}
               />
             )}
           />
@@ -314,7 +430,6 @@ const ProfileScreenForm = () => {
             <Text style={styles.errorText}>{errors.sex.message}</Text>
           )}
         </View>
-
         <View style={styles.field}>
           <Text style={styles.formLabel}>Phone Number</Text>
           <Controller
@@ -336,7 +451,6 @@ const ProfileScreenForm = () => {
             <Text style={styles.errorText}>{errors.phoneNumber.message}</Text>
           )}
         </View>
-
         <View style={styles.field}>
           <Text style={styles.formLabel}>WhatsApp Number</Text>
           <Controller
@@ -360,20 +474,30 @@ const ProfileScreenForm = () => {
             </Text>
           )}
         </View>
-
         <View style={styles.field}>
           <Text style={styles.formLabel}>Preferred Contact</Text>
           <Controller
             control={control}
             name="preferredContact"
             render={({ field: { onChange, onBlur, value } }) => (
-              <PreferredContact
-                style={styles.inputField}
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-                keyboardType="default"
-                autoCapitalize="none"
+              <SelectList
+                setSelected={(val) => onChange(val)} // Send selection to hook-form
+                data={preferredContactData}
+                save="value"
+                placeholder="Select Category"
+                boxStyles={{
+                  borderColor: AppColors.grey,
+                  borderWidth: 1,
+                  paddingHorizontal: 8,
+                }}
+                dropdownStyles={{
+                  borderColor: AppColors.grey2,
+                  borderWidth: 1,
+                  marginTop: 8,
+                  backgroundColor: "white",
+                }}
+                // If you need to force the value from the parent (e.g., reset)
+                // defaultOption={data.find(item => item.value === value)}
               />
             )}
           />
@@ -383,51 +507,41 @@ const ProfileScreenForm = () => {
             </Text>
           )}
         </View>
-
-        {/* <View style={styles.field}>
-          <Text style={styles.formLabel}>Job</Text>
+        <View style={styles.field}>
+          <Text style={styles.formLabel}>Gym Location / Fitness Center</Text>
           <Controller
             control={control}
-            name="job"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
-                style={styles.inputField}
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-                keyboardType="default"
-                autoCapitalize="none"
-              />
+            name="gymId"
+            render={({ field: { onChange } }) => (
+              <GymList onSelectValue={onChange} />
             )}
           />
-          {errors.job && <Text style={styles.errorText}>{errors.job.message}</Text>}
-        </View> */}
+          {errors.gymId && (
+            <Text style={styles.errorText}>{errors.gymId.message}</Text>
+          )}
+        </View>
 
-        <View style={styles.loginBtnContainer}>
+        <View style={globalStyles.loginBtnContainer}>
           <TouchableOpacity
             style={globalStyles.registerBtn}
             title="loginSubmit"
-            onPress={handleSubmit(onSubmit)}
+            onPress={handleSubmit(registerUser)}
           >
             <Text style={globalStyles.registerBtnText}>Save Profile</Text>
           </TouchableOpacity>
-        </View>
 
-        <View style={styles.loginBtnContainer}>
           <TouchableOpacity
             style={globalStyles.loginBtn}
             title="loginSubmit"
-            onPress={handleSubmit(onSubmit)}
+            onPress={handleSubmit(registerUser)}
           >
             <Text style={globalStyles.loginBtnText}>Delete Profile</Text>
           </TouchableOpacity>
-        </View>
 
-        <View style={styles.loginBtnContainer}>
           <TouchableOpacity
             style={globalStyles.loginBtn}
             title="loginSubmit"
-            onPress={handleSubmit(onSubmit)}
+            onPress={handleSubmit(registerUser)}
           >
             <Text style={globalStyles.loginBtnText}>Cancel Gym Membership</Text>
           </TouchableOpacity>
@@ -452,6 +566,7 @@ const styles = StyleSheet.create({
   inputField: {
     marginTop: 5,
     borderWidth: 1,
+    paddingLeft: 8,
     borderColor: AppColors.textInputBorderColor,
     height: 48,
     borderRadius: 8,
@@ -459,12 +574,6 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: AppColors.red,
-  },
-  createAcctBtn: {},
-  createAcctBtnText: {},
-  loginBtnContainer: {
-    alignItems: "center",
-    marginTop: s(16),
   },
   selectList: {
     marginBottom: 80,
