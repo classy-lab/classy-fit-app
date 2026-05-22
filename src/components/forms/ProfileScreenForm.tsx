@@ -15,7 +15,6 @@ import { useNavigation } from "@react-navigation/native";
 import { s, vs } from "react-native-size-matters";
 import { useState } from "react";
 import SelectedRolePicker from "./SelectedRolePicker";
-import CheckboxComponent from "./CheckboxComponent";
 import SexPicker from "./SexPicker";
 import PreferredContact from "./PreferredContact";
 import { globalStyles } from "../../styles/globalStyles";
@@ -49,8 +48,6 @@ const schema = yup.object().shape({
     .string()
     .matches(phoneRegExp, "WhatsApp Number number is not valid"),
   preferredContact: yup.string().oneOf(["Phone", "Email", "WhatsApp"]),
-  // job: yup.string(),
-  // gymLocation: ''
 });
 
 const ProfileScreenForm = () => {
