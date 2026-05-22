@@ -105,6 +105,7 @@ const AuthStack = () => {
   ];
   const [gymID, setGymID] = useState(null);
   const [gymsInfo, setGymsInfo] = useState(gyms);
+  const [navOpacity, setNavOpacity] = useState(0);
   // console.log(gymsInfo[0].About);
 
   function CustomDrawerContent(props) {
@@ -129,7 +130,9 @@ const AuthStack = () => {
   }
 
   return (
-    <GymContext.Provider value={{ gymsInfo, gymID, setGymID }}>
+    <GymContext.Provider
+      value={{ gymsInfo, gymID, setGymID, navOpacity, setNavOpacity }}
+    >
       <Drawer.Navigator
         screenOptions={screenOptionsStyle}
         drawerContent={(props) => <CustomDrawerContent {...props} />}
