@@ -2,6 +2,10 @@ import {StyleSheet} from 'react-native'
 import { AppColors } from './colors';
 
 export const globalStyles = StyleSheet.create({
+   loginBtnContainer: {
+    alignItems: "center",
+    marginTop: 16,
+  },
   registerBtn: {
       backgroundColor: AppColors.blue,
       borderRadius: 40,
@@ -9,6 +13,7 @@ export const globalStyles = StyleSheet.create({
       height: 50,
       justifyContent: "center",
       alignItems: "center",
+      marginBottom: 16,
     },
     registerBtnText: {
       color: "#fff",
@@ -23,6 +28,7 @@ export const globalStyles = StyleSheet.create({
       height: 50,
       justifyContent: "center",
       alignItems: "center",
+      marginBottom: 16,
     },
     loginBtnText: {
       color: AppColors.blue,
