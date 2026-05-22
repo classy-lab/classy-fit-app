@@ -51,8 +51,7 @@ const Contact = () => {
           {gymID ? (
             <Text style={styles.title}>{gymsInfo[gymID]?.Contact.title}</Text>
           ) : null}
-          <PinkLeafSvg style={styles.pinkLeaf} />
-          {/* <PinkShape style={styles.pinkLeaf} /> */}
+          <PinkShape style={styles.pinkLeaf} />
         </View>
 
         <View style={styles.body}>
@@ -61,9 +60,7 @@ const Contact = () => {
           ) : null}
         </View>
       </ScrollView>
-      <View>
-        <PhoneSvg style={styles.phoneSvg} />
-      </View>
+      <PhoneSvg style={styles.phoneSvg} />
       <View style={styles.imageContainer}>
         <VectorImageSvg />
       </View>
@@ -82,7 +79,6 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-    // borderWidth: 1, borderColor: 'red',
   },
   navs: {
     flexDirection: "row",
@@ -96,15 +92,12 @@ const styles = StyleSheet.create({
     fontFamily: "Montserrat",
     fontSize: 32,
     marginTop: 60,
+    marginBottom: 40,
   },
   pinkLeaf: {
-    position: "relative",
+    position: "absolute",
     zIndex: -1,
-    top: -68,
-    right: -40,
-  },
-  body: {
-    // borderWidth: 1, borderColor: 'red',
+    right: 16,
   },
   imageContainer: {
     marginTop: 32,
@@ -112,16 +105,15 @@ const styles = StyleSheet.create({
   },
   boldText: {
     fontWeight: "bold",
-    fontSize: s(16),
+    fontSize: 16,
     textAlign: "center",
   },
+  body: { fontFamily: "Montserrat-Bold" },
   bodyText: {
     fontFamily: "Montserrat",
-    fontSize: s(16),
+    fontSize: 16,
     lineHeight: 32,
     color: AppColors.primary,
-    marginLeft: 24,
-    marginRight: 24,
     textAlign: "center",
   },
   phoneSvg: {
