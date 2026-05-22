@@ -45,8 +45,8 @@ const ProfileScreen = () => {
             <Text style={styles.subHead}>{user?.role}</Text>
             <TouchableOpacity>
               <Image
-                source={require("../../../assets/avatars/avatar-2.png")}
-                style={{ width: 100, height: 100 }}
+                source={require("../../assets/images/avatars/beard-hipster-male.png")}
+                style={{ width: 80, height: 80 }}
                 resizeMode="contain"
               />
             </TouchableOpacity>
