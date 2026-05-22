@@ -5,7 +5,7 @@ export const globalStyles = StyleSheet.create({
   registerBtn: {
       backgroundColor: AppColors.blue,
       borderRadius: 40,
-      width: 140,
+      width: 250,
       height: 50,
       justifyContent: "center",
       alignItems: "center",
@@ -19,7 +19,7 @@ export const globalStyles = StyleSheet.create({
       borderWidth: 1,
       borderColor: AppColors.blue,
       borderRadius: 40,
-      width: 140,
+      width: 250,
       height: 50,
       justifyContent: "center",
       alignItems: "center",
