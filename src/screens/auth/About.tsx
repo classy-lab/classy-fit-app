@@ -8,7 +8,6 @@ import { AppColors } from "../../styles/colors";
 import { useFonts } from "expo-font";
 import WorkoutSvg from "../../components/svg/WorkoutSvg";
 import PinkLeafSvg from "../../assets/svg/PinkLeafSvg";
-import { s, vs } from "react-native-size-matters";
 import { GymContext } from "../../context/GymContext";
 
 const About = () => {
@@ -46,7 +45,6 @@ const About = () => {
           {gymID ? (
             <Text style={styles.title}>{gymsInfo[gymID]?.About.title}</Text>
           ) : null}
-          <PinkLeafSvg style={styles.pinkLeaf} />
         </View>
 
         <View style={styles.body}>
@@ -68,7 +66,6 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: AppColors.white,
     flex: 1,
-    // justifyContent: 'flex-end',
     paddingLeft: 24,
     paddingRight: 24,
   },
@@ -84,9 +81,8 @@ const styles = StyleSheet.create({
     fontFamily: "Montserrat",
     fontSize: 32,
     marginTop: 60,
+    marginBottom: 40,
     width: 320,
-    // borderWidth: 1,
-    // borderColor: "red",
     textAlign: "center",
   },
   pinkLeaf: {
@@ -99,9 +95,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   bodyText: {
-    fontSize: s(16),
+    fontSize: 16,
     fontFamily: "Montserrat",
-    lineHeight: s(24),
+    lineHeight: 24,
     color: AppColors.primary,
   },
   imageContainer: {
