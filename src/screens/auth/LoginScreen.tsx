@@ -1,35 +1,59 @@
-import { StyleSheet, Text, View, Image, Dimensions, ScrollView } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { useNavigation } from '@react-navigation/native'
-import Ionicons from '@expo/vector-icons/Ionicons'
-import Feather from '@expo/vector-icons/Feather'
-import { AppColors } from '../../styles/colors'
-import { useFonts } from 'expo-font'
-import VectorImageSvg from '../../components/svg/VectorImageSvg'
-import AvatarBoyKid from '../../assets/svg/AvatarBoyKidSvg'
-import { s, vs } from 'react-native-size-matters'
-import LoginForm from '../../components/forms/LoginForm'
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  Dimensions,
+  ScrollView,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useNavigation } from "@react-navigation/native";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import Feather from "@expo/vector-icons/Feather";
+import { AppColors } from "../../styles/colors";
+import { useFonts } from "expo-font";
+import VectorImageSvg from "../../components/svg/VectorImageSvg";
+import AvatarBoyKid from "../../assets/svg/AvatarBoyKidSvg";
+import { s, vs } from "react-native-size-matters";
+import LoginForm from "../../components/forms/LoginForm";
 
-const windowWidth = Dimensions.get('window').width;
+const windowWidth = Dimensions.get("window").width;
 
 const LoginScreen = () => {
-  const navigation = useNavigation()
+  const navigation = useNavigation();
   const [fontsLoaded] = useFonts({
-    "Montserrat": require("../../assets/fonts/montserrat/Montserrat-Regular.ttf"),
-    "Montserrat-Bold": require("../../assets/fonts/montserrat/Montserrat-Bold.ttf")
-  })
+    Montserrat: require("../../assets/fonts/montserrat/Montserrat-Regular.ttf"),
+    "Montserrat-Bold": require("../../assets/fonts/montserrat/Montserrat-Bold.ttf"),
+  });
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.navs}>
-        <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
-        <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
+        <Feather
+          name="arrow-left"
+          color={AppColors.blue}
+          size={36}
+          onPress={() => {
+            navigation.goBack();
+          }}
+        />
+        <Ionicons
+          color={AppColors.hamburgerIconColor}
+          name="menu"
+          size={40}
+          onPress={() => navigation.openDrawer()}
+        />
       </View>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.headingContainer}>
           <AvatarBoyKid style={styles.avatarBoyKidSvg} />
           <Text style={styles.title}>Sign In</Text>
-          <Text style={styles.subHead}>Please sign in to proceed to your account.</Text>
+          <Text style={styles.subHead}>
+            Please sign in to proceed to your account.
+          </Text>
         </View>
         <LoginForm />
         <View style={styles.body}></View>
@@ -37,11 +61,11 @@ const LoginScreen = () => {
       <View style={styles.imageContainer}>
         <VectorImageSvg />
       </View>
-    </SafeAreaView >
-  )
-}
+    </SafeAreaView>
+  );
+};
 
-export default LoginScreen
+export default LoginScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -49,32 +73,32 @@ const styles = StyleSheet.create({
     flex: 1,
     // justifyContent: 'flex-end',
     // borderWidth: 1, borderColor: 'red',
-    alignItems: 'center',
+    alignItems: "center",
     width: "100%",
     paddingLeft: 24,
     paddingRight: 24,
   },
   navs: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
   },
   headingContainer: {
     width: windowWidth - 64,
-    marginTop: s(24)
+    marginTop: s(24),
   },
   title: {
     color: AppColors.blue,
-    fontFamily: 'Montserrat',
+    fontFamily: "Montserrat",
     fontSize: s(32),
     marginTop: s(20),
-    marginBottom: s(10)
+    marginBottom: s(10),
   },
   pinkLeaf: {
-    position: 'relative',
+    position: "relative",
     zIndex: -1,
     top: -68,
-    right: -40
+    right: -40,
   },
   body: {
     // borderWidth: 1, bordeerColor: 'red',
@@ -91,35 +115,35 @@ const styles = StyleSheet.create({
     borderRadius: 40,
     width: 140,
     height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   registerBtnText: {
-    color: '#fff',
-    fontSize: 14
+    color: "#fff",
+    fontSize: 14,
   },
   loginBtn: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderWidth: 1,
     borderColor: AppColors.blue,
     borderRadius: 40,
     width: 140,
     height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   loginBtnText: {
     color: AppColors.blue,
-    fontSize: 14
+    fontSize: 14,
   },
   imageContainer: {},
   subHead: {
-    fontFamily: 'Montserrat',
+    fontFamily: "Montserrat",
     fontSize: s(20),
-    lineHeight: s(24)
+    lineHeight: s(24),
   },
   scrollView: {
     // borderWidth: 1, borderColor: 'red',
-    flex: 1
-  }
-})
+    flex: 1,
+  },
+});
