@@ -45,7 +45,7 @@ const AuthStack = () => {
     {
       About: {
         title: "About Us",
-        body: "At Kinderhook fitness, Our facility offers plenty of room to move, clean and well-maintained equipment, and a supportive community to help you achieve your fitness goals.\n\n Get started today and experience the difference at Kinderhook Fitness!",
+        body: `At Kinderhook fitness, Our facility offers plenty of room to move, clean and well-maintained equipment, and a supportive community to help you achieve your fitness goals.\n\n Get started today and experience the difference at Kinderhook Fitness!`,
       },
       Contact: {
         title: "Contact Us",
@@ -59,7 +59,7 @@ const AuthStack = () => {
     {
       About: {
         title: "About Us",
-        body: "Welcome to VENT.\n\nVENT Fitness is the Capital District’s premier, locally-owned full-service health club with equipment, classes, programs and amenities for every stage of your reinVENTion. With four full-service health clubs, VENT Fitness offers a welcoming fitness environment for everyone. Wherever you are on your fitness journey — a beginner or long-time enthusiast — our team of professional, fun and approachable staff are here to help you every step of the way.",
+        body: `Welcome to VENT.\n\nVENT Fitness is the Capital District's premier, locally-owned full-service health club with equipment, classes, programs and amenities for every stage of your reinVENTion. With four full-service health clubs, VENT Fitness offers a welcoming fitness environment for everyone. Wherever you are on your fitness journey — a beginner or long-time enthusiast — our team of professional, fun and approachable staff are here to help you every step of the way.`,
       },
       Contact: {
         title: "Contact Us",
@@ -73,29 +73,15 @@ const AuthStack = () => {
     {
       About: {
         title: "About Us",
-        body: "At Kinderhook fitness, Our facility offers plenty of room to move, clean and well-maintained equipment, and a supportive community to help you achieve your fitness goals.\n\n Get started today and experience the difference at Kinderhook Fitness!",
+        body: `A FITNESS FAMILY, WITH SOMETHING FOR EVERYONE!\nAt ABC Sports and Fitness for one low monthly price you can get absolutely everything you need to reach your fitness goals all in one place! Stop by the all new ABC Sports and Fitness today and see why we are the premier gym in the capital district!`,
       },
       Contact: {
         title: "Contact Us",
-        body: `Your journey to a better you starts here at Kinderhook Fitness! \n\n Address: \n 3143 US Route 9  \n Suite #4 \n Valatie, NY 12184 \n info@kinderhookfitnessny.com \n\n Phone: \n (518) 610-8009`,
+        body: `Address:\n3 Johnson Rd\nLatham, NY 12110\n\nPhone:\n(518) 783-0705`,
       },
       GymHours: {
         title: "Gym Hours",
-        body: `Weekdays\n 5:30am - 9:00pm\n\n Saturday\n 7:00am - 7:00pm\n\n Sunday\n 8:00am - 5:00pm`,
-      },
-    },
-    {
-      About: {
-        title: "About Us",
-        body: "At Kinderhook fitness, Our facility offers plenty of room to move, clean and well-maintained equipment, and a supportive community to help you achieve your fitness goals.\n\n Get started today and experience the difference at Kinderhook Fitness!",
-      },
-      Contact: {
-        title: "Contact Us",
-        body: `Your journey to a better you starts here at Kinderhook Fitness! \n\n Address: \n 3143 US Route 9  \n Suite #4 \n Valatie, NY 12184 \n info@kinderhookfitnessny.com \n\n Phone: \n (518) 610-8009`,
-      },
-      GymHours: {
-        title: "Gym Hours",
-        body: `Weekdays\n 5:30am - 9:00pm\n\n Saturday\n 7:00am - 7:00pm\n\n Sunday\n 8:00am - 5:00pm`,
+        body: `Flexible Schedule\n\nWeekdays Hours\n Opens Monday at 5:00am\n 24 Hours through Thursday\nCloses Friday at 11:00pm\n\nWeekend Hours\nSaturday - 7:00am to 7:00pm\nSunday - 7:00am to 7:00pm\n\nPlease check our Google listing for any special hours on holidays.`,
       },
     },
   ];
