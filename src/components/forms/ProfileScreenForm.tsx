@@ -90,30 +90,30 @@ const ProfileScreenForm = () => {
     }
 
     const formData = new FormData();
-    formData.append("photo", {
-      uri: photo.uri,
-      type: photo.type,
-      name: photo.fileName || "photo.jpg",
-      last_id: last_id,
-    });
+    // formData.append("photo", {
+    //   uri: photo.uri,
+    //   type: photo.type,
+    //   name: photo.fileName || "photo.jpg",
+    //   last_id: last_id,
+    // });
 
-    try {
-      const response = await axios.post(
-        "http://localhost:8080/classy-api/api/upload-photo.php?last_id=" +
-          last_id,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        },
-      );
-      Alert.alert("Upload Success", response.data.message || "Photo uploaded!");
-      navigation.navigate("LoginScreen");
-    } catch (error) {
-      console.error(error);
-      Alert.alert("Upload Failed", "Something went wrong.");
-    }
+    // try {
+    //   const response = await axios.post(
+    //     "http://localhost:8080/classy-api/api/upload-photo.php?last_id=" +
+    //       last_id,
+    //     formData,
+    //     {
+    //       headers: {
+    //         "Content-Type": "multipart/form-data",
+    //       },
+    //     },
+    //   );
+    //   Alert.alert("Upload Success", response.data.message || "Photo uploaded!");
+    //   navigation.navigate("LoginScreen");
+    // } catch (error) {
+    //   console.error(error);
+    //   Alert.alert("Upload Failed", "Something went wrong.");
+    // }
   };
 
   const [sex, setSelected] = useState(""); // sex state lives here
@@ -130,8 +130,8 @@ const ProfileScreenForm = () => {
     { key: "3", value: "Email" },
   ];
 
-  const [gyms, setGyms] = useState([]);
-  const [role, setRole] = React.useState("");
+  // const [gyms, setGyms] = useState([]);
+  // const [role, setRole] = React.useState("");
   const roleData = [
     { key: "1", value: "Gym Owner", disabled: true },
     { key: "2", value: "Member" },
@@ -140,13 +140,13 @@ const ProfileScreenForm = () => {
   ];
 
   // This is the "onChange" logic for GymList
-  const handleSelectionChange = (val) => {
-    setGyms(val);
-  };
+  // const handleSelectionChange = (val) => {
+  //   setGyms(val);
+  // };
 
-  const handleLinkPress = () => {
-    Linking.openURL("https://cleancodeusa.com/about.html");
-  };
+  // const handleLinkPress = () => {
+  //   Linking.openURL("https://cleancodeusa.com/about.html");
+  // };
 
   // 2. Initialize useForm with the Yup resolver
   const {
