@@ -49,57 +49,53 @@ const AuthStack = () => {
       },
       Contact: {
         title: "Contact Us",
-        body: `Your journey to a better you starts here at Kinderhook Fitness! \n 
-              3143 US Route 9  \n
-              Suite #4 \n
-              Valatie, NY 12184 \n
-              info@kinderhookfitnessny.com`,
+        body: `Your journey to a better you starts here at Kinderhook Fitness! \n\n Address: \n 3143 US Route 9  \n Suite #4 \n Valatie, NY 12184 \n info@kinderhookfitnessny.com \n\n Phone: \n (518) 610-8009`,
       },
       GymHours: {
         title: "Gym Hours",
-        body: `Weekdays 5:30am - 9:00pm\n Saturday 7:00am - 7:00pm\n Sunday 8:00am - 5:00pm`,
+        body: `Weekdays\n 5:30am - 9:00pm\n\n Saturday\n 7:00am - 7:00pm\n\n Sunday\n 8:00am - 5:00pm`,
       },
     },
     {
       About: {
         title: "About Us",
-        body: "This is the description",
+        body: "Welcome to VENT.\n\nVENT Fitness is the Capital District’s premier, locally-owned full-service health club with equipment, classes, programs and amenities for every stage of your reinVENTion. With four full-service health clubs, VENT Fitness offers a welcoming fitness environment for everyone. Wherever you are on your fitness journey — a beginner or long-time enthusiast — our team of professional, fun and approachable staff are here to help you every step of the way.",
       },
       Contact: {
         title: "Contact Us",
-        body: "This is the description",
+        body: `VENT Clifton Park \n\nAddress: \n 1220 Route 146  \nClifton Park, NY 12065 \nventcliftonpark@ventfitness.com \n\nPhone: \n (518) 348-1500`,
       },
       GymHours: {
         title: "Gym Hours",
-        body: "This is the description",
+        body: `Monday - Thursday\n5:00am - 10:00pm\n\nFriday\n5:00am - 9:00pm\n\nSaturday - Sunday\n7:00am - 7:00pm`,
       },
     },
     {
       About: {
         title: "About Us",
-        body: "This is the description",
+        body: "At Kinderhook fitness, Our facility offers plenty of room to move, clean and well-maintained equipment, and a supportive community to help you achieve your fitness goals.\n\n Get started today and experience the difference at Kinderhook Fitness!",
       },
       Contact: {
         title: "Contact Us",
-        body: "This is the description",
+        body: `Your journey to a better you starts here at Kinderhook Fitness! \n\n Address: \n 3143 US Route 9  \n Suite #4 \n Valatie, NY 12184 \n info@kinderhookfitnessny.com \n\n Phone: \n (518) 610-8009`,
       },
       GymHours: {
         title: "Gym Hours",
-        body: "This is the description",
+        body: `Weekdays\n 5:30am - 9:00pm\n\n Saturday\n 7:00am - 7:00pm\n\n Sunday\n 8:00am - 5:00pm`,
       },
     },
     {
       About: {
         title: "About Us",
-        body: "This is the description for about section of Sarah's gym",
+        body: "At Kinderhook fitness, Our facility offers plenty of room to move, clean and well-maintained equipment, and a supportive community to help you achieve your fitness goals.\n\n Get started today and experience the difference at Kinderhook Fitness!",
       },
       Contact: {
         title: "Contact Us",
-        body: "This is the description",
+        body: `Your journey to a better you starts here at Kinderhook Fitness! \n\n Address: \n 3143 US Route 9  \n Suite #4 \n Valatie, NY 12184 \n info@kinderhookfitnessny.com \n\n Phone: \n (518) 610-8009`,
       },
       GymHours: {
         title: "Gym Hours",
-        body: "This is the description",
+        body: `Weekdays\n 5:30am - 9:00pm\n\n Saturday\n 7:00am - 7:00pm\n\n Sunday\n 8:00am - 5:00pm`,
       },
     },
   ];
