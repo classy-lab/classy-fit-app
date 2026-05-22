@@ -20,7 +20,7 @@ const StartScreen = () => {
   const gyms = [
     { key: "0", value: "Kinderhook Fitness, Valatie, NY" },
     { key: "1", value: "Vent Fitness, Clifton Park, NY" },
-    { key: "2", value: "The Bodyshop Gym, Cobleskill, NY" },
+    { key: "2", value: "ABC Sports & Fitness, Latham, NY" },
   ];
   // GymContext variables
   const { gymID, setGymID } = useContext(GymContext);
