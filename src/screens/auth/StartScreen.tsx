@@ -26,15 +26,17 @@ const StartScreen = () => {
   // GymContext variables
   const { gymID, setGymID } = useContext(GymContext);
   const { gymsInfo } = useContext(GymContext);
+  const [navOpacity, setNavOpacity] = useState(0);
 
   useEffect(() => {
     setGymID(null);
+    setNavOpacity(0);
     console.log("setting gymID to null");
   }, []);
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.navs}>
+      <View style={[styles.navs, { opacity: navOpacity }]}>
         <Ionicons
           color={AppColors.hamburgerIconColor}
           name="menu"
@@ -78,10 +80,6 @@ const StartScreen = () => {
           <TouchableOpacity>
             <Text style={styles.subTitle}>
               Built for the modern gym experience
-              {/* Making gyms and workouts more productive for everyone */}
-              {/* Smarter workouts for every gym-goer */}
-              {/* Making fitness accessible and effective for all */}
-              {/* Designed for better training */}
             </Text>
           </TouchableOpacity>
 
@@ -91,6 +89,7 @@ const StartScreen = () => {
               <SelectList
                 setSelected={(val) => {
                   setGymID(val);
+                  setNavOpacity(100);
                 }} // Send selection to hook-form
                 data={gyms}
                 defaultOption={{
