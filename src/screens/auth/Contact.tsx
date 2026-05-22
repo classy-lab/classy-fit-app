@@ -1,60 +1,74 @@
-import { StyleSheet, Text, View, ScrollView } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { useNavigation } from '@react-navigation/native'
-import Ionicons from '@expo/vector-icons/Ionicons'
-import Feather from '@expo/vector-icons/Feather'
-import { AppColors } from '../../styles/colors'
-import { useFonts } from 'expo-font'
-import VectorImageSvg from '../../components/svg/VectorImageSvg'
-import { s, vs } from 'react-native-size-matters'
-import PhoneSvg from '../../components/svg/PhoneSvg'
-import PinkShape from '../../components/svg/PinkShape.tsx'
+import { useContext } from "react";
+import { StyleSheet, Text, View, ScrollView } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useNavigation } from "@react-navigation/native";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import Feather from "@expo/vector-icons/Feather";
+import { AppColors } from "../../styles/colors";
+import { useFonts } from "expo-font";
+import VectorImageSvg from "../../components/svg/VectorImageSvg";
+import { s, vs } from "react-native-size-matters";
+import PhoneSvg from "../../components/svg/PhoneSvg";
+import PinkLeafSvg from "../../assets/svg/PinkLeafSvg";
+import PinkShape from "../../components/svg/PinkShape.tsx";
+import { GymContext } from "../../context/GymContext";
 
 const Contact = () => {
-  const navigation = useNavigation()
+  const navigation = useNavigation();
   const [fontsLoaded] = useFonts({
-    "Montserrat": require("../../assets/fonts/montserrat/Montserrat-Regular.ttf"),
-    "Montserrat-Bold": require("../../assets/fonts/montserrat/Montserrat-Bold.ttf")
-  })
+    Montserrat: require("../../assets/fonts/montserrat/Montserrat-Regular.ttf"),
+    "Montserrat-Bold": require("../../assets/fonts/montserrat/Montserrat-Bold.ttf"),
+  });
+
+  // GymContext variables
+  const { gymID, setGymID } = useContext(GymContext);
+  const { gymsInfo } = useContext(GymContext);
+  // console.log(gymsInfo[gymID]);
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.navs}>
-        <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
-        <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
+        <Feather
+          name="arrow-left"
+          color={AppColors.blue}
+          size={36}
+          onPress={() => {
+            navigation.goBack();
+          }}
+        />
+        <Ionicons
+          color={AppColors.hamburgerIconColor}
+          name="menu"
+          size={40}
+          onPress={() => navigation.openDrawer()}
+        />
       </View>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.headingContainer}>
-          <Text style={styles.title}>Contact Us</Text>
-          <PinkShape style={styles.pinkShape} />
+          {gymID ? (
+            <Text style={styles.title}>{gymsInfo[gymID]?.Contact.title}</Text>
+          ) : null}
+          <PinkShape style={styles.pinkLeaf} />
         </View>
+
         <View style={styles.body}>
-          <Text style={styles.boldText}>
-            V-Fitness Center & Gym{"\n"}
-          </Text>
-          <Text style={styles.bodyText}>
-            Varakala Nivas Super Market{"\n"}
-            Sree ramnjanagar colony,{"\n"}
-            Hyderabad, Munganoor{"\n"}
-            Telangana 501505{"\n"}
-          </Text>
-          <Text style={styles.boldText}>
-            Call Anytime{"\n\n"}
-            +91  095536 27654
-          </Text>
-          <View>
-            <PhoneSvg style={styles.phoneSvg} />
-          </View>
+          {gymID ? (
+            <Text style={styles.bodyText}>{gymsInfo[gymID]?.Contact.body}</Text>
+          ) : null}
         </View>
       </ScrollView>
+      <PhoneSvg style={styles.phoneSvg} />
       <View style={styles.imageContainer}>
         <VectorImageSvg />
       </View>
-    </SafeAreaView >
-  )
-}
+    </SafeAreaView>
+  );
+};
 
-export default Contact
+export default Contact;
 
 const styles = StyleSheet.create({
   container: {
@@ -65,50 +79,45 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-    // borderWidth: 1, borderColor: 'red',
   },
   navs: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   headingContainer: {
-    alignItems: 'center'
+    alignItems: "center",
   },
   title: {
     color: AppColors.blue,
-    fontFamily: 'Montserrat',
+    fontFamily: "Montserrat",
     fontSize: 32,
     marginTop: 60,
+    marginBottom: 40,
   },
-  pinkShape: {
-    position: 'relative',
+  pinkLeaf: {
+    position: "absolute",
     zIndex: -1,
-    top: -104,
-    right: -80
-  },
-  body: {
-    // borderWidth: 1, borderColor: 'red',
+    right: 16,
   },
   imageContainer: {
     marginTop: 32,
-    alignItems: 'center',
+    alignItems: "center",
   },
   boldText: {
-    fontWeight: 'bold',
-    fontSize: s(16),
-    textAlign: 'center'
+    fontWeight: "bold",
+    fontSize: 16,
+    textAlign: "center",
   },
+  body: { fontFamily: "Montserrat-Bold" },
   bodyText: {
     fontFamily: "Montserrat",
-    fontSize: s(16),
+    fontSize: 16,
     lineHeight: 32,
     color: AppColors.primary,
-    marginLeft: 24,
-    marginRight: 24,
-    textAlign: 'center'
+    textAlign: "center",
   },
   phoneSvg: {
-    alignSelf: 'center',
+    alignSelf: "center",
     marginTop: 40,
-  }
-})
+  },
+});

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import {
   StyleSheet,
   Text,
@@ -13,21 +13,29 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { AppColors } from "../../styles/colors";
 import VectorImageSvg from "../../components/svg/VectorImageSvg";
 import PinkLeafSvg from "../../assets/svg/PinkLeafSvg";
+import { GymContext } from "../../context/GymContext";
 
 const StartScreen = () => {
   const navigation = useNavigation();
-  const [selectedGym, setSelectedGym] = React.useState("");
-  const [gyms, setGyms] = useState([]);
-  const gymData = [
-    { key: "1", value: "Kinderhook Fitness, Valatie, NY" },
-    { key: "2", value: "Vent Fitness, Clifton Park, NY" },
-    { key: "3", value: "The Bodyshop Gym, Cobleskill, NY" },
-    { key: "4", value: "Sarah's Gym, Cobleskill, NY" },
+  const gyms = [
+    { key: "0", value: "Kinderhook Fitness, Valatie, NY" },
+    { key: "1", value: "Vent Fitness, Clifton Park, NY" },
+    { key: "2", value: "ABC Sports & Fitness, Latham, NY" },
   ];
+  // GymContext variables
+  const { gymID, setGymID } = useContext(GymContext);
+  const { gymsInfo } = useContext(GymContext);
+  const [navOpacity, setNavOpacity] = useState(0);
+
+  useEffect(() => {
+    setGymID(null);
+    setNavOpacity(0);
+    console.log("setting gymID to null");
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.navs}>
+      <View style={[styles.navs, { opacity: navOpacity }]}>
         <Ionicons
           color={AppColors.hamburgerIconColor}
           name="menu"
@@ -44,6 +52,7 @@ const StartScreen = () => {
           <View style={styles.headingContainer}>
             <Text style={styles.title}>Classy Fit</Text>
             <PinkLeafSvg style={styles.pinkLeaf} />
+            <Text style={styles.subTitle}>{gyms[gymID]?.value}</Text>
           </View>
         </TouchableOpacity>
 
@@ -69,7 +78,7 @@ const StartScreen = () => {
           </View>
           <TouchableOpacity>
             <Text style={styles.subTitle}>
-              Helping gyms and workouts be productive for everyone
+              Built for the modern gym experience
             </Text>
           </TouchableOpacity>
 
@@ -77,9 +86,16 @@ const StartScreen = () => {
             <View style={styles.field}>
               <Text style={styles.formLabel}>Choose a Gym</Text>
               <SelectList
-                setSelected={(val) => setSelectedGym(val)} // Send selection to hook-form
-                data={gymData}
-                save="value"
+                setSelected={(val) => {
+                  setGymID(val);
+                  setNavOpacity(100);
+                }} // Send selection to hook-form
+                data={gyms}
+                defaultOption={{
+                  key: "0",
+                  value: "Kinderhook Fitness, Valatie, NY",
+                }}
+                save="key"
                 placeholder="Select Category"
                 boxStyles={{
                   borderColor: AppColors.grey,
@@ -95,16 +111,6 @@ const StartScreen = () => {
                 // If you need to force the value from the parent (e.g., reset)
                 // defaultOption={data.find(item => item.value === value)}
               />
-              <TouchableOpacity
-                onPress={() => {
-                  // fetchGymInfo();
-                  console.log(
-                    `Load gym info here and update app for ${selectedGym}`,
-                  );
-                }}
-              >
-                <Text style={styles.chooseText}>Press to see Gym info</Text>
-              </TouchableOpacity>
             </View>
           </View>
 
@@ -156,6 +162,7 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   headingContainer: {
+    justifyContent: "center",
     alignItems: "center",
   },
   title: {
@@ -163,15 +170,27 @@ const styles = StyleSheet.create({
     fontFamily: "Montserrat",
     fontSize: 32,
     marginTop: 60,
+    width: "100%",
+    textAlign: "center",
+  },
+  subTitle: {
+    color: AppColors.blue,
+    fontFamily: "Montserrat",
+    fontSize: 16,
+    lineHeight: 32,
+    textAlign: "center",
+    marginTop: 24,
+    marginBottom: 24,
+    width: 320,
   },
   pinkLeaf: {
-    position: "relative",
+    position: "absolute",
     zIndex: -1,
-    top: -68,
-    right: -40,
+    top: 24,
+    right: 80,
   },
   body: {
-    // borderWidth: 1, borderColor: 'red',
+    marginTop: 16,
     flex: 1,
   },
   bodyText: {
@@ -241,15 +260,6 @@ const styles = StyleSheet.create({
   },
   boxText: {
     fontSize: 16,
-  },
-  subTitle: {
-    fontFamily: "Montserrat",
-    color: AppColors.blue,
-    fontSize: 16,
-    lineHeight: 32,
-    textAlign: "center",
-    marginTop: 24,
-    marginBottom: 24,
   },
   scrollView: {
     flex: 1,

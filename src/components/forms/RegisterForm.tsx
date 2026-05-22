@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Image } from "react-native";
+import { Image, Button } from "react-native";
 import * as yup from "yup";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -26,6 +26,10 @@ import Checkbox from "expo-checkbox";
 import axios from "axios";
 import HoneypotField from "./input_fields/HoneypotField";
 import GymList from "../GymList";
+import FlashMessage, {
+  showMessage,
+  hideMessage,
+} from "react-native-flash-message";
 
 const phoneRegExp =
   /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
@@ -38,19 +42,25 @@ const schema = yup.object().shape({
   password: yup
     .string()
     .required("Password is required")
-    .min(13, "Password must contain at least 13 characters")
+    .min(12, "Password must contain at least 12 characters")
     .matches(
-      /^[a-zA-Z0-9]+$/,
-      "Password must only contain alphanumeric characters (letters and numbers)",
+      /^[a-zA-Z0-9\s~!@#$%^&*()_+-]+$/,
+      "Only letters, numbers, spaces, hyphens, and underscores are allowed",
     ),
   confirmPassword: yup
     .string()
     .oneOf([yup.ref("password")], "Passwords must match")
     .required("Please confirm your password"),
   role: yup.string().oneOf(["Owner", "Member", "Trainer", "Contractor"]),
-  fname: yup.string().required("First name is required").min(3),
-  lname: yup.string().required("Last name is required").min(2),
-  dateOfBirth: yup.string().required("Date of Birth is required"),
+  fname: yup.string().required("First name is required").min(2).max(20),
+  lname: yup.string().required("Last name is required").min(2).max(20),
+  dateOfBirth: yup
+    .string()
+    .matches(
+      /^\d{4}\/(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])$/,
+      "Date must be in YYYY/MM/DD format",
+    )
+    .required("Date of birth is required"),
   sex: yup
     .string()
     .oneOf(["Male", "Female", "Other"], "Please select a valid category")
@@ -60,7 +70,10 @@ const schema = yup.object().shape({
     .string()
     .matches(phoneRegExp, "WhatsApp Number number is not valid"),
   preferredContact: yup.string().oneOf(["Phone", "Email", "WhatsApp"]),
-  gymId: yup.string().required("Category selection is required"),
+  gymId: yup
+    .string()
+    .matches(/^\d+$/, "Gym location is required")
+    .required("Category selection is required"),
 });
 
 const RegisterForm = () => {
@@ -149,7 +162,15 @@ const RegisterForm = () => {
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
-    defaultValues: { gymId: "" },
+    defaultValues: {
+      gymId: "",
+      email: "help@simplecssjs.com",
+      dateOfBirth: "2000/05/05",
+      fname: "asdf",
+      lname: "asdf",
+      whatsappNumber: "518-517-9866",
+      phoneNumber: "518-517-9866",
+    },
   });
 
   // 3. Define the submit handler
@@ -170,10 +191,12 @@ const RegisterForm = () => {
       return;
     }
 
-    try {
-      const response = await axios.post(
-        "http://localhost:8080/classy-api/api/register.php",
-        {
+    const response = await fetch(
+      "http://localhost:8080/classy-api/api/register.php",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           gym_id: data.gymId,
           username: "",
           email: data.email,
@@ -187,16 +210,33 @@ const RegisterForm = () => {
           phone: data.phoneNumber,
           whatsapp: data.whatsappNumber,
           preferred_contact: data.preferredContact,
-        },
-      );
+        }),
+      },
+    );
 
-      console.log(response.data);
+    const json = await response.text();
+    const obj = JSON.parse(json);
 
-      if (response.data.status == "success") {
-        uploadPhoto(response.data.last_id);
-      }
-    } catch (error) {
-      console.error(error.response?.data || error.message);
+    if (response.status === 200) {
+      showMessage({
+        message: obj?.message,
+        // description: "API Server Response",
+        type: "success",
+        autoHide: false, // prevents the message from disappearing automatically
+        onPress: () => hideMessage(), // closes the message when pressed
+      });
+      // console.log("json: ", JSON.stringify(obj));
+      navigation.navigate("ThankYouScreen");
+    } else if (response.status == 400) {
+      showMessage({
+        message: obj?.message,
+        // description: "API Server Response",
+        type: "danger",
+        autoHide: false, // prevents the message from disappearing automatically
+        onPress: () => hideMessage(), // closes the message when pressed
+      });
+    } else {
+      console.log("json error: ", JSON.stringify(obj));
     }
   };
 
@@ -567,4 +607,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: AppColors.blue,
   },
+  errorMsg: {
+    color: "red",
+  },
+  apimessage: { color: AppColors.blue },
 });
