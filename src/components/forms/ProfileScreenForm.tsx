@@ -408,31 +408,31 @@ const ProfileScreenForm = () => {
 
         <View style={styles.loginBtnContainer}>
           <TouchableOpacity
-            style={styles.loginBtn}
+            style={globalStyles.registerBtn}
             title="loginSubmit"
             onPress={handleSubmit(onSubmit)}
           >
-            <Text style={styles.loginBtnText}>Update Profile</Text>
+            <Text style={globalStyles.registerBtnText}>Save Profile</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.loginBtnContainer}>
           <TouchableOpacity
-            style={styles.loginBtn}
+            style={globalStyles.loginBtn}
             title="loginSubmit"
             onPress={handleSubmit(onSubmit)}
           >
-            <Text style={styles.loginBtnText}>Cancel Membership</Text>
+            <Text style={globalStyles.loginBtnText}>Delete Profile</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.loginBtnContainer}>
           <TouchableOpacity
-            style={styles.loginBtn}
+            style={globalStyles.loginBtn}
             title="loginSubmit"
             onPress={handleSubmit(onSubmit)}
           >
-            <Text style={styles.loginBtnText}>Delete Account</Text>
+            <Text style={globalStyles.loginBtnText}>Cancel Gym Membership</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -468,18 +468,6 @@ const styles = StyleSheet.create({
   loginBtnContainer: {
     alignItems: "center",
     marginTop: s(16),
-  },
-  loginBtn: {
-    backgroundColor: AppColors.blue,
-    borderRadius: 40,
-    width: 250,
-    height: 50,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  loginBtnText: {
-    color: AppColors.white,
-    fontSize: s(14),
   },
   selectList: {
     marginBottom: 80,
