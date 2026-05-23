@@ -8,20 +8,13 @@ import {
   Text,
   TouchableOpacity,
   TextInput,
-  Alert,
-  Linking,
 } from "react-native";
 import { AppColors } from "../../styles/colors";
 import { useNavigation } from "@react-navigation/native";
 import { SelectList } from "react-native-dropdown-select-list";
 import UploadPhoto from "../../screens/app/UploadPhoto";
-import axios from "axios";
 import HoneypotField from "./input_fields/HoneypotField";
 import GymList from "../GymList";
-import FlashMessage, {
-  showMessage,
-  hideMessage,
-} from "react-native-flash-message";
 import { globalStyles } from "../../styles/globalStyles";
 
 const phoneRegExp =
@@ -71,7 +64,7 @@ const schema = yup.object().shape({
 
 const ProfileScreenForm = () => {
   const navigation = useNavigation();
-  const [photo, setPhoto] = useState(null);
+  // const [photo, setPhoto] = useState(null);
   const [website, setWebsite] = useState("");
 
   // Use a ref to store the load time without triggering re-renders
@@ -81,40 +74,6 @@ const ProfileScreenForm = () => {
   useEffect(() => {
     formLoadTime.current = Date.now();
   }, []);
-
-  const uploadPhoto = async (last_id) => {
-    // console.log('last_id: ' + last_id);
-    if (!photo) {
-      console.log("No photo selected!");
-      return;
-    }
-
-    const formData = new FormData();
-    // formData.append("photo", {
-    //   uri: photo.uri,
-    //   type: photo.type,
-    //   name: photo.fileName || "photo.jpg",
-    //   last_id: last_id,
-    // });
-
-    // try {
-    //   const response = await axios.post(
-    //     "http://localhost:8080/classy-api/api/upload-photo.php?last_id=" +
-    //       last_id,
-    //     formData,
-    //     {
-    //       headers: {
-    //         "Content-Type": "multipart/form-data",
-    //       },
-    //     },
-    //   );
-    //   Alert.alert("Upload Success", response.data.message || "Photo uploaded!");
-    //   navigation.navigate("LoginScreen");
-    // } catch (error) {
-    //   console.error(error);
-    //   Alert.alert("Upload Failed", "Something went wrong.");
-    // }
-  };
 
   const [sex, setSelected] = useState(""); // sex state lives here
   const sexData = [
@@ -130,7 +89,6 @@ const ProfileScreenForm = () => {
     { key: "3", value: "Email" },
   ];
 
-  // const [gyms, setGyms] = useState([]);
   // const [role, setRole] = React.useState("");
   const roleData = [
     { key: "1", value: "Gym Owner", disabled: true },
@@ -138,15 +96,6 @@ const ProfileScreenForm = () => {
     { key: "3", value: "Trainer" },
     { key: "4", value: "Contractor" },
   ];
-
-  // This is the "onChange" logic for GymList
-  // const handleSelectionChange = (val) => {
-  //   setGyms(val);
-  // };
-
-  // const handleLinkPress = () => {
-  //   Linking.openURL("https://cleancodeusa.com/about.html");
-  // };
 
   // 2. Initialize useForm with the Yup resolver
   const {
@@ -237,11 +186,11 @@ const ProfileScreenForm = () => {
     <>
       <View style={styles.fieldset}>
         <View style={styles.field}>
-          <UploadPhoto
+          {/* <UploadPhoto
             photo={photo}
             setPhoto={setPhoto}
             uploadPhoto={uploadPhoto}
-          />
+          /> */}
         </View>
         <View style={styles.field}>
           <Text style={styles.formLabel}>E-mail</Text>
