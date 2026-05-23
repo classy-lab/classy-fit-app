@@ -157,12 +157,12 @@ const ProfileScreenForm = () => {
     resolver: yupResolver(schema),
     defaultValues: {
       gymId: "",
-      email: "help@simplecssjs.com",
-      dateOfBirth: "2000/05/05",
-      fname: "asdf",
-      lname: "asdf",
-      whatsappNumber: "518-517-9866",
-      phoneNumber: "518-517-9866",
+      email: "",
+      dateOfBirth: "",
+      fname: "",
+      lname: "",
+      whatsappNumber: "",
+      phoneNumber: "",
     },
   });
 
