@@ -63,7 +63,7 @@ const schema = yup.object().shape({
 });
 
 const ProfileScreenForm = () => {
-  const navigation = useNavigation();
+  // const navigation = useNavigation();
   // const [photo, setPhoto] = useState(null);
   const [website, setWebsite] = useState("");
 
@@ -75,7 +75,7 @@ const ProfileScreenForm = () => {
     formLoadTime.current = Date.now();
   }, []);
 
-  const [sex, setSelected] = useState(""); // sex state lives here
+  // const [sex, setSelected] = useState(""); // sex state lives here
   const sexData = [
     { key: "1", value: "Male", disabled: false },
     { key: "2", value: "Female" },
@@ -119,6 +119,7 @@ const ProfileScreenForm = () => {
   const registerUser = async (data) => {
     const totalTimeElapsed = Date.now() - formLoadTime.current;
     console.log(data);
+
     // console.log(selected);
 
     // 1. Honeypot check
@@ -132,6 +133,7 @@ const ProfileScreenForm = () => {
       // console.log("Submission failed", "Form submitted too quickly.");
       return;
     }
+    return;
 
     // const response = await fetch(
     //   "http://localhost:8080/classy-api/api/register.php",
