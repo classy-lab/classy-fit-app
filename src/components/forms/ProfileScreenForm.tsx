@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import * as yup from "yup";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -13,6 +13,7 @@ import { AppColors } from "../../styles/colors";
 import { useNavigation } from "@react-navigation/native";
 import { SelectList } from "react-native-dropdown-select-list";
 import UploadPhoto from "../../screens/app/UploadPhoto";
+import { UserContext } from "../../context/UserContext";
 import HoneypotField from "./input_fields/HoneypotField";
 import GymList from "../GymList";
 import { globalStyles } from "../../styles/globalStyles";
@@ -64,9 +65,11 @@ const schema = yup.object().shape({
 
 const ProfileScreenForm = () => {
   // const navigation = useNavigation();
-  // const [photo, setPhoto] = useState(null);
+  const { user } = useContext(UserContext);
+  const [photo, setPhoto] = useState(null);
   const [website, setWebsite] = useState("");
 
+  console.log("user: " + user.gym_id);
   // Use a ref to store the load time without triggering re-renders
   const formLoadTime = useRef(Date.now());
 
@@ -75,7 +78,7 @@ const ProfileScreenForm = () => {
     formLoadTime.current = Date.now();
   }, []);
 
-  // const [sex, setSelected] = useState(""); // sex state lives here
+  const [sex, setSelected] = useState(""); // sex state lives here
   const sexData = [
     { key: "1", value: "Male", disabled: false },
     { key: "2", value: "Female" },
@@ -89,9 +92,9 @@ const ProfileScreenForm = () => {
     { key: "3", value: "Email" },
   ];
 
-  // const [role, setRole] = React.useState("");
+  const [role, setRole] = React.useState("");
   const roleData = [
-    { key: "1", value: "Gym Owner", disabled: true },
+    { key: "1", value: "Owner", disabled: false },
     { key: "2", value: "Member" },
     { key: "3", value: "Trainer" },
     { key: "4", value: "Contractor" },
@@ -105,17 +108,16 @@ const ProfileScreenForm = () => {
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      gymId: "",
-      email: "help@simplecssjs.com",
-      dateOfBirth: "2000/05/05",
-      fname: "Van",
-      lname: "beek",
-      whatsappNumber: "518-512-9955",
-      phoneNumber: "518-512-9955",
-      role: "",
-      sex: "Male",
+      gymId: user.gym_id,
+      email: user.email,
+      dateOfBirth: "",
+      fname: user.given_name,
+      lname: user.family_name,
+      whatsappNumber: "",
+      phoneNumber: "",
+      role: "Owner",
+      sex: user.gender,
       preferredContact: "",
-      gymId: "",
     },
   });
 
@@ -271,7 +273,7 @@ const ProfileScreenForm = () => {
                 data={roleData}
                 save="value"
                 placeholder="Select Category"
-                defaultOption={{ key: "1", value: "Member" }}
+                defaultOption={{ key: "", value: user.role }}
                 boxStyles={{
                   borderColor: AppColors.grey,
                   borderWidth: 1,
@@ -365,7 +367,7 @@ const ProfileScreenForm = () => {
                 setSelected={(val) => onChange(val)} // Send selection to hook-form
                 data={sexData}
                 save="value"
-                defaultOption={{ key: "1", value: "Male" }}
+                defaultOption={{ key: "", value: user.gender }}
                 placeholder="Select Category"
                 boxStyles={{
                   borderColor: AppColors.grey,
@@ -442,7 +444,7 @@ const ProfileScreenForm = () => {
                 data={preferredContactData}
                 save="value"
                 placeholder="Select Category"
-                defaultOption={{ key: "3", value: "Email" }}
+                // defaultOption={{ key: "3", value: "Email" }}
                 boxStyles={{
                   borderColor: AppColors.grey,
                   borderWidth: 1,
