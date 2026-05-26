@@ -106,12 +106,16 @@ const ProfileScreenForm = () => {
     resolver: yupResolver(schema),
     defaultValues: {
       gymId: "",
-      email: "",
-      dateOfBirth: "",
-      fname: "",
-      lname: "",
-      whatsappNumber: "",
-      phoneNumber: "",
+      email: "help@simplecssjs.com",
+      dateOfBirth: "2000/05/05",
+      fname: "Van",
+      lname: "beek",
+      whatsappNumber: "518-512-9955",
+      phoneNumber: "518-512-9955",
+      role: "",
+      sex: "Male",
+      preferredContact: "",
+      gymId: "",
     },
   });
 
@@ -267,6 +271,7 @@ const ProfileScreenForm = () => {
                 data={roleData}
                 save="value"
                 placeholder="Select Category"
+                defaultOption={{ key: "1", value: "Member" }}
                 boxStyles={{
                   borderColor: AppColors.grey,
                   borderWidth: 1,
@@ -360,6 +365,7 @@ const ProfileScreenForm = () => {
                 setSelected={(val) => onChange(val)} // Send selection to hook-form
                 data={sexData}
                 save="value"
+                defaultOption={{ key: "1", value: "Male" }}
                 placeholder="Select Category"
                 boxStyles={{
                   borderColor: AppColors.grey,
@@ -436,6 +442,7 @@ const ProfileScreenForm = () => {
                 data={preferredContactData}
                 save="value"
                 placeholder="Select Category"
+                defaultOption={{ key: "3", value: "Email" }}
                 boxStyles={{
                   borderColor: AppColors.grey,
                   borderWidth: 1,
