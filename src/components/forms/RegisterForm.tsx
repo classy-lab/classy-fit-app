@@ -140,7 +140,7 @@ const RegisterForm = () => {
   const [gyms, setGyms] = useState([]);
   const [role, setRole] = React.useState("");
   const roleData = [
-    { key: "1", value: "Gym Owner", disabled: true },
+    { key: "1", value: "Owner", disabled: true },
     { key: "2", value: "Member" },
     { key: "3", value: "Trainer" },
     { key: "4", value: "Contractor" },
