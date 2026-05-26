@@ -66,16 +66,42 @@ const schema = yup.object().shape({
 const ProfileScreenForm = () => {
   // const navigation = useNavigation();
   const { user } = useContext(UserContext);
+  const { tokens } = useContext(UserContext);
   const [photo, setPhoto] = useState(null);
   const [website, setWebsite] = useState("");
 
-  console.log("user: " + user.gym_id);
+  // console.log("userid: " + user.gym_id);
+  // console.log("access_token: " + tokens.access_token);
+
   // Use a ref to store the load time without triggering re-renders
   const formLoadTime = useRef(Date.now());
 
   // Reset the timer if the user navigates back to this screen
   useEffect(() => {
     formLoadTime.current = Date.now();
+    const getFields = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:8080/classy-api/api/v1/users/${user.sub}`,
+          {
+            headers: {
+              "Authorization": "Bearer " + tokens.access_token,
+            },
+          },
+        );
+        const json = await response.text();
+        console.log(json);
+        const obj = JSON.stringify(json);
+        // console.log(obj);
+
+        if(response.status == 200){
+          console.log(response.status);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getFields();
   }, []);
 
   const [sex, setSelected] = useState(""); // sex state lives here
