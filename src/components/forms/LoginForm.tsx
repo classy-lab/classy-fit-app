@@ -12,7 +12,6 @@ import {
   Button,
 } from "react-native";
 import { AppColors } from "../../styles/colors";
-import { useNavigation } from "@react-navigation/native";
 import { s } from "react-native-size-matters";
 import { UserContext } from "../../context/UserContext";
 import HoneypotField from "./input_fields/HoneypotField";
@@ -26,7 +25,6 @@ const windowWidth = Dimensions.get("window").width;
 const MIN_SUBMISSION_TIME_MS = 500; // 5 seconds threshold before reg form can be submitted
 
 const LoginForm = () => {
-  const navigation = useNavigation();
   const { user, setUser } = useContext(UserContext);
   const { tokens, setTokens } = useContext(UserContext);
   const { isLoggedIn, setIsLoggedIn } = useContext(UserContext);
@@ -83,7 +81,7 @@ const LoginForm = () => {
     }
 
     // This function only runs if validation passes
-    // console.log("Form Submitted (Validation Passed):", data);
+    console.log("Form Submitted (Validation Passed):", data);
 
     try {
       // Perform your authentication logic or API call here
@@ -103,7 +101,7 @@ const LoginForm = () => {
 
       const json = await response.text();
       const obj = JSON.parse(json);
-      // console.log(obj);
+      console.log(obj);
 
       if (response.status == 200) {
         setTokens(obj); // store access_token, refresh_token in app memory
