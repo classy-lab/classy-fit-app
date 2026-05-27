@@ -66,9 +66,10 @@ const schema = yup.object().shape({
 const ProfileScreenForm = () => {
   // const navigation = useNavigation();
   const { user } = useContext(UserContext);
-  const { tokens } = useContext(UserContext);
+  const { tokens, setTokens } = useContext(UserContext);
   const [photo, setPhoto] = useState(null);
   const [website, setWebsite] = useState("");
+  const { webServer } = useContext(UserContext);
 
   // console.log("userid: " + user.gym_id);
   // console.log("access_token: " + tokens.access_token);
@@ -81,21 +82,42 @@ const ProfileScreenForm = () => {
     formLoadTime.current = Date.now();
     const getFields = async () => {
       try {
-        const response = await fetch(
-          `http://localhost:8080/classy-api/api/v1/users/${user.sub}`,
-          {
-            headers: {
-              "Authorization": "Bearer " + tokens.access_token,
-            },
+        const response = await fetch(`${webServer}/api/v1/users/${user.sub}`, {
+          headers: {
+            Authorization: "Bearer " + tokens.access_token,
           },
-        );
+        });
         const json = await response.text();
-        console.log(json);
-        const obj = JSON.stringify(json);
-        // console.log(obj);
+        const obj = JSON.parse(json);
 
-        if(response.status == 200){
-          console.log(response.status);
+        if (response.status == 200) {
+          console.log(obj);
+        } else {
+          console.log("Access token expired, requesting new one");
+
+          const response = await fetch(`${webServer}/api/refresh.php`, {
+            method: "POST",
+            body: JSON.stringify({
+              token: tokens.refresh_token,
+            }),
+          });
+
+          const json = await response.text();
+          const obj = JSON.parse(json);
+
+          setTokens({
+            ...tokens,
+            access_token: obj.access_token,
+            refresh_token: obj.refresh_token,
+          });
+
+          if (response.status == 200) {
+            console.log("Got new access token and refresh token");
+            // console.log("access_token: " + obj.access_token);
+            // console.log("refresh_token: " + obj.refresh_token);
+          } else {
+            console.log(obj.message);
+          }
         }
       } catch (error) {
         console.log(error);
@@ -103,6 +125,9 @@ const ProfileScreenForm = () => {
     };
     getFields();
   }, []);
+
+  // console.log("access_token: " + tokens.access_token);
+  // console.log("refresh_token: " + tokens.refresh_token);
 
   const [sex, setSelected] = useState(""); // sex state lives here
   const sexData = [
