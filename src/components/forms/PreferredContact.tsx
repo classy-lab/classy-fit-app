@@ -1,35 +1,48 @@
-import React, { useState } from 'react';
-import { StyleSheet } from 'react-native'
-import { SelectList } from 'react-native-dropdown-select-list'
-import { AppColors } from '../../styles/colors'
+import React, { useContext } from "react";
+import { StyleSheet } from "react-native";
+import { SelectList } from "react-native-dropdown-select-list";
+import { AppColors } from "../../styles/colors";
+import { UserContext } from "../../context/UserContext";
 
-const PreferredContact = () => {
-  const [selected, setSelected] = React.useState("");
-  const data = [
-    { key: '1', value: 'Phone', disabled: false },
-    { key: '2', value: 'WhatsApp' },
-    { key: '3', value: 'Email' },
-  ]
+const PreferredContact = ({ onSelectValue }) => {
+  const contactTypes = [
+    { key: "1", value: "Phone" },
+    { key: "2", value: "WhatsApp" },
+    { key: "3", value: "Email" },
+  ];
+  const { user } = useContext(UserContext);
+  // console.log(user.preferred_contact);
+  // const selectedKey = user.preferred_contact
+  //   ? contactTypes[user.preferred_contact]
+  //   : null;
+  // console.log("Selected Key:", selectedKey);
   return (
     <SelectList
+      setSelected={onSelectValue} // Updates the parent state directly
+      data={contactTypes}
+      save="key"
+      placeholder="Select Category"
+      defaultOption={{
+        key: "",
+        value: user.preferred_contact,
+      }}
       boxStyles={{
         borderColor: AppColors.grey,
         borderWidth: 1,
         paddingHorizontal: 8,
-        backgroundColor: '#F5F6FA'
       }}
       dropdownStyles={{
         borderColor: AppColors.grey2,
         borderWidth: 1,
         marginTop: 8,
+        backgroundColor: "white",
       }}
-      setSelected={(val) => setSelected(val)}
-      data={data}
-      save="value"
+      // If you need to force the value from the parent (e.g., reset)
+      // defaultOption={data.find(item => item.value === value)}
     />
-  )
+  );
 };
 
 const styles = StyleSheet.create({});
 
-export default PreferredContact
+export default PreferredContact;
