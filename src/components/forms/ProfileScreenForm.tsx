@@ -63,16 +63,16 @@ const schema = yup.object().shape({
     .required("Category selection is required"),
 });
 
+//
+//
+
 const ProfileScreenForm = () => {
   // const navigation = useNavigation();
-  const { user } = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
   const { tokens, setTokens } = useContext(UserContext);
   const [photo, setPhoto] = useState(null);
   const [website, setWebsite] = useState("");
   const { webServer } = useContext(UserContext);
-
-  // console.log("userid: " + user.gym_id);
-  // console.log("access_token: " + tokens.access_token);
 
   // Use a ref to store the load time without triggering re-renders
   const formLoadTime = useRef(Date.now());
@@ -80,54 +80,66 @@ const ProfileScreenForm = () => {
   // Reset the timer if the user navigates back to this screen
   useEffect(() => {
     formLoadTime.current = Date.now();
-    const getFields = async () => {
-      try {
+    // console.log('sending acc');
+    const getProfileFields = async ({ tokens, webServer, user, setTokens }) => {
+      const response = await fetch(`${webServer}/api/v1/users/${user.sub}`, {
+        headers: {
+          Authorization: "Bearer " + tokens.access_token,
+        },
+      });
+      const json = await response.text();
+      const obj = JSON.stringify(json);
+
+      if (response.status == 200) {
+        //set profile fields here
+        console.log("set profile fields here");
+
         const response = await fetch(`${webServer}/api/v1/users/${user.sub}`, {
           headers: {
             Authorization: "Bearer " + tokens.access_token,
           },
         });
+
         const json = await response.text();
         const obj = JSON.parse(json);
 
         if (response.status == 200) {
           console.log(obj);
-        } else {
-          console.log("Access token expired, requesting new one");
-
-          const response = await fetch(`${webServer}/api/refresh.php`, {
-            method: "POST",
-            body: JSON.stringify({
-              token: tokens.refresh_token,
-            }),
+          setUser({
+            ...user,
+            date_of_birth: obj.date_of_birth,
+            phone: obj.phone,
+            preferred_contact: obj.preferred_contact,
+            WhatsApp: obj.WhatsApp,
           });
+        }
+      } else {
+        console.log("Access token expired, requesting new one");
 
-          const json = await response.text();
-          const obj = JSON.parse(json);
+        const response = await fetch(`${webServer}/api/refresh.php`, {
+          method: "POST",
+          body: JSON.stringify({
+            token: tokens.refresh_token,
+          }),
+        });
 
+        const json = await response.text();
+        const obj = JSON.parse(json);
+
+        if (response.status == 200) {
+          console.log("Got new access token and refresh token");
           setTokens({
             ...tokens,
             access_token: obj.access_token,
             refresh_token: obj.refresh_token,
           });
-
-          if (response.status == 200) {
-            console.log("Got new access token and refresh token");
-            // console.log("access_token: " + obj.access_token);
-            // console.log("refresh_token: " + obj.refresh_token);
-          } else {
-            console.log(obj.message);
-          }
         }
-      } catch (error) {
-        console.log(error);
       }
-    };
-    getFields();
-  }, []);
 
-  // console.log("access_token: " + tokens.access_token);
-  // console.log("refresh_token: " + tokens.refresh_token);
+      // console.log(user);
+    };
+    getProfileFields({ tokens, webServer, user, setTokens });
+  }, [tokens]);
 
   const [sex, setSelected] = useState(""); // sex state lives here
   const sexData = [
@@ -161,14 +173,14 @@ const ProfileScreenForm = () => {
     defaultValues: {
       gymId: user.gym_id,
       email: user.email,
-      dateOfBirth: "",
+      dateOfBirth: user?.date_of_birth, // "2005/05/05",
       fname: user.given_name,
       lname: user.family_name,
-      whatsappNumber: "",
-      phoneNumber: "",
+      whatsappNumber: user?.whatsapp,
+      phoneNumber: user?.phone,
       role: "Owner",
       sex: user.gender,
-      preferredContact: "",
+      preferredContact: user?.preferred_contact,
     },
   });
 
