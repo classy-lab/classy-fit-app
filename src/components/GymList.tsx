@@ -13,26 +13,6 @@ const GymList = ({ onSelectValue }) => {
     { key: "4", value: "Sarah's Gym, Cobleskill, NY" },
   ];
   const { user } = useContext(UserContext);
-  // console.log("gym_id: " + user.gym_id);
-  // console.log(gymData[3]);
-  // console.log(gymData[Number(user.gym_id) - 1].value);
-
-  // useEffect(() => {
-  //   const fetchGyms = async() => {
-  //     try{
-  //       const response = await fetch('http://localhost:8080/classy-api/api/Gyms.php');
-  //       const json = await response.json();
-  //       setGyms(json);
-  //     } catch(error){
-  //       console.error(error);
-  //     }
-  //   }
-
-  //   fetchGyms()
-  // }, []); // <--- Empty array ensures it runs once on mount
-
-  // console.log(gyms);
-  // console.log(selectedGym);
 
   return (
     <SelectList
