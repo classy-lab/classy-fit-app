@@ -73,6 +73,10 @@ const ProfileScreenForm = () => {
   const [photo, setPhoto] = useState(null);
   const [website, setWebsite] = useState("");
   const { webServer } = useContext(UserContext);
+  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [phone, setPhone] = useState("");
+  const [whatsApp, setWhatsApp] = useState("");
+  const [preferredContact, setPreferredContact] = useState("");
 
   // Use a ref to store the load time without triggering re-renders
   const formLoadTime = useRef(Date.now());
@@ -104,14 +108,18 @@ const ProfileScreenForm = () => {
         const obj = JSON.parse(json);
 
         if (response.status == 200) {
-          console.log(obj);
-          setUser({
-            ...user,
-            date_of_birth: obj.date_of_birth,
-            phone: obj.phone,
-            preferred_contact: obj.preferred_contact,
-            WhatsApp: obj.WhatsApp,
-          });
+          console.log("here 1");
+          // setUser((user) => ({
+          //   ...user,
+          //   date_of_birth: obj.fields.date_of_birth,
+          //   phone: obj.fields.phone,
+          //   preferred_contact: obj.fields.preferred_contact,
+          //   WhatsApp: obj.fields.WhatsApp,
+          // }));
+          setDateOfBirth(obj.fields.date_of_birth);
+          setPhone(obj.fields.phone);
+          setWhatsApp(obj.fields.whatsapp);
+          setPreferredContact(obj.fields.preferred_contact);
         }
       } else {
         console.log("Access token expired, requesting new one");
@@ -135,27 +143,22 @@ const ProfileScreenForm = () => {
           });
         }
       }
-
-      // console.log(user);
     };
     getProfileFields({ tokens, webServer, user, setTokens });
   }, [tokens]);
 
-  const [sex, setSelected] = useState(""); // sex state lives here
   const sexData = [
     { key: "1", value: "Male", disabled: false },
     { key: "2", value: "Female" },
     { key: "3", value: "Other" },
   ];
 
-  const [PreferredContact, setPreferredContact] = React.useState("");
   const preferredContactData = [
     { key: "1", value: "Phone", disabled: false },
     { key: "2", value: "WhatsApp" },
     { key: "3", value: "Email" },
   ];
 
-  const [role, setRole] = React.useState("");
   const roleData = [
     { key: "1", value: "Owner", disabled: false },
     { key: "2", value: "Member" },
@@ -173,14 +176,14 @@ const ProfileScreenForm = () => {
     defaultValues: {
       gymId: user.gym_id,
       email: user.email,
-      dateOfBirth: user?.date_of_birth, // "2005/05/05",
+      dateOfBirth: "",
       fname: user.given_name,
       lname: user.family_name,
-      whatsappNumber: user?.whatsapp,
-      phoneNumber: user?.phone,
+      whatsappNumber: "",
+      phoneNumber: "",
       role: "Owner",
       sex: user.gender,
-      preferredContact: user?.preferred_contact,
+      preferredContact: "",
     },
   });
 
@@ -361,10 +364,10 @@ const ProfileScreenForm = () => {
                 style={styles.inputField}
                 onBlur={onBlur}
                 onChangeText={onChange}
-                value={value}
+                value={dateOfBirth}
                 keyboardType="default"
                 autoCapitalize="none"
-                placeholder="yyyy/mm/dd"
+                placeholder="yyyy-mm-dd"
               /> // needs date picker added. check
             )}
           />
@@ -414,7 +417,7 @@ const ProfileScreenForm = () => {
                 style={styles.inputField}
                 onBlur={onBlur}
                 onChangeText={onChange}
-                value={value}
+                value={phone}
                 keyboardType="default"
                 autoCapitalize="none"
                 placeholder="518-555-5555"
@@ -435,7 +438,7 @@ const ProfileScreenForm = () => {
                 style={styles.inputField}
                 onBlur={onBlur}
                 onChangeText={onChange}
-                value={value}
+                value={whatsApp}
                 keyboardType="default"
                 placeholder="518-555-5555"
                 autoCapitalize="none"
@@ -455,7 +458,7 @@ const ProfileScreenForm = () => {
             name="preferredContact"
             render={({ field: { onChange, onBlur, value } }) => (
               <SelectList
-                setSelected={(val) => onChange(val)} // Send selection to hook-form
+                setSelected={(val) => setPreferredContact(val)} // Send selection to hook-form
                 data={preferredContactData}
                 save="value"
                 placeholder="Select Category"
