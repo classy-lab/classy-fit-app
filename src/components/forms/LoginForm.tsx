@@ -101,7 +101,9 @@ const LoginForm = () => {
 
       const json = await response.text();
       const obj = JSON.parse(json);
-      console.log(obj);
+      console.log("login tokens: ");
+      console.log("access_token: " + obj.access_token);
+      console.log("refresh_token: " + obj.refresh_token);
 
       if (response.status == 200) {
         setTokens(obj); // store access_token, refresh_token in app memory
