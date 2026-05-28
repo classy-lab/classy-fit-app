@@ -203,54 +203,6 @@ const ProfileScreenForm = () => {
       return;
     }
     return;
-
-    // const response = await fetch(
-    //   "http://localhost:8080/classy-api/api/register.php",
-    //   {
-    //     method: "POST",
-    //     headers: { "Content-Type": "application/json" },
-    //     body: JSON.stringify({
-    //       gym_id: data.gymId,
-    //       username: "",
-    //       email: data.email,
-    //       password: data.password,
-    //       confirm_password: data.confirmPassword,
-    //       role: data.role,
-    //       fname: data.fname,
-    //       lname: data.lname,
-    //       date_of_birth: data.dateOfBirth,
-    //       sex: data.sex,
-    //       phone: data.phoneNumber,
-    //       whatsapp: data.whatsappNumber,
-    //       preferred_contact: data.preferredContact,
-    //     }),
-    //   },
-    // );
-
-    // const json = await response.text();
-    // const obj = JSON.parse(json);
-
-    // if (response.status === 200) {
-    //   showMessage({
-    //     message: obj?.message,
-    //     // description: "API Server Response",
-    //     type: "success",
-    //     autoHide: false, // prevents the message from disappearing automatically
-    //     onPress: () => hideMessage(), // closes the message when pressed
-    //   });
-    //   // console.log("json: ", JSON.stringify(obj));
-    //   navigation.navigate("ThankYouScreen");
-    // } else if (response.status == 400) {
-    //   showMessage({
-    //     message: obj?.message,
-    //     // description: "API Server Response",
-    //     type: "danger",
-    //     autoHide: false, // prevents the message from disappearing automatically
-    //     onPress: () => hideMessage(), // closes the message when pressed
-    //   });
-    // } else {
-    //   console.log("json error: ", JSON.stringify(obj));
-    // }
   };
 
   return (
