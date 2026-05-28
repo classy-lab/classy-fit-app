@@ -15,6 +15,7 @@ import { SelectList } from "react-native-dropdown-select-list";
 import UploadPhoto from "../../screens/app/UploadPhoto";
 import { UserContext } from "../../context/UserContext";
 import HoneypotField from "./input_fields/HoneypotField";
+import PreferredContact from "./PreferredContact";
 import GymList from "../GymList";
 import { globalStyles } from "../../styles/globalStyles";
 
@@ -109,19 +110,19 @@ const ProfileScreenForm = () => {
 
         if (response.status == 200) {
           console.log("here 1");
-          // setUser((user) => ({
-          //   ...user,
-          //   date_of_birth: obj.fields.date_of_birth,
-          //   phone: obj.fields.phone,
-          //   preferred_contact: obj.fields.preferred_contact,
-          //   WhatsApp: obj.fields.WhatsApp,
-          // }));
+          setUser((user) => ({
+            ...user,
+            // date_of_birth: obj.fields.date_of_birth,
+            // phone: obj.fields.phone,
+            preferred_contact: obj.fields.preferred_contact,
+            // WhatsApp: obj.fields.WhatsApp,
+          }));
           setDateOfBirth(obj.fields.date_of_birth);
           setPhone(obj.fields.phone);
           setWhatsApp(obj.fields.whatsapp);
-          setPreferredContact(obj.fields.preferred_contact);
-          console.log(obj.fields.preferred_contact);
-          console.log(preferredContact);
+          // setPreferredContact(obj.fields.preferred_contact);
+          // console.log(obj.fields.preferred_contact);
+          // console.log(preferredContact);
         }
       } else {
         console.log("Access token expired, requesting new one");
@@ -153,12 +154,6 @@ const ProfileScreenForm = () => {
     { key: "1", value: "Male", disabled: false },
     { key: "2", value: "Female" },
     { key: "3", value: "Other" },
-  ];
-
-  const preferredContactData = [
-    { key: "1", value: "Phone", disabled: false },
-    { key: "2", value: "WhatsApp" },
-    { key: "3", value: "Email" },
   ];
 
   const roleData = [
@@ -458,27 +453,8 @@ const ProfileScreenForm = () => {
           <Controller
             control={control}
             name="preferredContact"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <SelectList
-                setSelected={(val) => setPreferredContact(val)} // Send selection to hook-form
-                data={preferredContactData}
-                save="value"
-                placeholder="Select Category"
-                defaultOption={{ key: "3", value: "Email" }}
-                boxStyles={{
-                  borderColor: AppColors.grey,
-                  borderWidth: 1,
-                  paddingHorizontal: 8,
-                }}
-                dropdownStyles={{
-                  borderColor: AppColors.grey2,
-                  borderWidth: 1,
-                  marginTop: 8,
-                  backgroundColor: "white",
-                }}
-                // If you need to force the value from the parent (e.g., reset)
-                // defaultOption={data.find(item => item.value === value)}
-              />
+            render={({ field: { onChange } }) => (
+              <PreferredContact onSelectValue={onChange} />
             )}
           />
           {errors.preferredContact && (
