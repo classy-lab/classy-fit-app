@@ -120,6 +120,8 @@ const ProfileScreenForm = () => {
           setPhone(obj.fields.phone);
           setWhatsApp(obj.fields.whatsapp);
           setPreferredContact(obj.fields.preferred_contact);
+          console.log(obj.fields.preferred_contact);
+          console.log(preferredContact);
         }
       } else {
         console.log("Access token expired, requesting new one");
@@ -462,7 +464,7 @@ const ProfileScreenForm = () => {
                 data={preferredContactData}
                 save="value"
                 placeholder="Select Category"
-                // defaultOption={{ key: "3", value: "Email" }}
+                defaultOption={{ key: "3", value: "Email" }}
                 boxStyles={{
                   borderColor: AppColors.grey,
                   borderWidth: 1,
