@@ -57,8 +57,8 @@ const schema = yup.object().shape({
   dateOfBirth: yup
     .string()
     .matches(
-      /^\d{4}\/(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])$/,
-      "Date must be in YYYY/MM/DD format",
+      /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/,
+      "Date must be in YYYY-MM-DD format",
     )
     .required("Date of birth is required"),
   sex: yup
