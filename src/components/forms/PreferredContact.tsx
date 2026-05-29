@@ -11,11 +11,22 @@ const PreferredContact = ({ onSelectValue }) => {
     { key: "3", value: "Email" },
   ];
   const { user } = useContext(UserContext);
-  // console.log(user.preferred_contact);
-  // const selectedKey = user.preferred_contact
-  //   ? contactTypes[user.preferred_contact]
-  //   : null;
-  // console.log("Selected Key:", selectedKey);
+  let key = 0;
+
+  switch (user.preferred_contact) {
+    case "Phone":
+      key = 1;
+      break;
+    case "WhatsApp":
+      key = 2;
+      break;
+    case "Email":
+      key = 3;
+      break;
+    default:
+      break;
+  }
+
   return (
     <SelectList
       setSelected={onSelectValue} // Updates the parent state directly
@@ -23,7 +34,7 @@ const PreferredContact = ({ onSelectValue }) => {
       save="key"
       placeholder="Select Category"
       defaultOption={{
-        key: "",
+        key: key,
         value: user.preferred_contact,
       }}
       boxStyles={{
