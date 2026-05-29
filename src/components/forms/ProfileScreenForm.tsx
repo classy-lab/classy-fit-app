@@ -30,7 +30,7 @@ const schema = yup.object().shape({
   password: yup
     .string()
     .required("Password is required")
-    .min(12, "Password must contain at least 12 characters")
+    .min(2, "Password must contain at least 2 characters")
     .matches(
       /^[a-zA-Z0-9\s~!@#$%^&*()_+-]+$/,
       "Only letters, numbers, spaces, hyphens, and underscores are allowed",
@@ -271,11 +271,16 @@ const ProfileScreenForm = () => {
             </Text>
           )}
         </View>
-        <View style={styles.field}>
+        <View
+          style={styles.field}
+          pointerEvents="none"
+          style={{ opacity: 0.5 }}
+        >
           <Text style={styles.formLabel}>Role</Text>
           <Controller
             control={control}
             name="role"
+            disabled={true}
             render={({ field: { onChange, onBlur, value } }) => (
               <SelectList
                 setSelected={(val) => onChange(val)} // Send selection to hook-form
@@ -366,7 +371,11 @@ const ProfileScreenForm = () => {
             <Text style={styles.errorText}>{errors.dateOfBirth.message}</Text>
           )}
         </View>
-        <View style={styles.field}>
+        <View
+          style={styles.field}
+          pointerEvents="none"
+          style={{ opacity: 0.5 }}
+        >
           <Text style={styles.formLabel}>Sex</Text>
           <Controller
             name="sex"
@@ -457,7 +466,11 @@ const ProfileScreenForm = () => {
             </Text>
           )}
         </View>
-        <View style={styles.field}>
+        <View
+          style={styles.field}
+          pointerEvents="none"
+          style={{ opacity: 0.5 }}
+        >
           <Text style={styles.formLabel}>Gym Location / Fitness Center</Text>
           <Controller
             control={control}
