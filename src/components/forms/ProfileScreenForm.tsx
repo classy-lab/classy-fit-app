@@ -45,8 +45,8 @@ const schema = yup.object().shape({
   dateOfBirth: yup
     .string()
     .matches(
-      /^\d{4}\/(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])$/,
-      "Date must be in YYYY/MM/DD format",
+      /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/,
+      "Date must be in YYYY-MM-DD format",
     )
     .required("Date of birth is required"),
   sex: yup
@@ -86,7 +86,7 @@ const ProfileScreenForm = () => {
   useEffect(() => {
     formLoadTime.current = Date.now();
     // console.log('sending acc');
-    const getProfileFields = async ({ tokens, webServer, user, setTokens }) => {
+    const fetchUserData = async ({ tokens, webServer, user, setTokens }) => {
       const response = await fetch(`${webServer}/api/v1/users/${user.sub}`, {
         headers: {
           Authorization: "Bearer " + tokens.access_token,
@@ -110,19 +110,12 @@ const ProfileScreenForm = () => {
 
         if (response.status == 200) {
           console.log("here 1");
-          setUser((user) => ({
-            ...user,
-            // date_of_birth: obj.fields.date_of_birth,
-            // phone: obj.fields.phone,
-            preferred_contact: obj.fields.preferred_contact,
-            // WhatsApp: obj.fields.WhatsApp,
-          }));
-          setDateOfBirth(obj.fields.date_of_birth);
-          setPhone(obj.fields.phone);
-          setWhatsApp(obj.fields.whatsapp);
-          // setPreferredContact(obj.fields.preferred_contact);
-          // console.log(obj.fields.preferred_contact);
-          // console.log(preferredContact);
+          reset({
+            dateOfBirth: obj.fields.date_of_birth,
+            phoneNumber: obj.fields.phone,
+            preferredContact: obj.fields.preferred_contact,
+            whatsappNumber: obj.fields.whatsapp,
+          });
         }
       } else {
         console.log("Access token expired, requesting new one");
@@ -147,8 +140,8 @@ const ProfileScreenForm = () => {
         }
       }
     };
-    getProfileFields({ tokens, webServer, user, setTokens });
-  }, [tokens]);
+    fetchUserData({ tokens, webServer, user, setTokens });
+  }, [tokens, reset]);
 
   const sexData = [
     { key: "1", value: "Male", disabled: false },
@@ -166,6 +159,7 @@ const ProfileScreenForm = () => {
   // 2. Initialize useForm with the Yup resolver
   const {
     control,
+    reset,
     handleSubmit,
     formState: { errors },
   } = useForm({
@@ -193,13 +187,13 @@ const ProfileScreenForm = () => {
 
     // 1. Honeypot check
     if (website.trim() !== "") {
-      // console.log("Submission failed", "Bot behavior detected.");
+      console.log("Submission failed", "Bot behavior detected.");
       return;
     }
 
     // 2. Timestamp check
     if (totalTimeElapsed < MIN_SUBMISSION_TIME_MS) {
-      // console.log("Submission failed", "Form submitted too quickly.");
+      console.log("Submission failed", "Form submitted too quickly.");
       return;
     }
     return;
@@ -361,7 +355,7 @@ const ProfileScreenForm = () => {
                 style={styles.inputField}
                 onBlur={onBlur}
                 onChangeText={onChange}
-                value={dateOfBirth}
+                value={value} // This will smoothly transition from '' to the API value
                 keyboardType="default"
                 autoCapitalize="none"
                 placeholder="yyyy-mm-dd"
@@ -414,7 +408,7 @@ const ProfileScreenForm = () => {
                 style={styles.inputField}
                 onBlur={onBlur}
                 onChangeText={onChange}
-                value={phone}
+                value={value}
                 keyboardType="default"
                 autoCapitalize="none"
                 placeholder="518-555-5555"
@@ -435,7 +429,7 @@ const ProfileScreenForm = () => {
                 style={styles.inputField}
                 onBlur={onBlur}
                 onChangeText={onChange}
-                value={whatsApp}
+                value={value}
                 keyboardType="default"
                 placeholder="518-555-5555"
                 autoCapitalize="none"
