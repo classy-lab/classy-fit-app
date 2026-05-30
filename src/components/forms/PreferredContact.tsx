@@ -10,22 +10,8 @@ const PreferredContact = ({ onSelectValue }) => {
     { key: "2", value: "WhatsApp" },
     { key: "3", value: "Email" },
   ];
-  // const { user, setUser } = useContext(UserContext);
-  // let key = 0;
 
-  // switch (user.preferred_contact) {
-  //   case "Phone":
-  //     key = 1;
-  //     break;
-  //   case "WhatsApp":
-  //     key = 2;
-  //     break;
-  //   case "Email":
-  //     key = 3;
-  //     break;
-  //   default:
-  //     break;
-  // }
+  const { user } = useContext(UserContext);
 
   return (
     <SelectList
@@ -33,10 +19,10 @@ const PreferredContact = ({ onSelectValue }) => {
       data={contactTypes}
       save="key"
       placeholder="Select Category"
-      // defaultOption={{
-      //   key: key,
-      //   value: user.preferred_contact,
-      // }}
+      defaultOption={{
+        key: "",
+        value: user.preferred_contact,
+      }}
       boxStyles={{
         borderColor: AppColors.grey,
         borderWidth: 1,
