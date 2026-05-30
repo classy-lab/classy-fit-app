@@ -57,7 +57,7 @@ const schema = yup.object().shape({
   whatsappNumber: yup
     .string()
     .matches(phoneRegExp, "WhatsApp Number number is not valid"),
-  preferredContact: yup.string().oneOf(["Phone", "Email", "WhatsApp"]),
+  preferredContact: yup.string(), //.oneOf(["Phone", "Email", "WhatsApp"]),
   gymId: yup
     .string()
     .matches(/^\d+$/, "Gym location is required")
@@ -280,7 +280,6 @@ const ProfileScreenForm = () => {
           <Controller
             control={control}
             name="role"
-            disabled={true}
             render={({ field: { onChange, onBlur, value } }) => (
               <SelectList
                 setSelected={(val) => onChange(val)} // Send selection to hook-form
