@@ -21,8 +21,8 @@ const GymList = ({ onSelectValue }) => {
       save="key"
       placeholder="Select Category"
       defaultOption={{
-        key: Number(user.gym_id) - 1,
-        value: gymData[Number(user.gym_id) - 1].value,
+        key: user ? Number(user.gym_id) - 1 : "",
+        value: user ? gymData[Number(user.gym_id) - 1].value : "",
       }}
       boxStyles={{
         borderColor: AppColors.grey,
