@@ -44,7 +44,6 @@ const LoginForm = () => {
     password: yup
       .string()
       .required("Password is required")
-      .min(2, "Password must contain at least 2 characters")
       .matches(
         /^[a-zA-Z0-9]+$/,
         "Password must only contain alphanumeric characters (letters and numbers)",
