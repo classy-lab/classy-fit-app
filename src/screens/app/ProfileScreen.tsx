@@ -43,13 +43,13 @@ const ProfileScreen = () => {
               {user?.given_name} {user?.family_name}
             </Text>
             <Text style={styles.subHead}>{user?.role}</Text>
-            {/* <TouchableOpacity>
+            <TouchableOpacity>
               <Image
                 source={require("../../assets/images/avatars/beard-hipster-male.png")}
                 style={{ width: 80, height: 80 }}
                 resizeMode="contain"
               />
-            </TouchableOpacity> */}
+            </TouchableOpacity>
           </View>
           <View style={styles.body}>
             <ProfileScreenForm />
