@@ -65,10 +65,18 @@ const schema = yup.object().shape({
     .string()
     .oneOf(["Male", "Female", "Other"], "Please select a valid category")
     .required("Category selection is required"),
-  phoneNumber: yup.string().matches(phoneRegExp, "Phone Number is not valid"),
+  phoneNumber: yup
+    .string()
+    .matches(phoneRegExp, "Phone Number is not valid")
+    .nullable()
+    .notRequired()
+    .transform((value) => (value === "" ? null : value)),
   whatsappNumber: yup
     .string()
-    .matches(phoneRegExp, "WhatsApp Number number is not valid"),
+    .matches(phoneRegExp, "WhatsApp Number number is not valid")
+    .nullable()
+    .notRequired()
+    .transform((value) => (value === "" ? null : value)),
   preferredContact: yup.string().oneOf(["Phone", "Email", "WhatsApp"]),
   gymId: yup
     .string()
