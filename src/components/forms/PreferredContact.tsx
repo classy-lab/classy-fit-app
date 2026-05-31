@@ -17,7 +17,7 @@ const PreferredContact = ({ onSelectValue }) => {
     <SelectList
       setSelected={onSelectValue} // Updates the parent state directly
       data={contactTypes}
-      save="key"
+      save="value"
       placeholder="Select Category"
       defaultOption={{
         key: "",
