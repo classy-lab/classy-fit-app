@@ -18,6 +18,10 @@ import HoneypotField from "./input_fields/HoneypotField";
 import PreferredContact from "./PreferredContact";
 import GymList from "../GymList";
 import { globalStyles } from "../../styles/globalStyles";
+import FlashMessage, {
+  showMessage,
+  hideMessage,
+} from "react-native-flash-message";
 
 const phoneRegExp =
   /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
@@ -179,11 +183,9 @@ const ProfileScreenForm = () => {
   });
 
   // 3. Define the submit handler
-  const registerUser = async (data) => {
+  const updateUser = async (data) => {
     const totalTimeElapsed = Date.now() - formLoadTime.current;
     console.log(data);
-
-    // console.log(selected);
 
     // 1. Honeypot check
     if (website.trim() !== "") {
@@ -196,7 +198,58 @@ const ProfileScreenForm = () => {
       console.log("Submission failed", "Form submitted too quickly.");
       return;
     }
-    return;
+
+    const response = await fetch(
+      "http://localhost:8080/classy-api/api/register.php",
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json; charset=UTF-8",
+          // 'Authorization': 'Bearer YOUR_TOKEN' // Add if your API requires authentication
+          Authorizatio: "Bearer " + tokens.access_token,
+        },
+        body: JSON.stringify({
+          gym_id: data.gymId,
+          username: "",
+          email: data.email,
+          password: data.password,
+          confirm_password: data.confirmPassword,
+          role: data.role,
+          fname: data.fname,
+          lname: data.lname,
+          date_of_birth: data.dateOfBirth,
+          sex: data.sex,
+          phone: data.phoneNumber,
+          whatsapp: data.whatsappNumber,
+          preferred_contact: data.preferredContact,
+        }),
+      },
+    );
+
+    const json = await response.text();
+    const obj = JSON.parse(json);
+
+    if (response.status === 200) {
+      showMessage({
+        message: obj?.message,
+        // description: "API Server Response",
+        type: "success",
+        autoHide: false, // prevents the message from disappearing automatically
+        onPress: () => hideMessage(), // closes the message when pressed
+      });
+      // console.log("json: ", JSON.stringify(obj));
+      navigation.navigate("ThankYouScreen");
+    } else if (response.status == 400) {
+      showMessage({
+        message: obj?.message,
+        // description: "API Server Response",
+        type: "danger",
+        autoHide: false, // prevents the message from disappearing automatically
+        onPress: () => hideMessage(), // closes the message when pressed
+      });
+    } else {
+      console.log("json error: ", JSON.stringify(obj));
+    }
   };
 
   return (
@@ -209,7 +262,7 @@ const ProfileScreenForm = () => {
             uploadPhoto={uploadPhoto}
           /> */}
         </View>
-        <View style={styles.field}>
+        <View style={[styles.field, { opacity: 0.5 }]} pointerEvents="none">
           <Text style={styles.formLabel}>E-mail</Text>
           <Controller
             control={control}
@@ -487,7 +540,7 @@ const ProfileScreenForm = () => {
           <TouchableOpacity
             style={globalStyles.registerBtn}
             title="loginSubmit"
-            onPress={handleSubmit(registerUser)}
+            onPress={handleSubmit(updateUser)}
           >
             <Text style={globalStyles.registerBtnText}>Save Profile</Text>
           </TouchableOpacity>
@@ -495,7 +548,9 @@ const ProfileScreenForm = () => {
           <TouchableOpacity
             style={globalStyles.loginBtn}
             title="loginSubmit"
-            onPress={handleSubmit(registerUser)}
+            onPress={() => {
+              console.log("Delete profile btn pressed");
+            }}
           >
             <Text style={globalStyles.loginBtnText}>Delete Profile</Text>
           </TouchableOpacity>
@@ -503,7 +558,9 @@ const ProfileScreenForm = () => {
           <TouchableOpacity
             style={globalStyles.loginBtn}
             title="loginSubmit"
-            onPress={handleSubmit(registerUser)}
+            onPress={() => {
+              console.log("Cancel Gym Membership btn pressed");
+            }}
           >
             <Text style={globalStyles.loginBtnText}>Cancel Gym Membership</Text>
           </TouchableOpacity>
