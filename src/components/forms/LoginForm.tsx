@@ -106,7 +106,7 @@ const LoginForm = () => {
 
       if (response.status == 200) {
         setTokens(obj); // store access_token, refresh_token in app memory
-        const payload = obj.access_token.split(".");
+        const payload = obj.access_token?.split(".");
         const userPayload = JSON.parse(atob(payload[1]));
         setUser(userPayload); // store token payload user info
         setIsLoggedIn("true"); // set loggedIn status to true
