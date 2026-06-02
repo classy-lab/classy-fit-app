@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useContext } from "react";
 import { StyleSheet } from "react-native";
 import { SelectList } from "react-native-dropdown-select-list";
 import { AppColors } from "../styles/colors";
+import { UserContext } from "../context/UserContext";
 
 const GymList = ({ onSelectValue }) => {
   // 1. Parent controls the selected value
@@ -11,23 +12,7 @@ const GymList = ({ onSelectValue }) => {
     { key: "3", value: "The Bodyshop Gym, Cobleskill, NY" },
     { key: "4", value: "Sarah's Gym, Cobleskill, NY" },
   ];
-
-  // useEffect(() => {
-  //   const fetchGyms = async() => {
-  //     try{
-  //       const response = await fetch('http://localhost:8080/classy-api/api/Gyms.php');
-  //       const json = await response.json();
-  //       setGyms(json);
-  //     } catch(error){
-  //       console.error(error);
-  //     }
-  //   }
-
-  //   fetchGyms()
-  // }, []); // <--- Empty array ensures it runs once on mount
-
-  // console.log(gyms);
-  // console.log(selectedGym);
+  const { user } = useContext(UserContext);
 
   return (
     <SelectList
@@ -35,6 +20,10 @@ const GymList = ({ onSelectValue }) => {
       data={gymData}
       save="key"
       placeholder="Select Category"
+      defaultOption={{
+        key: user ? Number(user.gym_id) - 1 : "",
+        value: user ? gymData[Number(user.gym_id) - 1].value : "",
+      }}
       boxStyles={{
         borderColor: AppColors.grey,
         borderWidth: 1,

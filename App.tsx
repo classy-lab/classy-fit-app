@@ -18,11 +18,12 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [tokens, setTokens] = useState(null);
   const [user, setUser] = useState(null);
+  const [webServer, setWebserver] = useState('http://localhost:8080/classy-api');
 
   return (
     // The 'value' prop contains the data you want to share across children
     <UserContext.Provider
-      value={{ isLoggedIn, setIsLoggedIn, user, setUser, tokens, setTokens }}
+      value={{ isLoggedIn, setIsLoggedIn, user, setUser, tokens, setTokens, webServer }}
     >
       <NavigationContainer>
         <FlashMessage position={"top"} />

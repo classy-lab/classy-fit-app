@@ -57,18 +57,26 @@ const schema = yup.object().shape({
   dateOfBirth: yup
     .string()
     .matches(
-      /^\d{4}\/(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])$/,
-      "Date must be in YYYY/MM/DD format",
+      /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/,
+      "Date must be in YYYY-MM-DD format",
     )
     .required("Date of birth is required"),
   sex: yup
     .string()
     .oneOf(["Male", "Female", "Other"], "Please select a valid category")
     .required("Category selection is required"),
-  phoneNumber: yup.string().matches(phoneRegExp, "Phone Number is not valid"),
+  phoneNumber: yup
+    .string()
+    .matches(phoneRegExp, "Phone Number is not valid")
+    .nullable()
+    .notRequired()
+    .transform((value) => (value === "" ? null : value)),
   whatsappNumber: yup
     .string()
-    .matches(phoneRegExp, "WhatsApp Number number is not valid"),
+    .matches(phoneRegExp, "WhatsApp Number number is not valid")
+    .nullable()
+    .notRequired()
+    .transform((value) => (value === "" ? null : value)),
   preferredContact: yup.string().oneOf(["Phone", "Email", "WhatsApp"]),
   gymId: yup
     .string()
@@ -140,7 +148,7 @@ const RegisterForm = () => {
   const [gyms, setGyms] = useState([]);
   const [role, setRole] = React.useState("");
   const roleData = [
-    { key: "1", value: "Gym Owner", disabled: true },
+    { key: "1", value: "Owner", disabled: true },
     { key: "2", value: "Member" },
     { key: "3", value: "Trainer" },
     { key: "4", value: "Contractor" },
