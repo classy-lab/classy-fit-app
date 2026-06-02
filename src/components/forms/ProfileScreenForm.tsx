@@ -99,7 +99,7 @@ const ProfileScreenForm = () => {
       const obj = JSON.parse(json);
 
       if (response.status == 200) {
-        //set profile fields here
+        //set profile fields here on success
         console.log("set profile fields here");
 
         reset({
@@ -213,7 +213,8 @@ const ProfileScreenForm = () => {
     console.log(obj);
 
     if (response.status == 200) {
-      console.log("if json: ", obj);
+      // set changes here on success
+      // console.log("set changes here on success");
       showMessage({
         message: obj?.message,
         type: "success",
@@ -221,13 +222,26 @@ const ProfileScreenForm = () => {
         onPress: () => hideMessage(), // closes the message when pressed
       });
     } else {
-      console.log("else json: ", obj);
-      showMessage({
-        message: obj?.message,
-        type: "danger",
-        autoHide: false, // prevents the message from disappearing automatically
-        onPress: () => hideMessage(), // closes the message when pressed
+      console.log("Access token expired, requesting new one - updateUser()");
+
+      const response = await fetch(`${webServer}/api/refresh.php`, {
+        method: "POST",
+        body: JSON.stringify({
+          token: tokens.refresh_token,
+        }),
       });
+
+      const json = await response.text();
+      const obj = JSON.parse(json);
+
+      if (response.status == 200) {
+        console.log("Got new access token and refresh token");
+        setTokens({
+          ...tokens,
+          access_token: obj.access_token,
+          refresh_token: obj.refresh_token,
+        });
+      }
     }
   };
 
