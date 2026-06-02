@@ -26,7 +26,7 @@ import FlashMessage, {
 const phoneRegExp =
   /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
 
-const MIN_SUBMISSION_TIME_MS = 5000; // 5 seconds threshold before reg form can be submitted
+const MIN_SUBMISSION_TIME_MS = 2000; // 5 seconds threshold before reg form can be submitted
 
 // 1. Define the Yup validation schema
 const schema = yup.object().shape({
@@ -89,7 +89,6 @@ const ProfileScreenForm = () => {
   // Reset the timer if the user navigates back to this screen
   useEffect(() => {
     formLoadTime.current = Date.now();
-    // console.log('sending acc');
     const fetchUserData = async ({ tokens, webServer, user, setTokens }) => {
       const response = await fetch(`${webServer}/api/v1/users/${user.sub}`, {
         headers: {
@@ -191,11 +190,10 @@ const ProfileScreenForm = () => {
     const response = await fetch(`${webServer}/api/register.php`, {
       method: "PATCH",
       headers: {
-        Authorizatio: "Bearer " + tokens.access_token,
+        Authorization: "Bearer " + tokens.access_token,
       },
       body: JSON.stringify({
         gym_id: data.gymId,
-        username: "",
         email: data.email,
         password: data.password,
         confirm_password: data.confirmPassword,
@@ -215,14 +213,15 @@ const ProfileScreenForm = () => {
     console.log(obj);
 
     if (response.status == 200) {
+      console.log("if json: ", obj);
       showMessage({
         message: obj?.message,
         type: "success",
         autoHide: false, // prevents the message from disappearing automatically
         onPress: () => hideMessage(), // closes the message when pressed
       });
-      // console.log("json: ", JSON.stringify(obj));
     } else {
+      console.log("else json: ", obj);
       showMessage({
         message: obj?.message,
         type: "danger",
