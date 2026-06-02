@@ -111,7 +111,7 @@ const ProfileScreenForm = () => {
         });
         // }
       } else {
-        console.log("Access token expired, requesting new one");
+        console.log("Access token expired, requesting new one - useEffect()");
 
         const response = await fetch(`${webServer}/api/refresh.php`, {
           method: "POST",
@@ -134,7 +134,7 @@ const ProfileScreenForm = () => {
       }
     };
     fetchUserData({ tokens, webServer, user, setTokens });
-  }, [tokens, reset]);
+  }, []);
 
   const sexData = [
     { key: "1", value: "Male", disabled: false },
@@ -174,15 +174,15 @@ const ProfileScreenForm = () => {
   // 3. Define the submit handler
   const updateUser = async (data) => {
     const totalTimeElapsed = Date.now() - formLoadTime.current;
-    console.log(data);
+    // console.log(data);
 
-    // 1. Honeypot check
+    // Honeypot check
     if (website.trim() !== "") {
       console.log("Submission failed", "Bot behavior detected.");
       return;
     }
 
-    // 2. Timestamp check
+    // Timestamp check
     if (totalTimeElapsed < MIN_SUBMISSION_TIME_MS) {
       console.log("Submission failed", "Form submitted too quickly.");
       return;
@@ -191,8 +191,6 @@ const ProfileScreenForm = () => {
     const response = await fetch(`${webServer}/api/register.php`, {
       method: "PATCH",
       headers: {
-        // "Content-Type": "application/json; charset=UTF-8",
-        // 'Authorization': 'Bearer YOUR_TOKEN' // Add if your API requires authentication
         Authorizatio: "Bearer " + tokens.access_token,
       },
       body: JSON.stringify({
@@ -214,8 +212,9 @@ const ProfileScreenForm = () => {
 
     const json = await response.text();
     const obj = JSON.parse(json);
+    console.log(obj);
 
-    if (response.status === 200) {
+    if (response.status == 200) {
       showMessage({
         message: obj?.message,
         type: "success",
