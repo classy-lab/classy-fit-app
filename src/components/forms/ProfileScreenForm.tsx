@@ -97,30 +97,19 @@ const ProfileScreenForm = () => {
         },
       });
       const json = await response.text();
-      const obj = JSON.stringify(json);
+      const obj = JSON.parse(json);
 
       if (response.status == 200) {
         //set profile fields here
         console.log("set profile fields here");
 
-        const response = await fetch(`${webServer}/api/v1/users/${user.sub}`, {
-          headers: {
-            Authorization: "Bearer " + tokens.access_token,
-          },
+        reset({
+          dateOfBirth: obj.fields.date_of_birth,
+          phoneNumber: obj.fields.phone,
+          preferredContact: obj.fields.preferred_contact,
+          whatsappNumber: obj.fields.whatsapp,
         });
-
-        const json = await response.text();
-        const obj = JSON.parse(json);
-
-        if (response.status == 200) {
-          console.log("here 1");
-          reset({
-            dateOfBirth: obj.fields.date_of_birth,
-            phoneNumber: obj.fields.phone,
-            preferredContact: obj.fields.preferred_contact,
-            whatsappNumber: obj.fields.whatsapp,
-          });
-        }
+        // }
       } else {
         console.log("Access token expired, requesting new one");
 
