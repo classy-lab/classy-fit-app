@@ -84,7 +84,7 @@ const StartScreen = () => {
 
           <View style={styles.fieldset}>
             <View style={styles.field}>
-              <Text style={styles.formLabel}>Choose a Gym</Text>
+              <Text style={styles.formLabel}>Choose Gym for Details</Text>
               <SelectList
                 setSelected={(val) => {
                   setGymID(val);
