@@ -187,6 +187,14 @@ const ProfileScreenForm = () => {
       return;
     }
 
+    setUser({
+      // Set submitted values within app before sending to API. No need to retreive from API
+      ...user,
+      given_name: data.fname,
+      family_name: data.lname,
+      preferred_contact: data.preferredContact,
+    });
+
     const response = await fetch(`${webServer}/api/register.php`, {
       method: "PATCH",
       headers: {
