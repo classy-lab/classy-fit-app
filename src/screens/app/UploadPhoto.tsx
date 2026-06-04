@@ -10,7 +10,7 @@ import {
 import { launchImageLibrary } from "react-native-image-picker";
 import axios from "axios";
 
-const UploadPhoto = ({ photo, setPhoto, uploadPhoto }) => {
+const UploadPhoto = ({ photo, setPhoto /*uploadPhoto*/ }) => {
   // const [photo, setPhoto] = useState(null);
 
   const selectPhoto = () => {
@@ -30,7 +30,7 @@ const UploadPhoto = ({ photo, setPhoto, uploadPhoto }) => {
   return (
     <>
       <TouchableOpacity onPress={selectPhoto}>
-        <View style={styles.card}>
+        <View>
           {photo ? (
             <>
               <Image source={{ uri: photo.uri }} style={styles.square} />
@@ -66,9 +66,8 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     width: 100,
     height: 100,
-    backgroundColor: "royalblue",
     borderRadius: 22,
-    boxShadow: "0px 5px 13px rgba(0, 0, 0, 0.4)",
+    boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
   },
   image: { alignSelf: "center", marginTop: 16 },
 });
