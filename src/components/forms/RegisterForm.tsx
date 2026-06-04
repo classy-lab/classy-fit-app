@@ -53,7 +53,7 @@ const schema = yup.object().shape({
     .required("Please confirm your password"),
   role: yup
     .string()
-    .oneOf(["Owner", "Member", "Trainer", "Contractor"])
+    // .oneOf(["Owner", "Member", "Trainer", "Contractor"])
     .required(),
   fname: yup.string().required("First name is required").min(2).max(20),
   lname: yup.string().required("Last name is required").min(2).max(20),
@@ -103,11 +103,12 @@ const RegisterForm = () => {
   const uploadPhoto = async (last_id) => {
     // console.log('last_id: ' + last_id);
     if (!photo) {
-      console.log("No photo selected!");
+      console.log("No photo selected! This message can be optional?");
       return;
     }
 
     const formData = new FormData();
+
     formData.append("photo", {
       uri: photo.uri,
       type: photo.type,
@@ -116,21 +117,25 @@ const RegisterForm = () => {
     });
 
     try {
-      const response = await axios.post(
+      const response = await fetch(
         "http://localhost:8080/classy-api/api/upload-photo.php?last_id=" +
           last_id,
-        formData,
         {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+          method: "POST",
+          body: formData,
+          //   headers: {
+          //   'Authorization': 'Bearer token_123'
+          // }
         },
       );
-      Alert.alert("Upload Success", response.data.message || "Photo uploaded!");
-      navigation.navigate("LoginScreen");
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      const result = await response.json();
+      console.log("Success:", result);
     } catch (error) {
-      console.error(error);
-      Alert.alert("Upload Failed", "Something went wrong.");
+      console.error("Error uploading:", error);
     }
   };
 
@@ -181,6 +186,7 @@ const RegisterForm = () => {
       lname: "", // "asdf",
       whatsappNumber: "", // "518-517-9866",
       phoneNumber: "", // "518-517-9866",
+      role: "Member",
     },
   });
 
