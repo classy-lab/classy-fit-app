@@ -51,7 +51,10 @@ const schema = yup.object().shape({
     .string()
     .oneOf([yup.ref("password")], "Passwords must match")
     .required("Please confirm your password"),
-  role: yup.string().oneOf(["Owner", "Member", "Trainer", "Contractor"]),
+  role: yup
+    .string()
+    .oneOf(["Owner", "Member", "Trainer", "Contractor"])
+    .required(),
   fname: yup.string().required("First name is required").min(2).max(20),
   lname: yup.string().required("Last name is required").min(2).max(20),
   dateOfBirth: yup
@@ -331,6 +334,7 @@ const RegisterForm = () => {
                 data={roleData}
                 save="value"
                 placeholder="Select Category"
+                defaultOption={{ key: "", value: "Member" }}
                 boxStyles={{
                   borderColor: AppColors.grey,
                   borderWidth: 1,
