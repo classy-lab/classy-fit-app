@@ -1,18 +1,7 @@
-import React, { useState } from "react";
-import {
-  View,
-  Button,
-  Image,
-  Alert,
-  TouchableOpacity,
-  StyleSheet,
-} from "react-native";
+import { View, Image, TouchableOpacity, StyleSheet } from "react-native";
 import { launchImageLibrary } from "react-native-image-picker";
-import axios from "axios";
 
-const UploadPhoto = ({ photo, setPhoto /*uploadPhoto*/ }) => {
-  // const [photo, setPhoto] = useState(null);
-
+const UploadPhoto = ({ photo, setPhoto }) => {
   const selectPhoto = () => {
     launchImageLibrary({ mediaType: "photo" }, (response) => {
       if (response.didCancel) {
@@ -32,10 +21,7 @@ const UploadPhoto = ({ photo, setPhoto /*uploadPhoto*/ }) => {
       <TouchableOpacity onPress={selectPhoto}>
         <View>
           {photo ? (
-            <>
-              <Image source={{ uri: photo.uri }} style={styles.square} />
-              {/* <Button title="Upload Photo" onPress={uploadPhoto} /> */}
-            </>
+            <Image source={{ uri: photo.uri }} style={styles.square} />
           ) : (
             <Image
               style={styles.image}
@@ -45,16 +31,6 @@ const UploadPhoto = ({ photo, setPhoto /*uploadPhoto*/ }) => {
           )}
         </View>
       </TouchableOpacity>
-      {/* <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Button title="Select Photo" onPress={selectPhoto} />
-        {photo && (
-          <Image
-            source={{ uri: photo.uri }}
-            style={{ width: 200, height: 200, marginVertical: 20 }}
-          />
-        )}
-        <Button title="Upload Photo" onPress={uploadPhoto} />
-      </View> */}
     </>
   );
 };
