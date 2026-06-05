@@ -100,45 +100,6 @@ const RegisterForm = () => {
     formLoadTime.current = Date.now();
   }, []);
 
-  const uploadPhoto = async (last_id) => {
-    // console.log('last_id: ' + last_id);
-    if (!photo) {
-      console.log("No photo selected! This message can be optional?");
-      return;
-    }
-
-    const formData = new FormData();
-
-    formData.append("photo", {
-      uri: photo.uri,
-      type: photo.type,
-      name: photo.fileName || "photo.jpg",
-      last_id: last_id,
-    });
-
-    try {
-      const response = await fetch(
-        "http://localhost:8080/classy-api/api/upload-photo.php?last_id=" +
-          last_id,
-        {
-          method: "POST",
-          body: formData,
-          //   headers: {
-          //   'Authorization': 'Bearer token_123'
-          // }
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      const result = await response.json();
-      console.log("Success:", result);
-    } catch (error) {
-      console.error("Error uploading:", error);
-    }
-  };
-
   const [sex, setSelected] = useState(""); // sex state lives here
   const sexData = [
     { key: "1", value: "Male", disabled: false },
@@ -208,50 +169,51 @@ const RegisterForm = () => {
       return;
     }
 
+    const photoData = {
+      uri: photo.uri,
+      name: photo.fileName || "photo.jpg",
+      type: photo.type,
+    };
+
+    const formData = new FormData();
+    formData.append("gym_id", data.gymId);
+    formData.append("gym_id", data.gymId);
+    formData.append("email", data.email);
+    formData.append("password", data.password);
+    formData.append("data.confirmPassword", data.confirmPassword);
+    formData.append("role", data.role);
+    formData.append("fname", data.fname);
+    formData.append("lname", data.lname);
+    formData.append("date_of_birth", data.dateOfBirth);
+    formData.append("sex", data.sex);
+    formData.append("phone", data.phoneNumber);
+    formData.append("whatsapp", data.whatsappNumber);
+    formData.append("preferred_contact", data.preferredContact);
+    formData.append("photo", photoData);
+
+    console.log(JSON.stringify(formData));
+
     const response = await fetch(
       "http://localhost:8080/classy-api/api/register.php",
       {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          gym_id: data.gymId,
-          username: "",
-          email: data.email,
-          password: data.password,
-          confirm_password: data.confirmPassword,
-          role: data.role,
-          fname: data.fname,
-          lname: data.lname,
-          date_of_birth: data.dateOfBirth,
-          sex: data.sex,
-          phone: data.phoneNumber,
-          whatsapp: data.whatsappNumber,
-          preferred_contact: data.preferredContact,
-        }),
+        // headers: { Accept: "application/json" },
+        body: formData,
       },
     );
 
-    const json = await response.text();
+    const json = await response.json();
     const obj = JSON.parse(json);
 
-    if (response.status === 200) {
+    if (response.status == 200) {
       showMessage({
         message: obj?.message,
-        // description: "API Server Response",
         type: "success",
-        autoHide: false, // prevents the message from disappearing automatically
-        onPress: () => hideMessage(), // closes the message when pressed
+        autoHide: false,
+        onPress: () => hideMessage(),
       });
       // console.log("json: ", JSON.stringify(obj));
       navigation.navigate("ThankYouScreen");
-    } else if (response.status == 400) {
-      showMessage({
-        message: obj?.message,
-        // description: "API Server Response",
-        type: "danger",
-        autoHide: false, // prevents the message from disappearing automatically
-        onPress: () => hideMessage(), // closes the message when pressed
-      });
     } else {
       console.log("json error: ", JSON.stringify(obj));
     }
@@ -261,11 +223,7 @@ const RegisterForm = () => {
     <>
       <View style={styles.fieldset}>
         <View style={styles.field}>
-          <UploadPhoto
-            photo={photo}
-            setPhoto={setPhoto}
-            uploadPhoto={uploadPhoto}
-          />
+          <UploadPhoto photo={photo} setPhoto={setPhoto} />
         </View>
         <View style={styles.field}>
           <Text style={styles.formLabel}>E-mail</Text>
