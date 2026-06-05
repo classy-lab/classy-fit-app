@@ -17,21 +17,19 @@ const UploadPhoto = ({ photo, setPhoto }) => {
   };
 
   return (
-    <>
-      <TouchableOpacity onPress={selectPhoto}>
-        <View>
-          {photo ? (
-            <Image source={{ uri: photo.uri }} style={styles.square} />
-          ) : (
-            <Image
-              style={styles.image}
-              source={require("../../assets/images/profile-img.jpg")}
-              resizeMode="contain"
-            />
-          )}
-        </View>
-      </TouchableOpacity>
-    </>
+    <TouchableOpacity onPress={selectPhoto}>
+      <View>
+        {photo ? (
+          <Image source={{ uri: photo.uri }} style={styles.square} />
+        ) : (
+          <Image
+            style={styles.image}
+            source={require("../../assets/images/profile-img.jpg")}
+            resizeMode="contain"
+          />
+        )}
+      </View>
+    </TouchableOpacity>
   );
 };
 
