@@ -197,21 +197,17 @@ const RegisterForm = () => {
       "http://localhost:8080/classy-api/api/register.php",
       {
         method: "POST",
-        // headers: { Accept: "application/json" },
         body: formData,
       },
     );
 
     const json = await response.json();
+    console.log(response.status);
+    console.log("Server Response:", json);
+
     const obj = JSON.parse(json);
 
     if (response.status == 200) {
-      showMessage({
-        message: obj?.message,
-        type: "success",
-        autoHide: false,
-        onPress: () => hideMessage(),
-      });
       // console.log("json: ", JSON.stringify(obj));
       navigation.navigate("ThankYouScreen");
     } else {
