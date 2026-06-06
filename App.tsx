@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import AuthStack from "./src/navigation/AuthStack"; // Contains Login/Signup screens
@@ -36,9 +36,9 @@ export default function App() {
       }}
     >
       <NavigationContainer>
-        <FlashMessage position={"top"} />
         {isLoggedIn ? <AppTabs /> : <AuthStack />}
       </NavigationContainer>
+      <FlashMessage position={"top"} />
     </UserContext.Provider>
   );
 }
