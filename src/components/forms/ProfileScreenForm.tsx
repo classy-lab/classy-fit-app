@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
+import { Alert } from "react-native";
 import * as yup from "yup";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -170,6 +171,58 @@ const ProfileScreenForm = () => {
     },
   });
 
+  // 1. Define the actual backend deletion logic
+  const executeProfileDeletion = () => {
+    console.log("Profile deletion API initiated.");
+    // Insert your Axios, Fetch, or Firebase deletion request here
+  };
+
+  const executeGymMembershipCancellation = () => {
+    console.log("Gym Membership Cancellation API initiated.");
+    // Insert your Axios, Fetch, or Firebase deletion request here
+  };
+
+  // 2. Build the confirmation modal configuration
+  const handleDeletePress = () => {
+    Alert.alert(
+      "Delete Profile", // Dialog Title
+      "Are you absolutely sure? This action is permanent and your account cannot be recovered.", // Dialog Description
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Deletion cancelled"),
+          style: "cancel", // Stylizes text as a neutral cancel action
+        },
+        {
+          text: "Delete My Account",
+          onPress: () => executeProfileDeletion(),
+          style: "destructive", // Colors the font red on iOS platforms
+        },
+      ],
+      { cancelable: true }, // Allows Android users to dismiss by clicking background
+    );
+  };
+
+  const handleCancelGymMembershipPress = () => {
+    Alert.alert(
+      "Cancel Gym Membership", // Dialog Title
+      "Are you absolutely sure? You are about to cancel your gym membership", // Dialog Description
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Deletion cancelled"),
+          style: "cancel", // Stylizes text as a neutral cancel action
+        },
+        {
+          text: "Cancel Gym Membership",
+          onPress: () => executeGymMembershipCancellation(),
+          style: "destructive", // Colors the font red on iOS platforms
+        },
+      ],
+      { cancelable: true }, // Allows Android users to dismiss by clicking background
+    );
+  };
+
   // 3. Define the submit handler
   const updateUser = async (data) => {
     const totalTimeElapsed = Date.now() - formLoadTime.current;
@@ -186,6 +239,14 @@ const ProfileScreenForm = () => {
       console.log("Submission failed", "Form submitted too quickly.");
       return;
     }
+
+    setUser({
+      // Set submitted values within app before sending to API. No need to retreive from API
+      ...user,
+      given_name: data.fname,
+      family_name: data.lname,
+      preferred_contact: data.preferredContact,
+    });
 
     const response = await fetch(`${webServer}/api/register.php`, {
       method: "PATCH",
@@ -541,9 +602,7 @@ const ProfileScreenForm = () => {
           <TouchableOpacity
             style={globalStyles.loginBtn}
             title="loginSubmit"
-            onPress={() => {
-              console.log("Delete profile btn pressed");
-            }}
+            onPress={handleDeletePress}
           >
             <Text style={globalStyles.loginBtnText}>Delete Profile</Text>
           </TouchableOpacity>
@@ -551,9 +610,7 @@ const ProfileScreenForm = () => {
           <TouchableOpacity
             style={globalStyles.loginBtn}
             title="loginSubmit"
-            onPress={() => {
-              console.log("Cancel Gym Membership btn pressed");
-            }}
+            onPress={handleCancelGymMembershipPress}
           >
             <Text style={globalStyles.loginBtnText}>Cancel Gym Membership</Text>
           </TouchableOpacity>
