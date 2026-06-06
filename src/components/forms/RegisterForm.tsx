@@ -110,7 +110,7 @@ const handlePickImage = (onChange: (...event: any[]) => void) => {
     // Access the newly resized image details
     const selectedImage = response.assets[0];
     console.log("Resized URI: ", selectedImage.uri);
-    console.log("Optimized file size (bytes): ", selectedImage.fileSize);
+    console.log("Optimized file size: ", selectedImage.fileSize / 1024, "KB");
     console.log("new width: ", selectedImage.width);
     console.log("new height: ", selectedImage.height);
   });
