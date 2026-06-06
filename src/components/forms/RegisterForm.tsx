@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Image, Button } from "react-native";
 import * as yup from "yup";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -14,16 +13,7 @@ import {
 } from "react-native";
 import { AppColors } from "../../styles/colors";
 import { useNavigation } from "@react-navigation/native";
-import SelectedRolePicker from "./SelectedRolePicker";
-import CheckboxComponent from "./CheckboxComponent";
-import SexPicker from "./SexPicker";
-import PreferredContact from "./PreferredContact";
-import GymLocationPicker from "./GymLocationPicker";
 import { SelectList } from "react-native-dropdown-select-list";
-import ProfileImage from "../svg/ProfileImage";
-import UploadPhoto from "../../screens/app/UploadPhoto";
-import Checkbox from "expo-checkbox";
-import axios from "axios";
 import HoneypotField from "./input_fields/HoneypotField";
 import GymList from "../GymList";
 import FlashMessage, {
@@ -94,40 +84,6 @@ const RegisterForm = () => {
   useEffect(() => {
     formLoadTime.current = Date.now();
   }, []);
-
-  const uploadPhoto = async (last_id) => {
-    // console.log('last_id: ' + last_id);
-    if (!photo) {
-      console.log("No photo selected!");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("photo", {
-      uri: photo.uri,
-      type: photo.type,
-      name: photo.fileName || "photo.jpg",
-      last_id: last_id,
-    });
-
-    try {
-      const response = await axios.post(
-        "http://localhost:8080/classy-api/api/upload-photo.php?last_id=" +
-          last_id,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        },
-      );
-      Alert.alert("Upload Success", response.data.message || "Photo uploaded!");
-      navigation.navigate("LoginScreen");
-    } catch (error) {
-      console.error(error);
-      Alert.alert("Upload Failed", "Something went wrong.");
-    }
-  };
 
   const [sex, setSelected] = useState(""); // sex state lives here
   const sexData = [
@@ -251,13 +207,7 @@ const RegisterForm = () => {
   return (
     <>
       <View style={styles.fieldset}>
-        <View style={styles.field}>
-          <UploadPhoto
-            photo={photo}
-            setPhoto={setPhoto}
-            uploadPhoto={uploadPhoto}
-          />
-        </View>
+        <View style={styles.field}></View>
         <View style={styles.field}>
           <Text style={styles.formLabel}>E-mail</Text>
           <Controller
