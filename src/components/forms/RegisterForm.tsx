@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Image, Button } from "react-native";
 import * as yup from "yup";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -11,19 +10,15 @@ import {
   TextInput,
   Alert,
   Linking,
+  Button,
+  Image,
+  Platform,
 } from "react-native";
 import { AppColors } from "../../styles/colors";
 import { useNavigation } from "@react-navigation/native";
-import SelectedRolePicker from "./SelectedRolePicker";
-import CheckboxComponent from "./CheckboxComponent";
-import SexPicker from "./SexPicker";
-import PreferredContact from "./PreferredContact";
-import GymLocationPicker from "./GymLocationPicker";
 import { SelectList } from "react-native-dropdown-select-list";
-import ProfileImage from "../svg/ProfileImage";
-import UploadPhoto from "../../screens/app/UploadPhoto";
-import Checkbox from "expo-checkbox";
-import axios from "axios";
+// import UploadPhoto from "../../screens/app/UploadPhoto";
+import { launchImageLibrary } from "react-native-image-picker";
 import HoneypotField from "./input_fields/HoneypotField";
 import GymList from "../GymList";
 import FlashMessage, {
@@ -34,62 +29,11 @@ import FlashMessage, {
 const phoneRegExp =
   /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
 
-const MIN_SUBMISSION_TIME_MS = 15000; // 15 seconds threshold before reg form can be submitted
-
-// 1. Define the Yup validation schema
-const schema = yup.object().shape({
-  email: yup.string().required("Email is required").email("Invalid email"),
-  password: yup
-    .string()
-    .required("Password is required")
-    .min(12, "Password must contain at least 12 characters")
-    .matches(
-      /^[a-zA-Z0-9\s~!@#$%^&*()_+-]+$/,
-      "Only letters, numbers, spaces, hyphens, and underscores are allowed",
-    ),
-  confirmPassword: yup
-    .string()
-    .oneOf([yup.ref("password")], "Passwords must match")
-    .required("Please confirm your password"),
-  role: yup
-    .string()
-    // .oneOf(["Owner", "Member", "Trainer", "Contractor"])
-    .required(),
-  fname: yup.string().required("First name is required").min(2).max(20),
-  lname: yup.string().required("Last name is required").min(2).max(20),
-  dateOfBirth: yup
-    .string()
-    .matches(
-      /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/,
-      "Date must be in YYYY-MM-DD format",
-    )
-    .required("Date of birth is required"),
-  sex: yup
-    .string()
-    .oneOf(["Male", "Female", "Other"], "Please select a valid category")
-    .required("Category selection is required"),
-  phoneNumber: yup
-    .string()
-    .matches(phoneRegExp, "Phone Number is not valid")
-    .nullable()
-    .notRequired()
-    .transform((value) => (value === "" ? null : value)),
-  whatsappNumber: yup
-    .string()
-    .matches(phoneRegExp, "WhatsApp Number number is not valid")
-    .nullable()
-    .notRequired()
-    .transform((value) => (value === "" ? null : value)),
-  preferredContact: yup.string().oneOf(["Phone", "Email", "WhatsApp"]),
-  gymId: yup
-    .string()
-    .matches(/^\d+$/, "Gym location is required")
-    .required("Category selection is required"),
-});
+const MIN_SUBMISSION_TIME_MS = 1000; // 15 seconds threshold before reg form can be submitted
 
 const RegisterForm = () => {
   const navigation = useNavigation();
-  const [photo, setPhoto] = useState(null);
+  const [photo, setPhoto] = useState();
   const [website, setWebsite] = useState("");
 
   // Use a ref to store the load time without triggering re-renders
@@ -132,6 +76,63 @@ const RegisterForm = () => {
     Linking.openURL("https://cleancodeusa.com/about.html");
   };
 
+  // 1. Define the Yup validation schema
+  const schema = yup.object().shape({
+    email: yup.string().required("Email is required").email("Invalid email"),
+    password: yup
+      .string()
+      .required("Password is required")
+      .min(2, "Password must contain at least 12 characters")
+      .matches(
+        /^[a-zA-Z0-9\s~!@#$%^&*()_+-]+$/,
+        "Only letters, numbers, spaces, hyphens, and underscores are allowed",
+      ),
+    confirmPassword: yup
+      .string()
+      .oneOf([yup.ref("password")], "Passwords must match")
+      .required("Please confirm your password"),
+    role: yup.string().oneOf(["Owner", "Member", "Trainer", "Contractor"]),
+    fname: yup.string().required("First name is required").min(2).max(20),
+    lname: yup.string().required("Last name is required").min(2).max(20),
+    dateOfBirth: yup
+      .string()
+      .matches(
+        /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/,
+        "Date must be in YYYY-MM-DD format",
+      ),
+    // .required("Date of birth is required"),
+    sex: yup
+      .string()
+      .oneOf(["Male", "Female", "Other"], "Please select a valid category"),
+    // .required("Category selection is required"),
+    phoneNumber: yup
+      .string()
+      .matches(phoneRegExp, "Phone Number is not valid")
+      .nullable()
+      .notRequired()
+      .transform((value) => (value === "" ? null : value)),
+    whatsappNumber: yup
+      .string()
+      .matches(phoneRegExp, "WhatsApp Number number is not valid")
+      .nullable()
+      .notRequired()
+      .transform((value) => (value === "" ? null : value)),
+    // preferredContact: yup.string().oneOf(["Phone", "Email", "WhatsApp"]),
+    gymId: yup.string().matches(/^\d+$/, "Gym location is required"),
+    // .required("Category selection is required"),
+    photo: yup
+      .mixed()
+      .required("A profile picture is required")
+      .test(
+        "fileSize",
+        "A profile picture is required. Image should be < 5MB",
+        (value: any) => {
+          if (!value) return false;
+          return !value.fileSize || value.fileSize <= 5 * 1024 * 1024;
+        },
+      ),
+  });
+
   // 2. Initialize useForm with the Yup resolver
   const {
     control,
@@ -141,41 +142,60 @@ const RegisterForm = () => {
     resolver: yupResolver(schema),
     defaultValues: {
       gymId: "",
-      email: "", // "help@simplecssjs.com",
-      dateOfBirth: "", // "2000/05/05",
-      fname: "", // "asdf",
-      lname: "", // "asdf",
-      whatsappNumber: "", // "518-517-9866",
-      phoneNumber: "", // "518-517-9866",
-      role: "Member",
+      email: "help@simplecssjs.com",
+      dateOfBirth: "2000-05-05",
+      fname: "asdf",
+      lname: "asdf",
+      whatsappNumber: "518-517-9866",
+      phoneNumber: "518-517-9866",
+      photo: "",
     },
   });
 
+  const handlePickImage = (onChange: (...event: any[]) => void) => {
+    launchImageLibrary(
+      {
+        mediaType: "photo",
+        quality: 1,
+      },
+      (response) => {
+        if (
+          !response.didCancel &&
+          !response.errorCode &&
+          response.assets &&
+          response.assets.length > 0
+        ) {
+          // Pass the plain asset object into React Hook Form
+          onChange(response.assets[0]);
+        }
+      },
+    );
+  };
+
   // 3. Define the submit handler
-  const registerUser = async (data) => {
+  const registerUser = async (data: any) => {
+    const formData = new FormData();
     const totalTimeElapsed = Date.now() - formLoadTime.current;
-    // console.log(data);
-    // console.log(selected);
+    console.log(data);
 
     // 1. Honeypot check
     if (website.trim() !== "") {
-      // console.log("Submission failed", "Bot behavior detected.");
+      console.log("Submission failed", "Bot behavior detected.");
       return;
     }
 
     // 2. Timestamp check
     if (totalTimeElapsed < MIN_SUBMISSION_TIME_MS) {
-      // console.log("Submission failed", "Form submitted too quickly.");
+      console.log("Submission failed", "Form submitted too quickly.");
       return;
     }
 
-    const photoData = {
-      uri: photo.uri,
-      name: photo.fileName || "photo.jpg",
-      type: photo.type,
-    };
+    // Fix file paths for iOS environment without Expo asset utilities
+    const nativeUri =
+      Platform.OS === "ios"
+        ? data.photo.uri.replace("file://", "")
+        : data.photo.uri;
 
-    const formData = new FormData();
     formData.append("gym_id", data.gymId);
     formData.append("gym_id", data.gymId);
     formData.append("email", data.email);
@@ -189,9 +209,14 @@ const RegisterForm = () => {
     formData.append("phone", data.phoneNumber);
     formData.append("whatsapp", data.whatsappNumber);
     formData.append("preferred_contact", data.preferredContact);
-    formData.append("photo", photoData);
 
-    console.log(JSON.stringify(formData));
+    formData.append("photo", {
+      uri: nativeUri,
+      type: data.photo.type || "image/jpeg",
+      name: data.photo.fileName || "avatar.jpg",
+    } as any);
+
+    console.log(formData);
 
     const response = await fetch(
       "http://localhost:8080/classy-api/api/register.php",
@@ -208,10 +233,20 @@ const RegisterForm = () => {
     const obj = JSON.parse(json);
 
     if (response.status == 200) {
-      // console.log("json: ", JSON.stringify(obj));
+      showMessage({
+        message: obj?.message,
+        type: "success",
+        autoHide: false,
+        onPress: () => hideMessage(),
+      });
       navigation.navigate("ThankYouScreen");
     } else {
-      console.log("json error: ", JSON.stringify(obj));
+      showMessage({
+        message: obj.message,
+        type: "danger",
+        autoHide: false,
+        onPress: () => hideMessage(),
+      });
     }
   };
 
@@ -219,7 +254,28 @@ const RegisterForm = () => {
     <>
       <View style={styles.fieldset}>
         <View style={styles.field}>
-          <UploadPhoto photo={photo} setPhoto={setPhoto} />
+          <Controller
+            control={control}
+            name="photo"
+            render={({ field: { onChange, value } }) => (
+              <View style={styles.imageContainer}>
+                {value?.uri ? (
+                  <Image source={{ uri: value.uri }} style={styles.avatar} />
+                ) : (
+                  <View style={[styles.avatar, styles.placeholder]}>
+                    <Text>No Image</Text>
+                  </View>
+                )}
+                <Button
+                  title="Select Image"
+                  onPress={() => handlePickImage(onChange)}
+                />
+              </View>
+            )}
+          />
+          {errors.photo && (
+            <Text style={styles.errorText}>{errors.photo.message}</Text>
+          )}
         </View>
         <View style={styles.field}>
           <Text style={styles.formLabel}>E-mail</Text>
@@ -294,7 +350,6 @@ const RegisterForm = () => {
                 data={roleData}
                 save="value"
                 placeholder="Select Category"
-                defaultOption={{ key: "", value: "Member" }}
                 boxStyles={{
                   borderColor: AppColors.grey,
                   borderWidth: 1,
@@ -583,4 +638,17 @@ const styles = StyleSheet.create({
     color: "red",
   },
   apimessage: { color: AppColors.blue },
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  imageContainer: { alignItems: "center", marginBottom: 20 },
+  avatar: { width: 120, height: 120, borderRadius: 60, marginBottom: 10 },
+  placeholder: {
+    backgroundColor: "#ccc",
+    justifyContent: "center",
+    alignItems: "center",
+  },
 });
