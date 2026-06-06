@@ -101,18 +101,17 @@ const handlePickImage = (onChange: (...event: any[]) => void) => {
     ) {
       // Pass the plain asset object into React Hook Form
       onChange(response.assets[0]);
+      // Access the newly resized image details
+      const selectedImage = response.assets[0];
+      console.log("Resized URI: ", selectedImage.uri);
+      console.log("Optimized file size: ", selectedImage.fileSize / 1024, "KB");
+      console.log("new width: ", selectedImage.width);
+      console.log("new height: ", selectedImage.height);
     }
     if (response.errorCode) {
       console.log("ImagePicker Error: ", response.errorMessage);
       return;
     }
-
-    // Access the newly resized image details
-    const selectedImage = response.assets[0];
-    console.log("Resized URI: ", selectedImage.uri);
-    console.log("Optimized file size: ", selectedImage.fileSize / 1024, "KB");
-    console.log("new width: ", selectedImage.width);
-    console.log("new height: ", selectedImage.height);
   });
 };
 
