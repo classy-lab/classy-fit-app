@@ -656,7 +656,13 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   imageContainer: { alignItems: "center", marginBottom: 20 },
-  avatar: { width: 120, height: 120, borderRadius: 60, marginBottom: 10 },
+  avatar: {
+    width: 120,
+    height: 120,
+    borderRadius: 20,
+    marginBottom: 8,
+    // boxShadow: "0px 4px 6px 0px rgba(0, 0, 0, 0.1)",
+  },
   placeholder: {
     backgroundColor: "#ccc",
     justifyContent: "center",
