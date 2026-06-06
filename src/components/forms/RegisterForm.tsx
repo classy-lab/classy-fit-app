@@ -84,23 +84,36 @@ const schema = yup.object().shape({
 });
 
 const handlePickImage = (onChange: (...event: any[]) => void) => {
-  launchImageLibrary(
-    {
-      mediaType: "photo",
-      quality: 1,
-    },
-    (response) => {
-      if (
-        !response.didCancel &&
-        !response.errorCode &&
-        response.assets &&
-        response.assets.length > 0
-      ) {
-        // Pass the plain asset object into React Hook Form
-        onChange(response.assets[0]);
-      }
-    },
-  );
+  const options = {
+    meditType: "photo",
+    maxWidth: 448, // Max width bound (resizes proportionally)
+    maxHeight: 448, // Max height bound (resizes proportionally)
+    quality: 0.8, // Compress image to 80% quality (0.0 to 1.0)
+    includeBase64: false, // Keeps file small by avoiding base64 overhead
+  };
+
+  launchImageLibrary(options, (response) => {
+    if (
+      !response.didCancel &&
+      !response.errorCode &&
+      response.assets &&
+      response.assets.length > 0
+    ) {
+      // Pass the plain asset object into React Hook Form
+      onChange(response.assets[0]);
+    }
+    if (response.errorCode) {
+      console.log("ImagePicker Error: ", response.errorMessage);
+      return;
+    }
+
+    // Access the newly resized image details
+    const selectedImage = response.assets[0];
+    console.log("Resized URI: ", selectedImage.uri);
+    console.log("Optimized file size (bytes): ", selectedImage.fileSize);
+    console.log("new width: ", selectedImage.width);
+    console.log("new height: ", selectedImage.height);
+  });
 };
 
 const RegisterForm = () => {
@@ -209,7 +222,7 @@ const RegisterForm = () => {
     formData.append("profilePic", {
       uri: nativeUri,
       type: data.profilePic.type || "image/jpeg",
-      name: data.profilePic.fileName || "avatar.jpg",
+      name: data.profilePic.fileName || "profile_pic.jpg",
     } as any);
 
     console.log("FormData ready for fetch:", formData);
@@ -252,7 +265,6 @@ const RegisterForm = () => {
     <>
       <View style={styles.fieldset}>
         <View style={styles.field}>
-          {/* <Text style={styles.formLabel}>Profile pic</Text> */}
           <Controller
             control={control}
             name="profilePic"
