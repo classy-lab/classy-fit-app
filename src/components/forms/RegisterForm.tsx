@@ -34,7 +34,7 @@ import FlashMessage, {
 const phoneRegExp =
   /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
 
-const MIN_SUBMISSION_TIME_MS = 15000; // 15 seconds threshold before reg form can be submitted
+const MIN_SUBMISSION_TIME_MS = 2000; // 2 seconds threshold before reg form can be submitted
 
 // 1. Define the Yup validation schema
 const schema = yup.object().shape({
@@ -42,15 +42,15 @@ const schema = yup.object().shape({
   password: yup
     .string()
     .required("Password is required")
-    .min(12, "Password must contain at least 12 characters")
+    .min(2, "Password must contain at least 12 characters")
     .matches(
       /^[a-zA-Z0-9\s~!@#$%^&*()_+-]+$/,
       "Only letters, numbers, spaces, hyphens, and underscores are allowed",
     ),
   confirmPassword: yup
     .string()
-    .oneOf([yup.ref("password")], "Passwords must match")
-    .required("Please confirm your password"),
+    .oneOf([yup.ref("password")], "Passwords must match"),
+  // .required("Please confirm your password"),
   role: yup.string().oneOf(["Owner", "Member", "Trainer", "Contractor"]),
   fname: yup.string().required("First name is required").min(2).max(20),
   lname: yup.string().required("Last name is required").min(2).max(20),
@@ -59,8 +59,8 @@ const schema = yup.object().shape({
     .matches(
       /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/,
       "Date must be in YYYY-MM-DD format",
-    )
-    .required("Date of birth is required"),
+    ),
+  // .required("Date of birth is required"),
   sex: yup
     .string()
     .oneOf(["Male", "Female", "Other"], "Please select a valid category")
@@ -78,10 +78,8 @@ const schema = yup.object().shape({
     .notRequired()
     .transform((value) => (value === "" ? null : value)),
   preferredContact: yup.string().oneOf(["Phone", "Email", "WhatsApp"]),
-  gymId: yup
-    .string()
-    .matches(/^\d+$/, "Gym location is required")
-    .required("Category selection is required"),
+  gymId: yup.string().matches(/^\d+$/, "Gym location is required"),
+  // .required("Category selection is required"),
 });
 
 const RegisterForm = () => {
@@ -172,30 +170,32 @@ const RegisterForm = () => {
     resolver: yupResolver(schema),
     defaultValues: {
       gymId: "",
-      email: "", // "help@simplecssjs.com",
-      dateOfBirth: "", // "2000/05/05",
-      fname: "", // "asdf",
-      lname: "", // "asdf",
-      whatsappNumber: "", // "518-517-9866",
-      phoneNumber: "", // "518-517-9866",
+      password: "pp",
+      confirmPassword: "pp",
+      email: "help@simplecssjs.com",
+      dateOfBirth: "2000-05-05",
+      fname: "Vishal",
+      lname: "Mudi",
+      whatsappNumber: "518-517-9866",
+      phoneNumber: "518-517-9866",
     },
   });
 
   // 3. Define the submit handler
   const registerUser = async (data) => {
     const totalTimeElapsed = Date.now() - formLoadTime.current;
-    // console.log(data);
+    console.log(data);
     // console.log(selected);
 
     // 1. Honeypot check
     if (website.trim() !== "") {
-      // console.log("Submission failed", "Bot behavior detected.");
+      console.log("Submission failed", "Bot behavior detected.");
       return;
     }
 
     // 2. Timestamp check
     if (totalTimeElapsed < MIN_SUBMISSION_TIME_MS) {
-      // console.log("Submission failed", "Form submitted too quickly.");
+      console.log("Submission failed", "Form submitted too quickly.");
       return;
     }
 
@@ -222,29 +222,29 @@ const RegisterForm = () => {
       },
     );
 
-    const json = await response.text();
-    const obj = JSON.parse(json);
+    const apiResponse = await response.json();
+    console.log("apiResponse: " + apiResponse);
 
-    if (response.status === 200) {
+    if (response.status == 200) {
       showMessage({
-        message: obj?.message,
-        // description: "API Server Response",
+        message: "Success",
+        description:
+          apiResponse.message || "Your action was confirmed successfully!",
         type: "success",
-        autoHide: false, // prevents the message from disappearing automatically
-        onPress: () => hideMessage(), // closes the message when pressed
+        icon: "success",
+        duration: 3000,
+        // autoHide: false,
+        onPress: () => hideMessage(),
       });
-      // console.log("json: ", JSON.stringify(obj));
       navigation.navigate("ThankYouScreen");
-    } else if (response.status == 400) {
-      showMessage({
-        message: obj?.message,
-        // description: "API Server Response",
-        type: "danger",
-        autoHide: false, // prevents the message from disappearing automatically
-        onPress: () => hideMessage(), // closes the message when pressed
-      });
     } else {
-      console.log("json error: ", JSON.stringify(obj));
+      showMessage({
+        message: "Action Failed",
+        description: apiResponse.message || "Something went wrong.",
+        type: "danger", // Automatically styles background to red
+        icon: "danger",
+        autoHide: false,
+      });
     }
   };
 
