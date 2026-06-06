@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import * as yup from "yup";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { launchImageLibrary } from "react-native-image-picker";
 import {
   StyleSheet,
   View,
@@ -10,6 +11,9 @@ import {
   TextInput,
   Alert,
   Linking,
+  Platform,
+  Image,
+  Button,
 } from "react-native";
 import { AppColors } from "../../styles/colors";
 import { useNavigation } from "@react-navigation/native";
@@ -70,7 +74,34 @@ const schema = yup.object().shape({
   preferredContact: yup.string().oneOf(["Phone", "Email", "WhatsApp"]),
   gymId: yup.string().matches(/^\d+$/, "Gym location is required"),
   // .required("Category selection is required"),
+  profilePic: yup
+    .mixed()
+    .required("A profile picture is required")
+    .test("fileSize", "Image is too large (max 5MB)", (value: any) => {
+      if (!value) return false;
+      return !value.fileSize || value.fileSize <= 5 * 1024 * 1024;
+    }),
 });
+
+const handlePickImage = (onChange: (...event: any[]) => void) => {
+  launchImageLibrary(
+    {
+      mediaType: "photo",
+      quality: 1,
+    },
+    (response) => {
+      if (
+        !response.didCancel &&
+        !response.errorCode &&
+        response.assets &&
+        response.assets.length > 0
+      ) {
+        // Pass the plain asset object into React Hook Form
+        onChange(response.assets[0]);
+      }
+    },
+  );
+};
 
 const RegisterForm = () => {
   const navigation = useNavigation();
@@ -138,10 +169,11 @@ const RegisterForm = () => {
   });
 
   // 3. Define the submit handler
-  const registerUser = async (data) => {
+  const registerUser = async (data: any) => {
     const totalTimeElapsed = Date.now() - formLoadTime.current;
+    const formData = new FormData();
+
     console.log(data);
-    // console.log(selected);
 
     // 1. Honeypot check
     if (website.trim() !== "") {
@@ -155,31 +187,43 @@ const RegisterForm = () => {
       return;
     }
 
+    // Fix file paths for iOS environment without Expo asset utilities
+    const nativeUri =
+      Platform.OS === "ios"
+        ? data.profilePic.uri.replace("file://", "")
+        : data.profilePic.uri;
+
+    formData.append("gym_id", data.gymId);
+    formData.append("gym_id", data.gymId);
+    formData.append("email", data.email);
+    formData.append("password", data.password);
+    formData.append("data.confirmPassword", data.confirmPassword);
+    formData.append("role", data.role);
+    formData.append("fname", data.fname);
+    formData.append("lname", data.lname);
+    formData.append("date_of_birth", data.dateOfBirth);
+    formData.append("sex", data.sex);
+    formData.append("phone", data.phoneNumber);
+    formData.append("whatsapp", data.whatsappNumber);
+    formData.append("preferred_contact", data.preferredContact);
+    formData.append("profilePic", {
+      uri: nativeUri,
+      type: data.profilePic.type || "image/jpeg",
+      name: data.profilePic.fileName || "avatar.jpg",
+    } as any);
+
+    console.log("FormData ready for fetch:", formData);
+
     const response = await fetch(
       "http://localhost:8080/classy-api/api/register.php",
       {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          gym_id: data.gymId,
-          username: "",
-          email: data.email,
-          password: data.password,
-          confirm_password: data.confirmPassword,
-          role: data.role,
-          fname: data.fname,
-          lname: data.lname,
-          date_of_birth: data.dateOfBirth,
-          sex: data.sex,
-          phone: data.phoneNumber,
-          whatsapp: data.whatsappNumber,
-          preferred_contact: data.preferredContact,
-        }),
+        body: formData,
       },
     );
 
     const apiResponse = await response.json();
-    console.log("apiResponse: " + apiResponse);
+    console.log("apiResponse: " + JSON.stringify(apiResponse));
 
     if (response.status == 200) {
       showMessage({
@@ -207,7 +251,31 @@ const RegisterForm = () => {
   return (
     <>
       <View style={styles.fieldset}>
-        <View style={styles.field}></View>
+        <View style={styles.field}>
+          {/* <Text style={styles.formLabel}>Profile pic</Text> */}
+          <Controller
+            control={control}
+            name="profilePic"
+            render={({ field: { onChange, value } }) => (
+              <View style={styles.imageContainer}>
+                {value?.uri ? (
+                  <Image source={{ uri: value.uri }} style={styles.avatar} />
+                ) : (
+                  <View style={[styles.avatar, styles.placeholder]}>
+                    <Text>No Image</Text>
+                  </View>
+                )}
+                <Button
+                  title="Select Image"
+                  onPress={() => handlePickImage(onChange)}
+                />
+              </View>
+            )}
+          />
+          {errors.profilePic && (
+            <Text style={styles.errorText}>{errors.profilePic.message}</Text>
+          )}
+        </View>
         <View style={styles.field}>
           <Text style={styles.formLabel}>E-mail</Text>
           <Controller
@@ -517,6 +585,7 @@ const styles = StyleSheet.create({
   fieldset: {
     marginBottom: 32,
   },
+  field: {},
   email: {},
   formLabel: {
     fontSize: 12,
@@ -569,4 +638,17 @@ const styles = StyleSheet.create({
     color: "red",
   },
   apimessage: { color: AppColors.blue },
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  imageContainer: { alignItems: "center", marginBottom: 20 },
+  avatar: { width: 120, height: 120, borderRadius: 60, marginBottom: 10 },
+  placeholder: {
+    backgroundColor: "#ccc",
+    justifyContent: "center",
+    alignItems: "center",
+  },
 });
