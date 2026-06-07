@@ -93,8 +93,8 @@ const RegisterForm = () => {
       // Pick and crop
       const profilePic = await ImagePicker.openPicker({
         cropping: true,
-        width: 480,
-        height: 480,
+        width: 400,
+        height: 400,
         compressImageQuality: 0.7,
         forceJpg: true,
       });
