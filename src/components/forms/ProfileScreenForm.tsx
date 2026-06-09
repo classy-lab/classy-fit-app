@@ -3,17 +3,20 @@ import { Alert } from "react-native";
 import * as yup from "yup";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import ImagePicker from "react-native-image-crop-picker";
 import {
   StyleSheet,
   View,
   Text,
   TouchableOpacity,
   TextInput,
+  Linking,
+  Platform,
+  Image,
+  Button,
 } from "react-native";
 import { AppColors } from "../../styles/colors";
-import { useNavigation } from "@react-navigation/native";
 import { SelectList } from "react-native-dropdown-select-list";
-import UploadPhoto from "../../screens/app/UploadPhoto";
 import { UserContext } from "../../context/UserContext";
 import HoneypotField from "./input_fields/HoneypotField";
 import PreferredContact from "./PreferredContact";
@@ -35,15 +38,15 @@ const schema = yup.object().shape({
   password: yup
     .string()
     .required("Password is required")
-    .min(2, "Password must contain at least 2 characters")
+    .min(2, "Password must contain at least 12 characters")
     .matches(
       /^[a-zA-Z0-9\s~!@#$%^&*()_+-]+$/,
       "Only letters, numbers, spaces, hyphens, and underscores are allowed",
     ),
   confirmPassword: yup
     .string()
-    .oneOf([yup.ref("password")], "Passwords must match")
-    .required("Please confirm your password"),
+    .oneOf([yup.ref("password")], "Passwords must match"),
+  // .required("Please confirm your password"),
   role: yup.string().oneOf(["Owner", "Member", "Trainer", "Contractor"]),
   fname: yup.string().required("First name is required").min(2).max(20),
   lname: yup.string().required("Last name is required").min(2).max(20),
@@ -52,37 +55,63 @@ const schema = yup.object().shape({
     .matches(
       /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/,
       "Date must be in YYYY-MM-DD format",
-    )
-    .required("Date of birth is required"),
+    ),
+  // .required("Date of birth is required"),
   sex: yup
     .string()
     .oneOf(["Male", "Female", "Other"], "Please select a valid category")
     .required("Category selection is required"),
-  phoneNumber: yup.string().matches(phoneRegExp, "Phone Number is not valid"),
+  phoneNumber: yup
+    .string()
+    .matches(phoneRegExp, "Phone Number is not valid")
+    .nullable()
+    .notRequired()
+    .transform((value) => (value === "" ? null : value)),
   whatsappNumber: yup
     .string()
-    .matches(phoneRegExp, "WhatsApp Number number is not valid"),
-  preferredContact: yup.string(), //.oneOf(["Phone", "Email", "WhatsApp"]),
-  gymId: yup
-    .string()
-    .matches(/^\d+$/, "Gym location is required")
-    .required("Category selection is required"),
+    .matches(phoneRegExp, "WhatsApp Number number is not valid")
+    .nullable()
+    .notRequired()
+    .transform((value) => (value === "" ? null : value)),
+  preferredContact: yup.string().oneOf(["Phone", "Email", "WhatsApp"]),
+  gymId: yup.string().matches(/^\d+$/, "Gym location is required"),
+  // .required("Category selection is required"),
+  profilePic: yup
+    .mixed()
+    .required("A profile picture is required")
+    .test("fileSize", "Image is too large (max 5MB)", (value: any) => {
+      if (!value) return false;
+      return !value.fileSize || value.fileSize <= 5 * 1024 * 1024;
+    }),
 });
 
 //
 //
 
 const ProfileScreenForm = () => {
-  // const navigation = useNavigation();
   const { user, setUser } = useContext(UserContext);
   const { tokens, setTokens } = useContext(UserContext);
-  const [photo, setPhoto] = useState(null);
   const [website, setWebsite] = useState("");
   const { webServer } = useContext(UserContext);
-  const [dateOfBirth, setDateOfBirth] = useState("");
-  const [phone, setPhone] = useState("");
-  const [whatsApp, setWhatsApp] = useState("");
-  const [preferredContact, setPreferredContact] = useState("");
+  const [profilePic, setProfilePic] = useState({});
+
+  const selectImage = async () => {
+    try {
+      // Pick and crop
+      const profilePic = await ImagePicker.openPicker({
+        cropping: true,
+        width: 400,
+        height: 400,
+        compressImageQuality: 0.7,
+        forceJpg: true,
+      });
+
+      setProfilePic(profilePic);
+      console.log("image: " + JSON.stringify(profilePic));
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
   // Use a ref to store the load time without triggering re-renders
   const formLoadTime = useRef(Date.now());
@@ -152,22 +181,23 @@ const ProfileScreenForm = () => {
   // 2. Initialize useForm with the Yup resolver
   const {
     control,
-    reset,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      gymId: user.gym_id,
-      email: user.email,
-      dateOfBirth: "",
-      fname: user.given_name,
-      lname: user.family_name,
-      whatsappNumber: "",
-      phoneNumber: "",
-      role: "Owner",
-      sex: user.gender,
-      preferredContact: "",
+      gymId: "",
+      password: "pp",
+      confirmPassword: "pp",
+      email: "help@simplecssjs.com",
+      dateOfBirth: "2000-05-05",
+      fname: "Vishal",
+      lname: "Mudi",
+      whatsappNumber: "518-517-9866",
+      phoneNumber: "518-517-9866",
+      profilePic: {},
     },
   });
 
@@ -226,7 +256,9 @@ const ProfileScreenForm = () => {
   // 3. Define the submit handler
   const updateUser = async (data) => {
     const totalTimeElapsed = Date.now() - formLoadTime.current;
-    // console.log(data);
+    const formData = new FormData();
+
+    console.log(data);
 
     // Honeypot check
     if (website.trim() !== "") {
@@ -266,6 +298,7 @@ const ProfileScreenForm = () => {
         phone: data.phoneNumber,
         whatsapp: data.whatsappNumber,
         preferred_contact: data.preferredContact,
+        profile_pic: data.profilePic,
       }),
     });
 
@@ -310,11 +343,24 @@ const ProfileScreenForm = () => {
     <>
       <View style={styles.fieldset}>
         <View style={styles.field}>
-          {/* <UploadPhoto
-            photo={photo}
-            setPhoto={setPhoto}
-            uploadPhoto={uploadPhoto}
-          /> */}
+          <Controller
+            control={control}
+            name="profilePic"
+            render={({ field: { onChange, value } }) => (
+              <View style={styles.imageContainer}>
+                {profilePic && (
+                  <Image
+                    source={{ uri: profilePic.path }}
+                    style={styles.avatar}
+                    resizeMode="contain"
+                  />
+                )}
+              </View>
+            )}
+          />
+          {errors.profilePic && (
+            <Text style={styles.errorText}>{errors.profilePic.message}</Text>
+          )}
         </View>
         <View style={[styles.field, { opacity: 0.5 }]} pointerEvents="none">
           <Text style={styles.formLabel}>E-mail</Text>
@@ -647,4 +693,13 @@ const styles = StyleSheet.create({
   selectList: {
     marginBottom: 80,
   },
+  imageContainer: { alignItems: "center", marginBottom: 20 },
+  avatar: {
+    width: 120,
+    height: 120,
+    borderRadius: 20,
+    marginBottom: 8,
+    // boxShadow: "0px 4px 6px 0px rgba(0, 0, 0, 0.1)",
+  },
+  field: {},
 });
