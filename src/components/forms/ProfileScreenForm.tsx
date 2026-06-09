@@ -47,7 +47,7 @@ const schema = yup.object().shape({
     .string()
     .oneOf([yup.ref("password")], "Passwords must match"),
   // .required("Please confirm your password"),
-  role: yup.string().oneOf(["Owner", "Member", "Trainer", "Contractor"]),
+  role: yup.string(), //.required().oneOf(["Owner", "Member", "Trainer", "Contractor"]),
   fname: yup.string().required("First name is required").min(2).max(20),
   lname: yup.string().required("Last name is required").min(2).max(20),
   dateOfBirth: yup
@@ -57,10 +57,9 @@ const schema = yup.object().shape({
       "Date must be in YYYY-MM-DD format",
     ),
   // .required("Date of birth is required"),
-  sex: yup
-    .string()
-    .oneOf(["Male", "Female", "Other"], "Please select a valid category")
-    .required("Category selection is required"),
+  sex: yup.string(),
+  // .oneOf(["Male", "Female", "Other"], "Please select a valid category")
+  // .required("Category selection is required"),
   phoneNumber: yup
     .string()
     .matches(phoneRegExp, "Phone Number is not valid")
@@ -73,7 +72,7 @@ const schema = yup.object().shape({
     .nullable()
     .notRequired()
     .transform((value) => (value === "" ? null : value)),
-  preferredContact: yup.string().oneOf(["Phone", "Email", "WhatsApp"]),
+  preferredContact: yup.string(), // .oneOf(["Phone", "Email", "WhatsApp"]),
   gymId: yup.string().matches(/^\d+$/, "Gym location is required"),
   // .required("Category selection is required"),
   profilePic: yup
@@ -439,7 +438,7 @@ const ProfileScreenForm = () => {
                 data={roleData}
                 save="value"
                 placeholder="Select Category"
-                defaultOption={{ key: "", value: user.role }}
+                defaultOption={{ key: "1", value: user.role }}
                 boxStyles={{
                   borderColor: AppColors.grey,
                   borderWidth: 1,
