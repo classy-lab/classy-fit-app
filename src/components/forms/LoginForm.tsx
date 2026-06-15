@@ -115,7 +115,7 @@ const LoginForm = () => {
 
         showMessage({
           message: `Login Success`,
-          description: `Welcome ${userPayload?.given_name} ${userPayload?.family_name}`,
+          description: `Hello ${userPayload?.given_name} ${userPayload?.family_name}`,
           type: "success",
           autoHide: true,
         });
