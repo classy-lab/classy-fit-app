@@ -44,9 +44,9 @@ const schema = yup.object().shape({
     ),
   confirmPassword: yup
     .string()
-    .oneOf([yup.ref("password")], "Passwords must match"),
-  // .required("Please confirm your password"),
-  role: yup.string().oneOf(["Owner", "Member", "Trainer", "Contractor"]),
+    .oneOf([yup.ref("password")], "Passwords must match")
+    .required("Please confirm your password"),
+  role: yup.string().required("Role is required"),
   fname: yup.string().required("First name is required").min(2).max(20),
   lname: yup.string().required("Last name is required").min(2).max(20),
   dateOfBirth: yup
@@ -58,13 +58,13 @@ const schema = yup.object().shape({
   // .required("Date of birth is required"),
   sex: yup
     .string()
-    .oneOf(["Male", "Female", "Other"], "Please select a valid category")
+    .oneOf(["Male", "Female", "Other", ""], "Please select a valid category")
     .required("Category selection is required"),
   phoneNumber: yup
     .string()
     .matches(phoneRegExp, "Phone Number is not valid")
-    .nullable()
-    .notRequired()
+    // .nullable()
+    // .notRequired()
     .transform((value) => (value === "" ? null : value)),
   whatsappNumber: yup
     .string()
@@ -72,7 +72,9 @@ const schema = yup.object().shape({
     .nullable()
     .notRequired()
     .transform((value) => (value === "" ? null : value)),
-  preferredContact: yup.string().oneOf(["Phone", "Email", "WhatsApp"]),
+  preferredContact: yup.string()
+    .oneOf(["Phone", "Email", "WhatsApp"])
+    .required("Category selection is required"),
   gymId: yup.string().matches(/^\d+$/, "Gym location is required"),
   // .required("Category selection is required"),
   profilePic: yup
@@ -157,17 +159,20 @@ const RegisterForm = () => {
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
+    shouldFocusError: true, // Automatically moves focus and triggers internal scrolling layout
     defaultValues: {
-      gymId: "",
-      password: "pp",
-      confirmPassword: "pp",
-      email: "help@simplecssjs.com",
-      dateOfBirth: "2000-05-05",
-      fname: "Vishal",
-      lname: "Mudi",
-      whatsappNumber: "518-517-9866",
-      phoneNumber: "518-517-9866",
       profilePic: {},
+      email: "",
+      password: "",
+      confirmPassword: "",
+      role: '',
+      fname: "",
+      lname: "",
+      dateOfBirth: "",
+      sex: '',
+      phoneNumber: "",
+      whatsappNumber: "",
+      gymId: "",
     },
   });
 
@@ -285,8 +290,9 @@ const RegisterForm = () => {
           <Controller
             control={control}
             name="email"
-            render={({ field: { onChange, onBlur, value } }) => (
+            render={({ field: { onChange, onBlur, value, ref } }) => (
               <TextInput
+                ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
                 style={styles.inputField}
                 onBlur={onBlur}
                 onChangeText={onChange}
@@ -305,8 +311,9 @@ const RegisterForm = () => {
           <Controller
             control={control}
             name="password"
-            render={({ field: { onChange, onBlur, value } }) => (
+            render={({ field: { onChange, onBlur, value, ref } }) => (
               <TextInput
+                ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
                 style={styles.inputField}
                 onBlur={onBlur}
                 onChangeText={onChange}
@@ -325,8 +332,9 @@ const RegisterForm = () => {
           <Controller
             control={control}
             name="confirmPassword"
-            render={({ field: { onChange, onBlur, value } }) => (
+            render={({ field: { onChange, onBlur, value, ref } }) => (
               <TextInput
+                ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
                 style={styles.inputField}
                 onBlur={onBlur}
                 onChangeText={onChange}
@@ -347,12 +355,14 @@ const RegisterForm = () => {
           <Controller
             control={control}
             name="role"
-            render={({ field: { onChange, onBlur, value } }) => (
+            render={({ field: { onChange, onBlur, value, ref } }) => (
               <SelectList
+                ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
                 setSelected={(val) => onChange(val)} // Send selection to hook-form
                 data={roleData}
                 save="value"
                 placeholder="Select Category"
+                defaultOption={{ key: "1", value: "Member" }}
                 boxStyles={{
                   borderColor: AppColors.grey,
                   borderWidth: 1,
@@ -378,8 +388,9 @@ const RegisterForm = () => {
           <Controller
             control={control}
             name="fname"
-            render={({ field: { onChange, onBlur, value } }) => (
+            render={({ field: { onChange, onBlur, value, ref } }) => (
               <TextInput
+                ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
                 style={styles.inputField}
                 onBlur={onBlur}
                 onChangeText={onChange}
@@ -398,8 +409,9 @@ const RegisterForm = () => {
           <Controller
             control={control}
             name="lname"
-            render={({ field: { onChange, onBlur, value } }) => (
+            render={({ field: { onChange, onBlur, value, ref } }) => (
               <TextInput
+                ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
                 style={styles.inputField}
                 onBlur={onBlur}
                 onChangeText={onChange}
@@ -420,15 +432,16 @@ const RegisterForm = () => {
           <Controller
             control={control}
             name="dateOfBirth"
-            render={({ field: { onChange, onBlur, value } }) => (
+            render={({ field: { onChange, onBlur, value, ref } }) => (
               <TextInput
+                ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
                 style={styles.inputField}
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
                 keyboardType="default"
                 autoCapitalize="none"
-                placeholder="yyyy/mm/dd"
+                placeholder="YYYY/MM/DD"
               /> // needs date picker added. check
             )}
           />
@@ -441,8 +454,9 @@ const RegisterForm = () => {
           <Controller
             name="sex"
             control={control}
-            render={({ field: { onChange, onBlur, value } }) => (
+            render={({ field: { onChange, onBlur, value, ref } }) => (
               <SelectList
+                ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
                 setSelected={(val) => onChange(val)} // Send selection to hook-form
                 data={sexData}
                 save="value"
@@ -516,8 +530,9 @@ const RegisterForm = () => {
           <Controller
             control={control}
             name="preferredContact"
-            render={({ field: { onChange, onBlur, value } }) => (
+            render={({ field: { onChange, onBlur, value, ref } }) => (
               <SelectList
+                ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
                 setSelected={(val) => onChange(val)} // Send selection to hook-form
                 data={preferredContactData}
                 save="value"
@@ -549,8 +564,10 @@ const RegisterForm = () => {
           <Controller
             control={control}
             name="gymId"
-            render={({ field: { onChange } }) => (
-              <GymList onSelectValue={onChange} />
+            render={({ field: { onChange, onBlur, value, ref } }) => (
+              <GymList
+                ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
+                onSelectValue={onChange} />
             )}
           />
           {errors.gymId && (
