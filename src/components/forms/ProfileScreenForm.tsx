@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 import { Alert } from "react-native";
-import * as yup from "yup";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 import ImagePicker from "react-native-image-crop-picker";
 import {
   StyleSheet,
@@ -10,10 +10,7 @@ import {
   Text,
   TouchableOpacity,
   TextInput,
-  Linking,
-  Platform,
   Image,
-  Button,
 } from "react-native";
 import { AppColors } from "../../styles/colors";
 import { SelectList } from "react-native-dropdown-select-list";
@@ -55,8 +52,8 @@ const schema = yup.object().shape({
     .matches(
       /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/,
       "Date must be in YYYY-MM-DD format",
-    ),
-  // .required("Date of birth is required"),
+    )
+  .required("Date of birth is required"),
   sex: yup.string(),
   // .oneOf(["Male", "Female", "Other"], "Please select a valid category")
   // .required("Category selection is required"),
@@ -115,6 +112,44 @@ const ProfileScreenForm = () => {
   // Use a ref to store the load time without triggering re-renders
   const formLoadTime = useRef(Date.now());
 
+  const sexData = [
+    { key: "1", value: "Male", disabled: false },
+    { key: "2", value: "Female" },
+    { key: "3", value: "Other" },
+  ];
+
+  const roleData = [
+    { key: "1", value: "Owner", disabled: false },
+    { key: "2", value: "Member" },
+    { key: "3", value: "Trainer" },
+    { key: "4", value: "Contractor" },
+  ];
+
+  // 2. Initialize useForm with the Yup resolver
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    watch,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      gymId: user?.gym_id,
+      password: "",
+      confirmPassword: "",
+      email: user?.email,
+      fname: user?.given_name,
+      lname: user?.family_name,
+      dateOfBirth: '',
+      whatsappNumber: '',
+      phoneNumber: '',
+      role: user?.role,
+      profilePic: {},
+    },
+  });
+
   // Reset the timer if the user navigates back to this screen
   useEffect(() => {
     formLoadTime.current = Date.now();
@@ -129,15 +164,12 @@ const ProfileScreenForm = () => {
 
       if (response.status == 200) {
         //set profile fields here on success
-        console.log("set profile fields here");
-
         reset({
-          dateOfBirth: obj.fields.date_of_birth,
-          phoneNumber: obj.fields.phone,
-          preferredContact: obj.fields.preferred_contact,
-          whatsappNumber: obj.fields.whatsapp,
+          dateOfBirth: obj.profile_fields.date_of_birth,
+          phoneNumber: obj.profile_fields.phone,
+          preferredContact: obj.profile_fields.preferred_contact,
+          whatsappNumber: obj.profile_fields.whatsapp,
         });
-        // }
       } else {
         console.log("Access token expired, requesting new one - useEffect()");
 
@@ -162,43 +194,7 @@ const ProfileScreenForm = () => {
       }
     };
     fetchUserData({ tokens, webServer, user, setTokens });
-  }, []);
-
-  const sexData = [
-    { key: "1", value: "Male", disabled: false },
-    { key: "2", value: "Female" },
-    { key: "3", value: "Other" },
-  ];
-
-  const roleData = [
-    { key: "1", value: "Owner", disabled: false },
-    { key: "2", value: "Member" },
-    { key: "3", value: "Trainer" },
-    { key: "4", value: "Contractor" },
-  ];
-
-  // 2. Initialize useForm with the Yup resolver
-  const {
-    control,
-    handleSubmit,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useForm({
-    resolver: yupResolver(schema),
-    defaultValues: {
-      gymId: "",
-      password: "pp",
-      confirmPassword: "pp",
-      email: "help@simplecssjs.com",
-      dateOfBirth: "2000-05-05",
-      fname: "Vishal",
-      lname: "Mudi",
-      whatsappNumber: "518-517-9866",
-      phoneNumber: "518-517-9866",
-      profilePic: {},
-    },
-  });
+  }, [reset]); // Always include reset in the dependency array
 
   // 1. Define the actual backend deletion logic
   const executeProfileDeletion = () => {
@@ -254,6 +250,7 @@ const ProfileScreenForm = () => {
 
   // 3. Define the submit handler
   const updateUser = async (data) => {
+    console.log('data: ' + JSON.stringify(data));
     const totalTimeElapsed = Date.now() - formLoadTime.current;
     const formData = new FormData();
 
@@ -271,8 +268,8 @@ const ProfileScreenForm = () => {
       return;
     }
 
+    // Set submitted values within app before sending to API. No need to retreive from API
     setUser({
-      // Set submitted values within app before sending to API. No need to retreive from API
       ...user,
       given_name: data.fname,
       family_name: data.lname,
@@ -536,7 +533,7 @@ const ProfileScreenForm = () => {
                 setSelected={(val) => onChange(val)} // Send selection to hook-form
                 data={sexData}
                 save="value"
-                defaultOption={{ key: "", value: user.gender }}
+                defaultOption={{ key: "1", value: user.gender }}
                 placeholder="Select Category"
                 boxStyles={{
                   borderColor: AppColors.grey,
