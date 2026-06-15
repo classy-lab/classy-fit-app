@@ -6,8 +6,8 @@ import { AppColors } from '../../styles/colors'
 import { s } from 'react-native-size-matters'
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5'
 import Ionicons from '@expo/vector-icons/Ionicons'
-import Feather from '@expo/vector-icons/Feather'
-import React from 'react'
+import SignOut from "../../components/utils/SignOut";
+import Feather from "@expo/vector-icons/Feather";
 
 const windowWidth = Dimensions.get('window').width
 
@@ -18,14 +18,8 @@ const DashboardScreen = ({ navigation, route }) => {
     <>
       <SafeAreaView style={styles.container}>
         <View style={styles.navs}>
-                  <Text style={styles.signOutText}>Welcome {user?.given_name}!</Text>
-                  <View style={styles.signOut}>
-                    <Text style={styles.signOutText}>Sign out</Text>
-                    {/* <View style={styles.circle}>
-                      <MaterialIcons name="logout" color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
-                    </View> */}
-                  </View>
-                </View>
+          <SignOut />
+        </View>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.headingContainer}>
             <Text style={styles.title}>Dashboard</Text>
@@ -82,7 +76,7 @@ const styles = StyleSheet.create({
   },
   navs: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     paddingLeft: 24,
     paddingRight: 24,
   },
