@@ -29,6 +29,7 @@ const LoginForm = () => {
   const { tokens, setTokens } = useContext(UserContext);
   const { isLoggedIn, setIsLoggedIn } = useContext(UserContext);
   const [website, setWebsite] = useState("");
+  const {webServer} = useContext(UserContext);
 
   // Use a ref to store the load time without triggering re-renders
   const formLoadTime = useRef(Date.now());
@@ -88,7 +89,7 @@ const LoginForm = () => {
       // If successful, navigate to the Login page or another desired screen
 
       const response = await fetch(
-        "http://localhost:8080/classy-api/api/login.php",
+        `${webServer}/api/login.php`,
         {
           method: "POST",
           body: JSON.stringify({
