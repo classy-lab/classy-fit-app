@@ -195,7 +195,6 @@ const RegisterForm = () => {
     //     : data.profilePic.uri;
 
     formData.append("gym_id", data.gymId);
-    formData.append("gym_id", data.gymId);
     formData.append("email", data.email);
     formData.append("password", data.password);
     formData.append("data.confirmPassword", data.confirmPassword);
