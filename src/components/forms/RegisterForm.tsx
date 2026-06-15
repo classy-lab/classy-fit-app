@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import * as yup from "yup";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -18,6 +18,7 @@ import {
 import { AppColors } from "../../styles/colors";
 import { useNavigation } from "@react-navigation/native";
 import { SelectList } from "react-native-dropdown-select-list";
+import { UserContext } from "../../context/UserContext";
 import HoneypotField from "./input_fields/HoneypotField";
 import GymList from "../GymList";
 import FlashMessage, {
@@ -86,6 +87,7 @@ const schema = yup.object().shape({
 const RegisterForm = () => {
   const navigation = useNavigation();
   const [website, setWebsite] = useState("");
+  const { webServer } = useContext(UserContext);
   const [profilePic, setProfilePic] = useState({});
 
   const selectImage = async () => {
@@ -220,7 +222,7 @@ const RegisterForm = () => {
     console.log("FormData ready for fetch:", formData);
 
     const response = await fetch(
-      "http://localhost:8080/classy-api/api/register.php",
+      `${webServer}/api/register.php`, 
       {
         method: "POST",
         body: formData,
