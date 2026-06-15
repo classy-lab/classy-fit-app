@@ -18,6 +18,7 @@ const DashboardScreen = ({ navigation, route }) => {
     <>
       <SafeAreaView style={styles.container}>
         <View style={styles.navs}>
+          <Text style={styles.welcomeText}>Hi {user?.given_name}</Text>
           <SignOut />
         </View>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
@@ -76,10 +77,12 @@ const styles = StyleSheet.create({
   },
   navs: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
     paddingLeft: 24,
     paddingRight: 24,
+    alignItems: 'center'
   },
+  welcomeText: { color: AppColors.blue, fontSize: 14 },
   headingContainer: {
     alignItems: 'center',
     marginBottom: 20
@@ -98,7 +101,7 @@ const styles = StyleSheet.create({
     paddingRight: 24,
     marginBottom: 8,
   },
-  
+
   blueRectangle: {
     backgroundColor: AppColors.blue,
     borderRadius: 24,
@@ -141,7 +144,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: s(8)
   },
-    signOut: {
+  signOut: {
     flexDirection: 'row',
     alignItems: 'center',
   },
