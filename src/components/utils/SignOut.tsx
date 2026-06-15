@@ -8,12 +8,13 @@ const SignOut = () => {
     const { user, setUser } = useContext(UserContext);
     const { tokens, setTokens } = useContext(UserContext);
     const { isLoggedIn, setIsLoggedIn } = useContext(UserContext);
+    const { webServer } = useContext(UserContext);
 
   return (
     <TouchableOpacity onPress={ async () => { 
         // make an api call to logout.php sending it refresh_token and check for 200 response code from api server
         try{
-            const response = await fetch('http://localhost:8080/classy-api/api/logout.php', {
+            const response = await fetch(`${webServer}/api/logout.php`, {
                 method: 'POST',
                 body: JSON.stringify({
                     token: tokens?.refresh_token,
