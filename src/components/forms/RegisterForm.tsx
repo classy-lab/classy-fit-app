@@ -222,7 +222,7 @@ const RegisterForm = () => {
     console.log("FormData ready for fetch:", formData);
 
     const response = await fetch(
-      `${webServer}/api/register.php`, 
+      `${webServer}/api/register.php`,
       {
         method: "POST",
         body: formData,
@@ -364,8 +364,8 @@ const RegisterForm = () => {
                   marginTop: 8,
                   backgroundColor: "white",
                 }}
-                // If you need to force the value from the parent (e.g., reset)
-                // defaultOption={data.find(item => item.value === value)}
+              // If you need to force the value from the parent (e.g., reset)
+              // defaultOption={data.find(item => item.value === value)}
               />
             )}
           />
@@ -458,8 +458,8 @@ const RegisterForm = () => {
                   marginTop: 8,
                   backgroundColor: "white",
                 }}
-                // If you need to force the value from the parent (e.g., reset)
-                // defaultOption={data.find(item => item.value === value)}
+              // If you need to force the value from the parent (e.g., reset)
+              // defaultOption={data.find(item => item.value === value)}
               />
             )}
           />
@@ -533,8 +533,8 @@ const RegisterForm = () => {
                   marginTop: 8,
                   backgroundColor: "white",
                 }}
-                // If you need to force the value from the parent (e.g., reset)
-                // defaultOption={data.find(item => item.value === value)}
+              // If you need to force the value from the parent (e.g., reset)
+              // defaultOption={data.find(item => item.value === value)}
               />
             )}
           />
