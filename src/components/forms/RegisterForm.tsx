@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import * as yup from "yup";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { launchImageLibrary } from "react-native-image-picker";
+import ImagePicker from "react-native-image-crop-picker";
 import {
   StyleSheet,
   View,
@@ -83,42 +83,28 @@ const schema = yup.object().shape({
     }),
 });
 
-const handlePickImage = (onChange: (...event: any[]) => void) => {
-  const options = {
-    meditType: "photo",
-    maxWidth: 448, // Max width bound (resizes proportionally)
-    maxHeight: 448, // Max height bound (resizes proportionally)
-    quality: 0.8, // Compress image to 80% quality (0.0 to 1.0)
-    includeBase64: false, // Keeps file small by avoiding base64 overhead
-  };
-
-  launchImageLibrary(options, (response) => {
-    if (
-      !response.didCancel &&
-      !response.errorCode &&
-      response.assets &&
-      response.assets.length > 0
-    ) {
-      // Pass the plain asset object into React Hook Form
-      onChange(response.assets[0]);
-      // Access the newly resized image details
-      const selectedImage = response.assets[0];
-      console.log("Resized URI: ", selectedImage.uri);
-      console.log("Optimized file size: ", selectedImage.fileSize / 1024, "KB");
-      console.log("new width: ", selectedImage.width);
-      console.log("new height: ", selectedImage.height);
-    }
-    if (response.errorCode) {
-      console.log("ImagePicker Error: ", response.errorMessage);
-      return;
-    }
-  });
-};
-
 const RegisterForm = () => {
   const navigation = useNavigation();
-  const [photo, setPhoto] = useState(null);
   const [website, setWebsite] = useState("");
+  const [profilePic, setProfilePic] = useState({});
+
+  const selectImage = async () => {
+    try {
+      // Pick and crop
+      const profilePic = await ImagePicker.openPicker({
+        cropping: true,
+        width: 400,
+        height: 400,
+        compressImageQuality: 0.7,
+        forceJpg: true,
+      });
+
+      setProfilePic(profilePic);
+      console.log("image: " + JSON.stringify(profilePic));
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
   // Use a ref to store the load time without triggering re-renders
   const formLoadTime = useRef(Date.now());
@@ -164,6 +150,8 @@ const RegisterForm = () => {
   const {
     control,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
@@ -177,6 +165,7 @@ const RegisterForm = () => {
       lname: "Mudi",
       whatsappNumber: "518-517-9866",
       phoneNumber: "518-517-9866",
+      profilePic: {},
     },
   });
 
@@ -200,10 +189,10 @@ const RegisterForm = () => {
     }
 
     // Fix file paths for iOS environment without Expo asset utilities
-    const nativeUri =
-      Platform.OS === "ios"
-        ? data.profilePic.uri.replace("file://", "")
-        : data.profilePic.uri;
+    // const nativeUri =
+    //   Platform.OS === "ios"
+    //     ? data.profilePic.uri.replace("file://", "")
+    //     : data.profilePic.uri;
 
     formData.append("gym_id", data.gymId);
     formData.append("gym_id", data.gymId);
@@ -218,10 +207,15 @@ const RegisterForm = () => {
     formData.append("phone", data.phoneNumber);
     formData.append("whatsapp", data.whatsappNumber);
     formData.append("preferred_contact", data.preferredContact);
+    // formData.append("profilePic", {
+    //   uri: nativeUri,
+    //   type: data.profilePic.type || "image/jpeg",
+    //   name: data.profilePic.fileName || "profile_pic.jpg",
+    // } as any);
     formData.append("profilePic", {
-      uri: nativeUri,
-      type: data.profilePic.type || "image/jpeg",
-      name: data.profilePic.fileName || "profile_pic.jpg",
+      uri: profilePic.path,
+      type: profilePic.mime,
+      name: profilePic.filename,
     } as any);
 
     console.log("FormData ready for fetch:", formData);
@@ -269,17 +263,15 @@ const RegisterForm = () => {
             name="profilePic"
             render={({ field: { onChange, value } }) => (
               <View style={styles.imageContainer}>
-                {value?.uri ? (
-                  <Image source={{ uri: value.uri }} style={styles.avatar} />
-                ) : (
-                  <View style={[styles.avatar, styles.placeholder]}>
-                    <Text>No Image</Text>
-                  </View>
+                <Button title="Choose Image" onPress={selectImage} />
+
+                {profilePic && (
+                  <Image
+                    source={{ uri: profilePic.path }}
+                    style={styles.avatar}
+                    resizeMode="contain"
+                  />
                 )}
-                <Button
-                  title="Select Image"
-                  onPress={() => handlePickImage(onChange)}
-                />
               </View>
             )}
           />
