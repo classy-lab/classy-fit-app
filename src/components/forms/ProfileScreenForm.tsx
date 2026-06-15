@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
-import { Alert } from "react-native";
+import { Alert, Button } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -249,20 +249,20 @@ const ProfileScreenForm = () => {
   };
 
   // 3. Define the submit handler
-  const updateUser = async (data) => {
+  const updateUser = async (data: any) => {
     console.log('data: ' + JSON.stringify(data));
     const totalTimeElapsed = Date.now() - formLoadTime.current;
     const formData = new FormData();
 
     console.log(data);
 
-    // Honeypot check
+    // 1. Honeypot check
     if (website.trim() !== "") {
       console.log("Submission failed", "Bot behavior detected.");
       return;
     }
 
-    // Timestamp check
+    // 2. Timestamp check
     if (totalTimeElapsed < MIN_SUBMISSION_TIME_MS) {
       console.log("Submission failed", "Form submitted too quickly.");
       return;
@@ -276,27 +276,42 @@ const ProfileScreenForm = () => {
       preferred_contact: data.preferredContact,
     });
 
-    const response = await fetch(`${webServer}/api/register.php`, {
-      method: "PATCH",
-      headers: {
-        Authorization: "Bearer " + tokens.access_token,
+    // Fix file paths for iOS environment without Expo asset utilities
+    // const nativeUri =
+    //   Platform.OS === "ios"
+    //     ? data.profilePic.uri.replace("file://", "")
+    //     : data.profilePic.uri;
+
+    formData.append("gym_id", data.gymId);
+    formData.append("email", data.email);
+    formData.append("password", data.password);
+    formData.append("data.confirmPassword", data.confirmPassword);
+    formData.append("role", data.role);
+    formData.append("fname", data.fname);
+    formData.append("lname", data.lname);
+    formData.append("date_of_birth", data.dateOfBirth);
+    formData.append("sex", data.sex);
+    formData.append("phone", data.phoneNumber);
+    formData.append("whatsapp", data.whatsappNumber);
+    formData.append("preferred_contact", data.preferredContact);
+    formData.append("profilePic", {
+      uri: profilePic.path,
+      type: profilePic.mime,
+      name: profilePic.filename,
+    } as any);
+
+    console.log("FormData ready for fetch:", JSON.stringify(formData));
+
+    const response = await fetch(
+      `${webServer}/api/register.php`,
+      {
+        method: "PATCH",
+        headers: {
+          Authorization: "Bearer " + tokens.access_token,
+        },
+        body: formData,
       },
-      body: JSON.stringify({
-        gym_id: data.gymId,
-        email: data.email,
-        password: data.password,
-        confirm_password: data.confirmPassword,
-        role: data.role,
-        fname: data.fname,
-        lname: data.lname,
-        date_of_birth: data.dateOfBirth,
-        sex: data.sex,
-        phone: data.phoneNumber,
-        whatsapp: data.whatsappNumber,
-        preferred_contact: data.preferredContact,
-        profile_pic: data.profilePic,
-      }),
-    });
+    );
 
     const json = await response.text();
     const obj = JSON.parse(json);
@@ -344,6 +359,7 @@ const ProfileScreenForm = () => {
             name="profilePic"
             render={({ field: { onChange, value } }) => (
               <View style={styles.imageContainer}>
+                <Button title="Choose Image" onPress={selectImage} />
                 {profilePic && (
                   <Image
                     source={{ uri: profilePic.path }}
