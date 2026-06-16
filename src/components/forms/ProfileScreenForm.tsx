@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
-import { Alert } from "react-native";
+import { Alert, Button } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -31,19 +31,26 @@ const MIN_SUBMISSION_TIME_MS = 2000; // 5 seconds threshold before reg form can 
 
 // 1. Define the Yup validation schema
 const schema = yup.object().shape({
+  profilePic: yup
+    .mixed()
+    .required("A profile picture is required")
+    .test("fileSize", "Image is too large (max 5MB)", (value: any) => {
+      if (!value) return false;
+      return !value.fileSize || value.fileSize <= 5 * 1024 * 1024;
+    }),
   email: yup.string().required("Email is required").email("Invalid email"),
   password: yup
     .string()
     .required("Password is required")
-    .min(2, "Password must contain at least 12 characters")
+    .min(12, "Password must contain at least 12 characters")
     .matches(
       /^[a-zA-Z0-9\s~!@#$%^&*()_+-]+$/,
       "Only letters, numbers, spaces, hyphens, and underscores are allowed",
     ),
   confirmPassword: yup
     .string()
-    .oneOf([yup.ref("password")], "Passwords must match"),
-  // .required("Please confirm your password"),
+    .oneOf([yup.ref("password")], "Passwords must match")
+    .required("Please confirm your password"),
   role: yup.string(), //.required().oneOf(["Owner", "Member", "Trainer", "Contractor"]),
   fname: yup.string().required("First name is required").min(2).max(20),
   lname: yup.string().required("Last name is required").min(2).max(20),
@@ -53,16 +60,16 @@ const schema = yup.object().shape({
       /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/,
       "Date must be in YYYY-MM-DD format",
     )
-  .required("Date of birth is required"),
+    .required("Date of birth is required"),
   sex: yup.string(),
   // .oneOf(["Male", "Female", "Other"], "Please select a valid category")
   // .required("Category selection is required"),
   phoneNumber: yup
     .string()
     .matches(phoneRegExp, "Phone Number is not valid")
-    .nullable()
-    .notRequired()
-    .transform((value) => (value === "" ? null : value)),
+    // .nullable()
+    // .notRequired()
+    .transform((value) => (value === "" ? "" : value)),
   whatsappNumber: yup
     .string()
     .matches(phoneRegExp, "WhatsApp Number number is not valid")
@@ -72,13 +79,6 @@ const schema = yup.object().shape({
   preferredContact: yup.string(), // .oneOf(["Phone", "Email", "WhatsApp"]),
   gymId: yup.string().matches(/^\d+$/, "Gym location is required"),
   // .required("Category selection is required"),
-  profilePic: yup
-    .mixed()
-    .required("A profile picture is required")
-    .test("fileSize", "Image is too large (max 5MB)", (value: any) => {
-      if (!value) return false;
-      return !value.fileSize || value.fileSize <= 5 * 1024 * 1024;
-    }),
 });
 
 //
@@ -135,6 +135,7 @@ const ProfileScreenForm = () => {
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
+    shouldFocusError: true, // Automatically moves focus and triggers internal scrolling layout
     defaultValues: {
       gymId: user?.gym_id,
       password: "",
@@ -249,20 +250,20 @@ const ProfileScreenForm = () => {
   };
 
   // 3. Define the submit handler
-  const updateUser = async (data) => {
+  const updateUser = async (data: any) => {
     console.log('data: ' + JSON.stringify(data));
     const totalTimeElapsed = Date.now() - formLoadTime.current;
     const formData = new FormData();
 
     console.log(data);
 
-    // Honeypot check
+    // 1. Honeypot check
     if (website.trim() !== "") {
       console.log("Submission failed", "Bot behavior detected.");
       return;
     }
 
-    // Timestamp check
+    // 2. Timestamp check
     if (totalTimeElapsed < MIN_SUBMISSION_TIME_MS) {
       console.log("Submission failed", "Form submitted too quickly.");
       return;
@@ -276,27 +277,42 @@ const ProfileScreenForm = () => {
       preferred_contact: data.preferredContact,
     });
 
-    const response = await fetch(`${webServer}/api/register.php`, {
-      method: "PATCH",
-      headers: {
-        Authorization: "Bearer " + tokens.access_token,
+    // Fix file paths for iOS environment without Expo asset utilities
+    // const nativeUri =
+    //   Platform.OS === "ios"
+    //     ? data.profilePic.uri.replace("file://", "")
+    //     : data.profilePic.uri;
+
+    formData.append("gym_id", data.gymId);
+    formData.append("email", data.email);
+    formData.append("password", data.password);
+    formData.append("data.confirmPassword", data.confirmPassword);
+    formData.append("role", data.role);
+    formData.append("fname", data.fname);
+    formData.append("lname", data.lname);
+    formData.append("date_of_birth", data.dateOfBirth);
+    formData.append("sex", data.sex);
+    formData.append("phone", data.phoneNumber);
+    formData.append("whatsapp", data.whatsappNumber);
+    formData.append("preferred_contact", data.preferredContact);
+    formData.append("profilePic", {
+      uri: profilePic.path,
+      type: profilePic.mime,
+      name: profilePic.filename,
+    } as any);
+
+    console.log("FormData ready for fetch:", JSON.stringify(formData));
+
+    const response = await fetch(
+      `${webServer}/api/register.php`,
+      {
+        method: "PATCH",
+        headers: {
+          Authorization: "Bearer " + tokens.access_token,
+        },
+        body: formData,
       },
-      body: JSON.stringify({
-        gym_id: data.gymId,
-        email: data.email,
-        password: data.password,
-        confirm_password: data.confirmPassword,
-        role: data.role,
-        fname: data.fname,
-        lname: data.lname,
-        date_of_birth: data.dateOfBirth,
-        sex: data.sex,
-        phone: data.phoneNumber,
-        whatsapp: data.whatsappNumber,
-        preferred_contact: data.preferredContact,
-        profile_pic: data.profilePic,
-      }),
-    });
+    );
 
     const json = await response.text();
     const obj = JSON.parse(json);
@@ -342,10 +358,16 @@ const ProfileScreenForm = () => {
           <Controller
             control={control}
             name="profilePic"
-            render={({ field: { onChange, value } }) => (
-              <View style={styles.imageContainer}>
+            render={({ field: { onChange, onBlur, value, ref } }) => (
+              <View
+                // onBlur={onBlur}
+                // onChangeText={onChange}
+                value={value}
+                style={styles.imageContainer}>
+                <Button title="Choose Image" onPress={selectImage} />
                 {profilePic && (
                   <Image
+                    ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
                     source={{ uri: profilePic.path }}
                     style={styles.avatar}
                     resizeMode="contain"
@@ -383,8 +405,9 @@ const ProfileScreenForm = () => {
           <Controller
             control={control}
             name="password"
-            render={({ field: { onChange, onBlur, value } }) => (
+            render={({ field: { onChange, onBlur, value, ref } }) => (
               <TextInput
+                ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
                 style={styles.inputField}
                 onBlur={onBlur}
                 onChangeText={onChange}
@@ -403,8 +426,9 @@ const ProfileScreenForm = () => {
           <Controller
             control={control}
             name="confirmPassword"
-            render={({ field: { onChange, onBlur, value } }) => (
+            render={({ field: { onChange, onBlur, value, ref } }) => (
               <TextInput
+                ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
                 style={styles.inputField}
                 onBlur={onBlur}
                 onChangeText={onChange}
@@ -447,8 +471,8 @@ const ProfileScreenForm = () => {
                   marginTop: 8,
                   backgroundColor: "white",
                 }}
-                // If you need to force the value from the parent (e.g., reset)
-                // defaultOption={data.find(item => item.value === value)}
+              // If you need to force the value from the parent (e.g., reset)
+              // defaultOption={data.find(item => item.value === value)}
               />
             )}
           />
@@ -461,8 +485,9 @@ const ProfileScreenForm = () => {
           <Controller
             control={control}
             name="fname"
-            render={({ field: { onChange, onBlur, value } }) => (
+            render={({ field: { onChange, onBlur, value, ref } }) => (
               <TextInput
+                ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
                 style={styles.inputField}
                 onBlur={onBlur}
                 onChangeText={onChange}
@@ -481,8 +506,9 @@ const ProfileScreenForm = () => {
           <Controller
             control={control}
             name="lname"
-            render={({ field: { onChange, onBlur, value } }) => (
+            render={({ field: { onChange, onBlur, value, ref } }) => (
               <TextInput
+                ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
                 style={styles.inputField}
                 onBlur={onBlur}
                 onChangeText={onChange}
@@ -503,8 +529,9 @@ const ProfileScreenForm = () => {
           <Controller
             control={control}
             name="dateOfBirth"
-            render={({ field: { onChange, onBlur, value } }) => (
+            render={({ field: { onChange, onBlur, value, ref } }) => (
               <TextInput
+                ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
                 style={styles.inputField}
                 onBlur={onBlur}
                 onChangeText={onChange}
@@ -546,8 +573,8 @@ const ProfileScreenForm = () => {
                   marginTop: 8,
                   backgroundColor: "white",
                 }}
-                // If you need to force the value from the parent (e.g., reset)
-                // defaultOption={data.find(item => item.value === value)}
+              // If you need to force the value from the parent (e.g., reset)
+              // defaultOption={data.find(item => item.value === value)}
               />
             )}
           />
@@ -560,8 +587,9 @@ const ProfileScreenForm = () => {
           <Controller
             control={control}
             name="phoneNumber"
-            render={({ field: { onChange, onBlur, value } }) => (
+            render={({ field: { onChange, onBlur, value, ref } }) => (
               <TextInput
+                ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
                 style={styles.inputField}
                 onBlur={onBlur}
                 onChangeText={onChange}
