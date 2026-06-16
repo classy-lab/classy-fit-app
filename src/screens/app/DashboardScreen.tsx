@@ -18,7 +18,7 @@ const DashboardScreen = ({ navigation, route }) => {
     <>
       <SafeAreaView style={styles.container}>
         <View style={styles.navs}>
-          <Text style={styles.welcomeText}>Hi {user?.given_name}</Text>
+          <Text style={styles.welcomeText}>Hi {user?.given_name}!</Text>
           <SignOut />
         </View>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
