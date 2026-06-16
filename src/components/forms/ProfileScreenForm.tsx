@@ -31,19 +31,26 @@ const MIN_SUBMISSION_TIME_MS = 2000; // 5 seconds threshold before reg form can 
 
 // 1. Define the Yup validation schema
 const schema = yup.object().shape({
+  profilePic: yup
+    .mixed()
+    .required("A profile picture is required")
+    .test("fileSize", "Image is too large (max 5MB)", (value: any) => {
+      if (!value) return false;
+      return !value.fileSize || value.fileSize <= 5 * 1024 * 1024;
+    }),
   email: yup.string().required("Email is required").email("Invalid email"),
   password: yup
     .string()
     .required("Password is required")
-    .min(2, "Password must contain at least 12 characters")
+    .min(12, "Password must contain at least 12 characters")
     .matches(
       /^[a-zA-Z0-9\s~!@#$%^&*()_+-]+$/,
       "Only letters, numbers, spaces, hyphens, and underscores are allowed",
     ),
   confirmPassword: yup
     .string()
-    .oneOf([yup.ref("password")], "Passwords must match"),
-  // .required("Please confirm your password"),
+    .oneOf([yup.ref("password")], "Passwords must match")
+    .required("Please confirm your password"),
   role: yup.string(), //.required().oneOf(["Owner", "Member", "Trainer", "Contractor"]),
   fname: yup.string().required("First name is required").min(2).max(20),
   lname: yup.string().required("Last name is required").min(2).max(20),
@@ -53,16 +60,16 @@ const schema = yup.object().shape({
       /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/,
       "Date must be in YYYY-MM-DD format",
     )
-  .required("Date of birth is required"),
+    .required("Date of birth is required"),
   sex: yup.string(),
   // .oneOf(["Male", "Female", "Other"], "Please select a valid category")
   // .required("Category selection is required"),
   phoneNumber: yup
     .string()
     .matches(phoneRegExp, "Phone Number is not valid")
-    .nullable()
-    .notRequired()
-    .transform((value) => (value === "" ? null : value)),
+    // .nullable()
+    // .notRequired()
+    .transform((value) => (value === "" ? "" : value)),
   whatsappNumber: yup
     .string()
     .matches(phoneRegExp, "WhatsApp Number number is not valid")
@@ -72,13 +79,6 @@ const schema = yup.object().shape({
   preferredContact: yup.string(), // .oneOf(["Phone", "Email", "WhatsApp"]),
   gymId: yup.string().matches(/^\d+$/, "Gym location is required"),
   // .required("Category selection is required"),
-  profilePic: yup
-    .mixed()
-    .required("A profile picture is required")
-    .test("fileSize", "Image is too large (max 5MB)", (value: any) => {
-      if (!value) return false;
-      return !value.fileSize || value.fileSize <= 5 * 1024 * 1024;
-    }),
 });
 
 //
@@ -90,6 +90,7 @@ const ProfileScreenForm = () => {
   const [website, setWebsite] = useState("");
   const { webServer } = useContext(UserContext);
   const [profilePic, setProfilePic] = useState({});
+  const imageRef = useRef<View>(null); // Create a ref specifically for the image view container
 
   const selectImage = async () => {
     try {
@@ -135,6 +136,7 @@ const ProfileScreenForm = () => {
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
+    shouldFocusError: true, // Automatically moves focus and triggers internal scrolling layout
     defaultValues: {
       gymId: user?.gym_id,
       password: "",
@@ -253,6 +255,7 @@ const ProfileScreenForm = () => {
     console.log('data: ' + JSON.stringify(data));
     const totalTimeElapsed = Date.now() - formLoadTime.current;
     const formData = new FormData();
+    const errorField = err.inner[0]?.path; // Catch the error and look for the image field
 
     console.log(data);
 
@@ -357,8 +360,11 @@ const ProfileScreenForm = () => {
           <Controller
             control={control}
             name="profilePic"
-            render={({ field: { onChange, value } }) => (
-              <View style={styles.imageContainer}>
+            render={({ field: { onChange, onBlur, value, ref } }) => (
+              <View
+                ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
+                value={value}
+                style={styles.imageContainer}>
                 <Button title="Choose Image" onPress={selectImage} />
                 {profilePic && (
                   <Image
@@ -399,8 +405,9 @@ const ProfileScreenForm = () => {
           <Controller
             control={control}
             name="password"
-            render={({ field: { onChange, onBlur, value } }) => (
+            render={({ field: { onChange, onBlur, value, ref } }) => (
               <TextInput
+                ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
                 style={styles.inputField}
                 onBlur={onBlur}
                 onChangeText={onChange}
@@ -419,8 +426,9 @@ const ProfileScreenForm = () => {
           <Controller
             control={control}
             name="confirmPassword"
-            render={({ field: { onChange, onBlur, value } }) => (
+            render={({ field: { onChange, onBlur, value, ref } }) => (
               <TextInput
+                ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
                 style={styles.inputField}
                 onBlur={onBlur}
                 onChangeText={onChange}
@@ -463,8 +471,8 @@ const ProfileScreenForm = () => {
                   marginTop: 8,
                   backgroundColor: "white",
                 }}
-                // If you need to force the value from the parent (e.g., reset)
-                // defaultOption={data.find(item => item.value === value)}
+              // If you need to force the value from the parent (e.g., reset)
+              // defaultOption={data.find(item => item.value === value)}
               />
             )}
           />
@@ -477,8 +485,9 @@ const ProfileScreenForm = () => {
           <Controller
             control={control}
             name="fname"
-            render={({ field: { onChange, onBlur, value } }) => (
+            render={({ field: { onChange, onBlur, value, ref } }) => (
               <TextInput
+                ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
                 style={styles.inputField}
                 onBlur={onBlur}
                 onChangeText={onChange}
@@ -497,8 +506,9 @@ const ProfileScreenForm = () => {
           <Controller
             control={control}
             name="lname"
-            render={({ field: { onChange, onBlur, value } }) => (
+            render={({ field: { onChange, onBlur, value, ref } }) => (
               <TextInput
+                ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
                 style={styles.inputField}
                 onBlur={onBlur}
                 onChangeText={onChange}
@@ -519,8 +529,9 @@ const ProfileScreenForm = () => {
           <Controller
             control={control}
             name="dateOfBirth"
-            render={({ field: { onChange, onBlur, value } }) => (
+            render={({ field: { onChange, onBlur, value, ref } }) => (
               <TextInput
+                ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
                 style={styles.inputField}
                 onBlur={onBlur}
                 onChangeText={onChange}
@@ -562,8 +573,8 @@ const ProfileScreenForm = () => {
                   marginTop: 8,
                   backgroundColor: "white",
                 }}
-                // If you need to force the value from the parent (e.g., reset)
-                // defaultOption={data.find(item => item.value === value)}
+              // If you need to force the value from the parent (e.g., reset)
+              // defaultOption={data.find(item => item.value === value)}
               />
             )}
           />
@@ -576,8 +587,9 @@ const ProfileScreenForm = () => {
           <Controller
             control={control}
             name="phoneNumber"
-            render={({ field: { onChange, onBlur, value } }) => (
+            render={({ field: { onChange, onBlur, value, ref } }) => (
               <TextInput
+                ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
                 style={styles.inputField}
                 onBlur={onBlur}
                 onChangeText={onChange}
