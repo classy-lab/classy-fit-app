@@ -90,7 +90,6 @@ const ProfileScreenForm = () => {
   const [website, setWebsite] = useState("");
   const { webServer } = useContext(UserContext);
   const [profilePic, setProfilePic] = useState({});
-  const imageRef = useRef<View>(null); // Create a ref specifically for the image view container
 
   const selectImage = async () => {
     try {
@@ -255,7 +254,6 @@ const ProfileScreenForm = () => {
     console.log('data: ' + JSON.stringify(data));
     const totalTimeElapsed = Date.now() - formLoadTime.current;
     const formData = new FormData();
-    const errorField = err.inner[0]?.path; // Catch the error and look for the image field
 
     console.log(data);
 
