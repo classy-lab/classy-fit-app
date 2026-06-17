@@ -300,13 +300,14 @@ const ProfileScreenForm = () => {
       type: profilePic.mime,
       name: profilePic.filename,
     } as any);
+    formData.append('profileUpdate', 'true');
 
     console.log("FormData ready for fetch:", JSON.stringify(formData));
 
     const response = await fetch(
       `${webServer}/api/register.php`,
       {
-        method: "PATCH",
+        method: "POST",
         headers: {
           Authorization: "Bearer " + tokens.access_token,
         },
