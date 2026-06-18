@@ -103,7 +103,7 @@ const ProfileScreenForm = () => {
         mediaType: 'photo',
       });
 
-      // Check the MIME type or filename returned by the picker
+      // Additionally, check the MIME type or filename returned by the picker
       const notJpgOrPngExt =
         !profilePic.filename?.toLowerCase().endsWith('.jpg') &&
         !profilePic.path?.toLowerCase().endsWith('.jpeg') &&
