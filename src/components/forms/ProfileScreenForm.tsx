@@ -96,11 +96,24 @@ const ProfileScreenForm = () => {
       // Pick and crop
       const profilePic = await ImagePicker.openPicker({
         cropping: true,
-        width: 400,
-        height: 400,
+        width: 380,
+        height: 380,
         compressImageQuality: 0.7,
         forceJpg: true,
+        mediaType: 'photo',
       });
+
+      // Check the MIME type or filename returned by the picker
+      const isHeicMime = profilePic.mime === 'image/heic' || profilePic.mime === 'image/heif';
+      const isHeicExt = profilePic.filename?.toLowerCase().endsWith('.heic') || profilePic.path?.toLowerCase().endsWith('.heic');
+
+      if (isHeicMime || isHeicExt) {
+        Alert.alert(
+          'Unsupported Format',
+          'HEIC images are not allowed. Please select a JPEG or PNG image.'
+        );
+        return; // Disallow further processing
+      }
 
       setProfilePic(profilePic);
       console.log("image: " + JSON.stringify(profilePic));
