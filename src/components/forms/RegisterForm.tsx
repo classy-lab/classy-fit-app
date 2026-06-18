@@ -97,11 +97,25 @@ const RegisterForm = () => {
       // Pick and crop
       const profilePic = await ImagePicker.openPicker({
         cropping: true,
-        width: 400,
-        height: 400,
+        width: 380,
+        height: 380,
         compressImageQuality: 0.7,
         forceJpg: true,
+        mediaType: 'photo',
       });
+
+      // Additionally, check the MIME type or filename returned by the picker
+      const notJpgOrPngExt =
+        !profilePic.filename?.toLowerCase().endsWith('.jpg') &&
+        !profilePic.path?.toLowerCase().endsWith('.jpeg') &&
+        !profilePic.path?.toLowerCase().endsWith('.png');
+
+      if (notJpgOrPngExt) {
+        Alert.alert(
+          'Unsupported Format. Please select a JPEG or PNG image.'
+        );
+        return; // Disallow further processing
+      }
 
       setProfilePic(profilePic);
       console.log("image: " + JSON.stringify(profilePic));
