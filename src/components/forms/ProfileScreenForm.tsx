@@ -104,13 +104,14 @@ const ProfileScreenForm = () => {
       });
 
       // Check the MIME type or filename returned by the picker
-      const isHeicMime = profilePic.mime === 'image/heic' || profilePic.mime === 'image/heif';
-      const isHeicExt = profilePic.filename?.toLowerCase().endsWith('.heic') || profilePic.path?.toLowerCase().endsWith('.heic');
+      const notJpgOrPngExt =
+        !profilePic.filename?.toLowerCase().endsWith('.jpg') &&
+        !profilePic.path?.toLowerCase().endsWith('.jpeg') &&
+        !profilePic.path?.toLowerCase().endsWith('.png');
 
-      if (isHeicMime || isHeicExt) {
+      if (notJpgOrPngExt) {
         Alert.alert(
-          'Unsupported Format',
-          'HEIC images are not allowed. Please select a JPEG or PNG image.'
+          'Unsupported Format. Please select a JPEG or PNG image.'
         );
         return; // Disallow further processing
       }
