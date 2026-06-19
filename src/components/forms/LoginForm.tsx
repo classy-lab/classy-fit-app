@@ -29,7 +29,7 @@ const LoginForm = () => {
   const { tokens, setTokens } = useContext(UserContext);
   const { isLoggedIn, setIsLoggedIn } = useContext(UserContext);
   const [website, setWebsite] = useState("");
-  const {webServer} = useContext(UserContext);
+  const { webServer } = useContext(UserContext);
 
   // Use a ref to store the load time without triggering re-renders
   const formLoadTime = useRef(Date.now());
@@ -60,7 +60,7 @@ const LoginForm = () => {
     resolver: yupResolver(schema),
     defaultValues: {
       email: "cperumalla@gmail.com",
-      password: "pp",
+      password: "pppppppppppp",
     },
   });
 
