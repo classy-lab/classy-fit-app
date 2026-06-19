@@ -5,14 +5,10 @@ import { s } from 'react-native-size-matters'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import Feather from '@expo/vector-icons/Feather'
 import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
-import BuildingSvg from '../../components/svg/BuildingSvg'
-import ClassesSvg from '../../components/svg/ClassesSvg'
-import PersonalTrainingSvg from '../../components/svg/PersonalTrainingSvg'
-import Elliptical from '../../assets/svg/Elliptical'
-import Dumbbell from '../../assets/svg/Dumbbell'
-import MemberNotification from '../../assets/svg/MemberNotification'
-import Treadmill from '../../assets/svg/Treadmill'
-import GymScrollViewOne from './GymScrollViewOne'
+import GymScreenScrollViewOne from './GymScreenScrollViewOne'
+import GymScreenScrollViewTwo from './GymScreenScrollViewTwo'
+import GymScreenScrollViewThree from './GymScreenScrollViewThree'
+
 
 const windowWidth = Dimensions.get('window').width
 
@@ -25,9 +21,9 @@ const GymScreen = ({ navigation, route }) => {
           <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
           <View style={styles.signOut}>
             <Text style={styles.signOutText}>Sign out</Text>
-            {/* <View style={styles.circle}>
+            <View style={styles.circle}>
               <MaterialIcons name="logout" color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
-            </View> */}
+            </View>
           </View>
         </View>
         <ScrollView showsVerticalScrollIndicator={false}>
@@ -37,65 +33,13 @@ const GymScreen = ({ navigation, route }) => {
           </View>
           <View style={styles.body}>
             <View style={styles.section}>
-              <GymScrollViewOne />
+              <GymScreenScrollViewOne />
             </View>
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Equipment</Text>
-              <ScrollView
-                style={styles.greySquares}
-                horizontal={true}
-                showsHorizontalScrollIndicator={false}
-              >
-                <View style={styles.greySquareContainer}>
-                  <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('GymTab', { screen: 'TreadmillEquipmentScreen' })}>
-                    <View style={styles.whiteSquare}>
-                      <Treadmill />
-                    </View>
-                  </TouchableOpacity>
-                  <Text style={styles.cardText}>Treadmill</Text>
-                </View>
-                <View style={styles.greySquareContainer}>
-                  <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('GymTab', { screen: 'TreadmillEquipmentScreen' })}>
-                    <View style={styles.whiteSquare}>
-                      <Elliptical />
-                    </View>
-                  </TouchableOpacity>
-                  <Text style={styles.cardText}>Elliptical</Text>
-                </View>
-                <View style={styles.greySquareContainer}>
-                  <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('GymTab', { screen: 'TreadmillEquipmentScreen' })}>
-                    <View style={styles.whiteSquare}>
-                      <Dumbbell />
-                    </View>
-                  </TouchableOpacity>
-                  <Text style={styles.cardText}>Dumbbells</Text>
-                </View>
-                <View style={styles.greySquareContainer}>
-                  <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('GymTab', { screen: 'TreadmillEquipmentScreen' })}>
-                    <View style={styles.whiteSquare}>
-                      <Dumbbell />
-                    </View>
-                  </TouchableOpacity>
-                  <Text style={styles.cardText}>Smith {'\n'} Machine</Text>
-                </View>
-              </ScrollView>
+              <GymScreenScrollViewTwo />
             </View>
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Messaging</Text>
-              <ScrollView
-                style={styles.greySquares}
-                horizontal={true}
-                showsHorizontalScrollIndicator={false}
-              >
-                <View style={styles.greySquareContainer}>
-                  <TouchableOpacity style={styles.greySquare}>
-                    <View style={styles.whiteSquare}>
-                      <MemberNotification />
-                    </View>
-                  </TouchableOpacity>
-                  <Text style={styles.cardText}>Member{'\n'}Notifications</Text>
-                </View>
-              </ScrollView>
+              <GymScreenScrollViewThree />
             </View>
           </View>
         </ScrollView>
