@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useContext } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import { Alert, Button } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -291,12 +291,6 @@ const ProfileScreenForm = () => {
       preferred_contact: data.preferredContact,
     });
 
-    // Fix file paths for iOS environment without Expo asset utilities
-    // const nativeUri =
-    //   Platform.OS === "ios"
-    //     ? data.profilePic.uri.replace("file://", "")
-    //     : data.profilePic.uri;
-
     formData.append("gym_id", data.gymId);
     formData.append("email", data.email);
     formData.append("password", data.password);
@@ -334,8 +328,6 @@ const ProfileScreenForm = () => {
     console.log(obj);
 
     if (response.status == 200) {
-      // set changes here on success
-      // console.log("set changes here on success");
       showMessage({
         message: obj?.message,
         type: "success",
@@ -375,8 +367,6 @@ const ProfileScreenForm = () => {
             name="profilePic"
             render={({ field: { onChange, onBlur, value, ref } }) => (
               <View
-                // onBlur={onBlur}
-                // onChangeText={onChange}
                 value={value}
                 style={styles.imageContainer}>
                 <Button title="Choose Image" onPress={selectImage} />
