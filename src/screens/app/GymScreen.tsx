@@ -12,6 +12,7 @@ import Elliptical from '../../assets/svg/Elliptical'
 import Dumbbell from '../../assets/svg/Dumbbell'
 import MemberNotification from '../../assets/svg/MemberNotification'
 import Treadmill from '../../assets/svg/Treadmill'
+import GymScrollViewOne from './GymScrollViewOne'
 
 const windowWidth = Dimensions.get('window').width
 
@@ -36,37 +37,7 @@ const GymScreen = ({ navigation, route }) => {
           </View>
           <View style={styles.body}>
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Gym</Text>
-              <ScrollView
-                style={styles.greySquares}
-                horizontal={true}
-                showsHorizontalScrollIndicator={false}
-              >
-                <View style={styles.greySquareContainer}>
-                  <TouchableOpacity style={styles.greySquare}>
-                    <View style={styles.whiteSquare}>
-                      <BuildingSvg />
-                    </View>
-                  </TouchableOpacity>
-                  <Text style={styles.cardText}>Building</Text>
-                </View>
-                <View style={styles.greySquareContainer}>
-                  <TouchableOpacity style={styles.greySquare}>
-                    <View style={styles.whiteSquare}>
-                      <ClassesSvg />
-                    </View>
-                  </TouchableOpacity>
-                  <Text style={styles.cardText}>Classes</Text>
-                </View>
-                <View style={styles.greySquareContainer}>
-                  <TouchableOpacity style={styles.greySquare}>
-                    <View style={styles.whiteSquare}>
-                      <PersonalTrainingSvg />
-                    </View>
-                  </TouchableOpacity>
-                  <Text style={styles.cardText}>Personal {'\n'}Training</Text>
-                </View>
-              </ScrollView>
+              <GymScrollViewOne />
             </View>
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Equipment</Text>
@@ -172,7 +143,7 @@ const styles = StyleSheet.create({
     width: '100%'
   },
   bodyText: {
-    fontSize: s(14),
+    fontSize: 14,
     fontFamily: "Montserrat",
     lineHeight: 24,
     color: AppColors.primary,
@@ -213,6 +184,12 @@ const styles = StyleSheet.create({
     color: AppColors.white,
     fontSize: 24
   },
+  pinkLeaf: {
+    position: 'absolute',
+    // zIndex: -1,
+    // top: 0,
+    right: 88
+  },
   greySquares: {
     // borderWidth: 1, borderRadius: 'red',
     // flexDirection: 'row',
@@ -242,12 +219,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: s(8)
-  },
-  pinkLeaf: {
-    position: 'absolute',
-    // zIndex: -1,
-    // top: 0,
-    right: 88
   },
   cardText: {
     textAlign: 'center',
