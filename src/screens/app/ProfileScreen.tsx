@@ -14,7 +14,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Feather from "@expo/vector-icons/Feather";
 import VectorImageSvg from "../../components/svg/VectorImageSvg";
 import ProfileScreenForm from "../../components/forms/ProfileScreenForm";
-import ProfileImage from "../../components/svg/ProfileImage";
 import SignOut from "../../components/utils/SignOut";
 
 const ProfileScreen = () => {
@@ -88,13 +87,13 @@ const styles = StyleSheet.create({
   },
   headingContainer: {
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 4,
   },
   title: {
     color: AppColors.blue,
     fontFamily: "Montserrat",
     fontSize: 32,
-    marginTop: 60,
+    marginTop: 32,
   },
   pinkLeaf: {
     position: "relative",
@@ -107,8 +106,6 @@ const styles = StyleSheet.create({
     paddingRight: 24,
     marginBottom: 8,
     flex: 1,
-    // height: windowHeight,
-    // borderWidth: 1, borderColor: 'red',
   },
   imageContainer: {
     marginBottom: 40,
