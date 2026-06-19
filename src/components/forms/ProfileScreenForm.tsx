@@ -722,12 +722,12 @@ const styles = StyleSheet.create({
   selectList: {
     marginBottom: 80,
   },
-  imageContainer: { alignItems: "center", marginBottom: 20 },
+  imageContainer: { alignItems: "center", marginBottom: 8 },
   avatar: {
     width: 120,
     height: 120,
     borderRadius: 20,
-    marginBottom: 8,
+    // marginBottom: 8,
     // boxShadow: "0px 4px 6px 0px rgba(0, 0, 0, 0.1)",
   },
   field: {},
