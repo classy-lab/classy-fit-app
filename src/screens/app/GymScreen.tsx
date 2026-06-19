@@ -81,11 +81,6 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     marginBottom: 32
   },
-  sectionTitle: {
-    fontSize: 24,
-    marginBottom: 16,
-    width: '100%'
-  },
   bodyText: {
     fontSize: 14,
     fontFamily: "Montserrat",
@@ -133,39 +128,5 @@ const styles = StyleSheet.create({
     // zIndex: -1,
     // top: 0,
     right: 88
-  },
-  greySquares: {
-    // borderWidth: 1, borderRadius: 'red',
-    // flexDirection: 'row',
-    // flexWrap: 'wrap',
-    // justifyContent: 'flex-start',
-    columnGap: 8,
-    rowGap: 16
-  },
-  greySquareContainer: {
-    alignItems: 'center',
-    // borderWidth: 1, borderRadius: 'red',
-  },
-  greySquare: {
-    backgroundColor: AppColors.grey,
-    width: s(96),
-    height: s(96),
-    borderRadius: s(16),
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 8
-  },
-  whiteSquare: {
-    backgroundColor: AppColors.white,
-    borderRadius: s(16),
-    width: s(60),
-    height: s(60),
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: s(8)
-  },
-  cardText: {
-    textAlign: 'center',
-    marginTop: 8
   }
 })
