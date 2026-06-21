@@ -549,7 +549,7 @@ const ProfileScreenForm = () => {
                 keyboardType="default"
                 autoCapitalize="none"
                 placeholder="yyyy-mm-dd"
-              /> // needs date picker added. check
+              />
             )}
           />
           {errors.dateOfBirth && (
@@ -706,7 +706,6 @@ const styles = StyleSheet.create({
   fieldset: {
     marginBottom: 32,
   },
-  email: {},
   formLabel: {
     fontSize: 12,
     marginTop: 16,
@@ -723,9 +722,6 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: AppColors.red,
-  },
-  selectList: {
-    marginBottom: 80,
   },
   imageContainer: { alignItems: "center", marginBottom: 8 },
   avatar: {
