@@ -157,17 +157,18 @@ const ProfileScreenForm = () => {
     resolver: yupResolver(schema),
     shouldFocusError: true, // Automatically moves focus and triggers internal scrolling layout
     defaultValues: {
-      gymId: user?.gym_id,
+      profilePic: {},
+      email: user?.email,
       password: "pppppppppppp",
       confirmPassword: "pppppppppppp",
-      email: user?.email,
+      role: user?.role,
       fname: user?.given_name,
       lname: user?.family_name,
       dateOfBirth: '',
-      whatsappNumber: '',
+      sex: user?.gender,
       phoneNumber: '',
-      role: user?.role,
-      profilePic: {},
+      whatsappNumber: '',
+      gymId: user?.gym_id,
     },
   });
 
@@ -376,7 +377,7 @@ const ProfileScreenForm = () => {
             name="profilePic"
             render={({ field: { onChange, value } }) => (
               <View style={styles.imageContainer}>
-                <Button style={{ textAlign: "center", marginBottom: 8, color: AppColors.primary }} title="Choose Image" onPress={() => selectImage(onChange)} />
+                <Button title="Choose Image" onPress={() => selectImage(onChange)} />
                 {value && value.path && (
                   <TouchableOpacity onPress={() => selectImage(onChange)}>
                     <Image source={{ uri: value.path }} style={styles.avatar} resizeMode="contain" />
