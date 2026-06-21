@@ -60,7 +60,7 @@ const LoginForm = () => {
     resolver: yupResolver(schema),
     defaultValues: {
       email: "help@simplecssjs.com",
-      password: "pp",
+      password: "pppppppppppp",
     },
   });
 
