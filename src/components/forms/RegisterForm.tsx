@@ -96,7 +96,6 @@ const RegisterForm = () => {
   const navigation = useNavigation();
   const [website, setWebsite] = useState("");
   const { webServer } = useContext(UserContext);
-  const [profilePic, setProfilePic] = useState({});
 
   const selectImage = async (onChange: (value: any) => void) => {
     try {
@@ -118,7 +117,8 @@ const RegisterForm = () => {
 
       if (notJpgOrPngExt) {
         Alert.alert(
-          'Unsupported Format. Please select a JPEG or PNG image.'
+          'Unsupported Format',
+          'Please select a JPEG or PNG image.'
         );
         return; // Disallow further processing
       }
@@ -277,6 +277,7 @@ const RegisterForm = () => {
     <>
       <View style={styles.fieldset}>
         <View style={styles.field}>
+          <Text style={styles.formLabel}>Profile Picture</Text>
           <Controller
             control={control}
             name="profilePic"
@@ -455,7 +456,7 @@ const RegisterForm = () => {
                 value={value}
                 keyboardType="default"
                 autoCapitalize="none"
-                placeholder="YYYY/MM/DD"
+                placeholder="YYYY-MM-DD"
               /> // needs date picker added. check
             )}
           />
