@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   TextInput,
   Image,
+  ScrollView,
 } from "react-native";
 import { AppColors } from "../../styles/colors";
 import { SelectList } from "react-native-dropdown-select-list";
@@ -391,12 +392,41 @@ const ProfileScreenForm = () => {
                 )}
                 {
                   !value || !value.path ? (
-                    <TouchableOpacity onPress={() => selectImage(onChange)}>
-                      <View>
-                        {/* <Text style={{ margin: 'auto', textAlign: "center" }}>Choose Image</Text> */}
-                        <Image source={require('../../assets/images/avatars/profile-img.png')} style={{ width: 100, height: 100, alignSelf: 'center' }} />
-                      </View>
-                    </TouchableOpacity>
+                    <>
+                      <TouchableOpacity onPress={() => selectImage(onChange)}>
+                        <View>
+                          <Image source={require('../../assets/images/avatars/profile-img.png')} style={{ width: 100, height: 100, alignSelf: 'center' }} />
+                        </View>
+                      </TouchableOpacity>
+                      <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+                        <View style={styles.avatarscrollContainer}>
+                          <TouchableOpacity onPress={() => { console.log('boy kid selected'); }}>
+                            <Image style={styles.avatar} source={require('../../assets/images/avatars/boy-kid.png')} />
+                          </TouchableOpacity>
+                          <TouchableOpacity>
+                            <Image style={styles.avatar} source={require('../../assets/images/avatars/boy-male.png')} />
+                          </TouchableOpacity>
+                          <TouchableOpacity>
+                            <Image style={styles.avatar} source={require('../../assets/images/avatars/person-pilot.png')} />
+                          </TouchableOpacity>
+                          <TouchableOpacity>
+                            <Image style={styles.avatar} source={require('../../assets/images/avatars/beard-hipster-male.png')} />
+                          </TouchableOpacity>
+                          <TouchableOpacity>
+                            <Image style={styles.avatar} source={require('../../assets/images/avatars/boy-indian-kid.png')} />
+                          </TouchableOpacity>
+                          <TouchableOpacity>
+                            <Image style={styles.avatar} source={require('../../assets/images/avatars/indian-male-man.png')} />
+                          </TouchableOpacity>
+                          <TouchableOpacity>
+                            <Image style={styles.avatar} source={require('../../assets/images/avatars/boy-indian-kid.png')} />
+                          </TouchableOpacity>
+                          <TouchableOpacity>
+                            <Image style={styles.avatar} source={require('../../assets/images/avatars/indian-man-sikh.png')} />
+                          </TouchableOpacity>
+                        </View>
+                      </ScrollView>
+                    </>
                   ) : null
                 }
               </View>
@@ -708,7 +738,7 @@ const ProfileScreenForm = () => {
             <Text style={globalStyles.loginBtnText}>Cancel Gym Membership</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </View >
     </>
   );
 };
@@ -740,7 +770,15 @@ const styles = StyleSheet.create({
   avatar: {
     width: 80,
     height: 80,
-    borderRadius: 20,
+    marginLeft: 4,
+    marginRight: 4,
+    // borderRadius: 20,
   },
   field: {},
+  avatarscrollContainer: {
+    flexDirection: 'row',
+    // justifyContent: 'center',
+    // marginVertical: 'auto',
+    // alignItems: 'center'
+  }
 });
