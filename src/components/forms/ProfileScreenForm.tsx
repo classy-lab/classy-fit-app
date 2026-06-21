@@ -393,6 +393,7 @@ const ProfileScreenForm = () => {
                   !value || !value.path ? (
                     <TouchableOpacity onPress={() => selectImage(onChange)}>
                       <View>
+                        {/* <Text style={{ margin: 'auto', textAlign: "center" }}>Choose Image</Text> */}
                         <Image source={require('../../assets/images/avatars/profile-img.png')} style={{ width: 100, height: 100, alignSelf: 'center' }} />
                       </View>
                     </TouchableOpacity>
