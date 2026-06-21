@@ -35,8 +35,14 @@ const schema = yup.object().shape({
     .mixed()
     .required("A profile picture is required")
     .test("fileSize", "Image is too large (max 5MB)", (value: any) => {
+      if (!value || !value.fileSize) return true;
+      return value.fileSize <= 5 * 1024 * 1024;
+    })
+    .test("fileType", "Profile picture is required. Only JPEG or PNG images are allowed", (value: any) => {
       if (!value) return false;
-      return !value.fileSize || value.fileSize <= 5 * 1024 * 1024;
+      const validExtensions = ['.jpg', '.jpeg', '.png'];
+      const filename = value.filename?.toLowerCase() || value.path?.toLowerCase() || '';
+      return validExtensions.some(ext => filename.endsWith(ext));
     }),
   email: yup.string().required("Email is required").email("Invalid email"),
   password: yup
@@ -89,9 +95,8 @@ const ProfileScreenForm = () => {
   const { tokens, setTokens } = useContext(UserContext);
   const [website, setWebsite] = useState("");
   const { webServer } = useContext(UserContext);
-  const [profilePic, setProfilePic] = useState({});
 
-  const selectImage = async () => {
+  const selectImage = async (onChange: (value: any) => void) => {
     try {
       // Pick and crop
       const profilePic = await ImagePicker.openPicker({
@@ -106,7 +111,7 @@ const ProfileScreenForm = () => {
       // Additionally, check the MIME type or filename returned by the picker
       const notJpgOrPngExt =
         !profilePic.filename?.toLowerCase().endsWith('.jpg') &&
-        !profilePic.path?.toLowerCase().endsWith('.jpeg') &&
+        !profilePic.filename?.toLowerCase().endsWith('.jpeg') &&
         !profilePic.path?.toLowerCase().endsWith('.png');
 
       if (notJpgOrPngExt) {
@@ -116,8 +121,9 @@ const ProfileScreenForm = () => {
         return; // Disallow further processing
       }
 
-      setProfilePic(profilePic);
       console.log("image: " + JSON.stringify(profilePic));
+      // Update the form field with the selected image
+      onChange(profilePic);
     } catch (e) {
       console.log(e);
     }
@@ -164,6 +170,9 @@ const ProfileScreenForm = () => {
       profilePic: {},
     },
   });
+
+  // Watch profilePic to display it
+  const profilePicValue = watch("profilePic");
 
   // Reset the timer if the user navigates back to this screen
   useEffect(() => {
@@ -304,9 +313,9 @@ const ProfileScreenForm = () => {
     formData.append("whatsapp", data.whatsappNumber);
     formData.append("preferred_contact", data.preferredContact);
     formData.append("profilePic", {
-      uri: profilePic.path,
-      type: profilePic.mime,
-      name: profilePic.filename,
+      uri: data.profilePic.path,
+      type: data.profilePic.mime,
+      name: data.profilePic.filename,
     } as any);
     formData.append('profileUpdate', 'true');
 
@@ -365,18 +374,13 @@ const ProfileScreenForm = () => {
           <Controller
             control={control}
             name="profilePic"
-            render={({ field: { onChange, onBlur, value, ref } }) => (
-              <View
-                value={value}
-                style={styles.imageContainer}>
-                <Button title="Choose Image" onPress={selectImage} />
-                {profilePic && (
-                  <Image
-                    ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
-                    source={{ uri: profilePic.path }}
-                    style={styles.avatar}
-                    resizeMode="contain"
-                  />
+            render={({ field: { onChange, value } }) => (
+              <View style={styles.imageContainer}>
+                <Button style={{ textAlign: "center", marginBottom: 8, color: AppColors.primary }} title="Choose Image" onPress={() => selectImage(onChange)} />
+                {value && value.path && (
+                  <TouchableOpacity onPress={() => selectImage(onChange)}>
+                    <Image source={{ uri: value.path }} style={styles.avatar} resizeMode="contain" />
+                  </TouchableOpacity>
                 )}
               </View>
             )}
