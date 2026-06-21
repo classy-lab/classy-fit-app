@@ -42,7 +42,7 @@ const schema = yup.object().shape({
       if (!value || !value.fileSize) return true;
       return value.fileSize <= 5 * 1024 * 1024;
     })
-    .test("fileType", "Profile picture is required. Only JPEG or PNG images are allowed", (value: any) => {
+    .test("fileType", "A JPG or PNG profile picture is required", (value: any) => {
       if (!value) return false;
       const validExtensions = ['.jpg', '.jpeg', '.png'];
       const filename = value.filename?.toLowerCase() || value.path?.toLowerCase() || '';
@@ -384,12 +384,20 @@ const ProfileScreenForm = () => {
             name="profilePic"
             render={({ field: { onChange, value } }) => (
               <View style={styles.imageContainer}>
-                <Button title="Choose Image" onPress={() => selectImage(onChange)} />
                 {value && value.path && (
                   <TouchableOpacity onPress={() => selectImage(onChange)}>
                     <Image source={{ uri: value.path }} style={styles.avatar} resizeMode="contain" />
                   </TouchableOpacity>
                 )}
+                {
+                  !value || !value.path ? (
+                    <TouchableOpacity onPress={() => selectImage(onChange)}>
+                      <View>
+                        <Image source={require('../../assets/images/avatars/profile-img.png')} style={{ width: 100, height: 100, alignSelf: 'center' }} />
+                      </View>
+                    </TouchableOpacity>
+                  ) : null
+                }
               </View>
             )}
           />
@@ -729,8 +737,8 @@ const styles = StyleSheet.create({
   },
   imageContainer: { alignItems: "center", marginBottom: 8 },
   avatar: {
-    width: 120,
-    height: 120,
+    width: 80,
+    height: 80,
     borderRadius: 20,
   },
   field: {},
