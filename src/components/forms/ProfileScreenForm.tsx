@@ -24,13 +24,17 @@ import FlashMessage, {
   hideMessage,
 } from "react-native-flash-message";
 
+// ============================================================================
+// CONSTANTS & VALIDATION SCHEMA (Outside Component)
+// ============================================================================
+
 const phoneRegExp =
   /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
 
 const MIN_SUBMISSION_TIME_MS = 2000; // 5 seconds threshold before reg form can be submitted
 
-// 1. Define the Yup validation schema
 const schema = yup.object().shape({
+  // Define the Yup validation schema
   profilePic: yup
     .mixed()
     .required("A profile picture is required")
@@ -89,6 +93,22 @@ const schema = yup.object().shape({
 
 //
 //
+const sexData = [
+  { key: "1", value: "Male", disabled: false },
+  { key: "2", value: "Female" },
+  { key: "3", value: "Other" },
+];
+
+const roleData = [
+  { key: "1", value: "Owner", disabled: false },
+  { key: "2", value: "Member" },
+  { key: "3", value: "Trainer" },
+  { key: "4", value: "Contractor" },
+];
+
+// ============================================================================
+// COMPONENT
+// ============================================================================
 
 const ProfileScreenForm = () => {
   const { user, setUser } = useContext(UserContext);
@@ -132,20 +152,7 @@ const ProfileScreenForm = () => {
   // Use a ref to store the load time without triggering re-renders
   const formLoadTime = useRef(Date.now());
 
-  const sexData = [
-    { key: "1", value: "Male", disabled: false },
-    { key: "2", value: "Female" },
-    { key: "3", value: "Other" },
-  ];
-
-  const roleData = [
-    { key: "1", value: "Owner", disabled: false },
-    { key: "2", value: "Member" },
-    { key: "3", value: "Trainer" },
-    { key: "4", value: "Contractor" },
-  ];
-
-  // 2. Initialize useForm with the Yup resolver
+  // Initialize useForm with the Yup resolver
   const {
     control,
     handleSubmit,
@@ -455,9 +462,8 @@ const ProfileScreenForm = () => {
           )}
         </View>
         <View
-          style={styles.field}
+          style={[styles.field, { opacity: 0.5 }]}
           pointerEvents="none"
-          style={{ opacity: 0.5 }}
         >
           <Text style={styles.formLabel}>Role</Text>
           <Controller
@@ -532,7 +538,7 @@ const ProfileScreenForm = () => {
             <Text style={styles.errorText}>{errors.lname.message}</Text>
           )}
         </View>
-        {/* 3. Include the honeypot trap in your form */}
+        {/* Include the honeypot trap in your form */}
         <HoneypotField value={website} onChangeText={setWebsite} />
         <View style={styles.field}>
           <Text style={styles.formLabel}>Date of Birth</Text>
@@ -541,11 +547,11 @@ const ProfileScreenForm = () => {
             name="dateOfBirth"
             render={({ field: { onChange, onBlur, value, ref } }) => (
               <TextInput
-                ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
+                ref={ref}
                 style={styles.inputField}
                 onBlur={onBlur}
                 onChangeText={onChange}
-                value={value} // This will smoothly transition from '' to the API value
+                value={value}
                 keyboardType="default"
                 autoCapitalize="none"
                 placeholder="yyyy-mm-dd"
@@ -557,9 +563,8 @@ const ProfileScreenForm = () => {
           )}
         </View>
         <View
-          style={styles.field}
+          style={[styles.field, { opacity: 0.5 }]}
           pointerEvents="none"
-          style={{ opacity: 0.5 }}
         >
           <Text style={styles.formLabel}>Sex</Text>
           <Controller
@@ -599,7 +604,7 @@ const ProfileScreenForm = () => {
             name="phoneNumber"
             render={({ field: { onChange, onBlur, value, ref } }) => (
               <TextInput
-                ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
+                ref={ref}
                 style={styles.inputField}
                 onBlur={onBlur}
                 onChangeText={onChange}
@@ -653,9 +658,8 @@ const ProfileScreenForm = () => {
           )}
         </View>
         <View
-          style={styles.field}
+          style={[styles.field, { opacity: 0.5 }]}
           pointerEvents="none"
-          style={{ opacity: 0.5 }}
         >
           <Text style={styles.formLabel}>Gym Location / Fitness Center</Text>
           <Controller
@@ -728,8 +732,6 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 20,
-    // marginBottom: 8,
-    // boxShadow: "0px 4px 6px 0px rgba(0, 0, 0, 0.1)",
   },
   field: {},
 });
