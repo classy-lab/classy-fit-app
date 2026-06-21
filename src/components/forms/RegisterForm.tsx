@@ -277,7 +277,6 @@ const RegisterForm = () => {
     <>
       <View style={styles.fieldset}>
         <View style={styles.field}>
-          <Text style={styles.formLabel}>Profile Picture</Text>
           <Controller
             control={control}
             name="profilePic"
