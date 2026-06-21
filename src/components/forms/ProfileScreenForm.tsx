@@ -94,6 +94,7 @@ const schema = yup.object().shape({
 
 //
 //
+
 const sexData = [
   { key: "1", value: "Male", disabled: false },
   { key: "2", value: "Female" },
@@ -116,6 +117,16 @@ const ProfileScreenForm = () => {
   const { tokens, setTokens } = useContext(UserContext);
   const [website, setWebsite] = useState("");
   const { webServer } = useContext(UserContext);
+
+  const [profileImageSource, setProfileImageSource] = useState("../../assets/images/avatars/profile-img.png");
+
+  const handleUpdateProfileImage = (imageName: string) => {
+    console.log(`Updating profile image to: ${imageName}`);
+    const uri = `../../assets/images/avatars/${imageName}`;
+    setProfileImageSource(uri);
+    // Here you would implement the logic to update the profile picture in your form state
+    // For example, you could set a new value in your form's state that corresponds to the selected image
+  };
 
   const selectImage = async (onChange: (value: any) => void) => {
     try {
@@ -387,7 +398,7 @@ const ProfileScreenForm = () => {
               <View style={styles.imageContainer}>
                 {value && value.path && (
                   <TouchableOpacity onPress={() => selectImage(onChange)}>
-                    <Image source={{ uri: value.path }} style={styles.avatar} resizeMode="contain" />
+                    <Image source={imageMap[profileImageSource]} style={styles.avatar} resizeMode="contain" />
                   </TouchableOpacity>
                 )}
                 {
@@ -395,15 +406,15 @@ const ProfileScreenForm = () => {
                     <>
                       <TouchableOpacity onPress={() => selectImage(onChange)}>
                         <View>
-                          <Image source={require('../../assets/images/avatars/profile-img.png')} style={{ width: 100, height: 100, alignSelf: 'center' }} />
+                          <Image source={{ uri: profileImageSource }} style={{ width: 100, height: 100, alignSelf: 'center' }} />
                         </View>
                       </TouchableOpacity>
                       <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
                         <View style={styles.avatarscrollContainer}>
-                          <TouchableOpacity onPress={() => { console.log('boy kid selected'); }}>
+                          <TouchableOpacity onPress={() => { setProfileImageSource('boy-kid.png') }}>
                             <Image style={styles.avatar} source={require('../../assets/images/avatars/boy-kid.png')} />
                           </TouchableOpacity>
-                          <TouchableOpacity>
+                          <TouchableOpacity onPress={() => { setProfileImageSource('boy-male.png') }}>
                             <Image style={styles.avatar} source={require('../../assets/images/avatars/boy-male.png')} />
                           </TouchableOpacity>
                           <TouchableOpacity>
