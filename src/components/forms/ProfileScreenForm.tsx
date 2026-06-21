@@ -152,8 +152,8 @@ const ProfileScreenForm = () => {
     shouldFocusError: true, // Automatically moves focus and triggers internal scrolling layout
     defaultValues: {
       gymId: user?.gym_id,
-      password: "",
-      confirmPassword: "",
+      password: "pppppppppppp",
+      confirmPassword: "pppppppppppp",
       email: user?.email,
       fname: user?.given_name,
       lname: user?.family_name,
