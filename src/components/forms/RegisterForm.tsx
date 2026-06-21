@@ -33,6 +33,19 @@ const MIN_SUBMISSION_TIME_MS = 2000; // 2 seconds threshold before reg form can 
 
 // 1. Define the Yup validation schema
 const schema = yup.object().shape({
+  profilePic: yup
+    .mixed()
+    .required("A profile picture is required")
+    .test("fileSize", "Image is too large (max 5MB)", (value: any) => {
+      if (!value || !value.fileSize) return true;
+      return value.fileSize <= 5 * 1024 * 1024;
+    })
+    .test("fileType", "Profile picture is required. Only JPEG or PNG images are allowed", (value: any) => {
+      if (!value) return false;
+      const validExtensions = ['.jpg', '.jpeg', '.png'];
+      const filename = value.filename?.toLowerCase() || value.path?.toLowerCase() || '';
+      return validExtensions.some(ext => filename.endsWith(ext));
+    }),
   email: yup.string().required("Email is required").email("Invalid email"),
   password: yup
     .string()
@@ -77,13 +90,6 @@ const schema = yup.object().shape({
     .required("Category selection is required"),
   gymId: yup.string().matches(/^\d+$/, "Gym location is required"),
   // .required("Category selection is required"),
-  profilePic: yup
-    .mixed()
-    .required("A profile picture is required")
-    .test("fileSize", "Image is too large (max 5MB)", (value: any) => {
-      if (!value) return false;
-      return !value.fileSize || value.fileSize <= 5 * 1024 * 1024;
-    }),
 });
 
 const RegisterForm = () => {
@@ -92,7 +98,7 @@ const RegisterForm = () => {
   const { webServer } = useContext(UserContext);
   const [profilePic, setProfilePic] = useState({});
 
-  const selectImage = async () => {
+  const selectImage = async (onChange: (value: any) => void) => {
     try {
       // Pick and crop
       const profilePic = await ImagePicker.openPicker({
@@ -107,7 +113,7 @@ const RegisterForm = () => {
       // Additionally, check the MIME type or filename returned by the picker
       const notJpgOrPngExt =
         !profilePic.filename?.toLowerCase().endsWith('.jpg') &&
-        !profilePic.path?.toLowerCase().endsWith('.jpeg') &&
+        !profilePic.filename?.toLowerCase().endsWith('.jpeg') &&
         !profilePic.path?.toLowerCase().endsWith('.png');
 
       if (notJpgOrPngExt) {
@@ -117,8 +123,9 @@ const RegisterForm = () => {
         return; // Disallow further processing
       }
 
-      setProfilePic(profilePic);
       console.log("image: " + JSON.stringify(profilePic));
+      // Update the form field with the selected image
+      onChange(profilePic);
     } catch (e) {
       console.log(e);
     }
@@ -190,6 +197,9 @@ const RegisterForm = () => {
     },
   });
 
+  // Watch profilePic to display it
+  const profilePicValue = watch("profilePic");
+
   // 3. Define the submit handler
   const registerUser = async (data: any) => {
     const totalTimeElapsed = Date.now() - formLoadTime.current;
@@ -209,12 +219,6 @@ const RegisterForm = () => {
       return;
     }
 
-    // Fix file paths for iOS environment without Expo asset utilities
-    // const nativeUri =
-    //   Platform.OS === "ios"
-    //     ? data.profilePic.uri.replace("file://", "")
-    //     : data.profilePic.uri;
-
     formData.append("gym_id", data.gymId);
     formData.append("email", data.email);
     formData.append("password", data.password);
@@ -227,15 +231,10 @@ const RegisterForm = () => {
     formData.append("phone", data.phoneNumber);
     formData.append("whatsapp", data.whatsappNumber);
     formData.append("preferred_contact", data.preferredContact);
-    // formData.append("profilePic", {
-    //   uri: nativeUri,
-    //   type: data.profilePic.type || "image/jpeg",
-    //   name: data.profilePic.fileName || "profile_pic.jpg",
-    // } as any);
     formData.append("profilePic", {
-      uri: profilePic.path,
-      type: profilePic.mime,
-      name: profilePic.filename,
+      uri: data.profilePic.path,
+      type: data.profilePic.mime,
+      name: data.profilePic.filename,
     } as any);
 
     console.log("FormData ready for fetch:", formData);
@@ -283,14 +282,15 @@ const RegisterForm = () => {
             name="profilePic"
             render={({ field: { onChange, value } }) => (
               <View style={styles.imageContainer}>
-                <Button title="Choose Image" onPress={selectImage} />
-
-                {profilePic && (
-                  <Image
-                    source={{ uri: profilePic.path }}
-                    style={styles.avatar}
-                    resizeMode="contain"
-                  />
+                <Button title="Choose Image" onPress={() => selectImage(onChange)} />
+                {value && value.path && (
+                  <TouchableOpacity onPress={() => selectImage(onChange)}>
+                    <Image
+                      source={{ uri: value.path }}
+                      style={styles.avatar}
+                      resizeMode="contain"
+                    />
+                  </TouchableOpacity>
                 )}
               </View>
             )}
