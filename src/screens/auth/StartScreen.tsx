@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
     right: 80,
   },
   body: {
-    marginTop: 16,
+    marginTop: 8,
     flex: 1,
   },
   bodyText: {
