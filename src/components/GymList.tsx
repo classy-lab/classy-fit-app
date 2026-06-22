@@ -4,7 +4,7 @@ import { SelectList } from "react-native-dropdown-select-list";
 import { AppColors } from "../styles/colors";
 import { UserContext } from "../context/UserContext";
 
-const GymList = ({ onSelectValue }) => {
+const GymList = ({ onSelectValue, value }) => {
   // 1. Parent controls the selected value
   const gymData = [
     { key: "1", value: "Kinderhook Fitness, Valatie, NY" },
@@ -14,16 +14,30 @@ const GymList = ({ onSelectValue }) => {
   ];
   const { user } = useContext(UserContext);
 
+  // Safely find the gym from gymData
+  const getDefaultOption = () => {
+    if (value) {
+      // If value is passed from parent (from form watch)
+      const foundGym = gymData.find((gym) => gym.key === value);
+      return foundGym || null;
+    }
+    
+    if (user?.gym_id) {
+      // If user has a gym_id, find it in gymData
+      const foundGym = gymData.find((gym) => gym.key === user.gym_id.toString());
+      return foundGym || null;
+    }
+    
+    return null;
+  };
+
   return (
     <SelectList
-      setSelected={onSelectValue} // Updates the parent state directly
+      setSelected={onSelectValue}
       data={gymData}
       save="key"
       placeholder="Select Category"
-      defaultOption={{
-        key: user ? Number(user.gym_id) - 1 : "",
-        value: user ? gymData[Number(user.gym_id) - 1].value : "",
-      }}
+      defaultOption={getDefaultOption()}
       boxStyles={{
         borderColor: AppColors.grey,
         borderWidth: 1,
@@ -35,8 +49,6 @@ const GymList = ({ onSelectValue }) => {
         marginTop: 8,
         backgroundColor: "white",
       }}
-      // If you need to force the value from the parent (e.g., reset)
-      // defaultOption={data.find(item => item.value === value)}
     />
   );
 };
