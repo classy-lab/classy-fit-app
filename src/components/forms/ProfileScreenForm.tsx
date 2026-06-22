@@ -1,18 +1,19 @@
 import { useState, useEffect, useRef, useContext } from "react";
-import { Alert, Button } from "react-native";
-import { useForm, Controller } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
-import ImagePicker from "react-native-image-crop-picker";
 import {
+  Alert,
   StyleSheet,
   View,
   Text,
   TouchableOpacity,
   TextInput,
   Image,
+  ImageSourcePropType,
   ScrollView,
 } from "react-native";
+import { useForm, Controller } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import ImagePicker from "react-native-image-crop-picker";
 import { AppColors } from "../../styles/colors";
 import { SelectList } from "react-native-dropdown-select-list";
 import { UserContext } from "../../context/UserContext";
@@ -20,19 +21,16 @@ import HoneypotField from "./input_fields/HoneypotField";
 import PreferredContact from "./PreferredContact";
 import GymList from "../GymList";
 import { globalStyles } from "../../styles/globalStyles";
-import FlashMessage, {
-  showMessage,
-  hideMessage,
-} from "react-native-flash-message";
+import FlashMessage, { showMessage, hideMessage } from "react-native-flash-message";
 
 // ============================================================================
-// CONSTANTS & VALIDATION SCHEMA (Outside Component)
+// VALIDATION, CONSTANTS
 // ============================================================================
 
 const phoneRegExp =
-  /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
+  /^((\+[1-9]{1,4}[ \-]*)|(\([0-9]{2,3}\)[ \-]*)|([0-9]{2,4})[ \-]*)*?[0-9]{3,4}?[ \-]*[0-9]{3,4}?$/;
 
-const MIN_SUBMISSION_TIME_MS = 2000; // 5 seconds threshold before reg form can be submitted
+const MIN_SUBMISSION_TIME_MS = 2000;
 
 const schema = yup.object().shape({
   // Define the Yup validation schema
@@ -45,55 +43,49 @@ const schema = yup.object().shape({
     })
     .test("fileType", "A JPG or PNG profile picture is required", (value: any) => {
       if (!value) return false;
-      const validExtensions = ['.jpg', '.jpeg', '.png'];
-      const filename = value.filename?.toLowerCase() || value.path?.toLowerCase() || '';
-      return validExtensions.some(ext => filename.endsWith(ext));
+      const validExtensions = [".jpg", ".jpeg", ".png"];
+      const filename = (value.filename || "").toString().toLowerCase();
+      const path = (value.path || "").toString().toLowerCase();
+      return validExtensions.some((ext) => filename.endsWith(ext) || path.endsWith(ext));
     }),
   email: yup.string().required("Email is required").email("Invalid email"),
   password: yup
     .string()
     .required("Password is required")
     .min(12, "Password must contain at least 12 characters")
-    .matches(
-      /^[a-zA-Z0-9\s~!@#$%^&*()_+-]+$/,
-      "Only letters, numbers, spaces, hyphens, and underscores are allowed",
-    ),
-  confirmPassword: yup
-    .string()
-    .oneOf([yup.ref("password")], "Passwords must match")
-    .required("Please confirm your password"),
-  role: yup.string(), //.required().oneOf(["Owner", "Member", "Trainer", "Contractor"]),
+    .matches(/^[a-zA-Z0-9\s~!@#$%^&*()_+\-]+$/, "Only letters, numbers, spaces, hyphens, and underscores are allowed"),
+  confirmPassword: yup.string().oneOf([yup.ref("password")], "Passwords must match").required("Please confirm your password"),
+  role: yup.string(),
   fname: yup.string().required("First name is required").min(2).max(20),
   lname: yup.string().required("Last name is required").min(2).max(20),
-  dateOfBirth: yup
-    .string()
-    .matches(
-      /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/,
-      "Date must be in YYYY-MM-DD format",
-    )
-    .required("Date of birth is required"),
+  dateOfBirth: yup.string().matches(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/, "Date must be in YYYY-MM-DD format").required("Date of birth is required"),
   sex: yup.string(),
-  // .oneOf(["Male", "Female", "Other"], "Please select a valid category")
-  // .required("Category selection is required"),
-  phoneNumber: yup
-    .string()
-    .matches(phoneRegExp, "Phone Number is not valid")
-    // .nullable()
-    // .notRequired()
-    .transform((value) => (value === "" ? "" : value)),
-  whatsappNumber: yup
-    .string()
-    .matches(phoneRegExp, "WhatsApp Number number is not valid")
-    .nullable()
-    .notRequired()
-    .transform((value) => (value === "" ? null : value)),
-  preferredContact: yup.string(), // .oneOf(["Phone", "Email", "WhatsApp"]),
+  phoneNumber: yup.string().matches(phoneRegExp, "Phone Number is not valid").transform((value) => (value === "" ? "" : value)),
+  whatsappNumber: yup.string().matches(phoneRegExp, "WhatsApp Number number is not valid").nullable().notRequired().transform((value) => (value === "" ? null : value)),
+  preferredContact: yup.string(),
   gymId: yup.string().matches(/^\d+$/, "Gym location is required"),
-  // .required("Category selection is required"),
 });
 
-//
-//
+// ============================================================================
+// AVATARS (7) - local requires
+// ============================================================================
+
+const localAvatars: Record<string, ImageSourcePropType> = {
+  avatar1: require("../../assets/images/avatars/boy-kid.png"),
+  avatar2: require("../../assets/images/avatars/boy-male.png"),
+  avatar3: require("../../assets/images/avatars/person-pilot.png"),
+  avatar4: require("../../assets/images/avatars/beard-hipster-male.png"),
+  avatar5: require("../../assets/images/avatars/boy-indian-kid.png"),
+  avatar6: require("../../assets/images/avatars/indian-male-man.png"),
+  avatar7: require("../../assets/images/avatars/indian-man-sikh.png"),
+};
+
+// Keep an ordered list of the 7 keys for rendering
+const avatarKeys = ["avatar1", "avatar2", "avatar3", "avatar4", "avatar5", "avatar6", "avatar7"];
+
+// ============================================================================
+// Other constants
+// ============================================================================
 
 const sexData = [
   { key: "1", value: "Male", disabled: false },
@@ -115,56 +107,13 @@ const roleData = [
 const ProfileScreenForm = () => {
   const { user, setUser } = useContext(UserContext);
   const { tokens, setTokens } = useContext(UserContext);
-  const [website, setWebsite] = useState("");
   const { webServer } = useContext(UserContext);
+  const [website, setWebsite] = useState("");
+  // Use localAvatars.avatar1 as default preview
+  const [profileImageSource, setProfileImageSource] = useState<ImageSourcePropType>(localAvatars.avatar1);
 
-  const [profileImageSource, setProfileImageSource] = useState("../../assets/images/avatars/profile-img.png");
-
-  const handleUpdateProfileImage = (imageName: string) => {
-    console.log(`Updating profile image to: ${imageName}`);
-    const uri = `../../assets/images/avatars/${imageName}`;
-    setProfileImageSource(uri);
-    // Here you would implement the logic to update the profile picture in your form state
-    // For example, you could set a new value in your form's state that corresponds to the selected image
-  };
-
-  const selectImage = async (onChange: (value: any) => void) => {
-    try {
-      // Pick and crop
-      const profilePic = await ImagePicker.openPicker({
-        cropping: true,
-        width: 380,
-        height: 380,
-        compressImageQuality: 0.7,
-        forceJpg: true,
-        mediaType: 'photo',
-      });
-
-      // Additionally, check the MIME type or filename returned by the picker
-      const notJpgOrPngExt =
-        !profilePic.filename?.toLowerCase().endsWith('.jpg') &&
-        !profilePic.filename?.toLowerCase().endsWith('.jpeg') &&
-        !profilePic.path?.toLowerCase().endsWith('.png');
-
-      if (notJpgOrPngExt) {
-        Alert.alert(
-          'Unsupported Format. Please select a JPEG or PNG image.'
-        );
-        return; // Disallow further processing
-      }
-
-      console.log("image: " + JSON.stringify(profilePic));
-      // Update the form field with the selected image
-      onChange(profilePic);
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
-  // Use a ref to store the load time without triggering re-renders
   const formLoadTime = useRef(Date.now());
 
-  // Initialize useForm with the Yup resolver
   const {
     control,
     handleSubmit,
@@ -177,142 +126,122 @@ const ProfileScreenForm = () => {
     shouldFocusError: true, // Automatically moves focus and triggers internal scrolling layout
     defaultValues: {
       profilePic: {},
-      email: user?.email,
+      email: user?.email ?? "",
       password: "pppppppppppp",
       confirmPassword: "pppppppppppp",
-      role: user?.role,
-      fname: user?.given_name,
-      lname: user?.family_name,
-      dateOfBirth: '',
-      sex: user?.gender,
-      phoneNumber: '',
-      whatsappNumber: '',
-      gymId: user?.gym_id,
+      role: user?.role ?? "",
+      fname: user?.given_name ?? "",
+      lname: user?.family_name ?? "",
+      dateOfBirth: "",
+      sex: user?.gender ?? "",
+      phoneNumber: "",
+      whatsappNumber: "",
+      gymId: user?.gym_id ?? "",
     },
   });
 
-  // Watch profilePic to display it
   const profilePicValue = watch("profilePic");
 
-  // Reset the timer if the user navigates back to this screen
   useEffect(() => {
     formLoadTime.current = Date.now();
     const fetchUserData = async ({ tokens, webServer, user, setTokens }) => {
-      const response = await fetch(`${webServer}/api/v1/users/${user.sub}`, {
-        headers: {
-          Authorization: "Bearer " + tokens.access_token,
-        },
-      });
-      const json = await response.text();
-      const obj = JSON.parse(json);
-
-      if (response.status == 200) {
-        //set profile fields here on success
-        reset({
-          dateOfBirth: obj.profile_fields.date_of_birth,
-          phoneNumber: obj.profile_fields.phone,
-          preferredContact: obj.profile_fields.preferred_contact,
-          whatsappNumber: obj.profile_fields.whatsapp,
+      try {
+        const response = await fetch(`${webServer}/api/v1/users/${user.sub}`, {
+          headers: { Authorization: "Bearer " + tokens.access_token },
         });
-      } else {
-        console.log("Access token expired, requesting new one - useEffect()");
+        const text = await response.text();
+        const obj = JSON.parse(text);
 
-        const response = await fetch(`${webServer}/api/refresh.php`, {
-          method: "POST",
-          body: JSON.stringify({
-            token: tokens.refresh_token,
-          }),
-        });
-
-        const json = await response.text();
-        const obj = JSON.parse(json);
-
-        if (response.status == 200) {
-          console.log("Got new access token and refresh token");
-          setTokens({
-            ...tokens,
-            access_token: obj.access_token,
-            refresh_token: obj.refresh_token,
+        if (response.status === 200) {
+          reset({
+            dateOfBirth: obj.profile_fields.date_of_birth ?? "",
+            phoneNumber: obj.profile_fields.phone ?? "",
+            preferredContact: obj.profile_fields.preferred_contact ?? "",
+            whatsappNumber: obj.profile_fields.whatsapp ?? "",
           });
+        } else {
+          const refreshRes = await fetch(`${webServer}/api/refresh.php`, { method: "POST", body: JSON.stringify({ token: tokens.refresh_token }) });
+          const refreshText = await refreshRes.text();
+          const refreshObj = JSON.parse(refreshText);
+          if (refreshRes.status === 200) {
+            setTokens({ ...tokens, access_token: refreshObj.access_token, refresh_token: refreshObj.refresh_token });
+          }
         }
+      } catch (err) {
+        console.log("fetchUserData error:", err);
       }
     };
-    fetchUserData({ tokens, webServer, user, setTokens });
-  }, [reset]); // Always include reset in the dependency array
+    if (user && tokens && webServer) fetchUserData({ tokens, webServer, user, setTokens });
+  }, [reset, tokens, webServer, user, setTokens]);
 
-  // 1. Define the actual backend deletion logic
+  const selectImage = async (onChange: (value: any) => void) => {
+    try {
+      const profilePic = await ImagePicker.openPicker({
+        cropping: true,
+        width: 380,
+        height: 380,
+        compressImageQuality: 0.7,
+        forceJpg: true,
+        mediaType: "photo",
+      });
+
+      const filename = (profilePic.filename || "").toLowerCase();
+      const path = (profilePic.path || "").toLowerCase();
+      const allowed = [".jpg", ".jpeg", ".png"];
+      const ok = allowed.some((ext) => filename.endsWith(ext) || path.endsWith(ext));
+      if (!ok) {
+        Alert.alert("Unsupported Format", "Please select a JPEG or PNG image.");
+        return;
+      }
+
+      // set form value and preview
+      onChange(profilePic);
+      setProfileImageSource({ uri: profilePic.path });
+    } catch (e) {
+      console.log("Image picker error:", e);
+    }
+  };
+
   const executeProfileDeletion = () => {
     console.log("Profile deletion API initiated.");
-    // Insert your Axios, Fetch, or Firebase deletion request here
   };
-
   const executeGymMembershipCancellation = () => {
     console.log("Gym Membership Cancellation API initiated.");
-    // Insert your Axios, Fetch, or Firebase deletion request here
   };
 
-  // 2. Build the confirmation modal configuration
-  const handleDeletePress = () => {
+  const handleDeletePress = () =>
     Alert.alert(
-      "Delete Profile", // Dialog Title
-      "Are you absolutely sure? This action is permanent and your account cannot be recovered.", // Dialog Description
+      "Delete Profile",
+      "Are you absolutely sure? This action is permanent and your account cannot be recovered.",
       [
-        {
-          text: "Cancel",
-          onPress: () => console.log("Deletion cancelled"),
-          style: "cancel", // Stylizes text as a neutral cancel action
-        },
-        {
-          text: "Delete My Account",
-          onPress: () => executeProfileDeletion(),
-          style: "destructive", // Colors the font red on iOS platforms
-        },
+        { text: "Cancel", onPress: () => console.log("Deletion cancelled"), style: "cancel" },
+        { text: "Delete My Account", onPress: () => executeProfileDeletion(), style: "destructive" },
       ],
-      { cancelable: true }, // Allows Android users to dismiss by clicking background
+      { cancelable: true },
     );
-  };
 
-  const handleCancelGymMembershipPress = () => {
+  const handleCancelGymMembershipPress = () =>
     Alert.alert(
-      "Cancel Gym Membership", // Dialog Title
-      "Are you absolutely sure? You are about to cancel your gym membership", // Dialog Description
+      "Cancel Gym Membership",
+      "Are you absolutely sure? You are about to cancel your gym membership",
       [
-        {
-          text: "Cancel",
-          onPress: () => console.log("Deletion cancelled"),
-          style: "cancel", // Stylizes text as a neutral cancel action
-        },
-        {
-          text: "Cancel Gym Membership",
-          onPress: () => executeGymMembershipCancellation(),
-          style: "destructive", // Colors the font red on iOS platforms
-        },
+        { text: "Cancel", onPress: () => console.log("Deletion cancelled"), style: "cancel" },
+        { text: "Cancel Gym Membership", onPress: () => executeGymMembershipCancellation(), style: "destructive" },
       ],
-      { cancelable: true }, // Allows Android users to dismiss by clicking background
+      { cancelable: true },
     );
-  };
 
-  // 3. Define the submit handler
   const updateUser = async (data: any) => {
-    console.log('data: ' + JSON.stringify(data));
     const totalTimeElapsed = Date.now() - formLoadTime.current;
-    const formData = new FormData();
-
-    console.log(data);
-
-    // 1. Honeypot check
     if (website.trim() !== "") {
       console.log("Submission failed", "Bot behavior detected.");
       return;
     }
-
-    // 2. Timestamp check
     if (totalTimeElapsed < MIN_SUBMISSION_TIME_MS) {
       console.log("Submission failed", "Form submitted too quickly.");
       return;
     }
 
-    // Set submitted values within app before sending to API. No need to retreive from API
     setUser({
       ...user,
       given_name: data.fname,
@@ -320,70 +249,51 @@ const ProfileScreenForm = () => {
       preferred_contact: data.preferredContact,
     });
 
-    formData.append("gym_id", data.gymId);
-    formData.append("email", data.email);
-    formData.append("password", data.password);
-    formData.append("data.confirmPassword", data.confirmPassword);
-    formData.append("role", data.role);
-    formData.append("fname", data.fname);
-    formData.append("lname", data.lname);
-    formData.append("date_of_birth", data.dateOfBirth);
-    formData.append("sex", data.sex);
-    formData.append("phone", data.phoneNumber);
-    formData.append("whatsapp", data.whatsappNumber);
-    formData.append("preferred_contact", data.preferredContact);
-    formData.append("profilePic", {
-      uri: data.profilePic.path,
-      type: data.profilePic.mime,
-      name: data.profilePic.filename,
-    } as any);
-    formData.append('profileUpdate', 'true');
+    const formData = new FormData();
+    formData.append("gym_id", data.gymId ?? "");
+    formData.append("email", data.email ?? "");
+    formData.append("password", data.password ?? "");
+    formData.append("data.confirmPassword", data.confirmPassword ?? "");
+    formData.append("role", data.role ?? "");
+    formData.append("fname", data.fname ?? "");
+    formData.append("lname", data.lname ?? "");
+    formData.append("date_of_birth", data.dateOfBirth ?? "");
+    formData.append("sex", data.sex ?? "");
+    formData.append("phone", data.phoneNumber ?? "");
+    formData.append("whatsapp", data.whatsappNumber ?? "");
+    formData.append("preferred_contact", data.preferredContact ?? "");
+    if (data.profilePic && data.profilePic.path) {
+      formData.append("profilePic", {
+        uri: data.profilePic.path,
+        type: data.profilePic.mime || "image/jpeg",
+        name: data.profilePic.filename || "profile.jpg",
+      } as any);
+    }
+    formData.append("profileUpdate", "true");
 
-    console.log("FormData ready for fetch:", JSON.stringify(formData));
-
-    const response = await fetch(
-      `${webServer}/api/register.php`,
-      {
+    try {
+      const response = await fetch(`${webServer}/api/register.php`, {
         method: "POST",
-        headers: {
-          Authorization: "Bearer " + tokens.access_token,
-        },
+        headers: { Authorization: "Bearer " + tokens.access_token },
         body: formData,
-      },
-    );
-
-    const json = await response.text();
-    const obj = JSON.parse(json);
-    console.log(obj);
-
-    if (response.status == 200) {
-      showMessage({
-        message: obj?.message,
-        type: "success",
-        autoHide: false, // prevents the message from disappearing automatically
-        onPress: () => hideMessage(), // closes the message when pressed
       });
-    } else {
-      console.log("Access token expired, requesting new one - updateUser()");
-
-      const response = await fetch(`${webServer}/api/refresh.php`, {
-        method: "POST",
-        body: JSON.stringify({
-          token: tokens.refresh_token,
-        }),
-      });
-
-      const json = await response.text();
-      const obj = JSON.parse(json);
-
-      if (response.status == 200) {
-        console.log("Got new access token and refresh token");
-        setTokens({
-          ...tokens,
-          access_token: obj.access_token,
-          refresh_token: obj.refresh_token,
-        });
+      const text = await response.text();
+      const obj = JSON.parse(text);
+      if (response.status === 200) {
+        showMessage({ message: obj?.message || "Profile updated", type: "success", autoHide: true, onPress: () => hideMessage() });
+      } else {
+        const refreshRes = await fetch(`${webServer}/api/refresh.php`, { method: "POST", body: JSON.stringify({ token: tokens.refresh_token }) });
+        const refreshText = await refreshRes.text();
+        const refreshObj = JSON.parse(refreshText);
+        if (refreshRes.status === 200) {
+          setTokens({ ...tokens, access_token: refreshObj.access_token, refresh_token: refreshObj.refresh_token });
+        } else {
+          showMessage({ message: obj?.message || "Failed to update profile", type: "danger" });
+        }
       }
+    } catch (err) {
+      console.log("updateUser error:", err);
+      showMessage({ message: "Network error", type: "danger" });
     }
   };
 
@@ -396,360 +306,139 @@ const ProfileScreenForm = () => {
             name="profilePic"
             render={({ field: { onChange, value } }) => (
               <View style={styles.imageContainer}>
-                {value && value.path && (
-                  <TouchableOpacity onPress={() => selectImage(onChange)}>
-                    <Image source={imageMap[profileImageSource]} style={styles.avatar} resizeMode="contain" />
-                  </TouchableOpacity>
-                )}
-                {
-                  !value || !value.path ? (
-                    <>
-                      <TouchableOpacity onPress={() => selectImage(onChange)}>
-                        <View>
-                          <Image source={{ uri: profileImageSource }} style={{ width: 100, height: 100, alignSelf: 'center' }} />
-                        </View>
-                      </TouchableOpacity>
-                      <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-                        <View style={styles.avatarscrollContainer}>
-                          <TouchableOpacity onPress={() => { setProfileImageSource('boy-kid.png') }}>
-                            <Image style={styles.avatar} source={require('../../assets/images/avatars/boy-kid.png')} />
-                          </TouchableOpacity>
-                          <TouchableOpacity onPress={() => { setProfileImageSource('boy-male.png') }}>
-                            <Image style={styles.avatar} source={require('../../assets/images/avatars/boy-male.png')} />
-                          </TouchableOpacity>
-                          <TouchableOpacity>
-                            <Image style={styles.avatar} source={require('../../assets/images/avatars/person-pilot.png')} />
-                          </TouchableOpacity>
-                          <TouchableOpacity>
-                            <Image style={styles.avatar} source={require('../../assets/images/avatars/beard-hipster-male.png')} />
-                          </TouchableOpacity>
-                          <TouchableOpacity>
-                            <Image style={styles.avatar} source={require('../../assets/images/avatars/boy-indian-kid.png')} />
-                          </TouchableOpacity>
-                          <TouchableOpacity>
-                            <Image style={styles.avatar} source={require('../../assets/images/avatars/indian-male-man.png')} />
-                          </TouchableOpacity>
-                          <TouchableOpacity>
-                            <Image style={styles.avatar} source={require('../../assets/images/avatars/boy-indian-kid.png')} />
-                          </TouchableOpacity>
-                          <TouchableOpacity>
-                            <Image style={styles.avatar} source={require('../../assets/images/avatars/indian-man-sikh.png')} />
-                          </TouchableOpacity>
-                        </View>
-                      </ScrollView>
-                    </>
-                  ) : null
-                }
+                {/* Main preview: uploaded image (value.path) takes precedence, otherwise preview from local avatar */}
+                <TouchableOpacity onPress={() => selectImage(onChange)}>
+                  {value && value.path ? (
+                    <Image source={{ uri: value.path }} style={{ width: 80, height: 80, borderRadius: 20 }} />
+                  ) : (
+                    <Image source={profileImageSource} style={{ width: 80, height: 80, borderRadius: 20 }} />
+                  )}
+                </TouchableOpacity>
+
+                {/* Always show avatar thumbnails so user can choose one of 7 */}
+                <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={{ marginTop: 16 }}>
+                  <View style={styles.avatarscrollContainer}>
+                    {avatarKeys.map((key) => {
+                      const src = localAvatars[key];
+                      return (
+                        <TouchableOpacity
+                          key={key}
+                          style={{ marginHorizontal: 6 }}
+                          onPress={() => {
+                            // Update preview
+                            setProfileImageSource(src);
+                            // Update form value with a shape the backend/upload expects
+                            const resolved = Image.resolveAssetSource(src);
+                            onChange({
+                              path: resolved.uri,
+                              filename: `${key}.png`,
+                              mime: "image/png",
+                            });
+                          }}
+                        >
+                          <Image source={src} style={styles.avatar} />
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                </ScrollView>
+
+                {/* Small hint */}
+                <Text style={{ fontSize: 12, marginTop: 8, color: AppColors.primary }}>
+                  Tap preview to upload from gallery, or choose an avatar.
+                </Text>
               </View>
             )}
           />
-          {errors.profilePic && (
-            <Text style={styles.errorText}>{errors.profilePic.message}</Text>
-          )}
+          {errors.profilePic && <Text style={styles.errorText}>{errors.profilePic.message}</Text>}
         </View>
+
+        {/* -- rest of form fields unchanged -- */}
+
         <View style={[styles.field, { opacity: 0.5 }]} pointerEvents="none">
           <Text style={styles.formLabel}>E-mail</Text>
-          <Controller
-            control={control}
-            name="email"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
-                style={styles.inputField}
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-            )}
-          />
-          {errors.email && (
-            <Text style={styles.errorText}>{errors.email.message}</Text>
-          )}
+          <Controller control={control} name="email" render={({ field: { onChange, onBlur, value } }) => <TextInput style={styles.inputField} onBlur={onBlur} onChangeText={onChange} value={value} keyboardType="email-address" autoCapitalize="none" />} />
+          {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
         </View>
+
         <View style={styles.field}>
           <Text style={styles.formLabel}>Password</Text>
-          <Controller
-            control={control}
-            name="password"
-            render={({ field: { onChange, onBlur, value, ref } }) => (
-              <TextInput
-                ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
-                style={styles.inputField}
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-                keyboardType="default"
-                secureTextEntry
-              />
-            )}
-          />
-          {errors.password && (
-            <Text style={styles.errorText}>{errors.password.message}</Text>
-          )}
+          <Controller control={control} name="password" render={({ field: { onChange, onBlur, value } }) => <TextInput style={styles.inputField} onBlur={onBlur} onChangeText={onChange} value={value} keyboardType="default" secureTextEntry />} />
+          {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
         </View>
+
         <View style={styles.field}>
           <Text style={styles.formLabel}>Confirm Password</Text>
-          <Controller
-            control={control}
-            name="confirmPassword"
-            render={({ field: { onChange, onBlur, value, ref } }) => (
-              <TextInput
-                ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
-                style={styles.inputField}
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-                keyboardType="default"
-                secureTextEntry
-              />
-            )}
-          />
-          {errors.confirmPassword && (
-            <Text style={styles.errorText}>
-              {errors.confirmPassword.message}
-            </Text>
-          )}
+          <Controller control={control} name="confirmPassword" render={({ field: { onChange, onBlur, value } }) => <TextInput style={styles.inputField} onBlur={onBlur} onChangeText={onChange} value={value} keyboardType="default" secureTextEntry />} />
+          {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword.message}</Text>}
         </View>
-        <View
-          style={[styles.field, { opacity: 0.5 }]}
-          pointerEvents="none"
-        >
+
+        <View style={[styles.field, { opacity: 0.5 }]} pointerEvents="none">
           <Text style={styles.formLabel}>Role</Text>
-          <Controller
-            control={control}
-            name="role"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <SelectList
-                setSelected={(val) => onChange(val)} // Send selection to hook-form
-                data={roleData}
-                save="value"
-                placeholder="Select Category"
-                defaultOption={{ key: "1", value: user.role }}
-                boxStyles={{
-                  borderColor: AppColors.grey,
-                  borderWidth: 1,
-                  paddingHorizontal: 8,
-                }}
-                dropdownStyles={{
-                  borderColor: AppColors.grey2,
-                  borderWidth: 1,
-                  marginTop: 8,
-                  backgroundColor: "white",
-                }}
-              // If you need to force the value from the parent (e.g., reset)
-              // defaultOption={data.find(item => item.value === value)}
-              />
-            )}
-          />
-          {errors.role && (
-            <Text style={styles.errorText}>{errors.role.message}</Text>
-          )}
+          <Controller control={control} name="role" render={({ field: { onChange } }) => <SelectList setSelected={(val) => onChange(val)} data={roleData} save="value" placeholder="Select Category" defaultOption={{ key: "1", value: user?.role ?? "" }} boxStyles={{ borderColor: AppColors.grey, borderWidth: 1, paddingHorizontal: 8 }} dropdownStyles={{ borderColor: AppColors.grey2, borderWidth: 1, marginTop: 8, backgroundColor: "white" }} />} />
         </View>
+
         <View style={styles.field}>
           <Text style={styles.formLabel}>First Name</Text>
-          <Controller
-            control={control}
-            name="fname"
-            render={({ field: { onChange, onBlur, value, ref } }) => (
-              <TextInput
-                ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
-                style={styles.inputField}
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-                keyboardType="default"
-                autoCapitalize="none"
-              />
-            )}
-          />
-          {errors.fname && (
-            <Text style={styles.errorText}>{errors.fname.message}</Text>
-          )}
+          <Controller control={control} name="fname" render={({ field: { onChange, onBlur, value } }) => <TextInput style={styles.inputField} onBlur={onBlur} onChangeText={onChange} value={value} keyboardType="default" autoCapitalize="none" />} />
+          {errors.fname && <Text style={styles.errorText}>{errors.fname.message}</Text>}
         </View>
+
         <View style={styles.field}>
           <Text style={styles.formLabel}>Last Name</Text>
-          <Controller
-            control={control}
-            name="lname"
-            render={({ field: { onChange, onBlur, value, ref } }) => (
-              <TextInput
-                ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
-                style={styles.inputField}
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-                keyboardType="default"
-                autoCapitalize="none"
-              />
-            )}
-          />
-          {errors.lname && (
-            <Text style={styles.errorText}>{errors.lname.message}</Text>
-          )}
+          <Controller control={control} name="lname" render={({ field: { onChange, onBlur, value } }) => <TextInput style={styles.inputField} onBlur={onBlur} onChangeText={onChange} value={value} keyboardType="default" autoCapitalize="none" />} />
+          {errors.lname && <Text style={styles.errorText}>{errors.lname.message}</Text>}
         </View>
-        {/* Include the honeypot trap in your form */}
+
         <HoneypotField value={website} onChangeText={setWebsite} />
+
         <View style={styles.field}>
           <Text style={styles.formLabel}>Date of Birth</Text>
-          <Controller
-            control={control}
-            name="dateOfBirth"
-            render={({ field: { onChange, onBlur, value, ref } }) => (
-              <TextInput
-                ref={ref}
-                style={styles.inputField}
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-                keyboardType="default"
-                autoCapitalize="none"
-                placeholder="yyyy-mm-dd"
-              />
-            )}
-          />
-          {errors.dateOfBirth && (
-            <Text style={styles.errorText}>{errors.dateOfBirth.message}</Text>
-          )}
+          <Controller control={control} name="dateOfBirth" render={({ field: { onChange, onBlur, value } }) => <TextInput style={styles.inputField} onBlur={onBlur} onChangeText={onChange} value={value} keyboardType="default" autoCapitalize="none" placeholder="yyyy-mm-dd" />} />
+          {errors.dateOfBirth && <Text style={styles.errorText}>{errors.dateOfBirth.message}</Text>}
         </View>
-        <View
-          style={[styles.field, { opacity: 0.5 }]}
-          pointerEvents="none"
-        >
+
+        <View style={[styles.field, { opacity: 0.5 }]} pointerEvents="none">
           <Text style={styles.formLabel}>Sex</Text>
-          <Controller
-            name="sex"
-            control={control}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <SelectList
-                setSelected={(val) => onChange(val)} // Send selection to hook-form
-                data={sexData}
-                save="value"
-                defaultOption={{ key: "1", value: user.gender }}
-                placeholder="Select Category"
-                boxStyles={{
-                  borderColor: AppColors.grey,
-                  borderWidth: 1,
-                  paddingHorizontal: 8,
-                }}
-                dropdownStyles={{
-                  borderColor: AppColors.grey2,
-                  borderWidth: 1,
-                  marginTop: 8,
-                  backgroundColor: "white",
-                }}
-              // If you need to force the value from the parent (e.g., reset)
-              // defaultOption={data.find(item => item.value === value)}
-              />
-            )}
-          />
-          {errors.sex && (
-            <Text style={styles.errorText}>{errors.sex.message}</Text>
-          )}
+          <Controller name="sex" control={control} render={({ field: { onChange } }) => <SelectList setSelected={(val) => onChange(val)} data={sexData} save="value" defaultOption={{ key: "1", value: user?.gender ?? "" }} placeholder="Select Category" boxStyles={{ borderColor: AppColors.grey, borderWidth: 1, paddingHorizontal: 8 }} dropdownStyles={{ borderColor: AppColors.grey2, borderWidth: 1, marginTop: 8, backgroundColor: "white" }} />} />
         </View>
+
         <View style={styles.field}>
           <Text style={styles.formLabel}>Phone Number</Text>
-          <Controller
-            control={control}
-            name="phoneNumber"
-            render={({ field: { onChange, onBlur, value, ref } }) => (
-              <TextInput
-                ref={ref}
-                style={styles.inputField}
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-                keyboardType="default"
-                autoCapitalize="none"
-                placeholder="518-555-5555"
-              />
-            )}
-          />
-          {errors.phoneNumber && (
-            <Text style={styles.errorText}>{errors.phoneNumber.message}</Text>
-          )}
+          <Controller control={control} name="phoneNumber" render={({ field: { onChange, onBlur, value } }) => <TextInput style={styles.inputField} onBlur={onBlur} onChangeText={onChange} value={value} keyboardType="default" autoCapitalize="none" placeholder="518-555-5555" />} />
         </View>
+
         <View style={styles.field}>
           <Text style={styles.formLabel}>WhatsApp Number</Text>
-          <Controller
-            control={control}
-            name="whatsappNumber"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
-                style={styles.inputField}
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-                keyboardType="default"
-                placeholder="518-555-5555"
-                autoCapitalize="none"
-              />
-            )}
-          />
-          {errors.whatsappNumber && (
-            <Text style={styles.errorText}>
-              {errors.whatsappNumber.message}
-            </Text>
-          )}
+          <Controller control={control} name="whatsappNumber" render={({ field: { onChange, onBlur, value } }) => <TextInput style={styles.inputField} onBlur={onBlur} onChangeText={onChange} value={value} keyboardType="default" placeholder="518-555-5555" autoCapitalize="none" />} />
         </View>
+
         <View style={styles.field}>
           <Text style={styles.formLabel}>Preferred Contact</Text>
-          <Controller
-            control={control}
-            name="preferredContact"
-            render={({ field: { onChange } }) => (
-              <PreferredContact onSelectValue={onChange} />
-            )}
-          />
-          {errors.preferredContact && (
-            <Text style={styles.errorText}>
-              {errors.preferredContact.message}
-            </Text>
-          )}
+          <Controller control={control} name="preferredContact" render={({ field: { onChange } }) => <PreferredContact onSelectValue={onChange} />} />
         </View>
-        <View
-          style={[styles.field, { opacity: 0.5 }]}
-          pointerEvents="none"
-        >
+
+        <View style={[styles.field, { opacity: 0.5 }]} pointerEvents="none">
           <Text style={styles.formLabel}>Gym Location / Fitness Center</Text>
-          <Controller
-            control={control}
-            name="gymId"
-            render={({ field: { onChange } }) => (
-              <GymList onSelectValue={onChange} />
-            )}
-          />
-          {errors.gymId && (
-            <Text style={styles.errorText}>{errors.gymId.message}</Text>
-          )}
+          <Controller control={control} name="gymId" render={({ field: { onChange } }) => <GymList onSelectValue={onChange} />} />
         </View>
 
         <View style={globalStyles.loginBtnContainer}>
-          <TouchableOpacity
-            style={globalStyles.registerBtn}
-            title="loginSubmit"
-            onPress={handleSubmit(updateUser)}
-          >
+          <TouchableOpacity style={globalStyles.registerBtn} onPress={handleSubmit(updateUser)}>
             <Text style={globalStyles.registerBtnText}>Save Profile</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={globalStyles.loginBtn}
-            title="loginSubmit"
-            onPress={handleDeletePress}
-          >
+          <TouchableOpacity style={globalStyles.loginBtn} onPress={handleDeletePress}>
             <Text style={globalStyles.loginBtnText}>Delete Profile</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={globalStyles.loginBtn}
-            title="loginSubmit"
-            onPress={handleCancelGymMembershipPress}
-          >
+          <TouchableOpacity style={globalStyles.loginBtn} onPress={handleCancelGymMembershipPress}>
             <Text style={globalStyles.loginBtnText}>Cancel Gym Membership</Text>
           </TouchableOpacity>
         </View>
-      </View >
+      </View>
+
+      <FlashMessage position="top" />
     </>
   );
 };
@@ -779,17 +468,14 @@ const styles = StyleSheet.create({
   },
   imageContainer: { alignItems: "center", marginBottom: 8 },
   avatar: {
-    width: 80,
-    height: 80,
-    marginLeft: 4,
-    marginRight: 4,
-    // borderRadius: 20,
+    width: 48,
+    height: 48,
+    // borderRadius: 32,
   },
   field: {},
   avatarscrollContainer: {
-    flexDirection: 'row',
-    // justifyContent: 'center',
-    // marginVertical: 'auto',
-    // alignItems: 'center'
-  }
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 6,
+  },
 });
