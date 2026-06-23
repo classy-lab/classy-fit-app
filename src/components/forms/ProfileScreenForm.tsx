@@ -155,13 +155,21 @@ const ProfileScreenForm = () => {
         console.log('obj: ', obj);
 
         if (response.status === 200) {
+          console.log('here: ' + obj.profile_fields.user_picture_url);
+          const fetchedProfilePic = obj.profile_fields.user_picture_url ?? null;
+          
           reset({
             dateOfBirth: obj.profile_fields.date_of_birth ?? "",
             phoneNumber: obj.profile_fields.phone ?? "",
             preferredContact: obj.profile_fields.preferred_contact ?? "",
             whatsappNumber: obj.profile_fields.whatsapp ?? "",
-            profilePic: obj.profile_fields.profile_pic ?? null, // is this working?
+            profilePic: fetchedProfilePic,
           });
+
+          // Update the preview image to match the fetched profile picture
+          if (fetchedProfilePic && fetchedProfilePic.path) {
+            setProfileImageSource({ uri: fetchedProfilePic.path });
+          }
         } else {
           const refreshRes = await fetch(`${webServer}/api/refresh.php`, { method: "POST", body: JSON.stringify({ token: tokens.refresh_token }) });
           const refreshText = await refreshRes.text();
@@ -309,7 +317,7 @@ const ProfileScreenForm = () => {
             name="profilePic"
             render={({ field: { onChange, value } }) => (
               <View style={styles.imageContainer}>
-                {/* Main preview: uploaded image (value.path) takes precedence, otherwise preview from local avatar */}
+                {/* Main preview: uploaded image (value.path) takes precedence, otherwise preview from profileImageSource state */}
                 <TouchableOpacity onPress={() => selectImage(onChange)}>
                   {value && value.path ? (
                     <Image source={{ uri: value.path }} style={{ width: 80, height: 80, borderRadius: 20 }} />
