@@ -151,6 +151,8 @@ const ProfileScreenForm = () => {
         });
         const text = await response.text();
         const obj = JSON.parse(text);
+        
+        console.log('obj: ', obj);
 
         if (response.status === 200) {
           reset({
@@ -158,6 +160,7 @@ const ProfileScreenForm = () => {
             phoneNumber: obj.profile_fields.phone ?? "",
             preferredContact: obj.profile_fields.preferred_contact ?? "",
             whatsappNumber: obj.profile_fields.whatsapp ?? "",
+            profilePic: obj.profile_fields.profile_pic ?? null, // is this working?
           });
         } else {
           const refreshRes = await fetch(`${webServer}/api/refresh.php`, { method: "POST", body: JSON.stringify({ token: tokens.refresh_token }) });
