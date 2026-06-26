@@ -131,6 +131,7 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
   const { tokens, setTokens } = useContext(UserContext);
   const [website, setWebsite] = useState("");
   const { webServer } = useContext(UserContext);
+  const { setIsLoggedIn } = useContext(UserContext);
   const [profilePicAPIImage, setProfilePicAPIImage] = useState<string>(""); // State to hold the selected image
 
   const selectImage = async (onChange: (value: any) => void) => {
@@ -292,9 +293,9 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
       });
 
       // // Optionally, you can also clear the user context or navigate to a different screen after deletion
-      navigation.navigate("Login"); // Navigate to the Login screen after deletion
       setUser(null);
       setTokens(null);
+      setIsLoggedIn(false);
     }
     else {
       console.log("Access token expired, requesting new one - executeProfileDeletion()");
