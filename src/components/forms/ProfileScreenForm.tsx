@@ -48,9 +48,8 @@ const schema = yup.object().shape({
     .test("fileType", "A JPG or PNG profile picture is required", (value: any) => {
       if (!value) return false;
       if (value.isLocalAvatar) return true;
-      const validExtensions = ['.jpg', '.jpeg', '.png'];
-      const filename = value.filename?.toLowerCase() || value.path?.toLowerCase() || value.uri?.toLowerCase() || '';
-      return validExtensions.some((ext) => filename.endsWith(ext));
+      const filename = (value.filename || value.path || value.uri || "").toLowerCase();
+      return filename.endsWith(".jpg") || filename.endsWith(".jpeg") || filename.endsWith(".png");
     }),
   email: yup.string().required("Email is required").email("Invalid email"),
   password: yup
@@ -142,12 +141,10 @@ const ProfileScreenForm = () => {
         mediaType: "photo",
       });
 
-      const notJpgOrPngExt =
-        !profilePic.filename?.toLowerCase().endsWith(".jpg") &&
-        !profilePic.filename?.toLowerCase().endsWith(".jpeg") &&
-        !profilePic.path?.toLowerCase().endsWith(".png");
+      const filename = (profilePic.filename || profilePic.path || "").toLowerCase();
+      const isAllowedFormat = filename.endsWith(".jpg") || filename.endsWith(".jpeg") || filename.endsWith(".png");
 
-      if (notJpgOrPngExt) {
+      if (!isAllowedFormat) {
         Alert.alert("Unsupported Format. Please select a JPEG or PNG image.");
         return;
       }
