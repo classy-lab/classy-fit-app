@@ -116,6 +116,7 @@ const ProfileScreenForm = () => {
   const [website, setWebsite] = useState("");
   const { webServer } = useContext(UserContext);
   const [profilePicAPIImage, setProfilePicAPIImage] = useState(''); // State to hold the selected image
+
   const selectImage = async (onChange: (value: any) => void) => {
     try {
       // Pick and crop
@@ -231,10 +232,56 @@ const ProfileScreenForm = () => {
     fetchUserData({ tokens, webServer, user, setTokens });
   }, [reset]); // Always include reset in the dependency array
 
-  // 1. Define the actual backend deletion logic
-  const executeProfileDeletion = () => {
+  const executeProfileDeletion = async ({ tokens, webServer, user, setTokens }) => {
     console.log("Profile deletion API initiated.");
-    // Insert your Axios, Fetch, or Firebase deletion request here
+
+    const response = await fetch(
+      `${webServer}/api/delete-profile.php`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: "Bearer " + tokens.access_token,
+        },
+        body: user.sub,
+      },
+    );
+
+    const json = await response.text();;
+    const obj = JSON.parse(json);
+
+
+    if (response.status == 200) {
+      console.log(obj);
+      // showMessage({
+      //   message: obj?.message,
+      //   type: "success",
+      //   autoHide: false, // prevents the message from disappearing automatically
+      //   onPress: () => hideMessage(), // closes the message when pressed
+      // });
+      console.log('obj: ', obj);
+    }
+    else {
+      console.log("Access token expired, requesting new one - executeProfileDeletion()");
+
+      // const response = await fetch(`${webServer}/api/refresh.php`, {
+      //   method: "POST",
+      //   body: JSON.stringify({
+      //     token: tokens.refresh_token,
+      //   }),
+      // });
+
+      // const json = await response.text();
+      // const obj = JSON.parse(json);
+
+      // if (response.status == 200) {
+      //   console.log("Got new access token and refresh token");
+      //   setTokens({
+      //     ...tokens,
+      //     access_token: obj.access_token,
+      //     refresh_token: obj.refresh_token,
+      //   });
+      // }
+    }
   };
 
   const executeGymMembershipCancellation = () => {
@@ -255,7 +302,7 @@ const ProfileScreenForm = () => {
         },
         {
           text: "Delete My Account",
-          onPress: () => executeProfileDeletion(),
+          onPress: () => executeProfileDeletion({ tokens, webServer, user, setTokens }),
           style: "destructive", // Colors the font red on iOS platforms
         },
       ],
