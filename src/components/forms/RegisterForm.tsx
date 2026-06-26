@@ -30,6 +30,7 @@ const phoneRegExp =
   /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
 
 const MIN_SUBMISSION_TIME_MS = 2000; // 2 seconds threshold before reg form can be submitted
+const MAX_PROFILE_PIC_BYTES = 5 * 1024 * 1024;
 
 const localAvatarOptions = [
   { key: "avatar-1", name: "beard-hipster-male.png", asset: require("../../assets/images/avatars/beard-hipster-male.png") },
@@ -50,8 +51,10 @@ const schema = yup.object().shape({
       return Boolean(value.path || value.uri || value.filename || value.mime || value.type);
     })
     .test("fileSize", "Image is too large (max 5MB)", (value: any) => {
-      if (!value || !value.fileSize) return true;
-      return value.fileSize <= 5 * 1024 * 1024;
+      if (!value) return true;
+      const fileSize = value.fileSize ?? value.size;
+      if (!fileSize) return true;
+      return fileSize <= MAX_PROFILE_PIC_BYTES;
     })
     .test("fileType", "Profile picture is required. Only JPEG or PNG images are allowed", (value: any) => {
       if (!value) return false;
@@ -123,9 +126,15 @@ const RegisterForm = () => {
 
       const filename = (profilePic.filename || profilePic.path || "").toLowerCase();
       const isAllowedFormat = filename.endsWith(".jpg") || filename.endsWith(".jpeg") || filename.endsWith(".png");
+      const fileSize = (profilePic as any).fileSize ?? (profilePic as any).size;
 
       if (!isAllowedFormat) {
         Alert.alert("Unsupported Format", "Please select a JPEG or PNG image.");
+        return;
+      }
+
+      if (fileSize && fileSize > MAX_PROFILE_PIC_BYTES) {
+        Alert.alert("Image Too Large", "Please select an image that is 5 MB or less.");
         return;
       }
 
@@ -134,6 +143,7 @@ const RegisterForm = () => {
         path: profilePic.path,
         mime: profilePic.mime,
         filename: profilePic.filename || "gallery-photo.png",
+        fileSize,
       });
     } catch (e) {
       console.log(e);
