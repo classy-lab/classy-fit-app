@@ -31,19 +31,33 @@ const phoneRegExp =
 
 const MIN_SUBMISSION_TIME_MS = 2000; // 2 seconds threshold before reg form can be submitted
 
+const localAvatarOptions = [
+  { key: "avatar-1", name: "beard-hipster-male.png", asset: require("../../assets/images/avatars/beard-hipster-male.png") },
+  { key: "avatar-2", name: "boy-indian-kid.png", asset: require("../../assets/images/avatars/boy-indian-kid.png") },
+  { key: "avatar-3", name: "boy-kid.png", asset: require("../../assets/images/avatars/boy-kid.png") },
+  { key: "avatar-4", name: "boy-male.png", asset: require("../../assets/images/avatars/boy-male.png") },
+  { key: "avatar-5", name: "indian-male-man.png", asset: require("../../assets/images/avatars/indian-male-man.png") },
+  { key: "avatar-6", name: "indian-man-sikh.png", asset: require("../../assets/images/avatars/indian-man-sikh.png") },
+  { key: "avatar-7", name: "person-pilot.png", asset: require("../../assets/images/avatars/person-pilot.png") },
+];
+
 // 1. Define the Yup validation schema
 const schema = yup.object().shape({
   profilePic: yup
     .mixed()
-    .required("A profile picture is required")
+    .test("required", "A profile picture is required", (value: any) => {
+      if (!value) return false;
+      return Boolean(value.path || value.uri || value.filename || value.mime || value.type);
+    })
     .test("fileSize", "Image is too large (max 5MB)", (value: any) => {
       if (!value || !value.fileSize) return true;
       return value.fileSize <= 5 * 1024 * 1024;
     })
     .test("fileType", "Profile picture is required. Only JPEG or PNG images are allowed", (value: any) => {
       if (!value) return false;
+      if (value.isLocalAvatar) return true;
       const validExtensions = ['.jpg', '.jpeg', '.png'];
-      const filename = value.filename?.toLowerCase() || value.path?.toLowerCase() || '';
+      const filename = value.filename?.toLowerCase() || value.path?.toLowerCase() || value.uri?.toLowerCase() || '';
       return validExtensions.some(ext => filename.endsWith(ext));
     }),
   email: yup.string().required("Email is required").email("Invalid email"),
@@ -99,36 +113,46 @@ const RegisterForm = () => {
 
   const selectImage = async (onChange: (value: any) => void) => {
     try {
-      // Pick and crop
       const profilePic = await ImagePicker.openPicker({
         cropping: true,
         width: 380,
         height: 380,
         compressImageQuality: 0.7,
         forceJpg: true,
-        mediaType: 'photo',
+        mediaType: "photo",
       });
 
-      // Additionally, check the MIME type or filename returned by the picker
       const notJpgOrPngExt =
-        !profilePic.filename?.toLowerCase().endsWith('.jpg') &&
-        !profilePic.filename?.toLowerCase().endsWith('.jpeg') &&
-        !profilePic.path?.toLowerCase().endsWith('.png');
+        !profilePic.filename?.toLowerCase().endsWith(".jpg") &&
+        !profilePic.filename?.toLowerCase().endsWith(".jpeg") &&
+        !profilePic.path?.toLowerCase().endsWith(".png");
 
       if (notJpgOrPngExt) {
-        Alert.alert(
-          'Unsupported Format',
-          'Please select a JPEG or PNG image.'
-        );
-        return; // Disallow further processing
+        Alert.alert("Unsupported Format", "Please select a JPEG or PNG image.");
+        return;
       }
 
-      console.log("image: " + JSON.stringify(profilePic));
-      // Update the form field with the selected image
-      onChange(profilePic);
+      onChange({
+        ...profilePic,
+        path: profilePic.path,
+        mime: profilePic.mime,
+        filename: profilePic.filename || "gallery-photo.png",
+      });
     } catch (e) {
       console.log(e);
     }
+  };
+
+  const selectLocalAvatar = (avatar: any, onChange: (value: any) => void) => {
+    const resolved = Image.resolveAssetSource(avatar.asset);
+    onChange({
+      uri: resolved.uri,
+      path: resolved.uri,
+      mime: "image/png",
+      filename: avatar.name,
+      type: "image/png",
+      isLocalAvatar: true,
+    });
   };
 
   // Use a ref to store the load time without triggering re-renders
@@ -182,7 +206,7 @@ const RegisterForm = () => {
     resolver: yupResolver(schema),
     shouldFocusError: true, // Automatically moves focus and triggers internal scrolling layout
     defaultValues: {
-      profilePic: {},
+      profilePic: undefined,
       email: "",
       password: "",
       confirmPassword: "",
@@ -232,9 +256,9 @@ const RegisterForm = () => {
     formData.append("whatsapp", data.whatsappNumber);
     formData.append("preferred_contact", data.preferredContact);
     formData.append("profilePic", {
-      uri: data.profilePic.path,
-      type: data.profilePic.mime,
-      name: data.profilePic.filename,
+      uri: data.profilePic?.path || data.profilePic?.uri,
+      type: data.profilePic?.mime || data.profilePic?.type || "image/png",
+      name: data.profilePic?.filename || data.profilePic?.name || "profile-photo.png",
     } as any);
 
     console.log("FormData ready for fetch:", formData);
@@ -280,20 +304,34 @@ const RegisterForm = () => {
           <Controller
             control={control}
             name="profilePic"
-            render={({ field: { onChange, value } }) => (
-              <View style={styles.imageContainer}>
-                <Button title="Choose Image" onPress={() => selectImage(onChange)} />
-                {value && value.path && (
-                  <TouchableOpacity onPress={() => selectImage(onChange)}>
-                    <Image
-                      source={{ uri: value.path }}
-                      style={styles.avatar}
-                      resizeMode="contain"
-                    />
+            render={({ field: { onChange, value } }) => {
+              const selectedProfilePicUri = (value as any)?.path || (value as any)?.uri || "";
+
+              return (
+                <View style={styles.imageContainer}>
+                  <Text style={styles.formLabel}>Profile Photo</Text>
+                  <TouchableOpacity onPress={() => selectImage(onChange)} style={styles.imagePickerButton}>
+                    {selectedProfilePicUri ? (
+                      <Image source={{ uri: selectedProfilePicUri }} style={styles.avatar} resizeMode="cover" />
+                    ) : (
+                      <Image source={require("../../assets/images/avatars/profile-img.png")} style={styles.avatar} resizeMode="cover" />
+                    )}
                   </TouchableOpacity>
-                )}
-              </View>
-            )}
+                  <Text style={styles.helperText}>Choose a photo from your gallery or pick one of the local avatars below.</Text>
+                  <View style={styles.avatarGrid}>
+                    {localAvatarOptions.map((avatar) => (
+                      <TouchableOpacity
+                        key={avatar.key}
+                        onPress={() => selectLocalAvatar(avatar, onChange)}
+                        style={styles.avatarOption}
+                      >
+                        <Image source={avatar.asset} style={styles.avatarOptionImage} resizeMode="cover" />
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+              );
+            }}
           />
           {errors.profilePic && (
             <Text style={styles.errorText}>{errors.profilePic.message}</Text>
@@ -680,12 +718,37 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   imageContainer: { alignItems: "center", marginBottom: 20 },
+  imagePickerButton: {
+    marginTop: 4,
+  },
   avatar: {
-    width: 120,
-    height: 120,
-    borderRadius: 20,
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    borderColor: AppColors.grey2,
+  },
+  helperText: {
+    fontSize: 12,
+    color: AppColors.grey2,
+    textAlign: "center",
+    marginTop: 8,
     marginBottom: 8,
-    // boxShadow: "0px 4px 6px 0px rgba(0, 0, 0, 0.1)",
+  },
+  avatarGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    gap: 8,
+  },
+  avatarOption: {
+    margin: 4,
+  },
+  avatarOptionImage: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    borderWidth: 1,
+    borderColor: AppColors.grey2,
   },
   placeholder: {
     backgroundColor: "#ccc",
