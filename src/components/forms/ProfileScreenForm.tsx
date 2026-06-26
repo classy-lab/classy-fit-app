@@ -559,28 +559,38 @@ const ProfileScreenForm = () => {
           <Controller
             control={control}
             name="role"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <SelectList
-                setSelected={(val) => onChange(val)} // Send selection to hook-form
-                data={roleData}
-                save="value"
-                placeholder="Select Category"
-                defaultOption={{ key: "1", value: user.role }}
-                boxStyles={{
-                  borderColor: AppColors.grey,
-                  borderWidth: 1,
-                  paddingHorizontal: 8,
-                }}
-                dropdownStyles={{
-                  borderColor: AppColors.grey2,
-                  borderWidth: 1,
-                  marginTop: 8,
-                  backgroundColor: "white",
-                }}
-              // If you need to force the value from the parent (e.g., reset)
-              // defaultOption={data.find(item => item.value === value)}
-              />
-            )}
+            render={({ field: { onChange, onBlur, value } }) => {
+              const selectedRole = roleData.find(
+                (item) => item.value === (value || user.role),
+              );
+
+              return (
+                <SelectList
+                  setSelected={(val) => onChange(val)} // Send selection to hook-form
+                  data={roleData}
+                  save="value"
+                  placeholder="Select Category"
+                  defaultOption={
+                    selectedRole
+                      ? { key: selectedRole.key, value: selectedRole.value }
+                      : undefined
+                  }
+                  boxStyles={{
+                    borderColor: AppColors.grey,
+                    borderWidth: 1,
+                    paddingHorizontal: 8,
+                  }}
+                  dropdownStyles={{
+                    borderColor: AppColors.grey2,
+                    borderWidth: 1,
+                    marginTop: 8,
+                    backgroundColor: "white",
+                  }}
+                // If you need to force the value from the parent (e.g., reset)
+                // defaultOption={data.find(item => item.value === value)}
+                />
+              );
+            }}
           />
           {errors.role && (
             <Text style={styles.errorText}>{errors.role.message}</Text>
@@ -660,28 +670,38 @@ const ProfileScreenForm = () => {
           <Controller
             name="sex"
             control={control}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <SelectList
-                setSelected={(val) => onChange(val)} // Send selection to hook-form
-                data={sexData}
-                save="value"
-                defaultOption={{ key: "1", value: user.gender }}
-                placeholder="Select Category"
-                boxStyles={{
-                  borderColor: AppColors.grey,
-                  borderWidth: 1,
-                  paddingHorizontal: 8,
-                }}
-                dropdownStyles={{
-                  borderColor: AppColors.grey2,
-                  borderWidth: 1,
-                  marginTop: 8,
-                  backgroundColor: "white",
-                }}
-              // If you need to force the value from the parent (e.g., reset)
-              // defaultOption={data.find(item => item.value === value)}
-              />
-            )}
+            render={({ field: { onChange, onBlur, value } }) => {
+              const selectedSex = sexData.find(
+                (item) => item.value === (value || user.gender),
+              );
+
+              return (
+                <SelectList
+                  setSelected={(val) => onChange(val)} // Send selection to hook-form
+                  data={sexData}
+                  save="value"
+                  defaultOption={
+                    selectedSex
+                      ? { key: selectedSex.key, value: selectedSex.value }
+                      : undefined
+                  }
+                  placeholder="Select Category"
+                  boxStyles={{
+                    borderColor: AppColors.grey,
+                    borderWidth: 1,
+                    paddingHorizontal: 8,
+                  }}
+                  dropdownStyles={{
+                    borderColor: AppColors.grey2,
+                    borderWidth: 1,
+                    marginTop: 8,
+                    backgroundColor: "white",
+                  }}
+                // If you need to force the value from the parent (e.g., reset)
+                // defaultOption={data.find(item => item.value === value)}
+                />
+              );
+            }}
           />
           {errors.sex && (
             <Text style={styles.errorText}>{errors.sex.message}</Text>
