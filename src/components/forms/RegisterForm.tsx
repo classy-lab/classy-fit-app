@@ -411,7 +411,7 @@ const RegisterForm = () => {
                 data={roleData}
                 save="value"
                 placeholder="Select Category"
-                defaultOption={{ key: "1", value: "Member" }}
+                defaultOption={{ key: "2", value: "Member" }}
                 boxStyles={{
                   borderColor: AppColors.grey,
                   borderWidth: 1,
