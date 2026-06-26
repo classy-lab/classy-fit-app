@@ -13,6 +13,7 @@ const GymList = ({ onSelectValue }) => {
     { key: "4", value: "Sarah's Gym, Cobleskill, NY" },
   ];
   const { user } = useContext(UserContext);
+  const selectedGym = gymData.find((gym) => gym.key === String(user?.gym_id || ""));
 
   return (
     <SelectList
@@ -20,10 +21,14 @@ const GymList = ({ onSelectValue }) => {
       data={gymData}
       save="key"
       placeholder="Select Category"
-      defaultOption={{
-        key: user ? Number(user.gym_id) - 1 : "",
-        value: user ? gymData[Number(user.gym_id) - 1].value : "",
-      }}
+      defaultOption={
+        selectedGym
+          ? {
+              key: selectedGym.key,
+              value: selectedGym.value,
+            }
+          : undefined
+      }
       boxStyles={{
         borderColor: AppColors.grey,
         borderWidth: 1,
