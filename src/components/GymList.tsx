@@ -24,9 +24,9 @@ const GymList = ({ onSelectValue }) => {
       defaultOption={
         selectedGym
           ? {
-              key: selectedGym.key,
-              value: selectedGym.value,
-            }
+            key: selectedGym.key,
+            value: selectedGym.value,
+          }
           : undefined
       }
       boxStyles={{
@@ -40,8 +40,8 @@ const GymList = ({ onSelectValue }) => {
         marginTop: 8,
         backgroundColor: "white",
       }}
-      // If you need to force the value from the parent (e.g., reset)
-      // defaultOption={data.find(item => item.value === value)}
+    // If you need to force the value from the parent (e.g., reset)
+    // defaultOption={data.find(item => item.value === value)}
     />
   );
 };
