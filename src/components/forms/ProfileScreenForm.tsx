@@ -126,7 +126,7 @@ const localAvatarOptions = [
 // COMPONENT
 // ============================================================================
 
-const ProfileScreenForm = () => {
+const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
   const { user, setUser } = useContext(UserContext);
   const { tokens, setTokens } = useContext(UserContext);
   const [website, setWebsite] = useState("");
@@ -284,35 +284,39 @@ const ProfileScreenForm = () => {
 
     if (response.status == 200) {
       console.log(obj);
-      // showMessage({
-      //   message: obj?.message,
-      //   type: "success",
-      //   autoHide: false, // prevents the message from disappearing automatically
-      //   onPress: () => hideMessage(), // closes the message when pressed
-      // });
-      console.log('obj: ', obj);
+      showMessage({
+        message: obj?.message,
+        type: "success",
+        autoHide: false, // prevents the message from disappearing automatically
+        onPress: () => hideMessage(), // closes the message when pressed
+      });
+
+      // // Optionally, you can also clear the user context or navigate to a different screen after deletion
+      navigation.navigate("Login"); // Navigate to the Login screen after deletion
+      setUser(null);
+      setTokens(null);
     }
     else {
       console.log("Access token expired, requesting new one - executeProfileDeletion()");
 
-      // const response = await fetch(`${webServer}/api/refresh.php`, {
-      //   method: "POST",
-      //   body: JSON.stringify({
-      //     token: tokens.refresh_token,
-      //   }),
-      // });
+      const response = await fetch(`${webServer}/api/refresh.php`, {
+        method: "POST",
+        body: JSON.stringify({
+          token: tokens.refresh_token,
+        }),
+      });
 
-      // const json = await response.text();
-      // const obj = JSON.parse(json);
+      const json = await response.text();
+      const obj = JSON.parse(json);
 
-      // if (response.status == 200) {
-      //   console.log("Got new access token and refresh token");
-      //   setTokens({
-      //     ...tokens,
-      //     access_token: obj.access_token,
-      //     refresh_token: obj.refresh_token,
-      //   });
-      // }
+      if (response.status == 200) {
+        console.log("Got new access token and refresh token");
+        setTokens({
+          ...tokens,
+          access_token: obj.access_token,
+          refresh_token: obj.refresh_token,
+        });
+      }
     }
   };
 
