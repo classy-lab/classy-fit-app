@@ -2,20 +2,22 @@ import { StyleSheet, Text, View, TouchableOpacity, ScrollView, TextInput, Image,
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
-import Feather from '@expo/vector-icons/Feather'
+import { Feather, MaterialIcons } from '@expo/vector-icons'
 import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
-import { useEffect } from 'react'
 import SignOut from '../../components/utils/SignOut'
-import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import * as yup from 'yup'
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
-const StaffScreen = ({ navigation, route }) => {
+const StaffScreen = ({ navigation }: { navigation: any }) => {
   const [fontsLoaded] = useFonts({
     Montserrat: require("../../assets/fonts/montserrat/Montserrat-Regular.ttf"),
     "Montserrat-Bold": require("../../assets/fonts/montserrat/Montserrat-Bold.ttf"),
   });
+
+  if (!fontsLoaded) {
+    return null;
+  }
 
   // 1. Define the Yup validation schema
   const schema = yup.object().shape({
@@ -167,7 +169,7 @@ const styles = StyleSheet.create({
   title: {
     color: AppColors.blue,
     fontFamily: "Montserrat",
-    fontSize: 32,
+    borderRadius: 15,
     marginTop: 20,
     marginBottom: 40,
     width: 320,
@@ -246,7 +248,7 @@ const styles = StyleSheet.create({
   circle: {
     width: 30,
     height: 30,
-    borderRadius: '50%',
+    borderRadius: 15,
     backgroundColor: AppColors.blue,
     justifyContent: 'center',
     alignItems: 'center',
