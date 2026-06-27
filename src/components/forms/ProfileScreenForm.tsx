@@ -18,9 +18,11 @@ import PreferredContact from "./PreferredContact";
 import GymList from "../GymList";
 import { globalStyles } from "../../styles/globalStyles";
 import {
+  findRoleOption,
   localAvatarOptions,
   MAX_PROFILE_PIC_BYTES,
   MIN_SUBMISSION_TIME_MS,
+  normalizeRole,
   roleData,
   schema,
   sexData,
@@ -112,7 +114,7 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
       email: user?.email,
       password: "pppppppppppp",
       confirmPassword: "pppppppppppp",
-      role: user?.role,
+      role: normalizeRole(user?.role),
       fname: user?.given_name,
       lname: user?.family_name,
       dateOfBirth: '',
@@ -309,7 +311,7 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
     formData.append("email", data.email);
     formData.append("password", data.password);
     formData.append("data.confirmPassword", data.confirmPassword);
-    formData.append("role", data.role);
+    formData.append("role", normalizeRole(data.role));
     formData.append("fname", data.fname);
     formData.append("lname", data.lname);
     formData.append("date_of_birth", data.dateOfBirth);
@@ -485,13 +487,13 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
             control={control}
             name="role"
             render={({ field: { onChange, onBlur, value } }) => {
-              const selectedRole = roleData.find(
-                (item) => item.value === (value || user.role),
-              );
+              const selectedRole = findRoleOption(value || user.role);
 
               return (
                 <SelectList
-                  setSelected={(val) => onChange(val)} // Send selection to hook-form
+                  setSelected={(selectedValue) =>
+                    onChange(normalizeRole(selectedValue))
+                  }
                   data={roleData}
                   save="value"
                   placeholder="Select Category"

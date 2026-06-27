@@ -84,6 +84,18 @@ export const roleData = [
   { key: "4", value: "Contractor" },
 ];
 
+export const findRoleOption = (role?: string | null) => {
+  if (!role) return undefined;
+
+  return roleData.find(
+    (item) => item.key === String(role) || item.value === role,
+  );
+};
+
+export const normalizeRole = (role?: string | null) => {
+  return findRoleOption(role)?.value || role || "";
+};
+
 export const localAvatarOptions = [
   {
     key: "avatar-1",
