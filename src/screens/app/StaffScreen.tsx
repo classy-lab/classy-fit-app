@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
   title: {
     color: AppColors.blue,
     fontFamily: "Montserrat",
-    borderRadius: 15,
+    fontSize: 32,
     marginTop: 20,
     marginBottom: 40,
     width: 320,
