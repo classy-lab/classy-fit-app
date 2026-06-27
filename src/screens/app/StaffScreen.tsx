@@ -6,6 +6,7 @@ import Feather from '@expo/vector-icons/Feather'
 import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
 import { useEffect } from 'react'
 import SignOut from '../../components/utils/SignOut'
+import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 
 const StaffScreen = ({ navigation, route }) => {
   const [fontsLoaded] = useFonts({
@@ -25,7 +26,16 @@ const StaffScreen = ({ navigation, route }) => {
               navigation.goBack();
             }}
           />
-          <SignOut />
+          <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: 10 }}>
+            {/* move to separate component */}
+            <View style={styles.signOut}>
+              <Text style={styles.signOutText}>Add</Text>
+              <View style={styles.circle}>
+                <MaterialIcons name="add" color={AppColors.white} size={16} />
+              </View>
+            </View>
+            <SignOut />
+          </View>
         </View>
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.headingContainer}>
@@ -35,7 +45,7 @@ const StaffScreen = ({ navigation, route }) => {
           <View style={styles.body}>
 
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Admin</Text>
+              <Text style={styles.sectionTitle}>Owners</Text>
               <View style={styles.boxes}>
                 <TouchableOpacity>
                   <View style={styles.box}>
@@ -152,5 +162,13 @@ const styles = StyleSheet.create({
   personName: {
     marginTop: 10,
     textAlign: 'center'
+  },
+  circle: {
+    width: 30,
+    height: 30,
+    borderRadius: '50%',
+    backgroundColor: AppColors.blue,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 })
