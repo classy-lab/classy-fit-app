@@ -474,7 +474,7 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
 
               return (
                 <View style={styles.imageContainer}>
-                  <Text style={styles.formLabel}>Profile Photo</Text>
+                  {/* <Text style={styles.formLabel}>Profile Photo</Text> */}
                   <TouchableOpacity onPress={() => selectImage(onChange)} style={styles.imagePickerButton}>
                     {selectedProfilePicUri ? (
                       <Image source={{ uri: selectedProfilePicUri }} style={styles.avatar} resizeMode="cover" />
@@ -854,13 +854,13 @@ const styles = StyleSheet.create({
   },
   imageContainer: { alignItems: "center", marginBottom: 8 },
   imagePickerButton: {
-    marginTop: 4,
+    // marginTop: 4,
   },
   avatar: {
     width: 96,
     height: 96,
-    borderRadius: 48,
-    borderWidth: 1,
+    borderRadius: 20,
+    // borderWidth: 1,
     borderColor: AppColors.grey2,
   },
   helperText: {
@@ -882,8 +882,8 @@ const styles = StyleSheet.create({
   avatarOptionImage: {
     width: 56,
     height: 56,
-    borderRadius: 28,
-    borderWidth: 1,
+    // borderRadius: 28,
+    // borderWidth: 1,
     borderColor: AppColors.grey2,
   },
   field: {},
