@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Image } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, TextInput, Image } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { AppColors } from '../../styles/colors'
 import { useFonts } from 'expo-font'
@@ -7,12 +7,48 @@ import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
 import { useEffect } from 'react'
 import SignOut from '../../components/utils/SignOut'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
+import * as yup from 'yup'
+import { useForm, Controller } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
 
 const StaffScreen = ({ navigation, route }) => {
   const [fontsLoaded] = useFonts({
     Montserrat: require("../../assets/fonts/montserrat/Montserrat-Regular.ttf"),
     "Montserrat-Bold": require("../../assets/fonts/montserrat/Montserrat-Bold.ttf"),
   });
+
+  // 1. Define the Yup validation schema
+  const schema = yup.object().shape({
+    search: yup.string().required('Search field is required').matches(
+      /^[a-zA-Z0-9]+$/,
+      'Password must only contain alphanumeric characters (letters and numbers)'
+    )
+  })
+
+  // 2. Initialize useForm with the Yup resolver
+  const { control, handleSubmit, formState: { errors } } = useForm({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      search: '',
+    },
+  })
+
+  // 3. Define the submit handler
+  const onSubmit = async (data) => {
+    // This function only runs if validation passes
+
+    try {
+      // Perform your authentication logic or API call here
+      // const response = await api.post('/login', data);
+      // If successful, navigate to the Login page or another desired screen
+      console.log('Form Submitted (Validation Passed):', data);
+      // navigation.navigate('DashboardScreen');
+    } catch (error) {
+      // Handle API errors (React Hook Form does not swallow errors here)
+      console.error("Login failed:", error);
+      // Optionally, show an error message to the user
+    }
+  }
 
   return (
     <>
@@ -43,6 +79,30 @@ const StaffScreen = ({ navigation, route }) => {
             <PinkLeafSvg style={styles.pinkLeaf} />
           </View>
           <View style={styles.body}>
+
+            <View style={styles.fieldset}>
+              <View style={styles.field}>
+                <Controller
+                  control={control}
+                  name="search"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                      style={styles.inputField}
+                      // onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                      keyboardType="default"
+                      autoCapitalize="none"
+                      placeholder="Search"
+                      placeholderTextColor={AppColors.blue}
+                      onBlur={handleSubmit(onSubmit)}
+                    />
+                  )}
+                />
+              </View>
+              {/* Render other form inputs and their corresponding error messages */}
+              {errors.search && <Text style={styles.errorText}>{errors.search.message}</Text>}
+            </View>
 
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Owners</Text>
@@ -108,10 +168,10 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   pinkLeaf: {
-    position: "relative",
+    position: "absolute",
     zIndex: -1,
-    top: -96,
-    right: -40,
+    // top: -8,
+    right: 96,
   },
   body: {
     flex: 1,
@@ -135,6 +195,19 @@ const styles = StyleSheet.create({
   errorText: {
     color: AppColors.red,
     // marginTop: 8
+  },
+  fieldset: {},
+  field: {
+    flexGrow: 1
+  },
+  inputField: {
+    borderWidth: 1,
+    borderColor: AppColors.textInputBorderColor,
+    backgroundColor: AppColors.grey,
+    paddingLeft: 22,
+    // marginTop: 20,
+    height: 48,
+    borderRadius: 8,
   },
   section: {
     // flexDirection: 'column',
