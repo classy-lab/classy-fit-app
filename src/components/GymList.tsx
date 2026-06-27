@@ -7,7 +7,7 @@ import { UserContext } from "../context/UserContext";
 const GymList = ({ onSelectValue }) => {
   // 1. Parent controls the selected value
   const gymData = [
-    { key: "1", value: "Kinderhook Fitness, Valatie, NY" },
+    { key: "1", value: "Classy Fit Gym, Cobleskill, NY" },
     { key: "2", value: "Vent Fitness, Clifton Park, NY" },
     { key: "3", value: "The Bodyshop Gym, Cobleskill, NY" },
     { key: "4", value: "Sarah's Gym, Cobleskill, NY" },

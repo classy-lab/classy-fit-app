@@ -22,9 +22,11 @@ import { UserContext } from "../../context/UserContext";
 import HoneypotField from "./input_fields/HoneypotField";
 import GymList from "../GymList";
 import {
+  findRoleOption,
   localAvatarOptions,
   MAX_PROFILE_PIC_BYTES,
   MIN_SUBMISSION_TIME_MS,
+  normalizeRole,
   roleData,
   schema,
   sexData,
@@ -107,7 +109,7 @@ const RegisterForm = () => {
   ];
 
   const [gyms, setGyms] = useState([]);
-  // const [role, setRole] = React.useState("");
+  const [role, setRole] = React.useState("");
 
   // This is the "onChange" logic for GymList
   const handleSelectionChange = (val) => {
@@ -133,7 +135,7 @@ const RegisterForm = () => {
       email: "",
       password: "",
       confirmPassword: "",
-      role: '',
+      role: normalizeRole("2"),
       fname: "",
       lname: "",
       dateOfBirth: "",
@@ -170,7 +172,7 @@ const RegisterForm = () => {
     formData.append("email", data.email);
     formData.append("password", data.password);
     formData.append("data.confirmPassword", data.confirmPassword);
-    formData.append("role", data.role);
+    formData.append("role", normalizeRole(data.role));
     formData.append("fname", data.fname);
     formData.append("lname", data.lname);
     formData.append("date_of_birth", data.dateOfBirth);
@@ -330,29 +332,40 @@ const RegisterForm = () => {
           <Controller
             control={control}
             name="role"
-            render={({ field: { onChange, onBlur, value, ref } }) => (
-              <SelectList
-                ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
-                setSelected={(val) => onChange(val)} // Send selection to hook-form
-                data={roleData}
-                save="value"
-                placeholder="Select Category"
-                defaultOption={{ key: "2", value: "Member" }}
-                boxStyles={{
-                  borderColor: AppColors.grey,
-                  borderWidth: 1,
-                  paddingHorizontal: 8,
-                }}
-                dropdownStyles={{
-                  borderColor: AppColors.grey2,
-                  borderWidth: 1,
-                  marginTop: 8,
-                  backgroundColor: "white",
-                }}
-              // If you need to force the value from the parent (e.g., reset)
-              // defaultOption={data.find(item => item.value === value)}
-              />
-            )}
+            render={({ field: { onChange, onBlur, value, ref } }) => {
+              const selectedRole =
+                findRoleOption(value) || findRoleOption("2");
+
+              return (
+                <SelectList
+                  ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
+                  setSelected={(selectedValue) =>
+                    onChange(normalizeRole(selectedValue))
+                  }
+                  data={roleData}
+                  save="value"
+                  placeholder="Select Category"
+                  defaultOption={
+                    selectedRole
+                      ? { key: selectedRole.key, value: selectedRole.value }
+                      : undefined
+                  }
+                  boxStyles={{
+                    borderColor: AppColors.grey,
+                    borderWidth: 1,
+                    paddingHorizontal: 8,
+                  }}
+                  dropdownStyles={{
+                    borderColor: AppColors.grey2,
+                    borderWidth: 1,
+                    marginTop: 8,
+                    backgroundColor: "white",
+                  }}
+                // If you need to force the value from the parent (e.g., reset)
+                // defaultOption={data.find(item => item.value === value)}
+                />
+              );
+            }}
           />
           {errors.role && (
             <Text style={styles.errorText}>{errors.role.message}</Text>

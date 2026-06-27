@@ -15,6 +15,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Feather from "@expo/vector-icons/Feather";
 import VectorImageSvg from "../../components/svg/VectorImageSvg";
 import ProfileScreenForm from "../../components/forms/ProfileScreenForm";
+import { normalizeRole } from "../../components/forms/ProfileScreenForm.constants";
 import SignOut from "../../components/utils/SignOut";
 
 const ProfileScreen = () => {
@@ -42,7 +43,7 @@ const ProfileScreen = () => {
             <Text value={user?.given_name} style={styles.title}>
               {user?.given_name} {user?.family_name}
             </Text>
-            <Text style={styles.subHead}>{user?.role}</Text>
+            <Text style={styles.subHead}>{normalizeRole(user?.role)}</Text>
           </View>
           <View style={styles.body}>
             <ProfileScreenForm />
