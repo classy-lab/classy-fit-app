@@ -1,7 +1,6 @@
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView, TextInput, Image, Keyboard, TouchableWithoutFeedback } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { AppColors } from '../../styles/colors'
-import { useFonts } from 'expo-font'
 import { Feather, MaterialIcons } from '@expo/vector-icons'
 import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
 import SignOut from '../../components/utils/SignOut'
@@ -10,15 +9,6 @@ import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
 const StaffScreen = ({ navigation }: { navigation: any }) => {
-  const [fontsLoaded] = useFonts({
-    Montserrat: require("../../assets/fonts/montserrat/Montserrat-Regular.ttf"),
-    "Montserrat-Bold": require("../../assets/fonts/montserrat/Montserrat-Bold.ttf"),
-  });
-
-  if (!fontsLoaded) {
-    return null;
-  }
-
   // 1. Define the Yup validation schema
   const schema = yup.object().shape({
     search: yup.string().required('Search field is required').matches(
