@@ -1,10 +1,8 @@
 import { StyleSheet, Text, View, Dimensions, TouchableOpacity, ScrollView, TextInput, Image } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { AppColors } from '../../styles/colors'
-import { useFonts } from 'expo-font'
 import { s } from 'react-native-size-matters'
-import MaterialIcons from '@expo/vector-icons/MaterialIcons'
-import Feather from '@expo/vector-icons/Feather'
+import { Feather, MaterialIcons } from '@expo/vector-icons'
 import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
 import * as yup from 'yup'
 import { useForm, Controller } from 'react-hook-form'
@@ -12,8 +10,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 
 const windowHeight = Dimensions.get('window').height
 
-const StaffScreen = ({ navigation, route }) => {
-
+const StaffScreen = ({ navigation }: { navigation: any }) => {
   // 1. Define the Yup validation schema
   const schema = yup.object().shape({
     search: yup.string().required('Search field is required').matches(
@@ -31,7 +28,7 @@ const StaffScreen = ({ navigation, route }) => {
   })
 
   // 3. Define the submit handler
-  const onSubmit = async (data) => {
+  const onSubmit = async (data: { search: string }) => {
     // This function only runs if validation passes
     console.log('Form Submitted (Validation Passed):', data);
 
@@ -230,6 +227,7 @@ const styles = StyleSheet.create({
     // justifyContent: 'center',
     // alignItems: 'center',
   },
+  box: {},
   image: {
     marginTop: 16,
     width: 80,

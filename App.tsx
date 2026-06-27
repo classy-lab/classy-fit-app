@@ -1,20 +1,48 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import AuthStack from "./src/navigation/AuthStack"; // Contains Login/Signup screens
 import AppTabs from "./src/navigation/AppTabs"; // Contains Home/Dashboard/Settings screens
-import { setCustomText } from "react-native-global-props";
+import { useFonts } from "expo-font";
+import { setCustomText, setCustomTextInput } from "react-native-global-props";
 import { UserContext } from "./src/context/UserContext";
 import FlashMessage from "react-native-flash-message";
 
+// Apply Montserrat to Text components that do not set a font explicitly.
 const customTextProps = {
   style: {
-    fontFamily: "Montserrat-Regular",
+    fontFamily: "Montserrat",
   },
 };
-setCustomText(customTextProps);
+
+// Apply the same default font to TextInput components.
+const customTextInputProps = {
+  style: {
+    fontFamily: "Montserrat",
+  },
+};
 
 export default function App() {
+  // Load fonts once at app startup before mounting navigators.
+  const [fontsLoaded] = useFonts({
+    Montserrat: require("./src/assets/fonts/montserrat/Montserrat-Regular.ttf"),
+    "Montserrat-Bold": require("./src/assets/fonts/montserrat/Montserrat-Bold.ttf"),
+  });
+
+  useEffect(() => {
+    if (!fontsLoaded) {
+      return;
+    }
+
+    // Register global default fonts after the family is available.
+    setCustomText(customTextProps);
+    setCustomTextInput(customTextInputProps);
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [tokens, setTokens] = useState(null);
   const [user, setUser] = useState(null);
@@ -23,7 +51,7 @@ export default function App() {
   );
 
   return (
-    // The 'value' prop contains the data you want to share across children
+    // Share auth and API state across the app tree.
     <UserContext.Provider
       value={{
         isLoggedIn,
