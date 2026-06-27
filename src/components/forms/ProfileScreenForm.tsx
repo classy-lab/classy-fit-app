@@ -858,8 +858,8 @@ const styles = StyleSheet.create({
     // marginTop: 4,
   },
   avatar: {
-    width: 96,
-    height: 96,
+    width: 80,
+    height: 80,
     borderRadius: 20,
     // borderWidth: 1,
     borderColor: AppColors.grey2,
