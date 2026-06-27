@@ -143,6 +143,7 @@ const styles = StyleSheet.create({
     // justifyContent: 'center',
     // alignItems: 'center',
   },
+  box: {},
   image: {
     marginTop: 16,
     width: 80,
