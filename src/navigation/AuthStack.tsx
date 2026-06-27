@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, useContext } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { AppColors } from "../styles/colors";

@@ -1,21 +1,19 @@
-import { StyleSheet, Text, View, Dimensions, TouchableOpacity, ScrollView, TextInput, Image } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, TextInput, Image, Keyboard, TouchableWithoutFeedback } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { AppColors } from '../../styles/colors'
-import { s } from 'react-native-size-matters'
 import { Feather, MaterialIcons } from '@expo/vector-icons'
 import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
+import SignOut from '../../components/utils/SignOut'
 import * as yup from 'yup'
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-
-const windowHeight = Dimensions.get('window').height
 
 const StaffScreen = ({ navigation }: { navigation: any }) => {
   // 1. Define the Yup validation schema
   const schema = yup.object().shape({
     search: yup.string().required('Search field is required').matches(
-      /^[a-zA-Z0-9]+$/,
-      'Password must only contain alphanumeric characters (letters and numbers)'
+      /^[a-zA-Z0-9 .,]+$/,
+      'Search can only contain letters, numbers, spaces, full stops, and commas'
     )
   })
 
@@ -28,112 +26,115 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
   })
 
   // 3. Define the submit handler
-  const onSubmit = async (data: { search: string }) => {
+  const onSubmit = (data: { search: string }) => {
     // This function only runs if validation passes
-    console.log('Form Submitted (Validation Passed):', data);
-
     try {
-      // Perform your authentication logic or API call here
-      // const response = await api.post('/login', data);
-      // If successful, navigate to the Login page or another desired screen
-      // navigation.navigate('DashboardScreen');
+      console.log('Search value:', data.search);
+      Keyboard.dismiss();
     } catch (error) {
-      // Handle API errors (React Hook Form does not swallow errors here)
-      console.error("Login failed:", error);
-      // Optionally, show an error message to the user
+      console.error('Search submit failed:', error);
     }
   }
 
   return (
     <>
-      <SafeAreaView style={styles.container}>
-        <View style={styles.navs}>
-          <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
-          {/* <View style={styles.signOut}>
-            <Text style={styles.signOutText}>Add</Text>
-            <View style={styles.circle}>
-              <Feather name="plus" size={24} color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <SafeAreaView style={styles.container}>
+          <View style={styles.navs}>
+            <Feather
+              name="arrow-left"
+              color={AppColors.blue}
+              size={36}
+              onPress={() => {
+                navigation.goBack();
+              }}
+            />
+            <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: 10 }}>
+              {/* move to separate component */}
+              <View style={styles.signOut}>
+                <Text style={styles.signOutText}>Add</Text>
+                <View style={styles.circle}>
+                  <MaterialIcons name="add" color={AppColors.white} size={16} />
+                </View>
+              </View>
+              <SignOut />
             </View>
-            <Text style={styles.signOutText}>Sign out</Text>
-            <View style={styles.circle}>
-              <MaterialIcons name="logout" color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
-            </View>
-          </View> */}
-        </View>
-        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-          <View style={styles.headingContainer}>
-            <Text style={styles.title}>Staff</Text>
-            <PinkLeafSvg style={styles.pinkLeaf} />
           </View>
-          <View style={styles.body}>
-
-            <View style={styles.fieldset}>
-              <View style={styles.field}>
-                <Controller
-                  control={control}
-                  name="search"
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <TextInput
-                      style={styles.inputField}
-                      // onBlur={onBlur}
-                      onChangeText={onChange}
-                      value={value}
-                      keyboardType="default"
-                      autoCapitalize="none"
-                      placeholder="Search"
-                      placeholderTextColor={AppColors.blue}
-                      onBlur={handleSubmit(onSubmit)}
-                    />
-                  )}
-                />
-              </View>
-              {/* Render other form inputs and their corresponding error messages */}
-              {/* <View style={styles.loginBtnContainer}>
-                <TouchableOpacity
-                  style={styles.loginBtn}
-                  title="loginSubmit"
-                  activeOpacity={0.7}
-                  onPress={handleSubmit(onSubmit)}
-                >
-                  <Text style={styles.loginBtnText}>Search</Text>
-                </TouchableOpacity>
-              </View> */}
-              {errors.search && <Text style={styles.errorText}>{errors.search.message}</Text>}
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.headingContainer}>
+              <Text style={styles.title}>Staff</Text>
+              <PinkLeafSvg style={styles.pinkLeaf} />
             </View>
+            <View style={styles.body}>
 
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Admin</Text>
-              <View style={styles.boxes}>
-                <TouchableOpacity>
-                  <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/headshots/sarahHeadshot.png')} />
-                    <Text style={styles.personName}>Sarah B.</Text>
-                  </View>
-                </TouchableOpacity>
+              <View style={styles.fieldset}>
+                <View style={styles.field}>
+                  <Controller
+                    control={control}
+                    name="search"
+                    render={({ field: { onChange, onBlur, value } }) => (
+                      <TextInput
+                        onBlur={() => {
+                          onBlur();
+                          console.log('Search value on blur:', value);
+                          handleSubmit(onSubmit)();
+                        }}
+                        onSubmitEditing={() => {
+                          Keyboard.dismiss();
+                        }}
+                        onChangeText={onChange}
+                        value={value}
+                        placeholder="Search"
+                        style={styles.inputField}
+                        keyboardType="default"
+                        returnKeyType="done"
+                        blurOnSubmit
+                        autoCapitalize="none"
+                        placeholderTextColor={AppColors.blue}
+                      />
+                    )}
+                  />
+                </View>
+                {/* Render other form inputs and their corresponding error messages */}
+                {errors.search && <Text style={styles.errorText}>{errors.search.message}</Text>}
               </View>
-            </View>
 
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Trainers</Text>
-              <View style={styles.boxes}>
-                <TouchableOpacity>
-                  <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/headshots/jenniferHeadshot.png')} />
-                    <Text style={styles.personName}>Jenniffer P.</Text>
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity>
-                  <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/headshots/mariaHeadshot.png')} />
-                    <Text style={styles.personName}>Maria K.</Text>
-                  </View>
-                </TouchableOpacity>
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Owners</Text>
+                <View style={styles.boxes}>
+                  <TouchableOpacity>
+                    <View style={styles.box}>
+                      <Image style={styles.image} source={require('../../assets/images/headshots/sarahHeadshot.png')} />
+                      <Text style={styles.personName}>Sarah B.</Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
 
-          </View>
-        </ScrollView>
-      </SafeAreaView>
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Trainers</Text>
+                <View style={styles.boxes}>
+                  <TouchableOpacity>
+                    <View style={styles.box}>
+                      <Image style={styles.image} source={require('../../assets/images/headshots/jenniferHeadshot.png')} />
+                      <Text style={styles.personName}>Jenniffer P.</Text>
+                    </View>
+                  </TouchableOpacity>
+                  <TouchableOpacity>
+                    <View style={styles.box}>
+                      <Image style={styles.image} source={require('../../assets/images/headshots/mariaHeadshot.png')} />
+                      <Text style={styles.personName}>Maria K.</Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+            </View>
+          </ScrollView>
+        </SafeAreaView>
+      </TouchableWithoutFeedback>
     </>
   )
 }
@@ -143,16 +144,40 @@ export default StaffScreen
 const styles = StyleSheet.create({
   container: {
     backgroundColor: AppColors.white,
+    flex: 1,
+    paddingLeft: 24,
+    paddingRight: 24,
   },
   navs: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingLeft: 24,
-    paddingRight: 24,
   },
   headingContainer: {
     alignItems: 'center',
     marginBottom: 20
+  },
+  title: {
+    color: AppColors.blue,
+    fontFamily: "Montserrat",
+    fontSize: 32,
+    marginTop: 20,
+    marginBottom: 40,
+    width: 320,
+    textAlign: "center",
+  },
+  pinkLeaf: {
+    position: "absolute",
+    zIndex: -1,
+    right: 96,
+  },
+  body: {
+    flex: 1,
+  },
+  bodyText: {
+    fontSize: 16,
+    fontFamily: "Montserrat",
+    lineHeight: 24,
+    color: AppColors.primary,
   },
   signOut: {
     flexDirection: 'row',
@@ -163,35 +188,6 @@ const styles = StyleSheet.create({
     marginRight: 4,
     color: AppColors.blue,
     fontSize: 14
-  },
-  circle: {
-    width: 30,
-    height: 30,
-    borderRadius: '50%',
-    backgroundColor: AppColors.blue,
-    justifyContent: 'center',
-    alignItems: 'center',
-    // paddingLeft: 3
-  },
-  title: {
-    color: AppColors.blue,
-    fontFamily: 'Montserrat',
-    fontSize: 32,
-    marginTop: 20,
-  },
-  pinkLeaf: {
-    position: 'absolute',
-    // zIndex: -1,
-    // top: 0,
-    right: 88
-  },
-  body: {
-    paddingLeft: 24,
-    paddingRight: 24,
-    marginBottom: 8,
-    flex: 1,
-    height: windowHeight,
-    // borderWidth: 1, borderColor: 'red',
   },
   errorText: {
     color: AppColors.red,
@@ -206,9 +202,11 @@ const styles = StyleSheet.create({
     borderColor: AppColors.textInputBorderColor,
     backgroundColor: AppColors.grey,
     paddingLeft: 22,
-    marginTop: 20,
-    height: s(48),
-    borderRadius: s(8),
+    height: 48,
+    borderRadius: 8,
+    color: AppColors.blue,
+    fontFamily: "Montserrat",
+    fontSize: 16,
   },
   section: {
     // flexDirection: 'column',
@@ -237,6 +235,12 @@ const styles = StyleSheet.create({
     marginTop: 10,
     textAlign: 'center'
   },
-  scrollView: {
-  }
+  circle: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: AppColors.blue,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 })

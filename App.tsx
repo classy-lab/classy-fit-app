@@ -29,6 +29,13 @@ export default function App() {
     "Montserrat-Bold": require("./src/assets/fonts/montserrat/Montserrat-Bold.ttf"),
   });
 
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [tokens, setTokens] = useState(null);
+  const [user, setUser] = useState(null);
+  const [webServer, setWebserver] = useState(
+    "http://localhost:8080/classy-api",
+  );
+
   useEffect(() => {
     if (!fontsLoaded) {
       return;
@@ -42,13 +49,6 @@ export default function App() {
   if (!fontsLoaded) {
     return null;
   }
-
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [tokens, setTokens] = useState(null);
-  const [user, setUser] = useState(null);
-  const [webServer, setWebserver] = useState(
-    "http://localhost:8080/classy-api",
-  );
 
   return (
     // Share auth and API state across the app tree.

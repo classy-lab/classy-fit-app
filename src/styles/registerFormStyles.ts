@@ -1,0 +1,87 @@
+import {StyleSheet} from 'react-native'
+import { AppColors } from './colors';
+
+export const styles = StyleSheet.create({
+  fieldset: {
+    marginBottom: 32,
+  },
+  formLabel: {
+    fontSize: 12,
+    marginTop: 16,
+    marginBottom: 4,
+  },
+  inputField: {
+    marginTop: 5,
+    borderWidth: 1,
+    paddingLeft: 8,
+    borderColor: AppColors.textInputBorderColor,
+    height: 48,
+    borderRadius: 8,
+    backgroundColor: AppColors.grey,
+  },
+  errorText: {
+    color: AppColors.red,
+  },
+  imageContainer: { alignItems: "center", marginBottom: 20 },
+  imagePickerButton: {
+    // marginTop: 4,
+  },
+  avatar: {
+    width: 96,
+    height: 96,
+    borderRadius: 20,
+    borderColor: AppColors.grey2,
+  },
+  helperText: {
+    fontSize: 12,
+    color: AppColors.grey2,
+    textAlign: "center",
+    marginTop: 8,
+    marginBottom: 8,
+  },
+  avatarGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    gap: 8,
+  },
+  avatarOption: {
+    margin: 1,
+  },
+  avatarOptionImage: {
+    width: 48,
+    height: 48,
+    // borderRadius: 28,
+    // borderWidth: 1,
+    borderColor: AppColors.grey2,
+  },
+  loginBtnContainer: {
+    alignItems: "center",
+    marginTop: 16,
+  },
+  loginBtn: {
+    backgroundColor: AppColors.blue,
+    borderRadius: 40,
+    width: 250,
+    height: 50,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loginBtnText: {
+    color: AppColors.white,
+    fontSize: 14,
+  },
+  selectList: {
+    marginBottom: 80,
+  },
+  agreement: {
+    fontSize: 12,
+    marginTop: 20,
+    lineHeight: 24,
+  },
+  linkText: {
+    fontSize: 12,
+    color: AppColors.blue,
+  },
+  field: {},
+});

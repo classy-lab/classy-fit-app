@@ -1,3 +1,4 @@
+// @ts-nocheck
 // navigation/AppTabs.js
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'

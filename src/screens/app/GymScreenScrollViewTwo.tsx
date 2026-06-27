@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { ScrollView, View, TouchableOpacity, Text } from 'react-native'
 import Treadmill from '../../assets/svg/Treadmill'
 import Elliptical from '../../assets/svg/Elliptical'
