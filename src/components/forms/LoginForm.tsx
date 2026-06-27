@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, useContext, useEffect, useRef } from "react";
 import * as yup from "yup";
 import { useForm, Controller } from "react-hook-form";

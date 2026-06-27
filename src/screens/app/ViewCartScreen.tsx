@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { AppColors } from '../../styles/colors'

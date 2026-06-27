@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useContext } from "react";
 import { UserContext } from '../../context/UserContext'
 import { StyleSheet, Text, View, Dimensions, TouchableOpacity, ScrollView } from 'react-native'

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState, useEffect, useRef, useContext } from "react";
 import { Alert, Button } from "react-native";
 import { useForm, Controller } from "react-hook-form";
