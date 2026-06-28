@@ -19,9 +19,10 @@ import { GymContext } from "../../context/GymContext";
 const StartScreen = () => {
   const navigation = useNavigation();
   const gyms = [
-    { key: "0", value: "Kinderhook Fitness, Valatie, NY" },
+    { key: "0", value: "Classy Gym, Cobleskill, NY" },
     { key: "1", value: "Vent Fitness, Clifton Park, NY" },
-    { key: "2", value: "ABC Sports & Fitness, Latham, NY" },
+    { key: "2", value: "The Bodyshop Gym, Cobleskill, NY" },
+    { key: "3", value: "Sarah's Gym, Cobleskill, NY" },
   ];
   // GymContext variables
   const { gymID, setGymID } = useContext(GymContext);
@@ -94,7 +95,7 @@ const StartScreen = () => {
                 data={gyms}
                 defaultOption={{
                   key: "0",
-                  value: "Kinderhook Fitness, Valatie, NY",
+                  value: "Classy Gym, Cobleskill, NY",
                 }}
                 save="key"
                 placeholder="Select Category"
@@ -109,8 +110,8 @@ const StartScreen = () => {
                   marginTop: 8,
                   backgroundColor: "white",
                 }}
-                // If you need to force the value from the parent (e.g., reset)
-                // defaultOption={data.find(item => item.value === value)}
+              // If you need to force the value from the parent (e.g., reset)
+              // defaultOption={data.find(item => item.value === value)}
               />
             </View>
           </View>
