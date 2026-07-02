@@ -4,10 +4,11 @@ import { AppColors } from '../../styles/colors'
 import { Feather, MaterialIcons } from '@expo/vector-icons'
 import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
 import SignOut from '../../components/utils/SignOut'
+import { useFocusEffect } from '@react-navigation/native'
 import * as yup from 'yup'
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { useContext, useEffect, useState } from 'react'
+import { useCallback, useContext, useEffect, useState } from 'react'
 import { UserContext } from '../../context/UserContext'
 
 const StaffScreen = ({ navigation }: { navigation: any }) => {
@@ -16,8 +17,15 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
   const { webServer } = useContext(UserContext);
   const [owners, setOwners] = useState({});
   const [trainers, setTrainers] = useState({});
-  const ownersList = Object.values(owners as Record<string, { user_picture_url?: string; fname?: string }>);
-  const trainersList = Object.values(trainers as Record<string, { user_picture_url?: string; fname?: string }>);;
+  const [imageCacheKey, setImageCacheKey] = useState(Date.now());
+  const ownersList = Object.values(owners as Record<string, { user_picture_url?: string; fname?: string; lname?: string }>);
+  const trainersList = Object.values(trainers as Record<string, { user_picture_url?: string; fname?: string; lname?: string }>);
+
+  const getImageUri = (path?: string) => {
+    if (!path) return '';
+    const queryJoiner = path.includes('?') ? '&' : '?';
+    return `${webServer}/api/${path}${queryJoiner}v=${imageCacheKey}`;
+  };
 
   // 1. Define the Yup validation schema
   const schema = yup.object().shape({
@@ -46,8 +54,12 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
     }
   }
 
-  useEffect(() => {
-    const fetchStaffData = async () => {
+  const fetchStaffData = useCallback(async () => {
+    if (!user?.gym_id || !tokens?.access_token) {
+      return;
+    }
+
+    try {
       const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/users`, {
         headers: {
           Authorization: "Bearer " + tokens.access_token,
@@ -60,6 +72,7 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
       if (response.status === 200) {
         setOwners(obj.owners);
         setTrainers(obj.trainers);
+        setImageCacheKey(Date.now());
       }
       else {
         console.log("Access token expired, requesting new one - useEffect()");
@@ -76,16 +89,27 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
 
         if (response.status == 200) {
           console.log("Got new access token and refresh token");
-          setTokens({
-            ...tokens,
+          setTokens((prev: any) => ({
+            ...prev,
             access_token: obj.access_token,
             refresh_token: obj.refresh_token,
-          });
+          }));
         }
       }
+    } catch (error) {
+      console.log('Failed to fetch staff data', error);
     }
+  }, [user?.gym_id, tokens?.access_token, tokens?.refresh_token, webServer, setTokens]);
+
+  useEffect(() => {
     fetchStaffData();
-  }, []);
+  }, [fetchStaffData]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchStaffData();
+    }, [fetchStaffData])
+  );
 
   return (
     <>
@@ -160,7 +184,7 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
                       <TouchableOpacity key={index}>
                         <View style={styles.box}>
                           {owner.user_picture_url ? (
-                            <Image style={styles.image} source={{ uri: `${webServer}/api/${owner.user_picture_url}` }} />
+                            <Image style={styles.image} source={{ uri: getImageUri(owner.user_picture_url) }} />
                           ) : null}
                           <Text style={styles.personName}>{owner.fname ?? ''} {owner.lname ? owner.lname[0] + '.' : ''}</Text>
                         </View>
@@ -178,7 +202,7 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
                       <TouchableOpacity key={index}>
                         <View style={styles.box}>
                           {trainer.user_picture_url ? (
-                            <Image style={styles.image} source={{ uri: `${webServer}/api/${trainer.user_picture_url}` }} />
+                            <Image style={styles.image} source={{ uri: getImageUri(trainer.user_picture_url) }} />
                           ) : null}
                           <Text style={styles.personName}>{trainer.fname ?? ''} {trainer.lname ? trainer.lname[0] + '.' : ''}</Text>
                         </View>
