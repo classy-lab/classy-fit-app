@@ -17,6 +17,7 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
   const [owners, setOwners] = useState({});
   const [trainers, setTrainers] = useState({});
   const ownersList = Object.values(owners as Record<string, { user_picture_url?: string; fname?: string }>);
+  const trainersList = Object.values(trainers as Record<string, { user_picture_url?: string; fname?: string }>);;
 
   // 1. Define the Yup validation schema
   const schema = yup.object().shape({
@@ -163,7 +164,7 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
                           {owner.user_picture_url ? (
                             <Image style={styles.image} source={{ uri: `${webServer}/api/${owner.user_picture_url}` }} />
                           ) : null}
-                          <Text style={styles.personName}>{owner.fname ?? ''}</Text>
+                          <Text style={styles.personName}>{owner.fname ?? ''} {owner.lname ? owner.lname[0] + '.' : ''}</Text>
                         </View>
                       </TouchableOpacity>
                     );
@@ -174,18 +175,20 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
               <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Trainers</Text>
                 <View style={styles.boxes}>
-                  <TouchableOpacity>
-                    <View style={styles.box}>
-                      <Image style={styles.image} source={require('../../assets/images/headshots/jenniferHeadshot.png')} />
-                      <Text style={styles.personName}>Jenniffer P.</Text>
-                    </View>
-                  </TouchableOpacity>
-                  <TouchableOpacity>
-                    <View style={styles.box}>
-                      <Image style={styles.image} source={require('../../assets/images/headshots/mariaHeadshot.png')} />
-                      <Text style={styles.personName}>Maria K.</Text>
-                    </View>
-                  </TouchableOpacity>
+                  {trainersList.map((trainer, index) => {
+                    return (
+                      <TouchableOpacity key={index}>
+                        <View style={styles.box}>
+                          {trainer.user_picture_url ? (
+                            <Image style={styles.image} source={{ uri: `${webServer}/api/${trainer.user_picture_url}` }} />
+                          ) : null}
+                          <Text style={styles.personName}>{trainer.fname ?? ''} {trainer.lname ? trainer.lname[0] + '.' : ''}</Text>
+                        </View>
+                      </TouchableOpacity>
+                    );
+                  })
+
+                  }
                 </View>
               </View>
 
