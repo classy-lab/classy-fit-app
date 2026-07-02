@@ -16,11 +16,7 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
   const { webServer } = useContext(UserContext);
   const [owners, setOwners] = useState({});
   const [trainers, setTrainers] = useState({});
-
-  const getImageUri = (path?: string) => {
-    if (!path) return '';
-    return path.startsWith('http') ? path : `${webServer}/api/${path.replace(/^\/+/, '')}`;
-  };
+  const ownersList = Object.values(owners as Record<string, { user_picture_url?: string; fname?: string }>);
 
   // 1. Define the Yup validation schema
   const schema = yup.object().shape({
@@ -160,15 +156,12 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
               <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Owners</Text>
                 <View style={styles.boxes}>
-                  {Object.entries(owners).map(([key, value]) => {
-                    const owner = value as { user_picture_url?: string; fname?: string };
-                    const imageUri = getImageUri(owner.user_picture_url);
-
+                  {ownersList.map((owner, index) => {
                     return (
-                      <TouchableOpacity key={key}>
+                      <TouchableOpacity key={index}>
                         <View style={styles.box}>
-                          {imageUri ? (
-                            <Image style={styles.image} source={{ uri: imageUri }} />
+                          {owner.user_picture_url ? (
+                            <Image style={styles.image} source={{ uri: `${webServer}/api/${owner.user_picture_url.replace(/^\/+/, '')}` }} />
                           ) : null}
                           <Text style={styles.personName}>{owner.fname ?? ''}</Text>
                         </View>
