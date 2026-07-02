@@ -18,8 +18,8 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
   const [owners, setOwners] = useState({});
   const [trainers, setTrainers] = useState({});
   const [imageCacheKey, setImageCacheKey] = useState(Date.now());
-  const ownersList = Object.values(owners as Record<string, { user_picture_url?: string; fname?: string; lname?: string }>);
-  const trainersList = Object.values(trainers as Record<string, { user_picture_url?: string; fname?: string; lname?: string }>);
+  const ownersList = Object.values(owners as Record<string, {}>);
+  const trainersList = Object.values(trainers as Record<string, {}>);
 
   const getImageUri = (path?: string) => {
     if (!path) return '';
