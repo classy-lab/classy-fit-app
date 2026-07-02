@@ -17,6 +17,11 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
   const [owners, setOwners] = useState({});
   const [trainers, setTrainers] = useState({});
 
+  const getImageUri = (path?: string) => {
+    if (!path) return '';
+    return path.startsWith('http') ? path : `${webServer}/api/${path.replace(/^\/+/, '')}`;
+  };
+
   // 1. Define the Yup validation schema
   const schema = yup.object().shape({
     search: yup.string().required('Search field is required').matches(
@@ -156,13 +161,9 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
                 <Text style={styles.sectionTitle}>Owners</Text>
                 <View style={styles.boxes}>
                   {Object.entries(owners).map(([key, value]) => {
-                    if (typeof value !== 'object' || value === null) return null;
                     const owner = value as { user_picture_url?: string; fname?: string };
-                    const imageUri = owner.user_picture_url
-                      ? (owner.user_picture_url.startsWith('http')
-                        ? owner.user_picture_url
-                        : `${webServer}/api/${owner.user_picture_url.replace(/^\/+/, '')}`)
-                      : '';
+                    const imageUri = getImageUri(owner.user_picture_url);
+
                     return (
                       <TouchableOpacity key={key}>
                         <View style={styles.box}>
