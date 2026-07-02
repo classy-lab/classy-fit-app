@@ -150,7 +150,7 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
         });
         setProfilePicAPIImage('http://localhost:8080/classy-api/api/' + obj.profile_fields.user_picture_url);
       } else {
-        console.log("Access token expired, requesting new one - useEffect()");
+        console.log("Access token expired, requesting new one");
 
         const response = await fetch(`${webServer}/api/refresh.php`, {
           method: "POST",

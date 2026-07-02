@@ -58,8 +58,6 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
       const obj = JSON.parse(json);
 
       if (response.status === 200) {
-        // console.log(Object.keys(obj.owners).length);
-        // console.log(Object.keys(obj.trainers).length);
         setOwners(obj.owners);
         setTrainers(obj.trainers);
       }
