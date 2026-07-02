@@ -161,7 +161,7 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
                       <TouchableOpacity key={index}>
                         <View style={styles.box}>
                           {owner.user_picture_url ? (
-                            <Image style={styles.image} source={{ uri: `${webServer}/api/${owner.user_picture_url.replace(/^\/+/, '')}` }} />
+                            <Image style={styles.image} source={{ uri: `${webServer}/api/${owner.user_picture_url}` }} />
                           ) : null}
                           <Text style={styles.personName}>{owner.fname ?? ''}</Text>
                         </View>
