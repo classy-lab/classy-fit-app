@@ -167,11 +167,11 @@ export const localAvatarOptions = [
     name: "avatar-nun-sister.png",
     asset: require("../../assets/images/avatars/avatar-nun-sister.png"),
   },
-  {
-    key: "avatar-15",
-    name: "avatar-male-ozzy.png",
-    asset: require("../../assets/images/avatars/avatar-male-ozzy.png"),
-  },
+  // {
+  //   key: "avatar-15",
+  //   name: "avatar-male-ozzy.png",
+  //   asset: require("../../assets/images/avatars/avatar-male-ozzy.png"),
+  // },
   {
     key: "avatar-16",
     name: "avatar-man-person.png",
