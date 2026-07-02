@@ -4,20 +4,34 @@ import { AppColors } from '../../styles/colors'
 import { Feather, MaterialIcons } from '@expo/vector-icons'
 import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
 import SignOut from '../../components/utils/SignOut'
+import { useFocusEffect } from '@react-navigation/native'
 import * as yup from 'yup'
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { useContext, useEffect, useState } from 'react'
+import { useCallback, useContext, useEffect, useState } from 'react'
 import { UserContext } from '../../context/UserContext'
 
+type StaffMember = {
+  user_picture_url?: string;
+  fname?: string;
+  lname?: string;
+};
+
 const StaffScreen = ({ navigation }: { navigation: any }) => {
-  const { user, setUser } = useContext(UserContext);
+  const { user } = useContext(UserContext);
   const { tokens, setTokens } = useContext(UserContext);
   const { webServer } = useContext(UserContext);
-  const [owners, setOwners] = useState({});
-  const [trainers, setTrainers] = useState({});
-  const ownersList = Object.values(owners as Record<string, { user_picture_url?: string; fname?: string }>);
-  const trainersList = Object.values(trainers as Record<string, { user_picture_url?: string; fname?: string }>);;
+  const [owners, setOwners] = useState<Record<string, StaffMember>>({});
+  const [trainers, setTrainers] = useState<Record<string, StaffMember>>({});
+  const [imageCacheKey, setImageCacheKey] = useState(Date.now());
+  const ownersList = Object.values(owners);
+  const trainersList = Object.values(trainers);
+
+  const getImageUri = (path?: string) => {
+    if (!path) return '';
+    const queryJoiner = path.includes('?') ? '&' : '?';
+    return `${webServer}/api/${path}${queryJoiner}v=${imageCacheKey}`;
+  };
 
   // 1. Define the Yup validation schema
   const schema = yup.object().shape({
@@ -28,12 +42,31 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
   })
 
   // 2. Initialize useForm with the Yup resolver
-  const { control, handleSubmit, formState: { errors } } = useForm({
+  const { control, watch, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
       search: '',
     },
   })
+
+  const searchQuery = (watch('search') || '').trim().toLowerCase();
+
+  const matchesSearch = (staff: StaffMember) => {
+    if (!searchQuery) return true;
+
+    const firstName = (staff.fname || '').toLowerCase();
+    const lastName = (staff.lname || '').toLowerCase();
+    const fullName = `${firstName} ${lastName}`.trim();
+    const initialsName = `${firstName} ${lastName ? `${lastName[0]}.` : ''}`.trim();
+
+    return firstName.includes(searchQuery) ||
+      lastName.includes(searchQuery) ||
+      fullName.includes(searchQuery) ||
+      initialsName.includes(searchQuery);
+  };
+
+  const filteredOwners = ownersList.filter(matchesSearch);
+  const filteredTrainers = trainersList.filter(matchesSearch);
 
   // 3. Define the submit handler
   const onSubmit = (data: { search: string }) => {
@@ -46,8 +79,12 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
     }
   }
 
-  useEffect(() => {
-    const fetchStaffData = async () => {
+  const fetchStaffData = useCallback(async () => {
+    if (!user?.gym_id || !tokens?.access_token) {
+      return;
+    }
+
+    try {
       const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/users`, {
         headers: {
           Authorization: "Bearer " + tokens.access_token,
@@ -60,6 +97,7 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
       if (response.status === 200) {
         setOwners(obj.owners);
         setTrainers(obj.trainers);
+        setImageCacheKey(Date.now());
       }
       else {
         console.log("Access token expired, requesting new one - useEffect()");
@@ -76,16 +114,27 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
 
         if (response.status == 200) {
           console.log("Got new access token and refresh token");
-          setTokens({
-            ...tokens,
+          setTokens((prev: any) => ({
+            ...prev,
             access_token: obj.access_token,
             refresh_token: obj.refresh_token,
-          });
+          }));
         }
       }
+    } catch (error) {
+      console.log('Failed to fetch staff data', error);
     }
+  }, [user?.gym_id, tokens?.access_token, tokens?.refresh_token, webServer, setTokens]);
+
+  useEffect(() => {
     fetchStaffData();
-  }, []);
+  }, [fetchStaffData]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchStaffData();
+    }, [fetchStaffData])
+  );
 
   return (
     <>
@@ -155,38 +204,44 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
               <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Owners</Text>
                 <View style={styles.boxes}>
-                  {ownersList.map((owner, index) => {
-                    return (
-                      <TouchableOpacity key={index}>
-                        <View style={styles.box}>
-                          {owner.user_picture_url ? (
-                            <Image style={styles.image} source={{ uri: `${webServer}/api/${owner.user_picture_url}` }} />
-                          ) : null}
-                          <Text style={styles.personName}>{owner.fname ?? ''} {owner.lname ? owner.lname[0] + '.' : ''}</Text>
-                        </View>
-                      </TouchableOpacity>
-                    );
-                  })}
+                  {filteredOwners.length === 0 ? (
+                    <Text style={styles.noResultsText}>No results found</Text>
+                  ) : (
+                    filteredOwners.map((owner, index) => {
+                      return (
+                        <TouchableOpacity key={index}>
+                          <View style={styles.box}>
+                            {owner.user_picture_url ? (
+                              <Image style={styles.image} source={{ uri: getImageUri(owner.user_picture_url) }} />
+                            ) : null}
+                            <Text style={styles.personName}>{owner.fname ?? ''} {owner.lname ? owner.lname[0] + '.' : ''}</Text>
+                          </View>
+                        </TouchableOpacity>
+                      );
+                    })
+                  )}
                 </View>
               </View>
 
               <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Trainers</Text>
                 <View style={styles.boxes}>
-                  {trainersList.map((trainer, index) => {
-                    return (
-                      <TouchableOpacity key={index}>
-                        <View style={styles.box}>
-                          {trainer.user_picture_url ? (
-                            <Image style={styles.image} source={{ uri: `${webServer}/api/${trainer.user_picture_url}` }} />
-                          ) : null}
-                          <Text style={styles.personName}>{trainer.fname ?? ''} {trainer.lname ? trainer.lname[0] + '.' : ''}</Text>
-                        </View>
-                      </TouchableOpacity>
-                    );
-                  })
-
-                  }
+                  {filteredTrainers.length === 0 ? (
+                    <Text style={styles.noResultsText}>No results found</Text>
+                  ) : (
+                    filteredTrainers.map((trainer, index) => {
+                      return (
+                        <TouchableOpacity key={index}>
+                          <View style={styles.box}>
+                            {trainer.user_picture_url ? (
+                              <Image style={styles.image} source={{ uri: getImageUri(trainer.user_picture_url) }} />
+                            ) : null}
+                            <Text style={styles.personName}>{trainer.fname ?? ''} {trainer.lname ? trainer.lname[0] + '.' : ''}</Text>
+                          </View>
+                        </TouchableOpacity>
+                      );
+                    })
+                  )}
                 </View>
               </View>
 
@@ -293,6 +348,11 @@ const styles = StyleSheet.create({
   personName: {
     marginTop: 10,
     textAlign: 'center'
+  },
+  noResultsText: {
+    marginTop: 12,
+    color: AppColors.primary,
+    fontSize: 14,
   },
   circle: {
     width: 30,

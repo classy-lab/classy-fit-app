@@ -198,7 +198,7 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
       showMessage({
         message: obj?.message,
         type: "success",
-        autoHide: false, // prevents the message from disappearing automatically
+        autoHide: true, // prevents the message from disappearing automatically
         onPress: () => hideMessage(), // closes the message when pressed
       });
 
@@ -345,7 +345,7 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
       showMessage({
         message: obj?.message,
         type: "success",
-        autoHide: false, // prevents the message from disappearing automatically
+        autoHide: true, // prevents the message from disappearing automatically
         onPress: () => hideMessage(), // closes the message when pressed
       });
     } else {
