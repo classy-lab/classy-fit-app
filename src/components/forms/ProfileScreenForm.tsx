@@ -141,12 +141,10 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
       const obj = JSON.parse(json);
 
       if (response.status == 200) {
-        // console.log('obj: ', obj)
         //set profile fields here on success
         reset({
           dateOfBirth: obj.profile_fields.date_of_birth,
           phoneNumber: obj.profile_fields.phone,
-          preferredContact: obj.profile_fields.preferred_contact,
           whatsappNumber: obj.profile_fields.whatsapp,
           profilePic: obj.profile_fields.user_picture_url ? { path: 'http://localhost:8080/classy-api/api/' + obj.profile_fields.user_picture_url } : {},
         });
