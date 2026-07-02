@@ -7,8 +7,14 @@ import SignOut from '../../components/utils/SignOut'
 import * as yup from 'yup'
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { useContext, useEffect } from 'react'
+import { UserContext } from '../../context/UserContext'
 
 const StaffScreen = ({ navigation }: { navigation: any }) => {
+  const { user, setUser } = useContext(UserContext);
+  const { tokens, setTokens } = useContext(UserContext);
+  const { webServer } = useContext(UserContext);
+
   // 1. Define the Yup validation schema
   const schema = yup.object().shape({
     search: yup.string().required('Search field is required').matches(
@@ -35,6 +41,46 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
       console.error('Search submit failed:', error);
     }
   }
+
+  useEffect(() => {
+    const fetchStaffData = async () => {
+      const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/users`, {
+        headers: {
+          Authorization: "Bearer " + tokens.access_token,
+        },
+      });
+
+      const json = await response.text();
+      const obj = JSON.parse(json);
+
+      if (response.status === 200) {
+        console.log('object: ', obj);
+      }
+      else {
+        console.log("Access token expired, requesting new one - useEffect()");
+
+        const response = await fetch(`${webServer}/api/refresh.php`, {
+          method: "POST",
+          body: JSON.stringify({
+            token: tokens.refresh_token,
+          }),
+        });
+
+        const json = await response.text();
+        const obj = JSON.parse(json);
+
+        if (response.status == 200) {
+          console.log("Got new access token and refresh token");
+          setTokens({
+            ...tokens,
+            access_token: obj.access_token,
+            refresh_token: obj.refresh_token,
+          });
+        }
+      }
+    }
+    fetchStaffData();
+  }, []);
 
   return (
     <>
@@ -104,19 +150,25 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
               <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Owners</Text>
                 <View style={styles.boxes}>
-                  <TouchableOpacity>
+                  <View>
+                    <Text>Display owners here</Text>
+                  </View>
+                  {/* <TouchableOpacity>
                     <View style={styles.box}>
                       <Image style={styles.image} source={require('../../assets/images/headshots/sarahHeadshot.png')} />
                       <Text style={styles.personName}>Sarah B.</Text>
                     </View>
-                  </TouchableOpacity>
+                  </TouchableOpacity> */}
                 </View>
               </View>
 
               <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Trainers</Text>
                 <View style={styles.boxes}>
-                  <TouchableOpacity>
+                  <View>
+                    <Text>Display trainers here</Text>
+                  </View>
+                  {/* <TouchableOpacity>
                     <View style={styles.box}>
                       <Image style={styles.image} source={require('../../assets/images/headshots/jenniferHeadshot.png')} />
                       <Text style={styles.personName}>Jenniffer P.</Text>
@@ -127,7 +179,7 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
                       <Image style={styles.image} source={require('../../assets/images/headshots/mariaHeadshot.png')} />
                       <Text style={styles.personName}>Maria K.</Text>
                     </View>
-                  </TouchableOpacity>
+                  </TouchableOpacity> */}
                 </View>
               </View>
 
