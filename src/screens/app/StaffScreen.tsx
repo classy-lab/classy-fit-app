@@ -7,8 +7,18 @@ import SignOut from '../../components/utils/SignOut'
 import * as yup from 'yup'
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { useContext, useEffect, useState } from 'react'
+import { UserContext } from '../../context/UserContext'
 
 const StaffScreen = ({ navigation }: { navigation: any }) => {
+  const { user, setUser } = useContext(UserContext);
+  const { tokens, setTokens } = useContext(UserContext);
+  const { webServer } = useContext(UserContext);
+  const [owners, setOwners] = useState({});
+  const [trainers, setTrainers] = useState({});
+  const ownersList = Object.values(owners as Record<string, { user_picture_url?: string; fname?: string }>);
+  const trainersList = Object.values(trainers as Record<string, { user_picture_url?: string; fname?: string }>);;
+
   // 1. Define the Yup validation schema
   const schema = yup.object().shape({
     search: yup.string().required('Search field is required').matches(
@@ -35,6 +45,47 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
       console.error('Search submit failed:', error);
     }
   }
+
+  useEffect(() => {
+    const fetchStaffData = async () => {
+      const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/users`, {
+        headers: {
+          Authorization: "Bearer " + tokens.access_token,
+        },
+      });
+
+      const json = await response.text();
+      const obj = JSON.parse(json);
+
+      if (response.status === 200) {
+        setOwners(obj.owners);
+        setTrainers(obj.trainers);
+      }
+      else {
+        console.log("Access token expired, requesting new one - useEffect()");
+
+        const response = await fetch(`${webServer}/api/refresh.php`, {
+          method: "POST",
+          body: JSON.stringify({
+            token: tokens.refresh_token,
+          }),
+        });
+
+        const json = await response.text();
+        const obj = JSON.parse(json);
+
+        if (response.status == 200) {
+          console.log("Got new access token and refresh token");
+          setTokens({
+            ...tokens,
+            access_token: obj.access_token,
+            refresh_token: obj.refresh_token,
+          });
+        }
+      }
+    }
+    fetchStaffData();
+  }, []);
 
   return (
     <>
@@ -104,30 +155,38 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
               <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Owners</Text>
                 <View style={styles.boxes}>
-                  <TouchableOpacity>
-                    <View style={styles.box}>
-                      <Image style={styles.image} source={require('../../assets/images/headshots/sarahHeadshot.png')} />
-                      <Text style={styles.personName}>Sarah B.</Text>
-                    </View>
-                  </TouchableOpacity>
+                  {ownersList.map((owner, index) => {
+                    return (
+                      <TouchableOpacity key={index}>
+                        <View style={styles.box}>
+                          {owner.user_picture_url ? (
+                            <Image style={styles.image} source={{ uri: `${webServer}/api/${owner.user_picture_url}` }} />
+                          ) : null}
+                          <Text style={styles.personName}>{owner.fname ?? ''} {owner.lname ? owner.lname[0] + '.' : ''}</Text>
+                        </View>
+                      </TouchableOpacity>
+                    );
+                  })}
                 </View>
               </View>
 
               <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Trainers</Text>
                 <View style={styles.boxes}>
-                  <TouchableOpacity>
-                    <View style={styles.box}>
-                      <Image style={styles.image} source={require('../../assets/images/headshots/jenniferHeadshot.png')} />
-                      <Text style={styles.personName}>Jenniffer P.</Text>
-                    </View>
-                  </TouchableOpacity>
-                  <TouchableOpacity>
-                    <View style={styles.box}>
-                      <Image style={styles.image} source={require('../../assets/images/headshots/mariaHeadshot.png')} />
-                      <Text style={styles.personName}>Maria K.</Text>
-                    </View>
-                  </TouchableOpacity>
+                  {trainersList.map((trainer, index) => {
+                    return (
+                      <TouchableOpacity key={index}>
+                        <View style={styles.box}>
+                          {trainer.user_picture_url ? (
+                            <Image style={styles.image} source={{ uri: `${webServer}/api/${trainer.user_picture_url}` }} />
+                          ) : null}
+                          <Text style={styles.personName}>{trainer.fname ?? ''} {trainer.lname ? trainer.lname[0] + '.' : ''}</Text>
+                        </View>
+                      </TouchableOpacity>
+                    );
+                  })
+
+                  }
                 </View>
               </View>
 
