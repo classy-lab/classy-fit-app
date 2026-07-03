@@ -28,7 +28,7 @@ const MembersScreen = ({ navigation }: { navigation: any }) => {
 
   // 1. Define the Yup validation schema
   const schema = yup.object().shape({
-    search: yup.string().required('Search field is required').matches(
+    search: yup.string().matches(
       /^[a-zA-Z0-9 .,]+$/,
       'Search can only contain letters, numbers, spaces, full stops, and commas'
     )
@@ -186,7 +186,7 @@ const MembersScreen = ({ navigation }: { navigation: any }) => {
             <View style={styles.section}>
               <View style={styles.sectionHeading}>
                 <Text style={styles.sectionTitle}>Members</Text>
-                <Text style={styles.countText}>Count: 105</Text>
+                <Text style={styles.countText}>Count: {filteredMembers.length}</Text>
               </View>
               <View style={styles.boxes}>
                 {filteredMembers.length === 0 ? (
@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 24,
     // marginBottom: 16,
-    width: '100%'
+    // width: '100%'
   },
   boxes: {
     flexDirection: 'row',
@@ -399,6 +399,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  sectionHeading: { borderWidth: 1, borderColor: AppColors.blue, display: 'flex', flexDirection: 'row', justifyContent: 'space-around', height: 150 },
-  countText: { color: AppColors.blue, fontSize: 16, marginTop: 8, textAlign: 'center' },
+  sectionHeading: { display: 'flex', flexDirection: 'row', justifyContent: 'space-between' },
+  countText: { color: AppColors.blue },
 })
