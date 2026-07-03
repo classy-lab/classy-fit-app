@@ -332,11 +332,12 @@ const styles = StyleSheet.create({
     // justifyContent: 'center',
     // alignItems: 'center',
   },
-  box: { width: 80, height: 80, },
+  box: { width: 80, height: 80 },
   image: {
     marginTop: 16,
     width: 80,
-    height: 80
+    height: 80,
+    borderRadius: 16
   },
   personName: {
     marginTop: 10,
