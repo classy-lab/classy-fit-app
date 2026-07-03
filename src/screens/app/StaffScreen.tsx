@@ -324,7 +324,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 24,
     // marginBottom: 16,
-    width: '100%'
   },
   boxes: {
     flexDirection: 'row',
@@ -333,7 +332,7 @@ const styles = StyleSheet.create({
     // justifyContent: 'center',
     // alignItems: 'center',
   },
-  box: {},
+  box: { width: 80, height: 80, },
   image: {
     marginTop: 16,
     width: 80,
