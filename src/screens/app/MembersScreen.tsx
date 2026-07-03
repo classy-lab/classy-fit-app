@@ -131,85 +131,95 @@ const MembersScreen = ({ navigation }: { navigation: any }) => {
 
   return (
     <>
-      <SafeAreaView style={styles.container}>
-        <View style={styles.navs}>
-          <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
-          <View style={styles.signOut}>
-            <Text style={styles.signOutText}>Add</Text>
-            <View style={styles.circle}>
-              <Feather name="plus" size={24} color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
-            </View>
-            <Text style={styles.signOutText}>Sign out</Text>
-            <View style={styles.circle}>
-              <MaterialIcons name="logout" color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <SafeAreaView style={styles.container}>
+          <View style={styles.navs}>
+            <Feather
+              name="arrow-left"
+              color={AppColors.blue}
+              size={36}
+              onPress={() => {
+                navigation.goBack();
+              }}
+            />
+            <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: 10 }}>
+              {/* move to separate component */}
+              <View style={styles.signOut}>
+                <Text style={styles.signOutText}>Add</Text>
+                <View style={styles.circle}>
+                  <MaterialIcons name="add" color={AppColors.white} size={16} />
+                </View>
+              </View>
+              <SignOut />
             </View>
           </View>
-        </View>
-        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-          <View style={styles.headingContainer}>
-            <Text style={styles.title}>Members</Text>
-            <PinkLeafSvg style={styles.pinkLeaf} />
-          </View>
-          <View style={styles.body}>
-
-            <View style={styles.fieldset}>
-              <View style={styles.field}>
-                <Controller
-                  control={control}
-                  name="search"
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <TextInput
-                      onBlur={() => {
-                        onBlur();
-                        console.log('Search value on blur:', value);
-                        handleSubmit(onSubmit)();
-                      }}
-                      onSubmitEditing={() => {
-                        Keyboard.dismiss();
-                      }}
-                      onChangeText={onChange}
-                      value={value}
-                      placeholder="Search"
-                      style={styles.inputField}
-                      keyboardType="default"
-                      returnKeyType="done"
-                      autoCapitalize="none"
-                      placeholderTextColor={AppColors.blue}
-                    />
-                  )}
-                />
-              </View>
-              {/* Render other form inputs and their corresponding error messages */}
-              {errors.search && <Text style={styles.errorText}>{errors.search.message}</Text>}
+          <ScrollView style={styles.scrollView}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.headingContainer}>
+              <Text style={styles.title}>Members</Text>
+              <PinkLeafSvg style={styles.pinkLeaf} />
             </View>
+            <View style={styles.body}>
 
-            <View style={styles.section}>
-              <View style={styles.sectionHeading}>
-                <Text style={styles.sectionTitle}>Members</Text>
-                <Text style={styles.countText}>Count: {filteredMembers.length}</Text>
+              <View style={styles.fieldset}>
+                <View style={styles.field}>
+                  <Controller
+                    control={control}
+                    name="search"
+                    render={({ field: { onChange, onBlur, value } }) => (
+                      <TextInput
+                        onBlur={() => {
+                          onBlur();
+                          console.log('Search value on blur:', value);
+                          handleSubmit(onSubmit)();
+                        }}
+                        onSubmitEditing={() => {
+                          Keyboard.dismiss();
+                        }}
+                        onChangeText={onChange}
+                        value={value}
+                        placeholder="Search"
+                        style={styles.inputField}
+                        keyboardType="default"
+                        returnKeyType="done"
+                        autoCapitalize="none"
+                        placeholderTextColor={AppColors.blue}
+                      />
+                    )}
+                  />
+                </View>
+                {/* Render other form inputs and their corresponding error messages */}
+                {errors.search && <Text style={styles.errorText}>{errors.search.message}</Text>}
               </View>
-              <View style={styles.boxes}>
-                {filteredMembers.length === 0 ? (
-                  <Text style={styles.noResultsText}>No results found</Text>
-                ) :
-                  (
-                    filteredMembers.map((member, index) => {
-                      return (
-                        <TouchableOpacity key={index}>
-                          <View style={styles.box}>
-                            {
-                              member.user_picture_url ? (
-                                <Image style={styles.image} source={{ uri: getImageUri(member.user_picture_url) }} />
-                              ) : null}
-                            <Text style={styles.personName}>{member.fname ?? ''} {member.lname ? member.lname[0] + '.' : ''}</Text>
-                          </View>
-                        </TouchableOpacity>
-                      )
-                    })
-                  )
-                }
-              </View>
-              {/* <View style={styles.boxes}>
+
+              <View style={styles.section}>
+                <View style={styles.sectionHeading}>
+                  <Text style={styles.sectionTitle}>Members</Text>
+                  <Text style={styles.countText}>Count: {filteredMembers.length}</Text>
+                </View>
+                <View style={styles.boxes}>
+                  {filteredMembers.length === 0 ? (
+                    <Text style={styles.noResultsText}>No results found</Text>
+                  ) :
+                    (
+                      filteredMembers.map((member, index) => {
+                        return (
+                          <TouchableOpacity key={index}>
+                            <View style={styles.box}>
+                              {
+                                member.user_picture_url ? (
+                                  <Image style={styles.image} source={{ uri: getImageUri(member.user_picture_url) }} />
+                                ) : null}
+                              <Text style={styles.personName}>{member.fname ?? ''} {member.lname ? member.lname[0] + '.' : ''}</Text>
+                            </View>
+                          </TouchableOpacity>
+                        )
+                      })
+                    )
+                  }
+                </View>
+                {/* <View style={styles.boxes}>
                 <TouchableOpacity>
                   <View style={styles.box}>
                     <Image style={styles.image} source={require('../../assets/images/headshots/jenniferHeadshot.png')} />
@@ -283,11 +293,12 @@ const MembersScreen = ({ navigation }: { navigation: any }) => {
                   </View>
                 </TouchableOpacity>
               </View> */}
-            </View>
+              </View>
 
-          </View>
-        </ScrollView>
-      </SafeAreaView >
+            </View>
+          </ScrollView>
+        </SafeAreaView>
+      </TouchableWithoutFeedback>
     </>
   )
 }
