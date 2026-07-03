@@ -8,7 +8,7 @@ import { useFocusEffect } from '@react-navigation/native'
 import * as yup from 'yup'
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { useCallback, useContext, useEffect, useState } from 'react'
+import { useCallback, useContext, useState } from 'react'
 import { UserContext } from '../../context/UserContext'
 
 type StaffMember = {
@@ -27,12 +27,6 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
   const ownersList = Object.values(owners);
   const trainersList = Object.values(trainers);
 
-  const getImageUri = (path?: string) => {
-    if (!path) return '';
-    const queryJoiner = path.includes('?') ? '&' : '?';
-    return `${webServer}/api/${path}${queryJoiner}v=${imageCacheKey}`;
-  };
-
   // 1. Define the Yup validation schema
   const schema = yup.object().shape({
     search: yup.string().required('Search field is required').matches(
@@ -48,6 +42,23 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
       search: '',
     },
   })
+
+  // 3. Define the submit handler
+  const onSubmit = (data: { search: string }) => {
+    // This function only runs if validation passes
+    try {
+      console.log('Search value:', data.search);
+      Keyboard.dismiss();
+    } catch (error) {
+      console.error('Search submit failed:', error);
+    }
+  }
+
+  const getImageUri = (path?: string) => {
+    if (!path) return '';
+    const queryJoiner = path.includes('?') ? '&' : '?';
+    return `${webServer}/api/${path}${queryJoiner}v=${imageCacheKey}`;
+  };
 
   const searchQuery = (watch('search') || '').trim().toLowerCase();
 
@@ -68,72 +79,57 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
   const filteredOwners = ownersList.filter(matchesSearch);
   const filteredTrainers = trainersList.filter(matchesSearch);
 
-  // 3. Define the submit handler
-  const onSubmit = (data: { search: string }) => {
-    // This function only runs if validation passes
-    try {
-      console.log('Search value:', data.search);
-      Keyboard.dismiss();
-    } catch (error) {
-      console.error('Search submit failed:', error);
-    }
-  }
-
-  const fetchStaffData = useCallback(async () => {
-    if (!user?.gym_id || !tokens?.access_token) {
-      return;
-    }
-
-    try {
-      const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/users`, {
-        headers: {
-          Authorization: "Bearer " + tokens.access_token,
-        },
-      });
-
-      const json = await response.text();
-      const obj = JSON.parse(json);
-
-      if (response.status === 200) {
-        setOwners(obj.owners);
-        setTrainers(obj.trainers);
-        setImageCacheKey(Date.now());
-      }
-      else {
-        console.log("Access token expired, requesting new one - useEffect()");
-
-        const response = await fetch(`${webServer}/api/refresh.php`, {
-          method: "POST",
-          body: JSON.stringify({
-            token: tokens.refresh_token,
-          }),
-        });
-
-        const json = await response.text();
-        const obj = JSON.parse(json);
-
-        if (response.status == 200) {
-          console.log("Got new access token and refresh token");
-          setTokens((prev: any) => ({
-            ...prev,
-            access_token: obj.access_token,
-            refresh_token: obj.refresh_token,
-          }));
-        }
-      }
-    } catch (error) {
-      console.log('Failed to fetch staff data', error);
-    }
-  }, [user?.gym_id, tokens?.access_token, tokens?.refresh_token, webServer, setTokens]);
-
-  useEffect(() => {
-    fetchStaffData();
-  }, [fetchStaffData]);
-
   useFocusEffect(
     useCallback(() => {
+      const fetchStaffData = async () => {
+        if (!user?.gym_id || !tokens?.access_token) {
+          return;
+        }
+
+        try {
+          const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/users`, {
+            headers: {
+              Authorization: "Bearer " + tokens.access_token,
+            },
+          });
+
+          const json = await response.text();
+          const obj = JSON.parse(json);
+
+          if (response.status === 200) {
+            setOwners(obj.owners);
+            setTrainers(obj.trainers);
+            setImageCacheKey(Date.now());
+          }
+          else {
+            console.log("Access token expired, requesting new one - useFocusEffect()");
+
+            const response = await fetch(`${webServer}/api/refresh.php`, {
+              method: "POST",
+              body: JSON.stringify({
+                token: tokens.refresh_token,
+              }),
+            });
+
+            const json = await response.text();
+            const obj = JSON.parse(json);
+
+            if (response.status == 200) {
+              console.log("Got new access token and refresh token");
+              setTokens((prev: any) => ({
+                ...prev,
+                access_token: obj.access_token,
+                refresh_token: obj.refresh_token,
+              }));
+            }
+          }
+        } catch (error) {
+          console.log('Failed to fetch staff data', error);
+        }
+      };
+
       fetchStaffData();
-    }, [fetchStaffData])
+    }, [user?.gym_id, tokens?.access_token, tokens?.refresh_token, webServer, setTokens])
   );
 
   return (
