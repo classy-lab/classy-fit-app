@@ -1,32 +1,41 @@
 // @ts-nocheck
-import { StyleSheet, Text, View, Dimensions, TouchableOpacity, ScrollView, TextInput, Image } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, TextInput, Image, Keyboard, TouchableWithoutFeedback } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { useNavigation } from '@react-navigation/native'
 import { AppColors } from '../../styles/colors'
-import { useFonts } from 'expo-font'
-import { s } from 'react-native-size-matters'
-import MaterialIcons from '@expo/vector-icons/MaterialIcons'
-import Feather from '@expo/vector-icons/Feather'
+import { Feather, MaterialIcons } from '@expo/vector-icons'
 import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
+import SignOut from '../../components/utils/SignOut'
+import { useFocusEffect } from '@react-navigation/native'
 import * as yup from 'yup'
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { useCallback, useContext, useState } from 'react'
+import { UserContext } from '../../context/UserContext'
 
-const windowHeight = Dimensions.get('window').height
+type StaffMember = {
+  user_picture_url?: string;
+  fname?: string;
+  lname?: string;
+};
 
-const ContractorsScreen = () => {
-  const navigation = useNavigation()
+const ContractorsScreen = ({ navigation }: { navigation: any }) => {
+  const { user } = useContext(UserContext);
+  const { tokens, setTokens } = useContext(UserContext);
+  const { webServer } = useContext(UserContext);
+  const [contacts, setContacts] = useState<Record<string, StaffMember>>({});
+  const [imageCacheKey, setImageCacheKey] = useState(Date.now());
+  const contactsList = Object.values(contacts);
 
   // 1. Define the Yup validation schema
   const schema = yup.object().shape({
-    search: yup.string().required('Search field is required').matches(
-      /^[a-zA-Z0-9]+$/,
-      'Password must only contain alphanumeric characters (letters and numbers)'
+    search: yup.string().matches(
+      /^[a-zA-Z0-9 .,]+$/,
+      'Search can only contain letters, numbers, spaces, full stops, and commas'
     )
   })
 
   // 2. Initialize useForm with the Yup resolver
-  const { control, handleSubmit, formState: { errors } } = useForm({
+  const { control, watch, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
       search: '',
@@ -34,124 +43,176 @@ const ContractorsScreen = () => {
   })
 
   // 3. Define the submit handler
-  const onSubmit = async (data) => {
+  const onSubmit = (data: { search: string }) => {
     // This function only runs if validation passes
-    console.log('Form Submitted (Validation Passed):', data);
-
     try {
-      // Perform your authentication logic or API call here
-      // const response = await api.post('/login', data);
-      // If successful, navigate to the Login page or another desired screen
-      // navigation.navigate('DashboardScreen');
+      console.log('Search value:', data.search);
+      Keyboard.dismiss();
     } catch (error) {
-      // Handle API errors (React Hook Form does not swallow errors here)
-      console.error("Login failed:", error);
-      // Optionally, show an error message to the user
+      console.error('Search submit failed:', error);
     }
   }
 
+  const getImageUri = (path?: string) => {
+    if (!path) return '';
+    const queryJoiner = path.includes('?') ? '&' : '?';
+    return `${webServer}/api/${path}${queryJoiner}v=${imageCacheKey}`;
+  };
+
+  const searchQuery = (watch('search') || '').trim().toLowerCase();
+
+  const matchesSearch = (staff: StaffMember) => {
+    if (!searchQuery) return true; // If search query is empty, include all members
+
+    const firstName = staff.fname?.toLowerCase() || '';
+    const lastName = staff.lname?.toLowerCase() || '';
+    const fullName = `${firstName} ${lastName}`.trim();
+    const initialsName = `${firstName} ${lastName ? `${lastName[0]}.` : ''}`.trim();
+
+    return firstName.includes(searchQuery) ||
+      lastName.includes(searchQuery) ||
+      fullName.includes(searchQuery) ||
+      initialsName.includes(searchQuery);
+  };
+
+  const filteredContacts = contactsList.filter(matchesSearch);
+
+  const getDisplayName = (member: StaffMember) => {
+    const fullName = `${member.fname ?? ''} ${member.lname ? member.lname[0] + '.' : ''}`.trim();
+    return fullName.length > 11 ? `${fullName.slice(0, 11)}` : fullName;
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      const fetchStaffData = async () => {
+        if (!user?.gym_id || !tokens?.access_token) {
+          return;
+        }
+
+        try {
+          const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/contacts`, {
+            headers: {
+              Authorization: "Bearer " + tokens.access_token,
+            },
+          });
+
+          const json = await response.text();
+          const obj = JSON.parse(json);
+
+          if (response.status === 200) {
+            setContacts(obj.contacts);
+            setImageCacheKey(Date.now());
+          }
+          else {
+            console.log("Access token expired, requesting new one - useFocusEffect()");
+
+            const response = await fetch(`${webServer}/api/refresh.php`, {
+              method: "POST",
+              body: JSON.stringify({
+                token: tokens.refresh_token,
+              }),
+            });
+
+            const json = await response.text();
+            const obj = JSON.parse(json);
+
+            if (response.status == 200) {
+              console.log("Got new access token and refresh token");
+              setTokens((prev: any) => ({
+                ...prev,
+                access_token: obj.access_token,
+                refresh_token: obj.refresh_token,
+              }));
+            }
+          }
+        } catch (error) {
+          console.log('Failed to fetch staff data', error);
+        }
+      };
+
+      fetchStaffData();
+    }, [user?.gym_id, tokens?.access_token, tokens?.refresh_token, webServer, setTokens])
+  );
+
   return (
     <>
-      <SafeAreaView style={styles.container}>
-        <View style={styles.navs}>
-          <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
-          <View style={styles.signOut}>
-            <Text style={styles.signOutText}>Add</Text>
-            <View style={styles.circle}>
-              <Feather name="plus" size={24} color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
-            </View>
-            <Text style={styles.signOutText}>Sign out</Text>
-            <View style={styles.circle}>
-              <MaterialIcons name="logout" color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <SafeAreaView style={styles.container}>
+          <View style={styles.navs}>
+            <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
+            <View style={styles.rightActions}>
+              <View style={styles.signOut}>
+                <Text style={styles.signOutText}>Add</Text>
+                <View style={styles.circle}>
+                  <MaterialIcons name="add" color={AppColors.white} size={16} />
+                </View>
+              </View>
+              <SignOut />
             </View>
           </View>
-        </View>
-        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-          <View style={styles.headingContainer}>
-            <Text style={styles.title}>Contractors</Text>
-            <PinkLeafSvg style={styles.pinkLeaf} />
-          </View>
-          <View style={styles.body}>
-
-            <View style={styles.fieldset}>
-              <View style={styles.field}>
-                <Controller
-                  control={control}
-                  name="search"
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <TextInput
-                      style={styles.inputField}
-                      // onBlur={onBlur}
-                      onChangeText={onChange}
-                      value={value}
-                      keyboardType="default"
-                      autoCapitalize="none"
-                      placeholder="Search"
-                      placeholderTextColor={AppColors.blue}
-                      onBlur={handleSubmit(onSubmit)}
-                    />
-                  )}
-                />
-              </View>
-              {/* Render other form inputs and their corresponding error messages */}
-              {errors.search && <Text style={styles.errorText}>{errors.search.message}</Text>}
+          <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+            <View style={styles.headingContainer}>
+              <Text style={styles.title}>Contractors</Text>
+              <PinkLeafSvg style={styles.pinkLeaf} />
             </View>
+            <View style={styles.body}>
 
-            <View style={styles.section}>
-              <View style={styles.sectionHeading}>
-                <Text style={styles.sectionTitle}>Products</Text>
-                <Text style={styles.countText}>Count: 6</Text>
+              <View style={styles.fieldset}>
+                <View style={styles.field}>
+                  <Controller
+                    control={control}
+                    name="search"
+                    render={({ field: { onChange, onBlur, value } }) => (
+                      <TextInput
+                        style={styles.inputField}
+                        // onBlur={onBlur}
+                        onChangeText={onChange}
+                        value={value}
+                        keyboardType="default"
+                        autoCapitalize="none"
+                        placeholder="Search"
+                        placeholderTextColor={AppColors.blue}
+                        onBlur={handleSubmit(onSubmit)}
+                      />
+                    )}
+                  />
+                </View>
+                {/* Render other form inputs and their corresponding error messages */}
+                {errors.search && <Text style={styles.errorText}>{errors.search.message}</Text>}
               </View>
-              <View style={styles.boxes}>
-                <TouchableOpacity>
-                  <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/headshots/chinna.png')} resizeMode="contain" />
-                    <Text style={styles.personName}>Boxing Gloves</Text>
-                    <Text style={styles.job}>Electrician</Text>
-                  </View>
-                </TouchableOpacity>
 
-                <TouchableOpacity>
-                  <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/headshots/rani.png')} resizeMode="contain" />
-                    <Text style={styles.personName}>Protein Shaker</Text>
-                    <Text style={styles.job}>Plumber</Text>
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity>
-                  <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/headshots/imran.png')} resizeMode="contain" />
-                    <Text style={styles.personName}>Protein Shaker</Text>
-                    <Text style={styles.job}>Repair Technician</Text>
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity>
-                  <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/headshots/radeep.png')} resizeMode="contain" />
-                    <Text style={styles.personName}>Radeep K.</Text>
-                    <Text style={styles.job}>Repair Technician</Text>
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity>
-                  <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/headshots/inna.png')} resizeMode="contain" />
-                    <Text style={styles.personName}>Inna K.</Text>
-                    <Text style={styles.job}>Cleaner</Text>
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity>
-                  <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/headshots/saloni.png')} resizeMode="contain" />
-                    <Text style={styles.personName}>Saloni K.</Text>
-                    <Text style={styles.job}>Cleaner</Text>
-                  </View>
-                </TouchableOpacity>
+              <View style={styles.section}>
+                <View style={styles.sectionHeading}>
+                  <Text style={styles.sectionTitle}>Contacts</Text>
+                  <Text style={styles.countText}>Count: {filteredContacts.length}</Text>
+                </View>
+                <View style={styles.boxes}>
+                  {filteredContacts.length === 0 ? (
+                    <Text style={styles.noResultsText}>No results found</Text>
+                  ) :
+                    (
+                      filteredContacts.map((member, index) => {
+                        return (
+                          <TouchableOpacity key={index}>
+                            <View style={styles.box}>
+                              {
+                                member.user_picture_url ? (
+                                  <Image style={styles.image} source={{ uri: getImageUri(member.user_picture_url) }} />
+                                ) : null}
+                              <Text style={styles.personName}>{getDisplayName(member)}</Text>
+                            </View>
+                          </TouchableOpacity>
+                        )
+                      })
+                    )
+                  }
+                </View>
               </View>
+
             </View>
-
-          </View>
-        </ScrollView>
-      </SafeAreaView>
+          </ScrollView>
+        </SafeAreaView>
+      </TouchableWithoutFeedback>
     </>
   )
 }
@@ -161,12 +222,44 @@ export default ContractorsScreen
 const styles = StyleSheet.create({
   container: {
     backgroundColor: AppColors.white,
+    flex: 1,
+    paddingLeft: 24,
+    paddingRight: 24,
   },
   navs: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingLeft: 24,
-    paddingRight: 24,
+    alignItems: 'center',
+  },
+  rightActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    columnGap: 10,
+  },
+  headingContainer: {
+    alignItems: 'center',
+    marginBottom: 20
+  },
+  title: {
+    color: AppColors.blue,
+    fontSize: 32,
+    marginTop: 20,
+    marginBottom: 40,
+    width: 320,
+    textAlign: "center",
+  },
+  pinkLeaf: {
+    position: "absolute",
+    zIndex: -1,
+    right: 96,
+  },
+  body: {
+    flex: 1,
+  },
+  bodyText: {
+    fontSize: 16,
+    lineHeight: 24,
+    color: AppColors.primary,
   },
   signOut: {
     flexDirection: 'row',
@@ -177,39 +270,6 @@ const styles = StyleSheet.create({
     marginRight: 4,
     color: AppColors.blue,
     fontSize: 14
-  },
-  circle: {
-    width: 30,
-    height: 30,
-    borderRadius: '50%',
-    backgroundColor: AppColors.blue,
-    justifyContent: 'center',
-    alignItems: 'center',
-    // paddingLeft: 3
-  },
-  headingContainer: {
-    alignItems: 'center',
-    marginBottom: 20
-  },
-  title: {
-    color: AppColors.blue,
-    fontFamily: 'Montserrat',
-    fontSize: 32,
-    marginTop: 20,
-  },
-  pinkLeaf: {
-    position: 'absolute',
-    // zIndex: -1,
-    // top: 0,
-    right: 88
-  },
-  body: {
-    paddingLeft: 24,
-    paddingRight: 24,
-    marginBottom: 8,
-    flex: 1,
-    height: windowHeight,
-    // borderWidth: 1, borderColor: 'red',
   },
   errorText: {
     color: AppColors.red,
@@ -223,51 +283,59 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: AppColors.textInputBorderColor,
     backgroundColor: AppColors.grey,
-    marginTop: 20,
     paddingLeft: 22,
-    height: s(48),
-    borderRadius: s(8),
+    height: 48,
+    borderRadius: 8,
+    color: AppColors.blue,
+    fontFamily: "Montserrat",
+    fontSize: 16,
   },
   section: {
     // flexDirection: 'column',
     marginTop: 24,
     marginBottom: 32
   },
-  sectionHeading: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
   sectionTitle: {
     fontSize: 24,
-    // marginBottom: 16,
-  },
-  countText: {
-    fontSize: 12
   },
   boxes: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     columnGap: 26,
-    justifyContent: 'space-evenly',
+    rowGap: 26 + 16,
+    // justifyContent: 'center',
+    // alignItems: 'center',
   },
-  box: {
-    alignItems: 'center'
-  },
+  box: { width: 88, height: 88, },
   image: {
     marginTop: 16,
-    width: 96,
-    height: 96
+    width: 80,
+    height: 80,
+    borderRadius: 16
   },
   personName: {
     marginTop: 10,
     textAlign: 'center'
   },
-  job: {
-    marginTop: 8,
-    textAlign: 'center',
-    color: AppColors.grey2
+  noResultsText: {
+    marginTop: 12,
+    color: AppColors.primary,
+    fontSize: 14,
   },
-  scrollView: {
-    marginBottom: 32
-  }
+  circle: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: AppColors.blue,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  sectionHeading: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between'
+  },
+  countText: {
+    color: AppColors.blue
+  },
 })
