@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Classy Fit",
-    "slug": "classy-fitness-app", // cannot change slug - https://github.com/expo/fyi/blob/main/eas-project-id.md
+    "slug": "classy-fitness-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -42,6 +42,9 @@
     },
     "updates": {
       "url": "https://u.expo.dev/71a3d6be-20db-4bcb-80e2-59c2a18db2b5"
-    }
+    },
+    "plugins": [
+      "expo-font"
+    ]
   }
 }
