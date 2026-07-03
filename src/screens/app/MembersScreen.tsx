@@ -77,6 +77,11 @@ const MembersScreen = ({ navigation }: { navigation: any }) => {
 
   const filteredMembers = membersList.filter(matchesSearch);
 
+  const getDisplayName = (member: StaffMember) => {
+    const fullName = `${member.fname ?? ''} ${member.lname ? member.lname[0] + '.' : ''}`.trim();
+    return fullName.length > 11 ? `${fullName.slice(0, 11)}` : fullName;
+  };
+
   useFocusEffect(
     useCallback(() => {
       const fetchStaffData = async () => {
@@ -211,7 +216,7 @@ const MembersScreen = ({ navigation }: { navigation: any }) => {
                                 member.user_picture_url ? (
                                   <Image style={styles.image} source={{ uri: getImageUri(member.user_picture_url) }} />
                                 ) : null}
-                              <Text style={styles.personName}>{member.fname ?? ''} {member.lname ? member.lname[0] + '.' : ''}</Text>
+                              <Text style={styles.personName}>{getDisplayName(member)}</Text>
                             </View>
                           </TouchableOpacity>
                         )
@@ -309,10 +314,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     columnGap: 26,
+    rowGap: 26 + 16,
     // justifyContent: 'center',
     // alignItems: 'center',
   },
-  box: { width: 80, height: 80, },
+  box: { width: 88, height: 88, },
   image: {
     marginTop: 16,
     width: 80,
