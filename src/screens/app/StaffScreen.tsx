@@ -87,7 +87,7 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
         }
 
         try {
-          const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/users`, {
+          const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/staff`, {
             headers: {
               Authorization: "Bearer " + tokens.access_token,
             },
@@ -268,7 +268,6 @@ const styles = StyleSheet.create({
   },
   title: {
     color: AppColors.blue,
-    fontFamily: "Montserrat",
     fontSize: 32,
     marginTop: 20,
     marginBottom: 40,
@@ -285,7 +284,6 @@ const styles = StyleSheet.create({
   },
   bodyText: {
     fontSize: 16,
-    fontFamily: "Montserrat",
     lineHeight: 24,
     color: AppColors.primary,
   },
@@ -358,4 +356,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  sectionHeading: {},
+  countText: {},
 })
