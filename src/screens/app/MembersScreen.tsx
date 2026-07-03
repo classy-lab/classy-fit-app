@@ -1,32 +1,41 @@
 // @ts-nocheck
-import { StyleSheet, Text, View, Dimensions, TouchableOpacity, ScrollView, TextInput, Image } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, TextInput, Image, Keyboard, TouchableWithoutFeedback } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { useNavigation } from '@react-navigation/native'
 import { AppColors } from '../../styles/colors'
-import { useFonts } from 'expo-font'
-import { s } from 'react-native-size-matters'
-import MaterialIcons from '@expo/vector-icons/MaterialIcons'
-import Feather from '@expo/vector-icons/Feather'
+import { Feather, MaterialIcons } from '@expo/vector-icons'
 import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
+import SignOut from '../../components/utils/SignOut'
+import { useFocusEffect } from '@react-navigation/native'
 import * as yup from 'yup'
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { useCallback, useContext, useState } from 'react'
+import { UserContext } from '../../context/UserContext'
 
-const windowHeight = Dimensions.get('window').height
+type StaffMember = {
+  user_picture_url?: string;
+  fname?: string;
+  lname?: string;
+};
 
-const MembersScreen = () => {
-  const navigation = useNavigation()
+const MembersScreen = ({ navigation }: { navigation: any }) => {
+  const { user } = useContext(UserContext);
+  const { tokens, setTokens } = useContext(UserContext);
+  const { webServer } = useContext(UserContext);
+  const [members, setMembers] = useState<Record<string, StaffMember>>({});
+  const [imageCacheKey, setImageCacheKey] = useState(Date.now());
+  const membersList = Object.values(members);
 
   // 1. Define the Yup validation schema
   const schema = yup.object().shape({
     search: yup.string().required('Search field is required').matches(
-      /^[a-zA-Z0-9]+$/,
-      'Password must only contain alphanumeric characters (letters and numbers)'
+      /^[a-zA-Z0-9 .,]+$/,
+      'Search can only contain letters, numbers, spaces, full stops, and commas'
     )
   })
 
   // 2. Initialize useForm with the Yup resolver
-  const { control, handleSubmit, formState: { errors } } = useForm({
+  const { control, watch, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
       search: '',
@@ -34,21 +43,91 @@ const MembersScreen = () => {
   })
 
   // 3. Define the submit handler
-  const onSubmit = async (data) => {
+  const onSubmit = (data: { search: string }) => {
     // This function only runs if validation passes
-    console.log('Form Submitted (Validation Passed):', data);
-
     try {
-      // Perform your authentication logic or API call here
-      // const response = await api.post('/login', data);
-      // If successful, navigate to the Login page or another desired screen
-      // navigation.navigate('DashboardScreen');
+      console.log('Search value:', data.search);
+      Keyboard.dismiss();
     } catch (error) {
-      // Handle API errors (React Hook Form does not swallow errors here)
-      console.error("Login failed:", error);
-      // Optionally, show an error message to the user
+      console.error('Search submit failed:', error);
     }
   }
+
+  const getImageUri = (path?: string) => {
+    if (!path) return '';
+    const queryJoiner = path.includes('?') ? '&' : '?';
+    return `${webServer}/api/${path}${queryJoiner}v=${imageCacheKey}`;
+  };
+
+  const searchQuery = (watch('search') || '').trim().toLowerCase();
+
+  const matchesSearch = (staff: StaffMember) => {
+    if (!searchQuery) return true; // If search query is empty, include all members
+
+    const firstName = staff.fname?.toLowerCase() || '';
+    const lastName = staff.lname?.toLowerCase() || '';
+    const fullName = `${firstName} ${lastName}`.trim();
+    const initialsName = `${firstName} ${lastName ? `${lastName[0]}.` : ''}`.trim();
+
+    return firstName.includes(searchQuery) ||
+      lastName.includes(searchQuery) ||
+      fullName.includes(searchQuery) ||
+      initialsName.includes(searchQuery);
+  };
+
+  const filteredMembers = membersList.filter(matchesSearch);
+
+  useFocusEffect(
+    useCallback(() => {
+      const fetchStaffData = async () => {
+        if (!user?.gym_id || !tokens?.access_token) {
+          return;
+        }
+
+        try {
+          const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/members`, {
+            headers: {
+              Authorization: "Bearer " + tokens.access_token,
+            },
+          });
+
+          const json = await response.text();
+          const obj = JSON.parse(json);
+
+          if (response.status === 200) {
+            setMembers(obj.members);
+            setImageCacheKey(Date.now());
+          }
+          else {
+            console.log("Access token expired, requesting new one - useFocusEffect()");
+
+            const response = await fetch(`${webServer}/api/refresh.php`, {
+              method: "POST",
+              body: JSON.stringify({
+                token: tokens.refresh_token,
+              }),
+            });
+
+            const json = await response.text();
+            const obj = JSON.parse(json);
+
+            if (response.status == 200) {
+              console.log("Got new access token and refresh token");
+              setTokens((prev: any) => ({
+                ...prev,
+                access_token: obj.access_token,
+                refresh_token: obj.refresh_token,
+              }));
+            }
+          }
+        } catch (error) {
+          console.log('Failed to fetch staff data', error);
+        }
+      };
+
+      fetchStaffData();
+    }, [user?.gym_id, tokens?.access_token, tokens?.refresh_token, webServer, setTokens])
+  );
 
   return (
     <>
@@ -80,15 +159,22 @@ const MembersScreen = () => {
                   name="search"
                   render={({ field: { onChange, onBlur, value } }) => (
                     <TextInput
-                      style={styles.inputField}
-                      // onBlur={onBlur}
+                      onBlur={() => {
+                        onBlur();
+                        console.log('Search value on blur:', value);
+                        handleSubmit(onSubmit)();
+                      }}
+                      onSubmitEditing={() => {
+                        Keyboard.dismiss();
+                      }}
                       onChangeText={onChange}
                       value={value}
-                      keyboardType="default"
-                      autoCapitalize="none"
                       placeholder="Search"
+                      style={styles.inputField}
+                      keyboardType="default"
+                      returnKeyType="done"
+                      autoCapitalize="none"
                       placeholderTextColor={AppColors.blue}
-                      onBlur={handleSubmit(onSubmit)}
                     />
                   )}
                 />
@@ -99,10 +185,31 @@ const MembersScreen = () => {
 
             <View style={styles.section}>
               <View style={styles.sectionHeading}>
-                <Text style={styles.sectionTitle}>Owner</Text>
+                <Text style={styles.sectionTitle}>Members</Text>
                 <Text style={styles.countText}>Count: 105</Text>
               </View>
               <View style={styles.boxes}>
+                {filteredMembers.length === 0 ? (
+                  <Text style={styles.noResultsText}>No results found</Text>
+                ) :
+                  (
+                    filteredMembers.map((member, index) => {
+                      return (
+                        <TouchableOpacity key={index}>
+                          <View style={styles.box}>
+                            {
+                              member.user_picture_url ? (
+                                <Image style={styles.image} source={{ uri: getImageUri(member.user_picture_url) }} />
+                              ) : null}
+                            <Text style={styles.personName}>{member.fname ?? ''} {member.lname ? member.lname[0] + '.' : ''}</Text>
+                          </View>
+                        </TouchableOpacity>
+                      )
+                    })
+                  )
+                }
+              </View>
+              {/* <View style={styles.boxes}>
                 <TouchableOpacity>
                   <View style={styles.box}>
                     <Image style={styles.image} source={require('../../assets/images/headshots/jenniferHeadshot.png')} />
@@ -175,12 +282,12 @@ const MembersScreen = () => {
                     <Text style={styles.personName}>Maria K.</Text>
                   </View>
                 </TouchableOpacity>
-              </View>
+              </View> */}
             </View>
 
           </View>
         </ScrollView>
-      </SafeAreaView>
+      </SafeAreaView >
     </>
   )
 }
@@ -190,13 +297,38 @@ export default MembersScreen
 const styles = StyleSheet.create({
   container: {
     backgroundColor: AppColors.white,
+    flex: 1,
+    paddingLeft: 24,
+    paddingRight: 24,
   },
   navs: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingLeft: 24,
-    paddingRight: 24,
-    width: '100%',
+  },
+  headingContainer: {
+    alignItems: 'center',
+    marginBottom: 20
+  },
+  title: {
+    color: AppColors.blue,
+    fontSize: 32,
+    marginTop: 20,
+    marginBottom: 40,
+    width: 320,
+    textAlign: "center",
+  },
+  pinkLeaf: {
+    position: "absolute",
+    zIndex: -1,
+    right: 96,
+  },
+  body: {
+    flex: 1,
+  },
+  bodyText: {
+    fontSize: 16,
+    lineHeight: 24,
+    color: AppColors.primary,
   },
   signOut: {
     flexDirection: 'row',
@@ -207,38 +339,6 @@ const styles = StyleSheet.create({
     marginRight: 4,
     color: AppColors.blue,
     fontSize: 14
-  },
-  circle: {
-    width: 30,
-    height: 30,
-    borderRadius: '50%',
-    backgroundColor: AppColors.blue,
-    justifyContent: 'center',
-    alignItems: 'center',
-    // paddingLeft: 3
-  },
-  headingContainer: {
-    alignItems: 'center',
-    marginBottom: 20
-  },
-  title: {
-    color: AppColors.blue,
-    fontFamily: 'Montserrat',
-    fontSize: 32,
-    marginTop: 20,
-  },
-  pinkLeaf: {
-    position: 'absolute',
-    // zIndex: -1,
-    // top: 0,
-    right: 88
-  },
-  body: {
-    paddingLeft: 24,
-    paddingRight: 24,
-    flex: 1,
-    height: windowHeight,
-    // borderWidth: 1, borderColor: 'red',
   },
   errorText: {
     color: AppColors.red,
@@ -253,40 +353,52 @@ const styles = StyleSheet.create({
     borderColor: AppColors.textInputBorderColor,
     backgroundColor: AppColors.grey,
     paddingLeft: 22,
-    marginTop: 20,
-    height: s(48),
-    borderRadius: s(8),
+    height: 48,
+    borderRadius: 8,
+    color: AppColors.blue,
+    fontFamily: "Montserrat",
+    fontSize: 16,
   },
   section: {
     // flexDirection: 'column',
     marginTop: 24,
     marginBottom: 32
   },
-  sectionHeading: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
   sectionTitle: {
     fontSize: 24,
     // marginBottom: 16,
+    width: '100%'
   },
   boxes: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     columnGap: 26,
-    justifyContent: 'space-evenly',
+    // justifyContent: 'center',
     // alignItems: 'center',
   },
+  box: {},
   image: {
     marginTop: 16,
-    width: 96,
-    height: 96
+    width: 80,
+    height: 80
   },
   personName: {
     marginTop: 10,
     textAlign: 'center'
   },
-  scrollView: {
-    marginBottom: 32
-  }
+  noResultsText: {
+    marginTop: 12,
+    color: AppColors.primary,
+    fontSize: 14,
+  },
+  circle: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: AppColors.blue,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  sectionHeading: { borderWidth: 1, borderColor: AppColors.blue, display: 'flex', flexDirection: 'row', justifyContent: 'space-around', height: 150 },
+  countText: { color: AppColors.blue, fontSize: 16, marginTop: 8, textAlign: 'center' },
 })
