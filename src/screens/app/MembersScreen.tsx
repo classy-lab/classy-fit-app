@@ -219,80 +219,7 @@ const MembersScreen = ({ navigation }: { navigation: any }) => {
                     )
                   }
                 </View>
-                {/* <View style={styles.boxes}>
-                <TouchableOpacity>
-                  <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/headshots/jenniferHeadshot.png')} />
-                    <Text style={styles.personName}>Jenniffer P.</Text>
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity>
-                  <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/headshots/patrickHeadshot.png')} />
-                    <Text style={styles.personName}>Patrick P.</Text>
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity>
-                  <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/headshots/MarkS.png')} />
-                    <Text style={styles.personName}>Mark S.</Text>
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity>
-                  <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/headshots/lisaM.png')} />
-                    <Text style={styles.personName}>Lisa M.</Text>
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity>
-                  <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/headshots/AndronicusP.png')} />
-                    <Text style={styles.personName}>Andronicus P.</Text>
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity>
-                  <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/headshots/sona.png')} />
-                    <Text style={styles.personName}>Sona M.</Text>
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity>
-                  <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/headshots/lisa.png')} />
-                    <Text style={styles.personName}>Sarah B.</Text>
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity>
-                  <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/headshots/andy.png')} />
-                    <Text style={styles.personName}>Jenniffer P.</Text>
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity>
-                  <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/headshots/jessica.png')} />
-                    <Text style={styles.personName}>Maria K.</Text>
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity>
-                  <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/headshots/candy.png')} />
-                    <Text style={styles.personName}>Sarah B.</Text>
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity>
-                  <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/headshots/sam.png')} />
-                    <Text style={styles.personName}>Jenniffer P.</Text>
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity>
-                  <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/headshots/rajesh.png')} />
-                    <Text style={styles.personName}>Maria K.</Text>
-                  </View>
-                </TouchableOpacity>
-              </View> */}
+
               </View>
 
             </View>
@@ -377,8 +304,6 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 24,
-    // marginBottom: 16,
-    // width: '100%'
   },
   boxes: {
     flexDirection: 'row',
@@ -410,6 +335,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  sectionHeading: { display: 'flex', flexDirection: 'row', justifyContent: 'space-between' },
-  countText: { color: AppColors.blue },
+  sectionHeading: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between'
+  },
+  countText: {
+    color: AppColors.blue
+  },
 })
