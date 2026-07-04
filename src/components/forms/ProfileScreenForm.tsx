@@ -14,6 +14,7 @@ import { AppColors } from "../../styles/colors";
 import { SelectList } from "react-native-dropdown-select-list";
 import { UserContext } from "../../context/UserContext";
 import HoneypotField from "./input_fields/HoneypotField";
+import DateOfBirthField from "./input_fields/DateOfBirthField";
 import PreferredContact from "./PreferredContact";
 import GymList from "../GymList";
 import { globalStyles } from "../../styles/globalStyles";
@@ -570,16 +571,11 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
           <Controller
             control={control}
             name="dateOfBirth"
-            render={({ field: { onChange, onBlur, value, ref } }) => (
-              <TextInput
-                ref={ref}
-                style={styles.inputField}
-                onBlur={onBlur}
-                onChangeText={onChange}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <DateOfBirthField
                 value={value}
-                keyboardType="default"
-                autoCapitalize="none"
-                placeholder="yyyy-mm-dd"
+                onChange={onChange}
+                onBlur={onBlur}
               />
             )}
           />
