@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import DatePicker from "react-native-date-picker";
 import { styles } from "../../../styles/registerFormStyles";
@@ -11,6 +11,11 @@ type DateOfBirthFieldProps = {
 
 const EMPTY_LABEL = "Select date of birth";
 const MINIMUM_DATE = new Date(1900, 0, 1);
+const DISPLAY_DATE_FORMATTER = new Intl.DateTimeFormat(undefined, {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
 
 const pad = (value: number) => String(value).padStart(2, "0");
 
@@ -40,21 +45,7 @@ const parseDateValue = (value?: string) => {
   return parsedDate;
 };
 
-const formatDisplayValue = (value?: string) => {
-  const parsedDate = parseDateValue(value);
-  if (!parsedDate) return EMPTY_LABEL;
-
-  return new Intl.DateTimeFormat(undefined, {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  }).format(parsedDate);
-};
-
-const getDefaultPickerDate = (value?: string) => {
-  const parsedDate = parseDateValue(value);
-  if (parsedDate) return parsedDate;
-
+const getFallbackDate = () => {
   const fallbackDate = new Date();
   fallbackDate.setFullYear(fallbackDate.getFullYear() - 18);
   return fallbackDate;
@@ -62,15 +53,11 @@ const getDefaultPickerDate = (value?: string) => {
 
 const DateOfBirthField = ({ value, onChange, onBlur }: DateOfBirthFieldProps) => {
   const [open, setOpen] = useState(false);
-  const [pickerDate, setPickerDate] = useState(() => getDefaultPickerDate(value));
-
-  const displayValue = useMemo(() => formatDisplayValue(value), [value]);
-  const isEmpty = !parseDateValue(value);
-
-  const openPicker = () => {
-    setPickerDate(getDefaultPickerDate(value));
-    setOpen(true);
-  };
+  const selectedDate = parseDateValue(value);
+  const pickerDate = selectedDate ?? getFallbackDate();
+  const displayValue = selectedDate
+    ? DISPLAY_DATE_FORMATTER.format(selectedDate)
+    : EMPTY_LABEL;
 
   const closePicker = () => {
     setOpen(false);
@@ -79,8 +66,14 @@ const DateOfBirthField = ({ value, onChange, onBlur }: DateOfBirthFieldProps) =>
 
   return (
     <View>
-      <TouchableOpacity style={styles.inputButton} onPress={openPicker} activeOpacity={0.8}>
-        <Text style={isEmpty ? styles.inputButtonPlaceholder : styles.inputButtonText}>{displayValue}</Text>
+      <TouchableOpacity
+        style={styles.inputButton}
+        onPress={() => setOpen(true)}
+        activeOpacity={0.8}
+      >
+        <Text style={selectedDate ? styles.inputButtonText : styles.inputButtonPlaceholder}>
+          {displayValue}
+        </Text>
       </TouchableOpacity>
       <DatePicker
         modal
@@ -94,7 +87,6 @@ const DateOfBirthField = ({ value, onChange, onBlur }: DateOfBirthFieldProps) =>
         cancelText="Cancel"
         onConfirm={(selectedDate) => {
           onChange(formatDateValue(selectedDate));
-          setPickerDate(selectedDate);
           closePicker();
         }}
         onCancel={closePicker}
