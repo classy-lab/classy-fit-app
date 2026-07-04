@@ -19,6 +19,22 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: AppColors.grey,
   },
+  inputButton: {
+    marginTop: 5,
+    borderWidth: 1,
+    paddingHorizontal: 8,
+    borderColor: AppColors.textInputBorderColor,
+    height: 48,
+    borderRadius: 8,
+    backgroundColor: AppColors.grey,
+    justifyContent: "center",
+  },
+  inputButtonText: {
+    color: AppColors.primary,
+  },
+  inputButtonPlaceholder: {
+    color: AppColors.grey3,
+  },
   errorText: {
     color: AppColors.red,
   },
