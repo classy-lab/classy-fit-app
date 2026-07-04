@@ -20,6 +20,7 @@ import { useNavigation } from "@react-navigation/native";
 import { SelectList } from "react-native-dropdown-select-list";
 import { UserContext } from "../../context/UserContext";
 import HoneypotField from "./input_fields/HoneypotField";
+import DateOfBirthField from "./input_fields/DateOfBirthField";
 import GymList from "../GymList";
 import {
   findRoleOption,
@@ -420,17 +421,12 @@ const RegisterForm = () => {
           <Controller
             control={control}
             name="dateOfBirth"
-            render={({ field: { onChange, onBlur, value, ref } }) => (
-              <TextInput
-                ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
-                style={styles.inputField}
-                onBlur={onBlur}
-                onChangeText={onChange}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <DateOfBirthField
                 value={value}
-                keyboardType="default"
-                autoCapitalize="none"
-                placeholder="YYYY-MM-DD"
-              /> // needs date picker added. check
+                onChange={onChange}
+                onBlur={onBlur}
+              />
             )}
           />
           {errors.dateOfBirth && (
