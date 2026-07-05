@@ -114,7 +114,7 @@ const AppTabs = () => {
           // Customize the tab label and icon here
           tabBarLabel: 'Home',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" color={color} size={size} />
+            <Ionicons name="home" color={color} size={20} />
           ),
         }}
       />
@@ -123,7 +123,9 @@ const AppTabs = () => {
         component={GymStackScreen}
         options={{
           title: "Gym",
-          tabBarIcon: () => <FontAwesome5 name="dumbbell" size={20} color="black" />
+          tabBarIcon: ({ color, size }) => (
+            <FontAwesome5 name="dumbbell" size={19} color={color} />
+          ),
         }}
       />
       <Tab.Screen
@@ -131,7 +133,9 @@ const AppTabs = () => {
         component={StaffStackScreen}
         options={{
           title: "Staff",
-          tabBarIcon: () => <FontAwesome6 name="bolt-lightning" size={20} color="black" onPress={() => { navigation.navigate('StaffScreen') }} />
+          tabBarIcon: ({ color, size }) => (
+            <FontAwesome6 name="bolt-lightning" size={19} color={color} />
+          ),
         }}
       />
       <Tab.Screen
@@ -139,7 +143,7 @@ const AppTabs = () => {
         component={ProductStackScreen}
         options={{
           title: "Products",
-          tabBarIcon: () => <Ionicons name="bag-check-outline" size={24} color="black" />
+          tabBarIcon: ({ color, size }) => <Ionicons name="bag-handle" size={20} color={color} />
         }}
       />
       <Tab.Screen
@@ -147,7 +151,7 @@ const AppTabs = () => {
         component={ProfileScreen}
         options={{
           title: "Profile",
-          tabBarIcon: () => <FontAwesome6 name="circle-user" size={24} color="black" onPress={() => { navigation.navigate('ProfileScreen') }} />
+          tabBarIcon: ({ color, size }) => <FontAwesome6 name="circle-user" size={20} color={color} onPress={() => { navigation.navigate('ProfileScreen') }} />
         }}
       />
     </Tab.Navigator>
