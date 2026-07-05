@@ -196,7 +196,7 @@ const AddContactScreen = () => {
     console.log("FormData ready for fetch:", formData);
 
     const response = await fetch(
-      `${webServer}/api/register.php`,
+      `${webServer}/api/register-contact.php`,
       {
         method: "POST",
         body: formData,
