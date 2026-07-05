@@ -37,7 +37,6 @@ import {
   schema,
   sexData,
 } from "../../../src/components/forms/ProfileScreenForm.constants";
-// import { styles } from "../../styles/registerFormStyles";
 import FlashMessage, {
   showMessage,
   hideMessage,
@@ -218,7 +217,6 @@ const AddStaffScreen = () => {
         // autoHide: false,
         onPress: () => hideMessage(),
       });
-      navigation.navigate("ThankYouScreen");
     } else {
       showMessage({
         message: "Action Failed",
@@ -249,10 +247,9 @@ const AddStaffScreen = () => {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.headingContainer}>
-            <Text value={user?.given_name} style={styles.title}>
-              {user?.given_name} {user?.family_name}
+            <Text style={styles.title}>
+              Add User
             </Text>
-            <Text style={styles.subHead}>{normalizeRole(user?.role)}</Text>
           </View>
           <View style={styles.body}>
 
@@ -625,6 +622,43 @@ const AddStaffScreen = () => {
 export default AddStaffScreen;
 
 const styles = StyleSheet.create({
+  container: {
+    backgroundColor: AppColors.white,
+    flex: 1,
+    paddingLeft: 24,
+    paddingRight: 24,
+  },
+  navs: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  headingContainer: {
+    alignItems: "center",
+  },
+  title: {
+    color: AppColors.blue,
+    fontFamily: "Montserrat",
+    fontSize: 32,
+    marginTop: 40,
+    // marginBottom: 40,
+    width: 320,
+    textAlign: "center",
+  },
+  pinkLeaf: {
+    position: "relative",
+    zIndex: -1,
+    top: -68,
+    right: -40,
+  },
+  body: {
+    flex: 1,
+  },
+  bodyText: {
+    fontSize: 16,
+    fontFamily: "Montserrat",
+    lineHeight: 24,
+    color: AppColors.primary,
+  },
   fieldset: {
     marginBottom: 32,
   },
@@ -661,7 +695,10 @@ const styles = StyleSheet.create({
   errorText: {
     color: AppColors.red,
   },
-  imageContainer: { alignItems: "center", marginBottom: 20 },
+  imageContainer: {
+    alignItems: "center",
+    marginBottom: 20
+  },
   imagePickerButton: {
     // marginTop: 4,
   },
