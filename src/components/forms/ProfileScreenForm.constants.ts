@@ -60,7 +60,10 @@ export const schema = yup.object().shape({
   phoneNumber: yup
     .string()
     .matches(phoneRegExp, "Phone Number is not valid")
-    .transform((value) => (value === "" ? "" : value)),
+    .transform((value) => (value === "" ? "" : value))
+    .min(10, 'Phone number must be at least 10 digits')
+    .max(15, 'Phone number must be no more than 15 digits')
+    .matches(/^\+?[1-9]\d{9,14}$/, 'Enter a valid phone number'),
   whatsappNumber: yup
     .string()
     .matches(phoneRegExp, "WhatsApp Number number is not valid")
