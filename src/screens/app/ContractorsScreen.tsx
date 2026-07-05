@@ -141,12 +141,12 @@ const ContractorsScreen = ({ navigation }: { navigation: any }) => {
           <View style={styles.navs}>
             <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
             <View style={styles.rightActions}>
-              <View style={styles.signOut}>
+              <TouchableOpacity onPress={() => { navigation.navigate('StaffTab', { screen: 'AddContactScreen' }) }} style={styles.signOut}>
                 <Text style={styles.signOutText}>Add</Text>
                 <View style={styles.circle}>
                   <MaterialIcons name="add" color={AppColors.white} size={16} />
                 </View>
-              </View>
+              </TouchableOpacity>
               <SignOut />
             </View>
           </View>
