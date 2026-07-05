@@ -23,7 +23,7 @@ const EarningsScreen = ({ navigation, route }) => {
           <View style={styles.navs}>
             <Feather name="arrow-left" color={AppColors.white} size={36} onPress={() => { navigation.goBack() }} />
             <View style={styles.signOut}>
-              <Text style={styles.signOutText}>Sign out</Text>
+              <Text style={styles.signOutText}>Log out</Text>
               <View style={styles.circle}>
                 <MaterialIcons name="logout" color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
               </View>
