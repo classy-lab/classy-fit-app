@@ -26,10 +26,12 @@ import ThankYouScreen from '../screens/app/ThankYouScreen'
 import TreadmillEquipmentScreen from '../screens/app/TreadmillEquipmentScreen'
 import AllEarnings from '../screens/app/AllEarnings'
 import AddStaffScreen from '../screens/app/AddStaffScreen'
+import AddContactScreen from '../screens/app/AddContactScreen'
 
 const Tab = createBottomTabNavigator()
 const HomeStack = createStackNavigator()
 const ProductStack = createStackNavigator()
+const StaffStack = createStackNavigator()
 const GymStack = createStackNavigator()
 
 function HomeStackScreen() {
@@ -48,6 +50,24 @@ function HomeStackScreen() {
   );
 }
 
+function GymStackScreen() {
+  return (
+    <GymStack.Navigator screenOptions={screenOptions}>
+      <GymStack.Screen name="GymScreen" component={GymScreen} />
+      <GymStack.Screen name="TreadmillEquipmentScreen" component={TreadmillEquipmentScreen} />
+    </GymStack.Navigator>
+  )
+}
+
+function StaffStackScreen() {
+  return (
+    <StaffStack.Navigator screenOptions={screenOptions}>
+      <StaffStack.Screen name="StaffScreen" component={StaffScreen} />
+      <StaffStack.Screen name="AddContactScreen" component={AddContactScreen} />
+    </StaffStack.Navigator>
+  )
+}
+
 function ProductStackScreen() {
   return (
     <ProductStack.Navigator screenOptions={screenOptions}>
@@ -60,14 +80,6 @@ function ProductStackScreen() {
   )
 }
 
-function GymStackScreen() {
-  return (
-    <GymStack.Navigator screenOptions={screenOptions}>
-      <GymStack.Screen name="GymScreen" component={GymScreen} />
-      <GymStack.Screen name="TreadmillEquipmentScreen" component={TreadmillEquipmentScreen} />
-    </GymStack.Navigator>
-  )
-}
 
 const screenOptions = {
   tabBarActiveTintColor: AppColors.blue,
@@ -115,8 +127,8 @@ const AppTabs = () => {
         }}
       />
       <Tab.Screen
-        name="StaffScreen"
-        component={StaffScreen}
+        name="StaffTab"
+        component={StaffStackScreen}
         options={{
           title: "Staff",
           tabBarIcon: () => <FontAwesome6 name="bolt-lightning" size={20} color="black" onPress={() => { navigation.navigate('StaffScreen') }} />
