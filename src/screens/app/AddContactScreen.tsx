@@ -271,7 +271,7 @@ const AddContactScreen = () => {
                             <Image source={require("../../assets/images/avatars/profile-img.png")} style={styles.avatar} resizeMode="cover" />
                           )}
                         </TouchableOpacity>
-                        <Text style={styles.helperText}>Choose a photo from your gallery or pick one of the local avatars below.</Text>
+                        {/* <Text style={styles.helperText}>Choose a photo from your gallery or pick one of the local avatars below.</Text>
                         <View style={styles.avatarGrid}>
                           {localAvatarOptions.map((avatar) => (
                             <TouchableOpacity
@@ -282,7 +282,7 @@ const AddContactScreen = () => {
                               <Image source={avatar.asset} style={styles.avatarOptionImage} resizeMode="cover" />
                             </TouchableOpacity>
                           ))}
-                        </View>
+                        </View> */}
                       </View>
                     );
                   }}
