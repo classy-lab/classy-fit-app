@@ -27,6 +27,7 @@ import TreadmillEquipmentScreen from '../screens/app/TreadmillEquipmentScreen'
 import AllEarnings from '../screens/app/AllEarnings'
 import AddStaffScreen from '../screens/app/AddStaffScreen'
 import AddContactScreen from '../screens/app/AddContactScreen'
+import UpdateContactScreen from '../screens/app/UpdateContactScreen'
 
 const Tab = createBottomTabNavigator()
 const HomeStack = createStackNavigator()
@@ -64,6 +65,7 @@ function StaffStackScreen() {
     <StaffStack.Navigator screenOptions={screenOptions}>
       <StaffStack.Screen name="StaffScreen" component={StaffScreen} />
       <StaffStack.Screen name="AddContactScreen" component={AddContactScreen} />
+      <StaffStack.Screen name="UpdateContactScreen" component={UpdateContactScreen} />
     </StaffStack.Navigator>
   )
 }
