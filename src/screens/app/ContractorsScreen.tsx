@@ -13,9 +13,13 @@ import { useCallback, useContext, useState } from 'react'
 import { UserContext } from '../../context/UserContext'
 
 type StaffMember = {
+  contact_id?: string | number;
   user_picture_url?: string;
   fname?: string;
   lname?: string;
+  email?: string;
+  phone?: string;
+  whatsapp?: string;
 };
 
 const ContractorsScreen = ({ navigation }: { navigation: any }) => {
@@ -24,7 +28,10 @@ const ContractorsScreen = ({ navigation }: { navigation: any }) => {
   const { webServer } = useContext(UserContext);
   const [contacts, setContacts] = useState<Record<string, StaffMember>>({});
   const [imageCacheKey, setImageCacheKey] = useState(Date.now());
-  const contactsList = Object.values(contacts);
+  const contactsList = Object.entries(contacts).map(([id, member]) => ({
+    ...member,
+    contact_id: member?.contact_id ?? id,
+  }));
 
   // 1. Define the Yup validation schema
   const schema = yup.object().shape({
@@ -192,8 +199,20 @@ const ContractorsScreen = ({ navigation }: { navigation: any }) => {
                   ) :
                     (
                       filteredContacts.map((member, index) => {
+                        const contactId = member?.contact_id ?? String(index);
                         return (
-                          <TouchableOpacity key={index}>
+                          <TouchableOpacity
+                            key={String(contactId)}
+                            onPress={() => {
+                              navigation.navigate('StaffTab', {
+                                screen: 'UpdateContactScreen',
+                                params: {
+                                  contactId,
+                                  contact: member,
+                                },
+                              })
+                            }}
+                          >
                             <View style={styles.box}>
                               {
                                 member.user_picture_url ? (
