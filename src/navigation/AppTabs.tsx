@@ -139,6 +139,7 @@ const AppTabs = () => {
           title: "Staff",
           tabBarIcon: ({ color, size }) => (
             <FontAwesome6 name="bolt-lightning" size={19} color={color} />
+            // <FontAwesome5 name="user-friends" size={20} color={color} />
           ),
         }}
       />
