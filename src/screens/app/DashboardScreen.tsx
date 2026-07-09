@@ -28,8 +28,9 @@ const DashboardScreen = ({ navigation, route }) => {
           </View>
           <View style={styles.body}>
             <View style={{ alignItems: 'center', }}>
-              <TouchableOpacity style={styles.blueRectangle} onPress={() => { navigation.navigate('EarningsScreen') }}>
+              <TouchableOpacity style={[styles.blueRectangle, styles.statementsButton]} onPress={() => { navigation.navigate('EarningsScreen') }}>
                 <Text style={styles.earningsText}>Statements</Text>
+                <Feather name="arrow-right" size={32} color={AppColors.white} style={styles.statementsArrowIcon} />
               </TouchableOpacity>
               <TouchableOpacity style={styles.blueRectangle} onPress={() => navigation.navigate('GymTab', { screen: 'GymScreen' })}>
                 <Text style={styles.earningsText}>Gym</Text>
@@ -113,6 +114,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginBottom: 20,
     // borderWidth: 1, borderRadius: 'red',
+  },
+  statementsButton: {
+    position: 'relative',
+  },
+  statementsArrowIcon: {
+    position: 'absolute',
+    right: 16,
+    bottom: 16,
   },
   earningsText: {
     color: AppColors.white,
