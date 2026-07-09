@@ -40,8 +40,10 @@ function HomeStackScreen() {
     <HomeStack.Navigator screenOptions={screenOptions}>
       <HomeStack.Screen name="DashboardScreen" component={DashboardScreen} />
       <HomeStack.Screen name="EarningsScreen" component={EarningsScreen} />
+      <HomeStack.Screen name="GymScreen" component={GymScreen} />
       <HomeStack.Screen name="StaffScreen" component={StaffScreen} />
       <HomeStack.Screen name="MembersScreen" component={MembersScreen} />
+      <HomeStack.Screen name="ProductsScreen" component={ProductsScreen} />
       <HomeStack.Screen name="ContractorsScreen" component={ContractorsScreen} />
       <HomeStack.Screen name="SignoutScreen" component={SignoutScreen} />
       <HomeStack.Screen name="LoginScreen" component={LoginScreen} />
