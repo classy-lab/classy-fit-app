@@ -32,7 +32,7 @@ const DashboardScreen = ({ navigation, route }) => {
                 <Text style={styles.earningsText}>Statements</Text>
                 <Feather name="arrow-right" style={styles.statementsArrowIcon} size={32} color={AppColors.white} />
               </TouchableOpacity>
-              <TouchableOpacity style={styles.blueRectangle} onPress={() => navigation.navigate('GymTab', { screen: 'GymScreen' })}>
+              <TouchableOpacity style={styles.blueRectangle} onPress={() => navigation.navigate('GymScreen')}>
                 <Text style={styles.earningsText}>Gym</Text>
                 <Feather name="arrow-right" style={styles.statementsArrowIcon} size={32} color={AppColors.white} />
               </TouchableOpacity>
@@ -50,7 +50,7 @@ const DashboardScreen = ({ navigation, route }) => {
                 </View>
                 <Text>Members</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('ProductsTab', { screen: 'ProductsScreen' })
+              <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('ProductsScreen')
               }>
                 <View style={styles.whiteSquare}>
                   <Ionicons name="bag-handle" size={24} color={AppColors.blue} />
