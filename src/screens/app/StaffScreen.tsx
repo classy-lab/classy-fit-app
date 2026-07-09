@@ -328,8 +328,8 @@ const styles = StyleSheet.create({
   boxes: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    columnGap: 26,
-    // justifyContent: 'center',
+    columnGap: 16,
+    justifyContent: 'flex-start',
     // alignItems: 'center',
   },
   box: { width: 96, height: 96 },

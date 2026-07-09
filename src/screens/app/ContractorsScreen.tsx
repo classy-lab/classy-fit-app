@@ -320,9 +320,9 @@ const styles = StyleSheet.create({
   boxes: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    columnGap: 26,
+    columnGap: 16,
     rowGap: 26 + 16,
-    // justifyContent: 'center',
+    justifyContent: 'space-evenly',
     // alignItems: 'center',
   },
   box: { width: 96, height: 96, },

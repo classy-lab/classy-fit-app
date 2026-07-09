@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
   boxes: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    columnGap: 26,
+    columnGap: 16,
     justifyContent: 'space-evenly',
     // alignItems: 'center',
   },
