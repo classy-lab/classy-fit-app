@@ -28,7 +28,7 @@ const TemplateScreen = () => {
             <View style={styles.circle}>
               <Feather name="plus" size={24} color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
             </View>
-            <Text style={styles.signOutText}>Sign out</Text>
+            <Text style={styles.signOutText}>Log out</Text>
             <View style={styles.circle}>
               <MaterialIcons name="logout" color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
             </View>

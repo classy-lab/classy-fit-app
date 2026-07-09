@@ -26,10 +26,13 @@ import ThankYouScreen from '../screens/app/ThankYouScreen'
 import TreadmillEquipmentScreen from '../screens/app/TreadmillEquipmentScreen'
 import AllEarnings from '../screens/app/AllEarnings'
 import AddStaffScreen from '../screens/app/AddStaffScreen'
+import AddContactScreen from '../screens/app/AddContactScreen'
+import UpdateContactScreen from '../screens/app/UpdateContactScreen'
 
 const Tab = createBottomTabNavigator()
 const HomeStack = createStackNavigator()
 const ProductStack = createStackNavigator()
+const StaffStack = createStackNavigator()
 const GymStack = createStackNavigator()
 
 function HomeStackScreen() {
@@ -48,6 +51,25 @@ function HomeStackScreen() {
   );
 }
 
+function GymStackScreen() {
+  return (
+    <GymStack.Navigator screenOptions={screenOptions}>
+      <GymStack.Screen name="GymScreen" component={GymScreen} />
+      <GymStack.Screen name="TreadmillEquipmentScreen" component={TreadmillEquipmentScreen} />
+    </GymStack.Navigator>
+  )
+}
+
+function StaffStackScreen() {
+  return (
+    <StaffStack.Navigator screenOptions={screenOptions}>
+      <StaffStack.Screen name="StaffScreen" component={StaffScreen} />
+      <StaffStack.Screen name="AddContactScreen" component={AddContactScreen} />
+      <StaffStack.Screen name="UpdateContactScreen" component={UpdateContactScreen} />
+    </StaffStack.Navigator>
+  )
+}
+
 function ProductStackScreen() {
   return (
     <ProductStack.Navigator screenOptions={screenOptions}>
@@ -60,14 +82,6 @@ function ProductStackScreen() {
   )
 }
 
-function GymStackScreen() {
-  return (
-    <GymStack.Navigator screenOptions={screenOptions}>
-      <GymStack.Screen name="GymScreen" component={GymScreen} />
-      <GymStack.Screen name="TreadmillEquipmentScreen" component={TreadmillEquipmentScreen} />
-    </GymStack.Navigator>
-  )
-}
 
 const screenOptions = {
   tabBarActiveTintColor: AppColors.blue,
@@ -102,7 +116,7 @@ const AppTabs = () => {
           // Customize the tab label and icon here
           tabBarLabel: 'Home',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" color={color} size={size} />
+            <Ionicons name="home" color={color} size={20} />
           ),
         }}
       />
@@ -111,15 +125,19 @@ const AppTabs = () => {
         component={GymStackScreen}
         options={{
           title: "Gym",
-          tabBarIcon: () => <FontAwesome5 name="dumbbell" size={20} color="black" />
+          tabBarIcon: ({ color, size }) => (
+            <FontAwesome5 name="dumbbell" size={19} color={color} />
+          ),
         }}
       />
       <Tab.Screen
-        name="StaffScreen"
-        component={StaffScreen}
+        name="StaffTab"
+        component={StaffStackScreen}
         options={{
           title: "Staff",
-          tabBarIcon: () => <FontAwesome6 name="bolt-lightning" size={20} color="black" onPress={() => { navigation.navigate('StaffScreen') }} />
+          tabBarIcon: ({ color, size }) => (
+            <FontAwesome6 name="bolt-lightning" size={19} color={color} />
+          ),
         }}
       />
       <Tab.Screen
@@ -127,7 +145,7 @@ const AppTabs = () => {
         component={ProductStackScreen}
         options={{
           title: "Products",
-          tabBarIcon: () => <Ionicons name="bag-check-outline" size={24} color="black" />
+          tabBarIcon: ({ color, size }) => <Ionicons name="bag-handle" size={20} color={color} />
         }}
       />
       <Tab.Screen
@@ -135,7 +153,7 @@ const AppTabs = () => {
         component={ProfileScreen}
         options={{
           title: "Profile",
-          tabBarIcon: () => <FontAwesome6 name="circle-user" size={24} color="black" onPress={() => { navigation.navigate('ProfileScreen') }} />
+          tabBarIcon: ({ color, size }) => <FontAwesome6 name="circle-user" size={20} color={color} onPress={() => { navigation.navigate('ProfileScreen') }} />
         }}
       />
     </Tab.Navigator>
