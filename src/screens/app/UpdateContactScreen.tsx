@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   StyleSheet,
@@ -32,8 +32,9 @@ const UpdateContactScreen = ({ navigation }: { navigation: any }) => {
 
   const contactId = route?.params?.contactId;
   const contact = route?.params?.contact || {};
+  // console.log(contact)
 
-  const { control, handleSubmit, formState: { errors } } = useForm<FormValues>({
+  const { control, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
     defaultValues: {
       fname: contact?.fname || "",
       lname: contact?.lname || "",
@@ -42,6 +43,16 @@ const UpdateContactScreen = ({ navigation }: { navigation: any }) => {
       whatsapp: contact?.whatsapp || "",
     },
   });
+
+  useEffect(() => {
+    reset({
+      fname: contact?.fname || "",
+      lname: contact?.lname || "",
+      email: contact?.email || "",
+      phone: contact?.phone || "",
+      whatsapp: contact?.whatsapp || "",
+    });
+  }, [contact, reset]);
 
   const onSubmit = async (data: FormValues) => {
     if (!contactId) {
