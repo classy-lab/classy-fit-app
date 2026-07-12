@@ -26,8 +26,7 @@ type FormValues = {
   whatsapp: string;
 };
 
-const UpdateContactScreen = () => {
-  const navigation = useNavigation();
+const UpdateContactScreen = ({ navigation }: { navigation: any }) => {
   const route = useRoute<any>();
   const { webServer, tokens } = useContext(UserContext);
 
