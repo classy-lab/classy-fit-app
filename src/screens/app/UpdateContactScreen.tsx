@@ -28,11 +28,10 @@ type FormValues = {
 
 const UpdateContactScreen = ({ navigation }: { navigation: any }) => {
   const route = useRoute<any>();
-  const { webServer, tokens } = useContext(UserContext);
+  const { webServer, tokens, setTokens } = useContext(UserContext);
 
   const contactId = route?.params?.contactId;
   const contact = route?.params?.contact || {};
-  // console.log(contact)
 
   const { control, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
     defaultValues: {
@@ -45,6 +44,21 @@ const UpdateContactScreen = ({ navigation }: { navigation: any }) => {
   });
 
   useEffect(() => {
+    console.log(`${webServer}/api/v1/contacts/${contact.uid}`);
+    const fetchContactData = async ({ tokens, webServer, setTokens }) => {
+      const response = await fetch(`${webServer}/api/v1/contacts/${contact.uid}`, {
+        headers: {
+          Authorization: "Bearer " + tokens.access_token,
+        },
+      });
+
+      const json = await response.text();
+      const obj = JSON.parse(json);
+      console.log("Fetched contact data:", obj);
+    }
+
+
+
     reset({
       fname: contact?.fname || "",
       lname: contact?.lname || "",
