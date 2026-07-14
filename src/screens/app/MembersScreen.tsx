@@ -18,11 +18,15 @@ type StaffMember = {
   lname?: string;
 };
 
+const MEMBERS_FETCH_THROTTLE_MS = 120_000;
+let lastMembersFetchAt = 0;
+let cachedMembers: Record<string, StaffMember> | null = null;
+
 const MembersScreen = ({ navigation }: { navigation: any }) => {
   const { user } = useContext(UserContext);
   const { tokens, setTokens } = useContext(UserContext);
   const { webServer } = useContext(UserContext);
-  const [members, setMembers] = useState<Record<string, StaffMember>>({});
+  const [members, setMembers] = useState<Record<string, StaffMember>>(() => cachedMembers ?? {});
   const [imageCacheKey, setImageCacheKey] = useState(Date.now());
   const membersList = Object.values(members);
 
@@ -89,7 +93,20 @@ const MembersScreen = ({ navigation }: { navigation: any }) => {
           return;
         }
 
+        if (cachedMembers) {
+          setMembers(cachedMembers);
+        }
+
+        const now = Date.now();
+        if (cachedMembers && now - lastMembersFetchAt < MEMBERS_FETCH_THROTTLE_MS) {
+          return;
+        }
+
+        lastMembersFetchAt = now;
+
         try {
+          console.log("Fetching members data from server at ", new Date().toLocaleTimeString());
+
           const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/members`, {
             headers: {
               Authorization: "Bearer " + tokens.access_token,
@@ -100,6 +117,7 @@ const MembersScreen = ({ navigation }: { navigation: any }) => {
           const obj = JSON.parse(json);
 
           if (response.status === 200) {
+            cachedMembers = obj.members;
             setMembers(obj.members);
             setImageCacheKey(Date.now());
           }
