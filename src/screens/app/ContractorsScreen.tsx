@@ -22,11 +22,15 @@ type StaffMember = {
   whatsapp?: string;
 };
 
+const MEMBERS_FETCH_THROTTLE_MS = 15_000;
+let lastMembersFetchAt = 0;
+let cachedMembers: Record<string, StaffMember> | null = null;
+
 const ContractorsScreen = ({ navigation }: { navigation: any }) => {
   const { user } = useContext(UserContext);
   const { tokens, setTokens } = useContext(UserContext);
   const { webServer } = useContext(UserContext);
-  const [contacts, setContacts] = useState<Record<string, StaffMember>>({});
+  const [contacts, setContacts] = useState<Record<string, StaffMember>>(() => cachedMembers ?? {});
   const [imageCacheKey, setImageCacheKey] = useState(Date.now());
   const contactsList = Object.entries(contacts).map(([id, member]) => ({
     ...member,
@@ -96,7 +100,21 @@ const ContractorsScreen = ({ navigation }: { navigation: any }) => {
           return;
         }
 
+        if (cachedMembers) {
+          setContacts(cachedMembers);
+        }
+
+        const now = Date.now();
+        if (cachedMembers && now - lastMembersFetchAt < MEMBERS_FETCH_THROTTLE_MS) {
+          return;
+        }
+
+        lastMembersFetchAt = now;
+
+
         try {
+          console.log("Fetching contacts data from server at ", new Date().toLocaleTimeString());
+
           const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/contacts`, {
             headers: {
               Authorization: "Bearer " + tokens.access_token,
@@ -107,6 +125,7 @@ const ContractorsScreen = ({ navigation }: { navigation: any }) => {
           const obj = JSON.parse(json);
 
           if (response.status === 200) {
+            cachedMembers = obj.members;
             setContacts(obj.contacts);
             setImageCacheKey(Date.now());
           }
