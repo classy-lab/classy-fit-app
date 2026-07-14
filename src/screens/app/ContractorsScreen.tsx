@@ -22,15 +22,15 @@ type StaffMember = {
   whatsapp?: string;
 };
 
-const MEMBERS_FETCH_THROTTLE_MS = 15_000;
-let lastMembersFetchAt = 0;
-let cachedMembers: Record<string, StaffMember> | null = null;
+const CONTRACTORS_FETCH_THROTTLE_MS = 30_000;
+let lastContractorsFetchAt = 0;
+let cachedContacts: Record<string, StaffMember> | null = null;
 
 const ContractorsScreen = ({ navigation }: { navigation: any }) => {
   const { user } = useContext(UserContext);
   const { tokens, setTokens } = useContext(UserContext);
   const { webServer } = useContext(UserContext);
-  const [contacts, setContacts] = useState<Record<string, StaffMember>>(() => cachedMembers ?? {});
+  const [contacts, setContacts] = useState<Record<string, StaffMember>>(() => cachedContacts ?? {});
   const [imageCacheKey, setImageCacheKey] = useState(Date.now());
   const contactsList = Object.entries(contacts).map(([id, member]) => ({
     ...member,
@@ -100,16 +100,16 @@ const ContractorsScreen = ({ navigation }: { navigation: any }) => {
           return;
         }
 
-        if (cachedMembers) {
-          setContacts(cachedMembers);
+        if (cachedContacts) {
+          setContacts(cachedContacts);
         }
 
         const now = Date.now();
-        if (cachedMembers && now - lastMembersFetchAt < MEMBERS_FETCH_THROTTLE_MS) {
+        if (cachedContacts && now - lastContractorsFetchAt < CONTRACTORS_FETCH_THROTTLE_MS) {
           return;
         }
 
-        lastMembersFetchAt = now;
+        lastContractorsFetchAt = now;
 
 
         try {
@@ -125,8 +125,9 @@ const ContractorsScreen = ({ navigation }: { navigation: any }) => {
           const obj = JSON.parse(json);
 
           if (response.status === 200) {
-            cachedMembers = obj.members;
-            setContacts(obj.contacts);
+            const latestContacts = obj.contacts ?? {};
+            cachedContacts = latestContacts;
+            setContacts(latestContacts);
             setImageCacheKey(Date.now());
           }
           else {
