@@ -18,7 +18,7 @@ type StaffMember = {
   lname?: string;
 };
 
-const MEMBERS_FETCH_THROTTLE_MS = 120_000;
+const MEMBERS_FETCH_THROTTLE_MS = 300_000;
 let lastMembersFetchAt = 0;
 let cachedMembers: Record<string, StaffMember> | null = null;
 
