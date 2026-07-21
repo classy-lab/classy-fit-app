@@ -45,7 +45,8 @@ const UpdateContactScreen = ({ navigation }: { navigation: any }) => {
   });
 
   useEffect(() => {
-    console.log(`${webServer}/api/v1/contacts/${contact.uid}`);
+    // console.log(`${webServer}/api/v1/contacts/${contact.uid}`);
+    console.log("Contact Data:", contact);
     const fetchContactData = async ({ tokens, webServer, setTokens }) => {
       const response = await fetch(`${webServer}/api/v1/contacts/${contact.uid}`, {
         headers: {
@@ -55,7 +56,7 @@ const UpdateContactScreen = ({ navigation }: { navigation: any }) => {
 
       const json = await response.text();
       const obj = JSON.parse(json);
-      console.log("Fetched contact data:", obj);
+      // console.log("Fetched contact data:", obj);
     }
 
 
@@ -157,7 +158,7 @@ const UpdateContactScreen = ({ navigation }: { navigation: any }) => {
             </View>
           </View>
           <View style={styles.body}>
-            <UpdateContactForm />
+            <UpdateContactForm contact={contact} />
           </View>
           <View style={styles.imageContainer}>
             <VectorImageSvg />
