@@ -46,7 +46,7 @@ const UpdateContactScreen = ({ navigation }: { navigation: any }) => {
 
   useEffect(() => {
     // console.log(`${webServer}/api/v1/contacts/${contact.uid}`);
-    console.log("Contact Data:", contact);
+    // console.log("Contact Data:", contact);
     const fetchContactData = async ({ tokens, webServer, setTokens }) => {
       const response = await fetch(`${webServer}/api/v1/contacts/${contact.uid}`, {
         headers: {
