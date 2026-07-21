@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef, useContext } from "react";
+import { useState, useEffect, useRef, useContext, useCallback } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import { Alert } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -47,7 +48,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
   const { setIsLoggedIn } = useContext(UserContext);
   const [profilePicAPIImage, setProfilePicAPIImage] = useState<string>(""); // State to hold the selected image
 
-  console.log("UpdateContactForm contact prop:", contact);
+  // console.log("UpdateContactForm contact prop:", contact);
   const selectImage = async (onChange: (value: any) => void) => {
     try {
       const profilePic = await ImagePicker.openPicker({
@@ -176,6 +177,18 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
     };
     fetchUserData({ tokens, webServer, user, setTokens });
   }, [reset]); // Always include reset in the dependency array
+
+  useFocusEffect(
+    useCallback(() => {
+      const fetchUserData = async () => {
+        // console.log("Fething user data on focus...");
+        // console.log('contact: ', contact);
+
+
+      };
+      fetchUserData();
+    }, [contact])
+  );
 
   const executeProfileDeletion = async ({ tokens, webServer, user, setTokens }) => {
     console.log("Profile deletion API initiated.");
