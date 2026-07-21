@@ -39,7 +39,7 @@ import FlashMessage, {
 // COMPONENT
 // ============================================================================
 
-const UpdateContactForm = ({ navigation }: { navigation: any }) => {
+const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: any }) => {
   const { user, setUser } = useContext(UserContext);
   const { tokens, setTokens } = useContext(UserContext);
   const [website, setWebsite] = useState("");
@@ -47,6 +47,7 @@ const UpdateContactForm = ({ navigation }: { navigation: any }) => {
   const { setIsLoggedIn } = useContext(UserContext);
   const [profilePicAPIImage, setProfilePicAPIImage] = useState<string>(""); // State to hold the selected image
 
+  console.log("UpdateContactForm contact prop:", contact);
   const selectImage = async (onChange: (value: any) => void) => {
     try {
       const profilePic = await ImagePicker.openPicker({
@@ -381,7 +382,17 @@ const UpdateContactForm = ({ navigation }: { navigation: any }) => {
             control={control}
             name="profilePic"
             render={({ field: { onChange, value } }) => {
-              const selectedProfilePicUri = (value as any)?.path || (value as any)?.uri || profilePicAPIImage || "";
+              const contactPicturePath = contact?.user_picture_url || contact?.user_profile_url;
+              const contactPictureUri = contactPicturePath
+                ? `${webServer}/api/${contactPicturePath}`
+                : "";
+
+              const selectedProfilePicUri =
+                (value as any)?.path ||
+                (value as any)?.uri ||
+                contactPictureUri ||
+                profilePicAPIImage ||
+                "";
 
               return (
                 <View style={styles.imageContainer}>
