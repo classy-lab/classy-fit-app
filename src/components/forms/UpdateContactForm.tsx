@@ -260,12 +260,6 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
     }
   };
 
-  const executeGymMembershipCancellation = () => {
-    console.log("Gym Membership Cancellation API initiated.");
-    // Insert your Axios, Fetch, or Firebase deletion request here
-  };
-
-  // 2. Build the confirmation modal configuration
   const handleDeletePress = () => {
     Alert.alert(
       "Delete Profile", // Dialog Title
@@ -286,28 +280,8 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
     );
   };
 
-  const handleCancelGymMembershipPress = () => {
-    Alert.alert(
-      "Cancel Gym Membership", // Dialog Title
-      "Are you absolutely sure? You are about to cancel your gym membership", // Dialog Description
-      [
-        {
-          text: "Cancel",
-          onPress: () => console.log("Deletion cancelled"),
-          style: "cancel", // Stylizes text as a neutral cancel action
-        },
-        {
-          text: "Cancel Gym Membership",
-          onPress: () => executeGymMembershipCancellation(),
-          style: "destructive", // Colors the font red on iOS platforms
-        },
-      ],
-      { cancelable: true }, // Allows Android users to dismiss by clicking background
-    );
-  };
-
   // 3. Define the submit handler
-  const updateUser = async (data: any) => {
+  const updateContact = async (data: any) => {
     console.log('data: ' + JSON.stringify(data));
     const totalTimeElapsed = Date.now() - formLoadTime.current;
     const formData = new FormData();
@@ -356,7 +330,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
     console.log("FormData ready for fetch:", JSON.stringify(formData));
 
     const response = await fetch(
-      `${webServer}/api/register.php`,
+      `${webServer}/api/update-contact.php`,
       {
         method: "POST",
         headers: {
@@ -378,7 +352,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
         onPress: () => hideMessage(), // closes the message when pressed
       });
     } else {
-      console.log("Access token expired, requesting new one - updateUser()");
+      console.log("Access token expired, requesting new one - updateContact()");
 
       const response = await fetch(`${webServer}/api/refresh.php`, {
         method: "POST",
@@ -608,7 +582,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
         </View>
         {/* Include the honeypot trap in your form */}
         <HoneypotField value={website} onChangeText={setWebsite} />
-        <View style={styles.field}>
+        {/* <View style={styles.field}>
           <Text style={styles.formLabel}>Date of Birth</Text>
           <Controller
             control={control}
@@ -624,10 +598,10 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
           {errors.dateOfBirth && (
             <Text style={styles.errorText}>{errors.dateOfBirth.message}</Text>
           )}
-        </View>
+        </View> */}
         <View
           // style={[styles.field, { opacity: 0.5 }]}
-          // pointerEvents="none"
+          // pointerEvents="non e"
           style={styles.field}
         >
           <Text style={styles.formLabel}>Sex</Text>
@@ -751,24 +725,24 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
         <View style={globalStyles.loginBtnContainer}>
           <TouchableOpacity
             style={globalStyles.registerBtn}
-            onPress={handleSubmit(updateUser)}
+            onPress={handleSubmit(updateContact)}
           >
-            <Text style={globalStyles.registerBtnText}>Save Profile</Text>
+            <Text style={globalStyles.registerBtnText}>Save Contact</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={globalStyles.loginBtn}
             onPress={handleDeletePress}
           >
-            <Text style={globalStyles.loginBtnText}>Delete Profile</Text>
+            <Text style={globalStyles.loginBtnText}>Delete Contact</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={globalStyles.loginBtn}
             onPress={handleCancelGymMembershipPress}
           >
             <Text style={globalStyles.loginBtnText}>Cancel Gym Membership</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </View>
     </>
