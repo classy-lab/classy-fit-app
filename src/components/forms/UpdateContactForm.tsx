@@ -114,13 +114,13 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
     shouldFocusError: true, // Automatically moves focus and triggers internal scrolling layout
     defaultValues: {
       profilePic: undefined,
-      email: '', // user?.email,
+      email: contact.email, // user?.email,
       password: "",
       confirmPassword: "",
-      role: '', //normalizeRole(user?.role),
-      fname: '', // user?.given_name,
-      lname: '', // user?.family_name,
-      dateOfBirth: '',
+      role: contact.role || '', //normalizeRole(user?.role),
+      fname: contact.fname || '', // user?.given_name,
+      lname: contact.lname || '', // user?.family_name,
+      dateOfBirth: contact.dateOfBirth || '',
       sex: '', // user?.gender,
       phoneNumber: '',
       whatsappNumber: '',
@@ -131,63 +131,77 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
   // Watch profilePic to display it
   const profilePicValue = watch("profilePic");
 
-  // Reset the timer if the user navigates back to this screen
-  useEffect(() => {
-    formLoadTime.current = Date.now();
-    const fetchUserData = async ({ tokens, webServer, user, setTokens }) => {
-      const response = await fetch(`${webServer}/api/v1/users/${user.sub}`, {
-        headers: {
-          Authorization: "Bearer " + tokens.access_token,
-        },
-      });
-      const json = await response.text();
-      const obj = JSON.parse(json);
-
-      if (response.status == 200) {
-        //set profile fields here on success
-        reset({
-          // dateOfBirth: obj.profile_fields.date_of_birth,
-          // phoneNumber: obj.profile_fields.phone,
-          // whatsappNumber: obj.profile_fields.whatsapp,
-          // profilePic: obj.profile_fields.user_picture_url ? { path: 'http://localhost:8080/classy-api/api/' + obj.profile_fields.user_picture_url } : {},
-        });
-        setProfilePicAPIImage('http://localhost:8080/classy-api/api/' + obj.profile_fields.user_picture_url);
-      } else {
-        // console.log("Access token expired, requesting new one");
-
-        const response = await fetch(`${webServer}/api/refresh.php`, {
-          method: "POST",
-          body: JSON.stringify({
-            token: tokens.refresh_token,
-          }),
-        });
-
-        const json = await response.text();
-        const obj = JSON.parse(json);
-
-        if (response.status == 200) {
-          // console.log("Got new access token and refresh token");
-          setTokens({
-            ...tokens,
-            access_token: obj.access_token,
-            refresh_token: obj.refresh_token,
-          });
-        }
-      }
-    };
-    fetchUserData({ tokens, webServer, user, setTokens });
-  }, [reset]); // Always include reset in the dependency array
-
   useFocusEffect(
     useCallback(() => {
+      // let isActive = true;
+
       const fetchUserData = async () => {
-        // console.log("Fething user data on focus...");
-        // console.log('contact: ', contact);
+        // if (!user?.gym_id || !tokens?.access_token || !contact?.uid) {
+        //   return;
+        // }
 
+        try {
+          const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/contacts/${contact.uid}`, {
+            headers: {
+              Authorization: `Bearer ${tokens.access_token}`,
+            },
+          });
 
+          const json = await response.text();
+          const obj = JSON.parse(json);
+
+          if (response.status === 200) {
+            const contactData = obj?.contact ?? obj?.data ?? obj;
+            console.log(response.status, "Fetched contact data:", contactData);
+
+            reset({
+              email: contactData?.email ?? contact?.email ?? "",
+              password: "",
+              confirmPassword: "",
+              role: contactData?.role ?? contact?.role ?? "",
+              fname: contactData?.fname ?? contact?.fname ?? "",
+              lname: contactData?.lname ?? contact?.lname ?? "",
+              dateOfBirth: contactData?.date_of_birth ?? contact?.dateOfBirth ?? "",
+              sex: contactData?.sex ?? "",
+              phoneNumber: contactData?.phone ?? "",
+              whatsappNumber: contactData?.whatsapp ?? "",
+              gymId: contactData?.gym_id ?? "",
+              preferredContact: contactData?.preferred_contact ?? "",
+              profilePic: undefined,
+            });
+
+            const picturePath = contactData?.user_picture_url || contactData?.user_profile_url;
+            setProfilePicAPIImage(picturePath ? `${webServer}/api/${picturePath}` : "");
+          } else {
+            const refreshResponse = await fetch(`${webServer}/api/refresh.php`, {
+              method: "POST",
+              body: JSON.stringify({
+                token: tokens.refresh_token,
+              }),
+            });
+
+            const refreshJson = await refreshResponse.text();
+            const refreshObj = JSON.parse(refreshJson);
+
+            if (refreshResponse.status === 200) {
+              setTokens((prev: any) => ({
+                ...prev,
+                access_token: refreshObj.access_token,
+                refresh_token: refreshObj.refresh_token,
+              }));
+            }
+          }
+        } catch (error) {
+          console.log("Failed to fetch contact data", error);
+        }
       };
+
       fetchUserData();
-    }, [contact])
+
+      // return () => {
+      //   isActive = false;
+      // };
+    }, [contact?.uid, user?.gym_id, tokens?.access_token, tokens?.refresh_token, webServer, setTokens, reset])
   );
 
   const executeProfileDeletion = async ({ tokens, webServer, user, setTokens }) => {
