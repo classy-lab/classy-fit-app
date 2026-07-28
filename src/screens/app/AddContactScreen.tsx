@@ -43,8 +43,7 @@ import FlashMessage, {
 } from "react-native-flash-message";
 import { StyleSheet } from 'react-native'
 
-const AddContactScreen = () => {
-  const navigation = useNavigation();
+const AddContactScreen = ({ navigation }: { navigation: any }) => {
   const [website, setWebsite] = useState("");
   const { webServer } = useContext(UserContext);
   const { user, setUser } = useContext(UserContext);

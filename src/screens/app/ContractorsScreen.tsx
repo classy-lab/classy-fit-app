@@ -12,7 +12,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { useCallback, useContext, useState } from 'react'
 import { UserContext } from '../../context/UserContext'
 
-type StaffMember = {
+type StaffContact = {
   contact_id?: string | number;
   user_picture_url?: string;
   fname?: string;
@@ -22,19 +22,15 @@ type StaffMember = {
   whatsapp?: string;
 };
 
-const CONTRACTORS_FETCH_THROTTLE_MS = 30_000;
-let lastContractorsFetchAt = 0;
-let cachedContacts: Record<string, StaffMember> | null = null;
-
 const ContractorsScreen = ({ navigation }: { navigation: any }) => {
   const { user } = useContext(UserContext);
   const { tokens, setTokens } = useContext(UserContext);
   const { webServer } = useContext(UserContext);
-  const [contacts, setContacts] = useState<Record<string, StaffMember>>(() => cachedContacts ?? {});
+  const [contacts, setContacts] = useState<Record<string, StaffContact>>({});
   const [imageCacheKey, setImageCacheKey] = useState(Date.now());
-  const contactsList = Object.entries(contacts).map(([id, member]) => ({
-    ...member,
-    contact_id: member?.contact_id ?? id,
+  const contactsList = Object.entries(contacts).map(([id, contact]) => ({
+    ...contact,
+    contact_id: contact?.contact_id ?? id,
   }));
 
   // 1. Define the Yup validation schema
@@ -73,7 +69,7 @@ const ContractorsScreen = ({ navigation }: { navigation: any }) => {
   const searchQuery = (watch('search') || '').trim().toLowerCase();
 
   const matchesSearch = (staff: StaffMember) => {
-    if (!searchQuery) return true; // If search query is empty, include all members
+    if (!searchQuery) return true; // If search query is empty, include all contacts
 
     const firstName = staff.fname?.toLowerCase() || '';
     const lastName = staff.lname?.toLowerCase() || '';
@@ -88,33 +84,19 @@ const ContractorsScreen = ({ navigation }: { navigation: any }) => {
 
   const filteredContacts = contactsList.filter(matchesSearch);
 
-  const getDisplayName = (member: StaffMember) => {
-    const fullName = `${member.fname ?? ''} ${member.lname ? member.lname[0] + '.' : ''}`.trim();
+  const getDisplayName = (contact: StaffMember) => {
+    const fullName = `${contact.fname ?? ''} ${contact.lname ? contact.lname[0] + '.' : ''}`.trim();
     return fullName.length > 11 ? `${fullName.slice(0, 11)}` : fullName;
   };
 
   useFocusEffect(
     useCallback(() => {
       const fetchStaffData = async () => {
-        if (!user?.gym_id || !tokens?.access_token) {
-          return;
-        }
-
-        if (cachedContacts) {
-          setContacts(cachedContacts);
-        }
-
-        const now = Date.now();
-        if (cachedContacts && now - lastContractorsFetchAt < CONTRACTORS_FETCH_THROTTLE_MS) {
-          return;
-        }
-
-        lastContractorsFetchAt = now;
-
+        // if (!user?.gym_id || !tokens?.access_token) {
+        //   return;
+        // }
 
         try {
-          console.log("Fetching contacts data from server at ", new Date().toLocaleTimeString());
-
           const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/contacts`, {
             headers: {
               Authorization: "Bearer " + tokens.access_token,
@@ -125,9 +107,7 @@ const ContractorsScreen = ({ navigation }: { navigation: any }) => {
           const obj = JSON.parse(json);
 
           if (response.status === 200) {
-            const latestContacts = obj.contacts ?? {};
-            cachedContacts = latestContacts;
-            setContacts(latestContacts);
+            setContacts(obj.contacts);
             setImageCacheKey(Date.now());
           }
           else {
@@ -218,8 +198,8 @@ const ContractorsScreen = ({ navigation }: { navigation: any }) => {
                     <Text style={styles.noResultsText}>No results found</Text>
                   ) :
                     (
-                      filteredContacts.map((member, index) => {
-                        const contactId = member?.contact_id ?? String(index);
+                      filteredContacts.map((contact, index) => {
+                        const contactId = contact?.contact_id ?? String(index);
                         return (
                           <TouchableOpacity
                             key={String(contactId)}
@@ -228,17 +208,17 @@ const ContractorsScreen = ({ navigation }: { navigation: any }) => {
                                 screen: 'UpdateContactScreen',
                                 params: {
                                   contactId,
-                                  contact: member,
+                                  contact: contact,
                                 },
                               })
                             }}
                           >
                             <View style={styles.box}>
                               {
-                                member.user_picture_url ? (
-                                  <Image style={styles.image} source={{ uri: getImageUri(member.user_picture_url) }} />
+                                contact.user_picture_url ? (
+                                  <Image style={styles.image} source={{ uri: getImageUri(contact.user_picture_url) }} />
                                 ) : null}
-                              <Text style={styles.personName}>{getDisplayName(member)}</Text>
+                              <Text style={styles.personName}>{getDisplayName(contact)}</Text>
                             </View>
                           </TouchableOpacity>
                         )

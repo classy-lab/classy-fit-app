@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   StyleSheet,
@@ -17,6 +17,7 @@ import VectorImageSvg from "../../components/svg/VectorImageSvg";
 import SignOut from "../../components/utils/SignOut";
 import { UserContext } from "../../context/UserContext";
 import { showMessage } from "react-native-flash-message";
+import UpdateContactForm from "../../components/forms/UpdateContactForm";
 
 type FormValues = {
   fname: string;
@@ -26,15 +27,14 @@ type FormValues = {
   whatsapp: string;
 };
 
-const UpdateContactScreen = () => {
-  const navigation = useNavigation();
+const UpdateContactScreen = ({ navigation }: { navigation: any }) => {
   const route = useRoute<any>();
-  const { webServer, tokens } = useContext(UserContext);
+  const { webServer, tokens, setTokens } = useContext(UserContext);
 
   const contactId = route?.params?.contactId;
   const contact = route?.params?.contact || {};
 
-  const { control, handleSubmit, formState: { errors } } = useForm<FormValues>({
+  const { control, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
     defaultValues: {
       fname: contact?.fname || "",
       lname: contact?.lname || "",
@@ -43,6 +43,32 @@ const UpdateContactScreen = () => {
       whatsapp: contact?.whatsapp || "",
     },
   });
+
+  useEffect(() => {
+    // console.log(`${webServer}/api/v1/contacts/${contact.uid}`);
+    // console.log("Contact Data:", contact);
+    const fetchContactData = async ({ tokens, webServer, setTokens }) => {
+      const response = await fetch(`${webServer}/api/v1/contacts/${contact.uid}`, {
+        headers: {
+          Authorization: "Bearer " + tokens.access_token,
+        },
+      });
+
+      const json = await response.text();
+      const obj = JSON.parse(json);
+      // console.log("Fetched contact data:", obj);
+    }
+
+
+
+    reset({
+      fname: contact?.fname || "",
+      lname: contact?.lname || "",
+      email: contact?.email || "",
+      phone: contact?.phone || "",
+      whatsapp: contact?.whatsapp || "",
+    });
+  }, [contact, reset]);
 
   const onSubmit = async (data: FormValues) => {
     if (!contactId) {
@@ -119,111 +145,20 @@ const UpdateContactScreen = () => {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.headingContainer}>
-            <Text style={styles.title}>
-              {contact?.fname || "Contact"} {contact?.lname || ""}
-            </Text>
-            <Text style={styles.subHead}>Update Contact</Text>
+            <View style={styles.imagePickerButton}>
+
+            </View>
+            <View style={styles.contactInfo}>
+              <Text style={styles.title}>
+                {contact?.fname || "Contact"} {contact?.lname || ""}
+              </Text>
+              <Text style={styles.subHead}>
+                Update Contact
+              </Text>
+            </View>
           </View>
           <View style={styles.body}>
-            <View style={styles.field}>
-              <Text style={styles.formLabel}>First Name</Text>
-              <Controller
-                control={control}
-                name="fname"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput
-                    style={styles.inputField}
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                    keyboardType="default"
-                    autoCapitalize="words"
-                  />
-                )}
-              />
-            </View>
-
-            <View style={styles.field}>
-              <Text style={styles.formLabel}>Last Name</Text>
-              <Controller
-                control={control}
-                name="lname"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput
-                    style={styles.inputField}
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                    keyboardType="default"
-                    autoCapitalize="words"
-                  />
-                )}
-              />
-            </View>
-
-            <View style={styles.field}>
-              <Text style={styles.formLabel}>E-mail</Text>
-              <Controller
-                control={control}
-                name="email"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput
-                    style={styles.inputField}
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                  />
-                )}
-              />
-            </View>
-
-            <View style={styles.field}>
-              <Text style={styles.formLabel}>Phone Number</Text>
-              <Controller
-                control={control}
-                name="phone"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput
-                    style={styles.inputField}
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                    keyboardType="phone-pad"
-                    autoCapitalize="none"
-                  />
-                )}
-              />
-            </View>
-
-            <View style={styles.field}>
-              <Text style={styles.formLabel}>WhatsApp Number</Text>
-              <Controller
-                control={control}
-                name="whatsapp"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput
-                    style={styles.inputField}
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                    keyboardType="phone-pad"
-                    autoCapitalize="none"
-                  />
-                )}
-              />
-            </View>
-
-            {(errors.fname || errors.lname || errors.email || errors.phone || errors.whatsapp) && (
-              <Text style={styles.errorText}>Please fix form errors and try again.</Text>
-            )}
-
-            <View style={styles.buttonRow}>
-              <TouchableOpacity style={styles.saveBtn} onPress={handleSubmit(onSubmit)}>
-                <Text style={styles.saveBtnText}>Save Changes</Text>
-              </TouchableOpacity>
-            </View>
+            <UpdateContactForm contact={contact} />
           </View>
           <View style={styles.imageContainer}>
             <VectorImageSvg />
@@ -263,6 +198,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     lineHeight: 24,
     marginBottom: 8,
+    textAlign: "center",
   },
   body: {
     paddingLeft: 24,

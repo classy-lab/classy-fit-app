@@ -151,7 +151,7 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
         });
         setProfilePicAPIImage('http://localhost:8080/classy-api/api/' + obj.profile_fields.user_picture_url);
       } else {
-        console.log("Access token expired, requesting new one");
+        // console.log("Access token expired, requesting new one");
 
         const response = await fetch(`${webServer}/api/refresh.php`, {
           method: "POST",
@@ -164,7 +164,7 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
         const obj = JSON.parse(json);
 
         if (response.status == 200) {
-          console.log("Got new access token and refresh token");
+          // console.log("Got new access token and refresh token");
           setTokens({
             ...tokens,
             access_token: obj.access_token,
