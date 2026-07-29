@@ -107,7 +107,7 @@ const ContractorsScreen = ({ navigation }: { navigation: any }) => {
           const obj = JSON.parse(json);
 
           if (response.status === 200) {
-            setContacts(obj.contacts);
+            setContacts(obj.data);
             setImageCacheKey(Date.now());
           }
           else {
