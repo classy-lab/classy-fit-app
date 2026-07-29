@@ -136,7 +136,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
         // }
 
         try {
-          const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/contacts/${contact.uid}`, {
+          const response = await fetch(`${webServer}/api/v1/gyms/${contact.gym_id}/contacts/${contact.uid}`, {
             headers: {
               Authorization: `Bearer ${tokens.access_token}`,
             },
@@ -192,20 +192,19 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
         }
       };
       fetchUserData();
-    }, [contact?.uid, user?.gym_id, tokens?.access_token, tokens?.refresh_token, webServer, setTokens, reset])
+    }, [contact?.uid, tokens?.access_token, tokens?.refresh_token, webServer, setTokens, reset])
   );
 
-  const executeProfileDeletion = async ({ tokens, webServer, user, setTokens }) => {
+  const executeProfileDeletion = async ({ tokens, webServer, contact, setTokens }) => {
     console.log("Profile deletion API initiated.");
 
     const response = await fetch(
-      `${webServer}/api/delete-profile.php`,
+      `${webServer}/api/v1/gyms/${contact.gym_id}/contacts/${contact.uid}`,
       {
         method: "DELETE",
         headers: {
           Authorization: "Bearer " + tokens.access_token,
         },
-        body: user.sub,
       },
     );
 
@@ -223,7 +222,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
       });
 
       // // Optionally, you can also clear the user context or navigate to a different screen after deletion
-      setUser(null);
+      setUser(null); // ??
       setTokens(null);
       setIsLoggedIn(false);
     }
@@ -263,7 +262,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
         },
         {
           text: "Delete My Account",
-          onPress: () => executeProfileDeletion({ tokens, webServer, user, setTokens }),
+          onPress: () => executeProfileDeletion({ tokens, webServer, contact, setTokens }),
           style: "destructive", // Colors the font red on iOS platforms
         },
       ],
@@ -293,7 +292,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
 
     // Set submitted values within app before sending to API. No need to retreive from API
     setUser({
-      ...user,
+      ...contact,
       given_name: data.fname,
       family_name: data.lname,
       preferred_contact: data.preferredContact,
@@ -398,6 +397,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
                     )}
                   </TouchableOpacity>
                   <Text style={styles.helperText}>Choose a photo from your gallery.</Text>
+                  <Text style={styles.helperText}>Max size: 5 MB. Allowed formats: JPG, JPEG, PNG.</Text>
                   {/* <View style={styles.avatarGrid}>
                     {localAvatarOptions.map((avatar) => (
                       <TouchableOpacity
@@ -415,30 +415,6 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
           />
           {errors.profilePic && (
             <Text style={styles.errorText}>{errors.profilePic.message}</Text>
-          )}
-        </View>
-        <View
-          // style={[styles.field, { opacity: 0.5 }]}
-          // pointerEvents="none"
-          style={styles.field}
-        >
-          <Text style={styles.formLabel}>E-mail</Text>
-          <Controller
-            control={control}
-            name="email"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
-                style={styles.inputField}
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-            )}
-          />
-          {errors.email && (
-            <Text style={styles.errorText}>{errors.email.message}</Text>
           )}
         </View>
         <View style={styles.field}>
@@ -484,10 +460,10 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
           )}
         </View>
         <View style={styles.field}>
-          <Text style={styles.formLabel}>Company</Text>
+          <Text style={styles.formLabel}>Phone Number</Text>
           <Controller
             control={control}
-            name="company"
+            name="phoneNumber"
             render={({ field: { onChange, onBlur, value, ref } }) => (
               <TextInput
                 ref={ref}
@@ -496,16 +472,15 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
                 onChangeText={onChange}
                 value={value}
                 keyboardType="default"
-                autoCapitalize="words"
+                autoCapitalize="none"
+                placeholder="518-555-5555"
               />
             )}
           />
-          {errors.company && (
-            <Text style={styles.errorText}>{errors.company.message}</Text>
+          {errors.phoneNumber && (
+            <Text style={styles.errorText}>{errors.phoneNumber.message}</Text>
           )}
         </View>
-        {/* Include the honeypot trap in your form */}
-        <HoneypotField value={website} onChangeText={setWebsite} />
         <View
           // style={[styles.field, { opacity: 0.5 }]}
           // pointerEvents="none"
@@ -552,11 +527,12 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
             <Text style={styles.errorText}>{errors.sex.message}</Text>
           )}
         </View>
+
         <View style={styles.field}>
-          <Text style={styles.formLabel}>Phone Number</Text>
+          <Text style={styles.formLabel}>Company</Text>
           <Controller
             control={control}
-            name="phoneNumber"
+            name="company"
             render={({ field: { onChange, onBlur, value, ref } }) => (
               <TextInput
                 ref={ref}
@@ -565,15 +541,18 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
                 onChangeText={onChange}
                 value={value}
                 keyboardType="default"
-                autoCapitalize="none"
-                placeholder="518-555-5555"
+                autoCapitalize="words"
               />
             )}
           />
-          {errors.phoneNumber && (
-            <Text style={styles.errorText}>{errors.phoneNumber.message}</Text>
+          {errors.company && (
+            <Text style={styles.errorText}>{errors.company.message}</Text>
           )}
         </View>
+        {/* Include the honeypot trap in your form */}
+        <HoneypotField value={website} onChangeText={setWebsite} />
+
+
         <View style={styles.field}>
           <Text style={styles.formLabel}>WhatsApp Number</Text>
           <Controller
@@ -595,6 +574,28 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
             <Text style={styles.errorText}>
               {errors.whatsappNumber.message}
             </Text>
+          )}
+        </View>
+        <View
+          style={styles.field}
+        >
+          <Text style={styles.formLabel}>E-mail</Text>
+          <Controller
+            control={control}
+            name="email"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styles.inputField}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+            )}
+          />
+          {errors.email && (
+            <Text style={styles.errorText}>{errors.email.message}</Text>
           )}
         </View>
         <View style={styles.field}>
