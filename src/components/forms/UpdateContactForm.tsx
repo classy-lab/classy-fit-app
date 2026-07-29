@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useContext, useCallback } from "react";
+import { useState, useRef, useContext, useCallback } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import { Alert } from "react-native";
 import { useForm, Controller } from "react-hook-form";
@@ -15,17 +15,13 @@ import { AppColors } from "../../styles/colors";
 import { SelectList } from "react-native-dropdown-select-list";
 import { UserContext } from "../../context/UserContext";
 import HoneypotField from "./input_fields/HoneypotField";
-import DateOfBirthField from "./input_fields/DateOfBirthField";
 import PreferredContact from "./PreferredContact";
-import GymList from "../GymList";
 import { globalStyles } from "../../styles/globalStyles";
 import {
-  findRoleOption,
   localAvatarOptions,
   MAX_PROFILE_PIC_BYTES,
   MIN_SUBMISSION_TIME_MS,
   normalizeRole,
-  roleData,
   schema,
   sexData,
 } from "./ProfileScreenForm.constants";
@@ -134,8 +130,6 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
 
   useFocusEffect(
     useCallback(() => {
-      // let isActive = true;
-
       const fetchUserData = async () => {
         // if (!user?.gym_id || !tokens?.access_token || !contact?.uid) {
         //   return;
@@ -197,12 +191,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
           console.log("Failed to fetch contact data", error);
         }
       };
-
       fetchUserData();
-
-      // return () => {
-      //   isActive = false;
-      // };
     }, [contact?.uid, user?.gym_id, tokens?.access_token, tokens?.refresh_token, webServer, setTokens, reset])
   );
 
@@ -452,95 +441,6 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
             <Text style={styles.errorText}>{errors.email.message}</Text>
           )}
         </View>
-        {/* <View style={styles.field}>
-          <Text style={styles.formLabel}>Password</Text>
-          <Controller
-            control={control}
-            name="password"
-            render={({ field: { onChange, onBlur, value, ref } }) => (
-              <TextInput
-                ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
-                style={styles.inputField}
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-                keyboardType="default"
-                secureTextEntry
-              />
-            )}
-          />
-          {errors.password && (
-            <Text style={styles.errorText}>{errors.password.message}</Text>
-          )}
-        </View> */}
-        {/* <View style={styles.field}>
-          <Text style={styles.formLabel}>Confirm Password</Text>
-          <Controller
-            control={control}
-            name="confirmPassword"
-            render={({ field: { onChange, onBlur, value, ref } }) => (
-              <TextInput
-                ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
-                style={styles.inputField}
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-                keyboardType="default"
-                secureTextEntry
-              />
-            )}
-          />
-          {errors.confirmPassword && (
-            <Text style={styles.errorText}>
-              {errors.confirmPassword.message}
-            </Text>
-          )}
-        </View> */}
-        {/* <View
-          style={[styles.field, { opacity: 0.5 }]}
-          pointerEvents="none"
-        >
-          <Text style={styles.formLabel}>Role</Text>
-          <Controller
-            control={control}
-            name="role"
-            render={({ field: { onChange, onBlur, value } }) => {
-              const selectedRole = findRoleOption(value || user.role);
-
-              return (
-                <SelectList
-                  setSelected={(selectedValue) =>
-                    onChange(normalizeRole(selectedValue))
-                  }
-                  data={roleData}
-                  save="value"
-                  placeholder="Select Category"
-                  defaultOption={
-                    selectedRole
-                      ? { key: selectedRole.key, value: selectedRole.value }
-                      : undefined
-                  }
-                  boxStyles={{
-                    borderColor: AppColors.grey,
-                    borderWidth: 1,
-                    paddingHorizontal: 8,
-                  }}
-                  dropdownStyles={{
-                    borderColor: AppColors.grey2,
-                    borderWidth: 1,
-                    marginTop: 8,
-                    backgroundColor: "white",
-                  }}
-                // If you need to force the value from the parent (e.g., reset)
-                // defaultOption={data.find(item => item.value === value)}
-                />
-              );
-            }}
-          />
-          {errors.role && (
-            <Text style={styles.errorText}>{errors.role.message}</Text>
-          )}
-        </View> */}
         <View style={styles.field}>
           <Text style={styles.formLabel}>First Name</Text>
           <Controller
@@ -606,23 +506,6 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
         </View>
         {/* Include the honeypot trap in your form */}
         <HoneypotField value={website} onChangeText={setWebsite} />
-        {/* <View style={styles.field}>
-          <Text style={styles.formLabel}>Date of Birth</Text>
-          <Controller
-            control={control}
-            name="dateOfBirth"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <DateOfBirthField
-                value={value}
-                onChange={onChange}
-                onBlur={onBlur}
-              />
-            )}
-          />
-          {errors.dateOfBirth && (
-            <Text style={styles.errorText}>{errors.dateOfBirth.message}</Text>
-          )}
-        </View> */}
         <View
           // style={[styles.field, { opacity: 0.5 }]}
           // pointerEvents="none"
@@ -760,13 +643,6 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
           >
             <Text style={globalStyles.loginBtnText}>Delete Contact</Text>
           </TouchableOpacity>
-
-          {/* <TouchableOpacity
-            style={globalStyles.loginBtn}
-            onPress={handleCancelGymMembershipPress}
-          >
-            <Text style={globalStyles.loginBtnText}>Cancel Gym Membership</Text>
-          </TouchableOpacity> */}
         </View>
       </View>
     </>
