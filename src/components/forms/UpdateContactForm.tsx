@@ -136,7 +136,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
         // }
 
         try {
-          const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/contacts/${contact.uid}`, {
+          const response = await fetch(`${webServer}/api/v1/gyms/${contact.gym_id}/contacts/${contact.uid}`, {
             headers: {
               Authorization: `Bearer ${tokens.access_token}`,
             },
@@ -192,20 +192,19 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
         }
       };
       fetchUserData();
-    }, [contact?.uid, user?.gym_id, tokens?.access_token, tokens?.refresh_token, webServer, setTokens, reset])
+    }, [contact?.uid, tokens?.access_token, tokens?.refresh_token, webServer, setTokens, reset])
   );
 
-  const executeProfileDeletion = async ({ tokens, webServer, user, setTokens }) => {
+  const executeProfileDeletion = async ({ tokens, webServer, contact, setTokens }) => {
     console.log("Profile deletion API initiated.");
 
     const response = await fetch(
-      `${webServer}/api/delete-profile.php`,
+      `${webServer}/api/v1/gyms/${contact.gym_id}/contacts/${contact.uid}`,
       {
         method: "DELETE",
         headers: {
           Authorization: "Bearer " + tokens.access_token,
         },
-        body: user.sub,
       },
     );
 
@@ -223,7 +222,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
       });
 
       // // Optionally, you can also clear the user context or navigate to a different screen after deletion
-      setUser(null);
+      setUser(null); // ??
       setTokens(null);
       setIsLoggedIn(false);
     }
@@ -263,7 +262,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
         },
         {
           text: "Delete My Account",
-          onPress: () => executeProfileDeletion({ tokens, webServer, user, setTokens }),
+          onPress: () => executeProfileDeletion({ tokens, webServer, contact, setTokens }),
           style: "destructive", // Colors the font red on iOS platforms
         },
       ],
@@ -293,7 +292,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
 
     // Set submitted values within app before sending to API. No need to retreive from API
     setUser({
-      ...user,
+      ...contact,
       given_name: data.fname,
       family_name: data.lname,
       preferred_contact: data.preferredContact,
