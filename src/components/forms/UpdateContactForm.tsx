@@ -120,6 +120,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
       role: contact.role || '', //normalizeRole(user?.role),
       fname: contact.fname || '', // user?.given_name,
       lname: contact.lname || '', // user?.family_name,
+      company: contact.company || '',
       dateOfBirth: contact.dateOfBirth || '',
       sex: '', // user?.gender,
       phoneNumber: '',
@@ -161,6 +162,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
               role: contactData?.role ?? contact?.role ?? "",
               fname: contactData?.fname ?? contact?.fname ?? "",
               lname: contactData?.lname ?? contact?.lname ?? "",
+              company: contactData?.company ?? contact?.company ?? "",
               dateOfBirth: contactData?.date_of_birth ?? contact?.dateOfBirth ?? "",
               sex: contactData?.sex ?? "",
               phoneNumber: contactData?.phone ?? "",
@@ -315,6 +317,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
     formData.append("role", normalizeRole(data.role));
     formData.append("fname", data.fname);
     formData.append("lname", data.lname);
+    formData.append("company", data.company || "");
     formData.append("date_of_birth", data.dateOfBirth);
     formData.append("sex", data.sex);
     formData.append("phone", data.phoneNumber);
@@ -580,6 +583,27 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
             <Text style={styles.errorText}>{errors.lname.message}</Text>
           )}
         </View>
+        <View style={styles.field}>
+          <Text style={styles.formLabel}>Company</Text>
+          <Controller
+            control={control}
+            name="company"
+            render={({ field: { onChange, onBlur, value, ref } }) => (
+              <TextInput
+                ref={ref}
+                style={styles.inputField}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                keyboardType="default"
+                autoCapitalize="words"
+              />
+            )}
+          />
+          {errors.company && (
+            <Text style={styles.errorText}>{errors.company.message}</Text>
+          )}
+        </View>
         {/* Include the honeypot trap in your form */}
         <HoneypotField value={website} onChangeText={setWebsite} />
         {/* <View style={styles.field}>
@@ -601,7 +625,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
         </View> */}
         <View
           // style={[styles.field, { opacity: 0.5 }]}
-          // pointerEvents="non e"
+          // pointerEvents="none"
           style={styles.field}
         >
           <Text style={styles.formLabel}>Sex</Text>
