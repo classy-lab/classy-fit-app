@@ -1,7 +1,7 @@
 import { useState, useRef, useContext, useCallback } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import { Alert } from "react-native";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, FieldErrors } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import ImagePicker from "react-native-image-crop-picker";
 import {
@@ -22,7 +22,7 @@ import {
   MAX_PROFILE_PIC_BYTES,
   MIN_SUBMISSION_TIME_MS,
   normalizeRole,
-  schema,
+  updateContactSchema,
   sexData,
 } from "./ProfileScreenForm.constants";
 import { styles } from "../../styles/registerFormStyles";
@@ -37,7 +37,7 @@ import FlashMessage, {
 // ============================================================================
 
 const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: any }) => {
-  const { user, setUser } = useContext(UserContext);
+  // const { user, setUser } = useContext(UserContext);
   const { tokens, setTokens } = useContext(UserContext);
   const [website, setWebsite] = useState("");
   const { webServer } = useContext(UserContext);
@@ -106,18 +106,15 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
     reset,
     formState: { errors },
   } = useForm({
-    resolver: yupResolver(schema),
+    resolver: yupResolver(updateContactSchema),
     shouldFocusError: true, // Automatically moves focus and triggers internal scrolling layout
     defaultValues: {
       profilePic: undefined,
       email: contact.email, // user?.email,
-      password: "",
-      confirmPassword: "",
-      role: contact.role || '', //normalizeRole(user?.role),
+      // role: contact.role || '', //normalizeRole(user?.role),
       fname: contact.fname || '', // user?.given_name,
       lname: contact.lname || '', // user?.family_name,
       company: contact.company || '',
-      dateOfBirth: contact.dateOfBirth || '',
       sex: '', // user?.gender,
       phoneNumber: '',
       whatsappNumber: '',
@@ -151,13 +148,10 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
 
             reset({
               email: contactData?.email ?? contact?.email ?? "",
-              password: "",
-              confirmPassword: "",
-              role: contactData?.role ?? contact?.role ?? "",
+              // role: contactData?.role ?? contact?.role ?? "",
               fname: contactData?.fname ?? contact?.fname ?? "",
               lname: contactData?.lname ?? contact?.lname ?? "",
               company: contactData?.company ?? contact?.company ?? "",
-              dateOfBirth: contactData?.date_of_birth ?? contact?.dateOfBirth ?? "",
               sex: contactData?.sex ?? "",
               phoneNumber: contactData?.phone ?? "",
               whatsappNumber: contactData?.whatsapp ?? "",
@@ -212,7 +206,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
     const obj = JSON.parse(json);
 
 
-    if (response.status == 200) {
+    if (response.status === 200) {
       console.log(obj);
       showMessage({
         message: obj?.message,
@@ -222,12 +216,12 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
       });
 
       // // Optionally, you can also clear the user context or navigate to a different screen after deletion
-      setUser(null); // ??
-      setTokens(null);
-      setIsLoggedIn(false);
+      // setUser(null); // ??
+      // setTokens(null);
+      // setIsLoggedIn(false);
     }
     else {
-      console.log("Access token expired, requesting new one - executeProfileDeletion()");
+      console.log("Access token expired, requesting new one");
 
       const response = await fetch(`${webServer}/api/refresh.php`, {
         method: "POST",
@@ -239,7 +233,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
       const json = await response.text();
       const obj = JSON.parse(json);
 
-      if (response.status == 200) {
+      if (response.status === 200) {
         console.log("Got new access token and refresh token");
         setTokens({
           ...tokens,
@@ -276,8 +270,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
     const totalTimeElapsed = Date.now() - formLoadTime.current;
     const formData = new FormData();
 
-    console.log(data);
-
+    return;
     // 1. Honeypot check
     if (website.trim() !== "") {
       console.log("Submission failed", "Bot behavior detected.");
@@ -291,22 +284,19 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
     }
 
     // Set submitted values within app before sending to API. No need to retreive from API
-    setUser({
-      ...contact,
-      given_name: data.fname,
-      family_name: data.lname,
-      preferred_contact: data.preferredContact,
-    });
+    // setUser({
+    //   ...contact,
+    //   given_name: data.fname,
+    //   family_name: data.lname,
+    //   preferred_contact: data.preferredContact,
+    // });
 
     formData.append("gym_id", data.gymId);
     formData.append("email", data.email);
-    formData.append("password", data.password);
-    formData.append("data.confirmPassword", data.confirmPassword);
-    formData.append("role", normalizeRole(data.role));
+    // formData.append("role", normalizeRole(data.role));
     formData.append("fname", data.fname);
     formData.append("lname", data.lname);
     formData.append("company", data.company || "");
-    formData.append("date_of_birth", data.dateOfBirth);
     formData.append("sex", data.sex);
     formData.append("phone", data.phoneNumber);
     formData.append("whatsapp", data.whatsappNumber);
@@ -335,7 +325,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
     const obj = JSON.parse(json);
     console.log(obj);
 
-    if (response.status == 200) {
+    if (response.status === 200) {
       showMessage({
         message: obj?.message,
         type: "success",
@@ -355,7 +345,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
       const json = await response.text();
       const obj = JSON.parse(json);
 
-      if (response.status == 200) {
+      if (response.status === 200) {
         console.log("Got new access token and refresh token");
         setTokens({
           ...tokens,
@@ -364,6 +354,15 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
         });
       }
     }
+  };
+
+  const handleSubmitErrors = (formErrors: FieldErrors<any>) => {
+    console.log("Save Contact blocked by validation:", formErrors);
+  };
+
+  const handleSaveContactPress = () => {
+    console.log("Save Contact button pressed");
+    handleSubmit(updateContact, handleSubmitErrors)();
   };
 
   return (
@@ -633,7 +632,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
         <View style={globalStyles.loginBtnContainer}>
           <TouchableOpacity
             style={globalStyles.registerBtn}
-            onPress={handleSubmit(updateContact)}
+            onPress={handleSaveContactPress}
           >
             <Text style={globalStyles.registerBtnText}>Save Contact</Text>
           </TouchableOpacity>
