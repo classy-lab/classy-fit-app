@@ -101,6 +101,7 @@ export const updateContactSchema = yup.object().shape({
   fname: yup.string().required("First name is required").min(2).max(20),
   lname: yup.string().required("Last name is required").min(2).max(20),
   company: yup.string().nullable().notRequired(),
+  job: yup.string().nullable().notRequired(),
   sex: yup.string(),
   phoneNumber: yup
     .string()
