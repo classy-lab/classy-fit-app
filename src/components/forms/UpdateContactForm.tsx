@@ -21,7 +21,6 @@ import {
   localAvatarOptions,
   MAX_PROFILE_PIC_BYTES,
   MIN_SUBMISSION_TIME_MS,
-  normalizeRole,
   updateContactSchema,
   sexData,
 } from "./ProfileScreenForm.constants";
@@ -74,7 +73,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
         ...profilePic,
         path: profilePic.path,
         mime: profilePic.mime,
-        filename: profilePic.filename || "gallery-photo.png",
+        filename: profilePic.filename || "profilePic.jpg",
         fileSize,
       });
     } catch (e) {
@@ -110,15 +109,14 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
     shouldFocusError: true, // Automatically moves focus and triggers internal scrolling layout
     defaultValues: {
       profilePic: undefined,
-      email: contact.email, // user?.email,
-      // role: contact.role || '', //normalizeRole(user?.role),
-      fname: contact.fname || '', // user?.given_name,
-      lname: contact.lname || '', // user?.family_name,
+      email: contact.email,
+      fname: contact.fname || '',
+      lname: contact.lname || '',
       company: contact.company || '',
-      sex: '', // user?.gender,
+      sex: '',
       phoneNumber: '',
       whatsappNumber: '',
-      gymId: '', // user?.gym_id,
+      gymId: '',
     },
   });
 
@@ -128,10 +126,6 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
   useFocusEffect(
     useCallback(() => {
       const fetchUserData = async () => {
-        // if (!user?.gym_id || !tokens?.access_token || !contact?.uid) {
-        //   return;
-        // }
-
         try {
           const response = await fetch(`${webServer}/api/v1/gyms/${contact.gym_id}/contacts/${contact.uid}`, {
             headers: {
@@ -148,7 +142,6 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
 
             reset({
               email: contactData?.email ?? contact?.email ?? "",
-              // role: contactData?.role ?? contact?.role ?? "",
               fname: contactData?.fname ?? contact?.fname ?? "",
               lname: contactData?.lname ?? contact?.lname ?? "",
               company: contactData?.company ?? contact?.company ?? "",
@@ -214,11 +207,6 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
         autoHide: true, // prevents the message from disappearing automatically
         onPress: () => hideMessage(), // closes the message when pressed
       });
-
-      // // Optionally, you can also clear the user context or navigate to a different screen after deletion
-      // setUser(null); // ??
-      // setTokens(null);
-      // setIsLoggedIn(false);
     }
     else {
       console.log("Access token expired, requesting new one");
@@ -270,7 +258,6 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
     const totalTimeElapsed = Date.now() - formLoadTime.current;
     const formData = new FormData();
 
-    return;
     // 1. Honeypot check
     if (website.trim() !== "") {
       console.log("Submission failed", "Bot behavior detected.");
@@ -283,17 +270,8 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
       return;
     }
 
-    // Set submitted values within app before sending to API. No need to retreive from API
-    // setUser({
-    //   ...contact,
-    //   given_name: data.fname,
-    //   family_name: data.lname,
-    //   preferred_contact: data.preferredContact,
-    // });
-
     formData.append("gym_id", data.gymId);
     formData.append("email", data.email);
-    // formData.append("role", normalizeRole(data.role));
     formData.append("fname", data.fname);
     formData.append("lname", data.lname);
     formData.append("company", data.company || "");
@@ -301,11 +279,19 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
     formData.append("phone", data.phoneNumber);
     formData.append("whatsapp", data.whatsappNumber);
     formData.append("preferred_contact", data.preferredContact);
-    formData.append("profilePic", {
-      uri: data.profilePic?.path || data.profilePic?.uri,
-      type: data.profilePic?.mime || data.profilePic?.type || "image/png",
-      name: data.profilePic?.filename || data.profilePic?.name || "profile-photo.png",
-    } as any);
+
+    const profilePicPayload = data.profilePic
+      ? {
+        uri: data.profilePic?.path || data.profilePic?.uri,
+        type: data.profilePic?.mime || data.profilePic?.type || "image/png",
+        name: data.profilePic?.filename || data.profilePic?.name || "profilePic.png",
+      }
+      : null;
+
+    if (profilePicPayload?.uri) {
+      formData.append("profilePic", profilePicPayload as any);
+    }
+
     formData.append('profileUpdate', 'true');
 
     console.log("FormData ready for fetch:", JSON.stringify(formData));
