@@ -113,6 +113,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
       fname: contact.fname || '',
       lname: contact.lname || '',
       company: contact.company || '',
+      job: contact.job || '',
       sex: '',
       phoneNumber: '',
       whatsappNumber: '',
@@ -145,6 +146,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
               fname: contactData?.fname ?? contact?.fname ?? "",
               lname: contactData?.lname ?? contact?.lname ?? "",
               company: contactData?.company ?? contact?.company ?? "",
+              job: contactData?.job ?? contact?.job ?? "",
               sex: contactData?.sex ?? "",
               phoneNumber: contactData?.phone ?? "",
               whatsappNumber: contactData?.whatsapp ?? "",
@@ -275,6 +277,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
     formData.append("fname", data.fname);
     formData.append("lname", data.lname);
     formData.append("company", data.company || "");
+    formData.append("job", data.job || "");
     formData.append("sex", data.sex);
     formData.append("phone", data.phoneNumber);
     formData.append("whatsapp", data.whatsappNumber);
@@ -294,10 +297,10 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
 
     formData.append('profileUpdate', 'true');
 
-    console.log("FormData ready for fetch:", JSON.stringify(formData));
+    // console.log("FormData ready for fetch:", JSON.stringify(formData));
 
     const response = await fetch(
-      `${webServer}/api/update-contact.php`,
+      `${webServer}/api/v1/gyms/${contact.gym_id}/contacts/${contact.uid}`,
       {
         method: "POST",
         headers: {
@@ -319,7 +322,6 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
         onPress: () => hideMessage(), // closes the message when pressed
       });
     } else {
-      console.log("Access token expired, requesting new one - updateContact()");
 
       const response = await fetch(`${webServer}/api/refresh.php`, {
         method: "POST",
@@ -532,6 +534,27 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
           />
           {errors.company && (
             <Text style={styles.errorText}>{errors.company.message}</Text>
+          )}
+        </View>
+        <View style={styles.field}>
+          <Text style={styles.formLabel}>Job</Text>
+          <Controller
+            control={control}
+            name="job"
+            render={({ field: { onChange, onBlur, value, ref } }) => (
+              <TextInput
+                ref={ref}
+                style={styles.inputField}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                keyboardType="default"
+                autoCapitalize="words"
+              />
+            )}
+          />
+          {errors.job && (
+            <Text style={styles.errorText}>{errors.job.message}</Text>
           )}
         </View>
         {/* Include the honeypot trap in your form */}
