@@ -292,19 +292,15 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
     formData.append("whatsapp", data.whatsappNumber);
     formData.append("preferred_contact", data.preferredContact);
 
-    // const profilePicPayload = data.profilePic
-    //   ? {
-    //     uri: data.profilePic?.path || data.profilePic?.uri,
-    //     type: data.profilePic?.mime || data.profilePic?.type || "image/png",
-    //     name: data.profilePic?.filename || data.profilePic?.name || "profilePic.png",
-    //   }
-    //   : null;
+    const profilePicPayload = data.profilePic
+      ? {
+        uri: data.profilePic?.path || data.profilePic?.uri,
+        type: data.profilePic?.mime || data.profilePic?.type || "image/png",
+        name: data.profilePic?.filename || data.profilePic?.name || "profilePic.png",
+      }
+      : profilePicAPIImage || "";
 
-    // if (profilePicPayload?.uri) {
-    //   formData.append("profilePic", profilePicPayload as any);
-    // }
-
-    // formData.append('profileUpdate', 'true');
+    formData.append("profilePic", profilePicPayload as any);
 
     console.log("FormData ready for fetch:", JSON.stringify(formData));
 
