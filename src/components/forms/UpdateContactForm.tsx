@@ -117,6 +117,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
       sex: '',
       phoneNumber: '',
       whatsappNumber: '',
+      preferredContact: '',
       gymId: '',
     },
   });
@@ -154,7 +155,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
               phoneNumber: obj?.data?.phone,
               whatsappNumber: obj?.data?.whatsapp,
               gymId: obj?.data?.gym_id,
-              preferredContact: obj?.data?.preferred_contact,
+              preferredContact: obj?.data?.preferred_contact ?? "",
               profilePic: obj.data.user_picture_url ? `${webServer}/api/${obj.data.user_picture_url}` : "",
             });
 
@@ -284,8 +285,8 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
     formData.append("email", emailValue);
     formData.append("fname", fnameValue);
     formData.append("lname", data.lname);
-    formData.append("company", data.company || "");
-    formData.append("job", data.job || "");
+    formData.append("company", data.company);
+    formData.append("job", data.job);
     formData.append("sex", sexValue);
     formData.append("phone", data.phoneNumber);
     formData.append("whatsapp", data.whatsappNumber);
@@ -632,8 +633,8 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
           <Controller
             control={control}
             name="preferredContact"
-            render={({ field: { onChange } }) => (
-              <PreferredContact onSelectValue={onChange} />
+            render={({ field: { onChange, value } }) => (
+              <PreferredContact onSelectValue={onChange} value={value} />
             )}
           />
           {errors.preferredContact && (
