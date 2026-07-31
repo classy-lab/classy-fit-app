@@ -109,8 +109,8 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
     shouldFocusError: true, // Automatically moves focus and triggers internal scrolling layout
     defaultValues: {
       profilePic: undefined,
-      email: contact.email,
-      fname: contact.fname || '',
+      email: contact?.email ?? "",
+      fname: contact?.fname ?? "",
       lname: contact.lname || '',
       company: contact.company || '',
       job: contact.job || '',
@@ -138,24 +138,27 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
           const obj = JSON.parse(json);
 
           if (response.status === 200) {
-            const contactData = obj?.contact ?? obj?.data ?? obj;
-            console.log(response.status, "Fetched contact data:", contactData);
+            const contactSex = obj?.contact?.sex ?? "";
+            const mappedContactSex = sexData.find(
+              (item) => item.key === String(contactSex) || item.value === contactSex,
+            )?.value ?? contactSex;
+            console.log(response.status, "Fetched data:", obj);
 
             reset({
-              email: contactData?.email ?? contact?.email ?? "",
-              fname: contactData?.fname ?? contact?.fname ?? "",
-              lname: contactData?.lname ?? contact?.lname ?? "",
-              company: contactData?.company ?? contact?.company ?? "",
-              job: contactData?.job ?? contact?.job ?? "",
-              sex: contactData?.sex ?? "",
-              phoneNumber: contactData?.phone ?? "",
-              whatsappNumber: contactData?.whatsapp ?? "",
-              gymId: contactData?.gym_id ?? "",
-              preferredContact: contactData?.preferred_contact ?? "",
-              profilePic: undefined,
+              email: obj?.data?.email,
+              fname: obj?.data?.fname,
+              lname: obj?.data?.lname,
+              company: obj?.data?.company,
+              job: obj?.data?.job,
+              sex: mappedContactSex,
+              phoneNumber: obj?.data?.phone,
+              whatsappNumber: obj?.data?.whatsapp,
+              gymId: obj?.data?.gym_id,
+              preferredContact: obj?.data?.preferred_contact,
+              profilePic: obj.data.user_picture_url ? `${webServer}/api/${obj.data.user_picture_url}` : "",
             });
 
-            const picturePath = contactData?.user_picture_url || contactData?.user_profile_url;
+            const picturePath = obj?.data?.user_picture_url;
             setProfilePicAPIImage(picturePath ? `${webServer}/api/${picturePath}` : "");
           } else {
             const refreshResponse = await fetch(`${webServer}/api/refresh.php`, {
@@ -259,6 +262,11 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
     console.log('data: ' + JSON.stringify(data));
     const totalTimeElapsed = Date.now() - formLoadTime.current;
     const formData = new FormData();
+    const emailValue = (data?.email ?? contact?.email ?? "").trim();
+    const fnameValue = (data?.fname ?? contact?.fname ?? "").trim();
+    const sexValue = sexData.find(
+      (item) => item.key === String(data?.sex) || item.value === data?.sex,
+    )?.value ?? (data?.sex || "");
 
     // 1. Honeypot check
     if (website.trim() !== "") {
@@ -273,74 +281,87 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
     }
 
     formData.append("gym_id", data.gymId);
-    formData.append("email", data.email);
-    formData.append("fname", data.fname);
+    formData.append("email", emailValue);
+    formData.append("fname", fnameValue);
     formData.append("lname", data.lname);
     formData.append("company", data.company || "");
     formData.append("job", data.job || "");
-    formData.append("sex", data.sex);
+    formData.append("sex", sexValue);
     formData.append("phone", data.phoneNumber);
     formData.append("whatsapp", data.whatsappNumber);
     formData.append("preferred_contact", data.preferredContact);
 
-    const profilePicPayload = data.profilePic
-      ? {
-        uri: data.profilePic?.path || data.profilePic?.uri,
-        type: data.profilePic?.mime || data.profilePic?.type || "image/png",
-        name: data.profilePic?.filename || data.profilePic?.name || "profilePic.png",
-      }
-      : null;
+    // const profilePicPayload = data.profilePic
+    //   ? {
+    //     uri: data.profilePic?.path || data.profilePic?.uri,
+    //     type: data.profilePic?.mime || data.profilePic?.type || "image/png",
+    //     name: data.profilePic?.filename || data.profilePic?.name || "profilePic.png",
+    //   }
+    //   : null;
 
-    if (profilePicPayload?.uri) {
-      formData.append("profilePic", profilePicPayload as any);
-    }
+    // if (profilePicPayload?.uri) {
+    //   formData.append("profilePic", profilePicPayload as any);
+    // }
 
-    formData.append('profileUpdate', 'true');
+    // formData.append('profileUpdate', 'true');
 
-    // console.log("FormData ready for fetch:", JSON.stringify(formData));
+    console.log("FormData ready for fetch:", JSON.stringify(formData));
 
-    const response = await fetch(
-      `${webServer}/api/v1/gyms/${contact.gym_id}/contacts/${contact.uid}`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: "Bearer " + tokens.access_token,
+    try {
+      const response = await fetch(
+        `${webServer}/api/v1/gyms/${contact.gym_id}/contacts/${contact.uid}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: "Bearer " + tokens.access_token,
+          },
+          body: formData,
         },
-        body: formData,
-      },
-    );
+      );
 
-    const json = await response.text();
-    const obj = JSON.parse(json);
-    console.log(obj);
+      const rawBody = await response.text();
+      let obj: any = null;
 
-    if (response.status === 200) {
-      showMessage({
-        message: obj?.message,
-        type: "success",
-        autoHide: true, // prevents the message from disappearing automatically
-        onPress: () => hideMessage(), // closes the message when pressed
-      });
-    } else {
-
-      const response = await fetch(`${webServer}/api/refresh.php`, {
-        method: "POST",
-        body: JSON.stringify({
-          token: tokens.refresh_token,
-        }),
-      });
-
-      const json = await response.text();
-      const obj = JSON.parse(json);
+      try {
+        obj = rawBody ? JSON.parse(rawBody) : null;
+      } catch (parseError) {
+        console.log("Update contact response is not valid JSON:", parseError);
+      }
 
       if (response.status === 200) {
-        console.log("Got new access token and refresh token");
-        setTokens({
-          ...tokens,
-          access_token: obj.access_token,
-          refresh_token: obj.refresh_token,
+        showMessage({
+          message: obj?.message || "Contact updated successfully.",
+          type: "success",
+          autoHide: true, // prevents the message from disappearing automatically
+          onPress: () => hideMessage(), // closes the message when pressed
         });
+      } else {
+        console.log("Update contact failed", {
+          status: response.status,
+          body: obj || rawBody,
+        });
+
+        const refreshResponse = await fetch(`${webServer}/api/refresh.php`, {
+          method: "POST",
+          body: JSON.stringify({
+            token: tokens.refresh_token,
+          }),
+        });
+
+        const refreshJson = await refreshResponse.text();
+        const refreshObj = JSON.parse(refreshJson);
+
+        if (refreshResponse.status === 200) {
+          console.log("Got new access token and refresh token");
+          setTokens({
+            ...tokens,
+            access_token: refreshObj.access_token,
+            refresh_token: refreshObj.refresh_token,
+          });
+        }
       }
+    } catch (error) {
+      console.log("Update contact request failed", error);
     }
   };
 
@@ -415,7 +436,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
                 style={styles.inputField}
                 onBlur={onBlur}
                 onChangeText={onChange}
-                value={value}
+                value={value ?? ""}
                 keyboardType="default"
                 autoCapitalize="none"
               />
@@ -479,12 +500,12 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
             control={control}
             render={({ field: { onChange, onBlur, value } }) => {
               const selectedSex = sexData.find(
-                (item) => item.value === (value),
+                (item) => item.key === String(value) || item.value === value,
               );
 
               return (
                 <SelectList
-                  setSelected={(val) => onChange(val)} // Send selection to hook-form
+                  setSelected={(selectedValue) => onChange(selectedValue)} // Send selection to hook-form
                   data={sexData}
                   save="value"
                   defaultOption={
@@ -596,7 +617,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
                 style={styles.inputField}
                 onBlur={onBlur}
                 onChangeText={onChange}
-                value={value}
+                value={value ?? ""}
                 keyboardType="email-address"
                 autoCapitalize="none"
               />
