@@ -1,7 +1,7 @@
 import { useState, useRef, useContext, useCallback } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import { Alert } from "react-native";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, FieldErrors } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import ImagePicker from "react-native-image-crop-picker";
 import {
@@ -21,8 +21,7 @@ import {
   localAvatarOptions,
   MAX_PROFILE_PIC_BYTES,
   MIN_SUBMISSION_TIME_MS,
-  normalizeRole,
-  schema,
+  updateContactSchema,
   sexData,
 } from "./ProfileScreenForm.constants";
 import { styles } from "../../styles/registerFormStyles";
@@ -37,7 +36,7 @@ import FlashMessage, {
 // ============================================================================
 
 const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: any }) => {
-  const { user, setUser } = useContext(UserContext);
+  // const { user, setUser } = useContext(UserContext);
   const { tokens, setTokens } = useContext(UserContext);
   const [website, setWebsite] = useState("");
   const { webServer } = useContext(UserContext);
@@ -74,7 +73,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
         ...profilePic,
         path: profilePic.path,
         mime: profilePic.mime,
-        filename: profilePic.filename || "gallery-photo.png",
+        filename: profilePic.filename || "profilePic.jpg",
         fileSize,
       });
     } catch (e) {
@@ -106,22 +105,20 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
     reset,
     formState: { errors },
   } = useForm({
-    resolver: yupResolver(schema),
+    resolver: yupResolver(updateContactSchema),
     shouldFocusError: true, // Automatically moves focus and triggers internal scrolling layout
     defaultValues: {
       profilePic: undefined,
-      email: contact.email, // user?.email,
-      password: "",
-      confirmPassword: "",
-      role: contact.role || '', //normalizeRole(user?.role),
-      fname: contact.fname || '', // user?.given_name,
-      lname: contact.lname || '', // user?.family_name,
+      email: contact?.email ?? "",
+      fname: contact?.fname ?? "",
+      lname: contact.lname || '',
       company: contact.company || '',
-      dateOfBirth: contact.dateOfBirth || '',
-      sex: '', // user?.gender,
+      job: contact.job || '',
+      sex: '',
       phoneNumber: '',
       whatsappNumber: '',
-      gymId: '', // user?.gym_id,
+      preferredContact: '',
+      gymId: '',
     },
   });
 
@@ -131,10 +128,6 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
   useFocusEffect(
     useCallback(() => {
       const fetchUserData = async () => {
-        // if (!user?.gym_id || !tokens?.access_token || !contact?.uid) {
-        //   return;
-        // }
-
         try {
           const response = await fetch(`${webServer}/api/v1/gyms/${contact.gym_id}/contacts/${contact.uid}`, {
             headers: {
@@ -146,27 +139,27 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
           const obj = JSON.parse(json);
 
           if (response.status === 200) {
-            const contactData = obj?.contact ?? obj?.data ?? obj;
-            console.log(response.status, "Fetched contact data:", contactData);
+            const contactSex = obj?.contact?.sex ?? "";
+            const mappedContactSex = sexData.find(
+              (item) => item.key === String(contactSex) || item.value === contactSex,
+            )?.value ?? contactSex;
+            console.log(response.status, "Fetched data:", obj);
 
             reset({
-              email: contactData?.email ?? contact?.email ?? "",
-              password: "",
-              confirmPassword: "",
-              role: contactData?.role ?? contact?.role ?? "",
-              fname: contactData?.fname ?? contact?.fname ?? "",
-              lname: contactData?.lname ?? contact?.lname ?? "",
-              company: contactData?.company ?? contact?.company ?? "",
-              dateOfBirth: contactData?.date_of_birth ?? contact?.dateOfBirth ?? "",
-              sex: contactData?.sex ?? "",
-              phoneNumber: contactData?.phone ?? "",
-              whatsappNumber: contactData?.whatsapp ?? "",
-              gymId: contactData?.gym_id ?? "",
-              preferredContact: contactData?.preferred_contact ?? "",
+              email: obj?.data?.email,
+              fname: obj?.data?.fname,
+              lname: obj?.data?.lname,
+              company: obj?.data?.company,
+              job: obj?.data?.job,
+              sex: mappedContactSex,
+              phoneNumber: obj?.data?.phone,
+              whatsappNumber: obj?.data?.whatsapp,
+              gymId: obj?.data?.gym_id,
+              preferredContact: obj?.data?.preferred_contact ?? "",
               profilePic: undefined,
             });
 
-            const picturePath = contactData?.user_picture_url || contactData?.user_profile_url;
+            const picturePath = obj?.data?.user_picture_url;
             setProfilePicAPIImage(picturePath ? `${webServer}/api/${picturePath}` : "");
           } else {
             const refreshResponse = await fetch(`${webServer}/api/refresh.php`, {
@@ -212,7 +205,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
     const obj = JSON.parse(json);
 
 
-    if (response.status == 200) {
+    if (response.status === 200) {
       console.log(obj);
       showMessage({
         message: obj?.message,
@@ -220,14 +213,9 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
         autoHide: true, // prevents the message from disappearing automatically
         onPress: () => hideMessage(), // closes the message when pressed
       });
-
-      // // Optionally, you can also clear the user context or navigate to a different screen after deletion
-      setUser(null); // ??
-      setTokens(null);
-      setIsLoggedIn(false);
     }
     else {
-      console.log("Access token expired, requesting new one - executeProfileDeletion()");
+      console.log("Access token expired, requesting new one");
 
       const response = await fetch(`${webServer}/api/refresh.php`, {
         method: "POST",
@@ -239,7 +227,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
       const json = await response.text();
       const obj = JSON.parse(json);
 
-      if (response.status == 200) {
+      if (response.status === 200) {
         console.log("Got new access token and refresh token");
         setTokens({
           ...tokens,
@@ -275,8 +263,11 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
     console.log('data: ' + JSON.stringify(data));
     const totalTimeElapsed = Date.now() - formLoadTime.current;
     const formData = new FormData();
-
-    console.log(data);
+    const emailValue = (data?.email ?? contact?.email ?? "").trim();
+    const fnameValue = (data?.fname ?? contact?.fname ?? "").trim();
+    const sexValue = sexData.find(
+      (item) => item.key === String(data?.sex) || item.value === data?.sex,
+    )?.value ?? (data?.sex || "");
 
     // 1. Honeypot check
     if (website.trim() !== "") {
@@ -290,80 +281,94 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
       return;
     }
 
-    // Set submitted values within app before sending to API. No need to retreive from API
-    setUser({
-      ...contact,
-      given_name: data.fname,
-      family_name: data.lname,
-      preferred_contact: data.preferredContact,
-    });
-
     formData.append("gym_id", data.gymId);
-    formData.append("email", data.email);
-    formData.append("password", data.password);
-    formData.append("data.confirmPassword", data.confirmPassword);
-    formData.append("role", normalizeRole(data.role));
-    formData.append("fname", data.fname);
+    formData.append("email", emailValue);
+    formData.append("fname", fnameValue);
     formData.append("lname", data.lname);
-    formData.append("company", data.company || "");
-    formData.append("date_of_birth", data.dateOfBirth);
-    formData.append("sex", data.sex);
+    formData.append("company", data.company);
+    formData.append("job", data.job);
+    formData.append("sex", sexValue);
     formData.append("phone", data.phoneNumber);
     formData.append("whatsapp", data.whatsappNumber);
     formData.append("preferred_contact", data.preferredContact);
-    formData.append("profilePic", {
-      uri: data.profilePic?.path || data.profilePic?.uri,
-      type: data.profilePic?.mime || data.profilePic?.type || "image/png",
-      name: data.profilePic?.filename || data.profilePic?.name || "profile-photo.png",
-    } as any);
-    formData.append('profileUpdate', 'true');
+
+    const profilePicPayload = data.profilePic
+      ? {
+        uri: data.profilePic?.path || data.profilePic?.uri,
+        type: data.profilePic?.mime || data.profilePic?.type || "image/png",
+        name: data.profilePic?.filename || data.profilePic?.name || "profilePic.png",
+      }
+      : profilePicAPIImage || "";
+
+    formData.append("profilePic", profilePicPayload as any);
 
     console.log("FormData ready for fetch:", JSON.stringify(formData));
 
-    const response = await fetch(
-      `${webServer}/api/update-contact.php`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: "Bearer " + tokens.access_token,
+    try {
+      const response = await fetch(
+        `${webServer}/api/v1/gyms/${contact.gym_id}/contacts/${contact.uid}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: "Bearer " + tokens.access_token,
+          },
+          body: formData,
         },
-        body: formData,
-      },
-    );
+      );
 
-    const json = await response.text();
-    const obj = JSON.parse(json);
-    console.log(obj);
+      const rawBody = await response.text();
+      let obj: any = null;
 
-    if (response.status == 200) {
-      showMessage({
-        message: obj?.message,
-        type: "success",
-        autoHide: true, // prevents the message from disappearing automatically
-        onPress: () => hideMessage(), // closes the message when pressed
-      });
-    } else {
-      console.log("Access token expired, requesting new one - updateContact()");
-
-      const response = await fetch(`${webServer}/api/refresh.php`, {
-        method: "POST",
-        body: JSON.stringify({
-          token: tokens.refresh_token,
-        }),
-      });
-
-      const json = await response.text();
-      const obj = JSON.parse(json);
-
-      if (response.status == 200) {
-        console.log("Got new access token and refresh token");
-        setTokens({
-          ...tokens,
-          access_token: obj.access_token,
-          refresh_token: obj.refresh_token,
-        });
+      try {
+        obj = rawBody ? JSON.parse(rawBody) : null;
+      } catch (parseError) {
+        console.log("Update contact response is not valid JSON:", parseError);
       }
+
+      if (response.status === 200) {
+        showMessage({
+          message: obj?.message || "Contact updated successfully.",
+          type: "success",
+          autoHide: true, // prevents the message from disappearing automatically
+          onPress: () => hideMessage(), // closes the message when pressed
+        });
+      } else {
+        console.log("Update contact failed", {
+          status: response.status,
+          body: obj || rawBody,
+        });
+
+        const refreshResponse = await fetch(`${webServer}/api/refresh.php`, {
+          method: "POST",
+          body: JSON.stringify({
+            token: tokens.refresh_token,
+          }),
+        });
+
+        const refreshJson = await refreshResponse.text();
+        const refreshObj = JSON.parse(refreshJson);
+
+        if (refreshResponse.status === 200) {
+          console.log("Got new access token and refresh token");
+          setTokens({
+            ...tokens,
+            access_token: refreshObj.access_token,
+            refresh_token: refreshObj.refresh_token,
+          });
+        }
+      }
+    } catch (error) {
+      console.log("Update contact request failed", error);
     }
+  };
+
+  const handleSubmitErrors = (formErrors: FieldErrors<any>) => {
+    console.log("Save Contact blocked by validation:", formErrors);
+  };
+
+  const handleSaveContactPress = () => {
+    console.log("Save Contact button pressed");
+    handleSubmit(updateContact, handleSubmitErrors)();
   };
 
   return (
@@ -428,7 +433,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
                 style={styles.inputField}
                 onBlur={onBlur}
                 onChangeText={onChange}
-                value={value}
+                value={value ?? ""}
                 keyboardType="default"
                 autoCapitalize="none"
               />
@@ -492,12 +497,12 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
             control={control}
             render={({ field: { onChange, onBlur, value } }) => {
               const selectedSex = sexData.find(
-                (item) => item.value === (value),
+                (item) => item.key === String(value) || item.value === value,
               );
 
               return (
                 <SelectList
-                  setSelected={(val) => onChange(val)} // Send selection to hook-form
+                  setSelected={(selectedValue) => onChange(selectedValue)} // Send selection to hook-form
                   data={sexData}
                   save="value"
                   defaultOption={
@@ -549,6 +554,27 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
             <Text style={styles.errorText}>{errors.company.message}</Text>
           )}
         </View>
+        <View style={styles.field}>
+          <Text style={styles.formLabel}>Job</Text>
+          <Controller
+            control={control}
+            name="job"
+            render={({ field: { onChange, onBlur, value, ref } }) => (
+              <TextInput
+                ref={ref}
+                style={styles.inputField}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                keyboardType="default"
+                autoCapitalize="words"
+              />
+            )}
+          />
+          {errors.job && (
+            <Text style={styles.errorText}>{errors.job.message}</Text>
+          )}
+        </View>
         {/* Include the honeypot trap in your form */}
         <HoneypotField value={website} onChangeText={setWebsite} />
 
@@ -588,7 +614,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
                 style={styles.inputField}
                 onBlur={onBlur}
                 onChangeText={onChange}
-                value={value}
+                value={value ?? ""}
                 keyboardType="email-address"
                 autoCapitalize="none"
               />
@@ -603,8 +629,8 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
           <Controller
             control={control}
             name="preferredContact"
-            render={({ field: { onChange } }) => (
-              <PreferredContact onSelectValue={onChange} />
+            render={({ field: { onChange, value } }) => (
+              <PreferredContact onSelectValue={onChange} value={value} />
             )}
           />
           {errors.preferredContact && (
@@ -633,7 +659,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
         <View style={globalStyles.loginBtnContainer}>
           <TouchableOpacity
             style={globalStyles.registerBtn}
-            onPress={handleSubmit(updateContact)}
+            onPress={handleSaveContactPress}
           >
             <Text style={globalStyles.registerBtnText}>Save Contact</Text>
           </TouchableOpacity>

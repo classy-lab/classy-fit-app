@@ -1,17 +1,16 @@
-import React, { useContext } from "react";
+import React from "react";
 import { StyleSheet } from "react-native";
 import { SelectList } from "react-native-dropdown-select-list";
 import { AppColors } from "../../styles/colors";
-import { UserContext } from "../../context/UserContext";
 
-const PreferredContact = ({ onSelectValue }) => {
+const PreferredContact = ({ onSelectValue, value }) => {
   const contactTypes = [
     { key: "1", value: "Phone" },
     { key: "2", value: "WhatsApp" },
     { key: "3", value: "Email" },
   ];
 
-  const { user } = useContext(UserContext);
+  const selectedOption = contactTypes.find((item) => item.value === value);
 
   return (
     <SelectList
@@ -19,10 +18,11 @@ const PreferredContact = ({ onSelectValue }) => {
       data={contactTypes}
       save="value"
       placeholder="Select Category"
-      defaultOption={{
-        key: "",
-        value: user.preferred_contact,
-      }}
+      defaultOption={
+        selectedOption
+          ? { key: selectedOption.key, value: selectedOption.value }
+          : undefined
+      }
       boxStyles={{
         borderColor: AppColors.grey,
         borderWidth: 1,
@@ -34,8 +34,8 @@ const PreferredContact = ({ onSelectValue }) => {
         marginTop: 8,
         backgroundColor: "white",
       }}
-      // If you need to force the value from the parent (e.g., reset)
-      // defaultOption={data.find(item => item.value === value)}
+    // If you need to force the value from the parent (e.g., reset)
+    // defaultOption={data.find(item => item.value === value)}
     />
   );
 };
