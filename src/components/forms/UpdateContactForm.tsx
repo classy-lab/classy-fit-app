@@ -156,7 +156,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
               whatsappNumber: obj?.data?.whatsapp,
               gymId: obj?.data?.gym_id,
               preferredContact: obj?.data?.preferred_contact ?? "",
-              profilePic: obj.data.user_picture_url ? `${webServer}/api/${obj.data.user_picture_url}` : "",
+              profilePic: undefined,
             });
 
             const picturePath = obj?.data?.user_picture_url;
