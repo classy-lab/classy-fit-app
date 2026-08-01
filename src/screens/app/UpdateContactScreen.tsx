@@ -158,7 +158,7 @@ const UpdateContactScreen = ({ navigation }: { navigation: any }) => {
             </View>
           </View>
           <View style={styles.body}>
-            <UpdateContactForm contact={contact} />
+            <UpdateContactForm navigation={navigation} contact={contact} />
           </View>
           <View style={styles.imageContainer}>
             <VectorImageSvg />

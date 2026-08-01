@@ -42,6 +42,16 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
   const { webServer } = useContext(UserContext);
   const { setIsLoggedIn } = useContext(UserContext);
   const [profilePicAPIImage, setProfilePicAPIImage] = useState<string>(""); // State to hold the selected image
+  const preferredContactOptions = [
+    { key: "1", value: "Phone" },
+    { key: "2", value: "WhatsApp" },
+    { key: "3", value: "Email" },
+  ];
+  const getOptionValue = (options: any[], rawValue: any) => {
+    return options.find(
+      (item) => item.key === String(rawValue) || item.value === rawValue,
+    )?.value ?? (rawValue || "");
+  };
 
   // console.log("UpdateContactForm contact prop:", contact);
   const selectImage = async (onChange: (value: any) => void) => {
@@ -140,9 +150,9 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
 
           if (response.status === 200) {
             const contactSex = obj?.contact?.sex ?? "";
-            const mappedContactSex = sexData.find(
-              (item) => item.key === String(contactSex) || item.value === contactSex,
-            )?.value ?? contactSex;
+            const contactPreferred = obj?.data?.preferred_contact ?? "";
+            const mappedContactSex = getOptionValue(sexData, contactSex);
+            const mappedPreferredContact = getOptionValue(preferredContactOptions, contactPreferred);
             console.log(response.status, "Fetched data:", obj);
 
             reset({
@@ -155,7 +165,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
               phoneNumber: obj?.data?.phone,
               whatsappNumber: obj?.data?.whatsapp,
               gymId: obj?.data?.gym_id,
-              preferredContact: obj?.data?.preferred_contact ?? "",
+              preferredContact: mappedPreferredContact,
               profilePic: undefined,
             });
 
@@ -213,6 +223,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
         autoHide: true, // prevents the message from disappearing automatically
         onPress: () => hideMessage(), // closes the message when pressed
       });
+      navigation.navigate("HomeTab", { screen: "ContractorsScreen" });
     }
     else {
       console.log("Access token expired, requesting new one");
@@ -265,9 +276,8 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
     const formData = new FormData();
     const emailValue = (data?.email ?? contact?.email ?? "").trim();
     const fnameValue = (data?.fname ?? contact?.fname ?? "").trim();
-    const sexValue = sexData.find(
-      (item) => item.key === String(data?.sex) || item.value === data?.sex,
-    )?.value ?? (data?.sex || "");
+    const sexValue = getOptionValue(sexData, data?.sex);
+    const preferredContactValue = getOptionValue(preferredContactOptions, data?.preferredContact);
 
     // 1. Honeypot check
     if (website.trim() !== "") {
@@ -281,6 +291,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
       return;
     }
 
+    formData.append("uid", contact?.uid);
     formData.append("gym_id", data.gymId);
     formData.append("email", emailValue);
     formData.append("fname", fnameValue);
@@ -290,7 +301,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
     formData.append("sex", sexValue);
     formData.append("phone", data.phoneNumber);
     formData.append("whatsapp", data.whatsappNumber);
-    formData.append("preferred_contact", data.preferredContact);
+    formData.append("preferred_contact", preferredContactValue);
 
     const profilePicPayload = data.profilePic
       ? {
