@@ -223,6 +223,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
         autoHide: true, // prevents the message from disappearing automatically
         onPress: () => hideMessage(), // closes the message when pressed
       });
+      navigation.navigate("HomeTab", { screen: "ContractorsScreen" });
     }
     else {
       console.log("Access token expired, requesting new one");
