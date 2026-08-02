@@ -13,6 +13,7 @@ import {
   StyleSheet,
 } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { useFocusEffect } from '@react-navigation/native'
 import { AppColors } from "../../styles/colors";
 import Feather from "@expo/vector-icons/Feather";
 import { SelectList } from "react-native-dropdown-select-list";
@@ -133,10 +134,10 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
       lname: "",
       company: "",
       job: "",
-      sex: '',
-      phoneNumber: '',
-      whatsappNumber: '',
-      preferredContact: '',
+      sex: "",
+      phoneNumber: "",
+      whatsappNumber: "",
+      preferredContact: "",
       gymId: '',
     },
   });
@@ -144,9 +145,27 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
   // Watch profilePic to display it
   const profilePicValue = watch("profilePic");
 
+  useFocusEffect(
+    useCallback(() => {
+      reset({
+        profilePic: undefined,
+        email: "",
+        fname: "",
+        lname: "",
+        company: "",
+        job: "",
+        sex: "",
+        phoneNumber: "",
+        whatsappNumber: "",
+        preferredContact: "",
+        gymId: user?.gym_id ? String(user.gym_id) : "",
+      });
+    }, [reset, user?.gym_id]),
+  );
+
   useEffect(() => {
     setValue("gymId", String(user?.gym_id), { shouldValidate: true });
-  }, []);
+  }, [setValue, user?.gym_id]);
 
   const createContact = async (data: any) => {
     const totalTimeElapsed = Date.now() - formLoadTime.current;
@@ -213,13 +232,14 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
         console.log("Update contact response is not valid JSON:", parseError);
       }
 
-      if (response.status === 200) {
+      if (response.status === 201) {
         showMessage({
           message: obj?.message || "Contact updated successfully.",
           type: "success",
           autoHide: true,
           onPress: () => hideMessage(),
         });
+        navigation.navigate("HomeTab", { screen: "ContractorsScreen" });
       } else {
         console.log("Update contact failed", {
           status: response.status,
