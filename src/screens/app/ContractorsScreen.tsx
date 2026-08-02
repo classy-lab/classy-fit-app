@@ -14,7 +14,7 @@ import { UserContext } from '../../context/UserContext'
 
 type StaffContact = {
   contact_id?: string | number;
-  user_picture_url?: string;
+  profilePic?: string;
   fname?: string;
   lname?: string;
   email?: string;
@@ -215,8 +215,8 @@ const ContractorsScreen = ({ navigation }: { navigation: any }) => {
                           >
                             <View style={styles.box}>
                               {
-                                contact.user_picture_url ? (
-                                  <Image style={styles.image} source={{ uri: getImageUri(contact.user_picture_url) }} />
+                                contact.profilePic ? (
+                                  <Image style={styles.image} source={{ uri: getImageUri(contact.profilePic) }} />
                                 ) : null}
                               <Text style={styles.personName}>{getDisplayName(contact)}</Text>
                             </View>
