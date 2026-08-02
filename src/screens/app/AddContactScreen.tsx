@@ -1,6 +1,5 @@
 // @ts-nocheck
 import React, { useState, useEffect, useRef, useContext } from "react";
-import * as yup from "yup";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import ImagePicker from "react-native-image-crop-picker";
@@ -11,13 +10,11 @@ import {
   TextInput,
   Alert,
   Linking,
-  Platform,
   Image,
-  Button,
-  ScrollView
+  ScrollView,
+  StyleSheet,
 } from "react-native";
 import { AppColors } from "../../styles/colors";
-import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Feather from "@expo/vector-icons/Feather";
 import VectorImageSvg from "../../components/svg/VectorImageSvg";
@@ -29,7 +26,6 @@ import GymList from "../../../src/components/GymList";
 import SignOut from "../../components/utils/SignOut";
 import {
   findRoleOption,
-  localAvatarOptions,
   MAX_PROFILE_PIC_BYTES,
   MIN_SUBMISSION_TIME_MS,
   normalizeRole,
@@ -37,16 +33,11 @@ import {
   schema,
   sexData,
 } from "../../../src/components/forms/ProfileScreenForm.constants";
-import FlashMessage, {
-  showMessage,
-  hideMessage,
-} from "react-native-flash-message";
-import { StyleSheet } from 'react-native'
+import { showMessage, hideMessage } from "react-native-flash-message";
 
 const AddContactScreen = ({ navigation }: { navigation: any }) => {
   const [website, setWebsite] = useState("");
   const { webServer } = useContext(UserContext);
-  const { user, setUser } = useContext(UserContext);
 
   const selectImage = async (onChange: (value: any) => void) => {
     try {
@@ -60,7 +51,8 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
       });
 
       const filename = (profilePic.filename || profilePic.path || "").toLowerCase();
-      const isAllowedFormat = filename.endsWith(".jpg") || filename.endsWith(".jpeg") || filename.endsWith(".png");
+      const isAllowedFormat =
+        filename.endsWith(".jpg") || filename.endsWith(".jpeg") || filename.endsWith(".png");
       const fileSize = (profilePic as any).fileSize ?? (profilePic as any).size;
 
       if (!isAllowedFormat) {
@@ -85,57 +77,26 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
     }
   };
 
-  const selectLocalAvatar = (avatar: any, onChange: (value: any) => void) => {
-    const resolved = Image.resolveAssetSource(avatar.asset);
-    onChange({
-      uri: resolved.uri,
-      path: resolved.uri,
-      mime: "image/png",
-      filename: avatar.name,
-      type: "image/png",
-      isLocalAvatar: true,
-    });
-  };
-
-  // Use a ref to store the load time without triggering re-renders
   const formLoadTime = useRef(Date.now());
 
-  // Reset the timer if the user navigates back to this screen
   useEffect(() => {
     formLoadTime.current = Date.now();
   }, []);
 
-  const [sex, setSelected] = useState(""); // sex state lives here
-
-  const [PreferredContact, setPreferredContact] = React.useState("");
   const preferredContactData = [
     { key: "1", value: "Phone", disabled: false },
     { key: "2", value: "WhatsApp" },
     { key: "3", value: "Email" },
   ];
 
-  const [gyms, setGyms] = useState([]);
-  const [role, setRole] = React.useState("");
-
-  // This is the "onChange" logic for GymList
-  const handleSelectionChange = (val) => {
-    setGyms(val);
-  };
-
-  const handleLinkPress = () => {
-    Linking.openURL("https://cleancodeusa.com/about.html");
-  };
-
-  // 2. Initialize useForm with the Yup resolver
   const {
     control,
     handleSubmit,
-    setValue,
     watch,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
-    shouldFocusError: true, // Automatically moves focus and triggers internal scrolling layout
+    shouldFocusError: true,
     defaultValues: {
       profilePic: undefined,
       email: "",
@@ -144,31 +105,28 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
       role: normalizeRole("2"),
       fname: "",
       lname: "",
-      dateOfBirth: "",
-      sex: '',
       phoneNumber: "",
+      sex: "",
+      company: "",
+      job: "",
       whatsappNumber: "",
+      dateOfBirth: "",
+      preferredContact: "",
       gymId: "",
     },
   });
 
-  // Watch profilePic to display it
   const profilePicValue = watch("profilePic");
 
-  // 3. Define the submit handler
   const registerUser = async (data: any) => {
     const totalTimeElapsed = Date.now() - formLoadTime.current;
     const formData = new FormData();
 
-    console.log(data);
-
-    // 1. Honeypot check
     if (website.trim() !== "") {
       console.log("Submission failed", "Bot behavior detected.");
       return;
     }
 
-    // 2. Timestamp check
     if (totalTimeElapsed < MIN_SUBMISSION_TIME_MS) {
       console.log("Submission failed", "Form submitted too quickly.");
       return;
@@ -181,10 +139,12 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
     formData.append("role", normalizeRole(data.role));
     formData.append("fname", data.fname);
     formData.append("lname", data.lname);
-    formData.append("date_of_birth", data.dateOfBirth);
-    formData.append("sex", data.sex);
     formData.append("phone", data.phoneNumber);
+    formData.append("sex", data.sex);
+    formData.append("company", data.company);
+    formData.append("job", data.job);
     formData.append("whatsapp", data.whatsappNumber);
+    formData.append("date_of_birth", data.dateOfBirth);
     formData.append("preferred_contact", data.preferredContact);
     formData.append("profilePic", {
       uri: data.profilePic?.path || data.profilePic?.uri,
@@ -192,39 +152,35 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
       name: data.profilePic?.filename || data.profilePic?.name || "profile-photo.png",
     } as any);
 
-    console.log("FormData ready for fetch:", formData);
-
-    const response = await fetch(
-      `${webServer}/api/register-contact.php`,
-      {
-        method: "POST",
-        body: formData,
-      },
-    );
+    const response = await fetch(`${webServer}/api/register-contact.php`, {
+      method: "POST",
+      body: formData,
+    });
 
     const apiResponse = await response.json();
-    console.log("apiResponse: " + JSON.stringify(apiResponse));
 
     if (response.status == 200) {
       showMessage({
         message: "Success",
-        description:
-          apiResponse.message || "Your action was confirmed successfully!",
+        description: apiResponse.message || "Your action was confirmed successfully!",
         type: "success",
         icon: "success",
         duration: 3000,
-        // autoHide: false,
         onPress: () => hideMessage(),
       });
     } else {
       showMessage({
         message: "Action Failed",
         description: apiResponse.message || "Something went wrong.",
-        type: "danger", // Automatically styles background to red
+        type: "danger",
         icon: "danger",
         autoHide: false,
       });
     }
+  };
+
+  const handleLinkPress = () => {
+    Linking.openURL("https://cleancodeusa.com/about.html");
   };
 
   return (
@@ -241,17 +197,11 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
           />
           <SignOut />
         </View>
-        <ScrollView
-          style={styles.scrollView}
-          showsVerticalScrollIndicator={false}
-        >
+        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.headingContainer}>
-            <Text style={styles.title}>
-              Add Contact
-            </Text>
+            <Text style={styles.title}>Add Contact</Text>
           </View>
           <View style={styles.body}>
-
             <View style={styles.fieldset}>
               <View style={styles.field}>
                 <Controller
@@ -263,33 +213,31 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
                     return (
                       <View style={styles.imageContainer}>
                         <Text style={styles.formLabel}>Profile Photo</Text>
-                        <TouchableOpacity onPress={() => selectImage(onChange)} style={styles.imagePickerButton}>
+                        <TouchableOpacity
+                          onPress={() => selectImage(onChange)}
+                          style={styles.imagePickerButton}
+                        >
                           {selectedProfilePicUri ? (
-                            <Image source={{ uri: selectedProfilePicUri }} style={styles.avatar} resizeMode="cover" />
+                            <Image
+                              source={{ uri: selectedProfilePicUri }}
+                              style={styles.avatar}
+                              resizeMode="cover"
+                            />
                           ) : (
-                            <Image source={require("../../assets/images/avatars/profile-img.png")} style={styles.avatar} resizeMode="cover" />
+                            <Image
+                              source={require("../../assets/images/avatars/profile-img.png")}
+                              style={styles.avatar}
+                              resizeMode="cover"
+                            />
                           )}
                         </TouchableOpacity>
-                        {/* <Text style={styles.helperText}>Choose a photo from your gallery or pick one of the local avatars below.</Text>
-                        <View style={styles.avatarGrid}>
-                          {localAvatarOptions.map((avatar) => (
-                            <TouchableOpacity
-                              key={avatar.key}
-                              onPress={() => selectLocalAvatar(avatar, onChange)}
-                              style={styles.avatarOption}
-                            >
-                              <Image source={avatar.asset} style={styles.avatarOptionImage} resizeMode="cover" />
-                            </TouchableOpacity>
-                          ))}
-                        </View> */}
                       </View>
                     );
                   }}
                 />
-                {errors.profilePic && (
-                  <Text style={styles.errorText}>{errors.profilePic.message}</Text>
-                )}
+                {errors.profilePic && <Text style={styles.errorText}>{errors.profilePic.message}</Text>}
               </View>
+
               <View style={styles.field}>
                 <Text style={styles.formLabel}>E-mail</Text>
                 <Controller
@@ -297,7 +245,7 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
                   name="email"
                   render={({ field: { onChange, onBlur, value, ref } }) => (
                     <TextInput
-                      ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
+                      ref={ref}
                       style={styles.inputField}
                       onBlur={onBlur}
                       onChangeText={onChange}
@@ -307,10 +255,9 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
                     />
                   )}
                 />
-                {errors.email && (
-                  <Text style={styles.errorText}>{errors.email.message}</Text>
-                )}
+                {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
               </View>
+
               <View style={styles.field}>
                 <Text style={styles.formLabel}>Password</Text>
                 <Controller
@@ -318,7 +265,7 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
                   name="password"
                   render={({ field: { onChange, onBlur, value, ref } }) => (
                     <TextInput
-                      ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
+                      ref={ref}
                       style={styles.inputField}
                       onBlur={onBlur}
                       onChangeText={onChange}
@@ -328,10 +275,9 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
                     />
                   )}
                 />
-                {errors.password && (
-                  <Text style={styles.errorText}>{errors.password.message}</Text>
-                )}
+                {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
               </View>
+
               <View style={styles.field}>
                 <Text style={styles.formLabel}>Confirm Password</Text>
                 <Controller
@@ -339,7 +285,7 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
                   name="confirmPassword"
                   render={({ field: { onChange, onBlur, value, ref } }) => (
                     <TextInput
-                      ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
+                      ref={ref}
                       style={styles.inputField}
                       onBlur={onBlur}
                       onChangeText={onChange}
@@ -350,26 +296,22 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
                   )}
                 />
                 {errors.confirmPassword && (
-                  <Text style={styles.errorText}>
-                    {errors.confirmPassword.message}
-                  </Text>
+                  <Text style={styles.errorText}>{errors.confirmPassword.message}</Text>
                 )}
               </View>
+
               <View style={styles.field}>
                 <Text style={styles.formLabel}>Role</Text>
                 <Controller
                   control={control}
                   name="role"
-                  render={({ field: { onChange, onBlur, value, ref } }) => {
-                    const selectedRole =
-                      findRoleOption(value) || findRoleOption("2");
+                  render={({ field: { onChange, value, ref } }) => {
+                    const selectedRole = findRoleOption(value) || findRoleOption("2");
 
                     return (
                       <SelectList
-                        ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
-                        setSelected={(selectedValue) =>
-                          onChange(normalizeRole(selectedValue))
-                        }
+                        ref={ref}
+                        setSelected={(selectedValue) => onChange(normalizeRole(selectedValue))}
                         data={roleData}
                         save="value"
                         placeholder="Select Category"
@@ -389,16 +331,13 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
                           marginTop: 8,
                           backgroundColor: "white",
                         }}
-                      // If you need to force the value from the parent (e.g., reset)
-                      // defaultOption={data.find(item => item.value === value)}
                       />
                     );
                   }}
                 />
-                {errors.role && (
-                  <Text style={styles.errorText}>{errors.role.message}</Text>
-                )}
+                {errors.role && <Text style={styles.errorText}>{errors.role.message}</Text>}
               </View>
+
               <View style={styles.field}>
                 <Text style={styles.formLabel}>First Name</Text>
                 <Controller
@@ -406,7 +345,7 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
                   name="fname"
                   render={({ field: { onChange, onBlur, value, ref } }) => (
                     <TextInput
-                      ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
+                      ref={ref}
                       style={styles.inputField}
                       onBlur={onBlur}
                       onChangeText={onChange}
@@ -416,10 +355,9 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
                     />
                   )}
                 />
-                {errors.fname && (
-                  <Text style={styles.errorText}>{errors.fname.message}</Text>
-                )}
+                {errors.fname && <Text style={styles.errorText}>{errors.fname.message}</Text>}
               </View>
+
               <View style={styles.field}>
                 <Text style={styles.formLabel}>Last Name</Text>
                 <Controller
@@ -427,7 +365,7 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
                   name="lname"
                   render={({ field: { onChange, onBlur, value, ref } }) => (
                     <TextInput
-                      ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
+                      ref={ref}
                       style={styles.inputField}
                       onBlur={onBlur}
                       onChangeText={onChange}
@@ -437,61 +375,9 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
                     />
                   )}
                 />
-                {errors.lname && (
-                  <Text style={styles.errorText}>{errors.lname.message}</Text>
-                )}
+                {errors.lname && <Text style={styles.errorText}>{errors.lname.message}</Text>}
               </View>
-              {/* 3. Include the honeypot trap in your form */}
-              <HoneypotField value={website} onChangeText={setWebsite} />
-              <View style={styles.field}>
-                <Text style={styles.formLabel}>Date of Birth</Text>
-                <Controller
-                  control={control}
-                  name="dateOfBirth"
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <DateOfBirthField
-                      value={value}
-                      onChange={onChange}
-                      onBlur={onBlur}
-                    />
-                  )}
-                />
-                {errors.dateOfBirth && (
-                  <Text style={styles.errorText}>{errors.dateOfBirth.message}</Text>
-                )}
-              </View>
-              <View style={styles.field}>
-                <Text style={styles.formLabel}>Sex</Text>
-                <Controller
-                  name="sex"
-                  control={control}
-                  render={({ field: { onChange, onBlur, value, ref } }) => (
-                    <SelectList
-                      ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
-                      setSelected={(val) => onChange(val)} // Send selection to hook-form
-                      data={sexData}
-                      save="value"
-                      placeholder="Select Category"
-                      boxStyles={{
-                        borderColor: AppColors.grey,
-                        borderWidth: 1,
-                        paddingHorizontal: 8,
-                      }}
-                      dropdownStyles={{
-                        borderColor: AppColors.grey2,
-                        borderWidth: 1,
-                        marginTop: 8,
-                        backgroundColor: "white",
-                      }}
-                    // If you need to force the value from the parent (e.g., reset)
-                    // defaultOption={data.find(item => item.value === value)}
-                    />
-                  )}
-                />
-                {errors.sex && (
-                  <Text style={styles.errorText}>{errors.sex.message}</Text>
-                )}
-              </View>
+
               <View style={styles.field}>
                 <Text style={styles.formLabel}>Phone Number</Text>
                 <Controller
@@ -509,10 +395,91 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
                     />
                   )}
                 />
-                {errors.phoneNumber && (
-                  <Text style={styles.errorText}>{errors.phoneNumber.message}</Text>
-                )}
+                {errors.phoneNumber && <Text style={styles.errorText}>{errors.phoneNumber.message}</Text>}
               </View>
+
+              <View style={styles.field}>
+                <Text style={styles.formLabel}>Sex</Text>
+                <Controller
+                  name="sex"
+                  control={control}
+                  render={({ field: { onChange, value, ref } }) => {
+                    const selectedSex = sexData.find(
+                      (item) => item.key === String(value) || item.value === value,
+                    );
+
+                    return (
+                      <SelectList
+                        ref={ref}
+                        setSelected={(selectedValue) => onChange(selectedValue)}
+                        data={sexData}
+                        save="value"
+                        defaultOption={
+                          selectedSex
+                            ? { key: selectedSex.key, value: selectedSex.value }
+                            : undefined
+                        }
+                        placeholder="Select Category"
+                        boxStyles={{
+                          borderColor: AppColors.grey,
+                          borderWidth: 1,
+                          paddingHorizontal: 8,
+                        }}
+                        dropdownStyles={{
+                          borderColor: AppColors.grey2,
+                          borderWidth: 1,
+                          marginTop: 8,
+                          backgroundColor: "white",
+                        }}
+                      />
+                    );
+                  }}
+                />
+                {errors.sex && <Text style={styles.errorText}>{errors.sex.message}</Text>}
+              </View>
+
+              <View style={styles.field}>
+                <Text style={styles.formLabel}>Company</Text>
+                <Controller
+                  control={control}
+                  name="company"
+                  render={({ field: { onChange, onBlur, value, ref } }) => (
+                    <TextInput
+                      ref={ref}
+                      style={styles.inputField}
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                      keyboardType="default"
+                      autoCapitalize="words"
+                    />
+                  )}
+                />
+                {errors.company && <Text style={styles.errorText}>{errors.company.message}</Text>}
+              </View>
+
+              <View style={styles.field}>
+                <Text style={styles.formLabel}>Job</Text>
+                <Controller
+                  control={control}
+                  name="job"
+                  render={({ field: { onChange, onBlur, value, ref } }) => (
+                    <TextInput
+                      ref={ref}
+                      style={styles.inputField}
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                      keyboardType="default"
+                      autoCapitalize="words"
+                    />
+                  )}
+                />
+                {errors.job && <Text style={styles.errorText}>{errors.job.message}</Text>}
+              </View>
+
+              <HoneypotField value={website} onChangeText={setWebsite} />
+
               <View style={styles.field}>
                 <Text style={styles.formLabel}>WhatsApp Number</Text>
                 <Controller
@@ -531,20 +498,36 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
                   )}
                 />
                 {errors.whatsappNumber && (
-                  <Text style={styles.errorText}>
-                    {errors.whatsappNumber.message}
-                  </Text>
+                  <Text style={styles.errorText}>{errors.whatsappNumber.message}</Text>
                 )}
               </View>
+
+              <View style={styles.field}>
+                <Text style={styles.formLabel}>Date of Birth</Text>
+                <Controller
+                  control={control}
+                  name="dateOfBirth"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <DateOfBirthField
+                      value={value}
+                      onChange={onChange}
+                      onBlur={onBlur}
+                    />
+                  )}
+                />
+                {errors.dateOfBirth && (
+                  <Text style={styles.errorText}>{errors.dateOfBirth.message}</Text>
+                )}
+              </View>
+
               <View style={styles.field}>
                 <Text style={styles.formLabel}>Preferred Contact</Text>
                 <Controller
                   control={control}
                   name="preferredContact"
-                  render={({ field: { onChange, onBlur, value, ref } }) => (
+                  render={({ field: { onChange, value } }) => (
                     <SelectList
-                      ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
-                      setSelected={(val) => onChange(val)} // Send selection to hook-form
+                      setSelected={(selectedValue) => onChange(selectedValue)}
                       data={preferredContactData}
                       save="value"
                       placeholder="Select Category"
@@ -559,32 +542,29 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
                         marginTop: 8,
                         backgroundColor: "white",
                       }}
-                    // If you need to force the value from the parent (e.g., reset)
-                    // defaultOption={data.find(item => item.value === value)}
                     />
                   )}
                 />
                 {errors.preferredContact && (
-                  <Text style={styles.errorText}>
-                    {errors.preferredContact.message}
-                  </Text>
+                  <Text style={styles.errorText}>{errors.preferredContact.message}</Text>
                 )}
               </View>
+
               <View style={styles.field}>
                 <Text style={styles.formLabel}>Gym Location / Fitness Center</Text>
                 <Controller
                   control={control}
                   name="gymId"
-                  render={({ field: { onChange, onBlur, value, ref } }) => (
+                  render={({ field: { onChange, ref } }) => (
                     <GymList
-                      ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
-                      onSelectValue={onChange} />
+                      ref={ref}
+                      onSelectValue={onChange}
+                    />
                   )}
                 />
-                {errors.gymId && (
-                  <Text style={styles.errorText}>{errors.gymId.message}</Text>
-                )}
+                {errors.gymId && <Text style={styles.errorText}>{errors.gymId.message}</Text>}
               </View>
+
               <Text style={styles.agreement}>
                 By using Classy Fit, you agree and consent to our:{" "}
                 <Text style={styles.linkText} onPress={handleLinkPress}>
@@ -597,6 +577,7 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
                   </Text>
                 </Text>
               </Text>
+
               <View style={styles.loginBtnContainer}>
                 <TouchableOpacity
                   style={styles.loginBtn}
@@ -607,7 +588,6 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
                 </TouchableOpacity>
               </View>
             </View>
-
           </View>
           <View style={styles.imageContainer}>
             <VectorImageSvg />
@@ -639,7 +619,6 @@ const styles = StyleSheet.create({
     fontFamily: "Montserrat",
     fontSize: 32,
     marginTop: 40,
-    // marginBottom: 40,
     width: 320,
     textAlign: "center",
   },
@@ -696,11 +675,9 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     alignItems: "center",
-    marginBottom: 20
+    marginBottom: 20,
   },
-  imagePickerButton: {
-    // marginTop: 4,
-  },
+  imagePickerButton: {},
   avatar: {
     width: 96,
     height: 96,
@@ -726,8 +703,6 @@ const styles = StyleSheet.create({
   avatarOptionImage: {
     width: 48,
     height: 48,
-    // borderRadius: 28,
-    // borderWidth: 1,
     borderColor: AppColors.grey2,
   },
   loginBtnContainer: {
@@ -758,5 +733,30 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: AppColors.blue,
   },
-  field: {},
+  scrollView: {
+    height: "100%",
+  },
+  field: {
+    marginBottom: 12,
+  },
+  label: {
+    fontSize: 16,
+    marginTop: 20,
+  },
+  textInput: {
+    borderBottomWidth: 1,
+    borderBottomColor: AppColors.grey2,
+    marginTop: 6,
+    marginBottom: 12,
+    padding: 8,
+    fontSize: 16,
+    color: AppColors.primary,
+  },
+  helpers: {
+    fontSize: 12,
+    color: AppColors.grey2,
+  },
+  radioButtonContainer: {
+    marginTop: 8,
+  },
 });
