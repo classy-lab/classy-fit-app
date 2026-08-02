@@ -1,6 +1,6 @@
-// @ts-nocheck
-import React, { useState, useEffect, useRef, useContext } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useState, useRef, useContext, useCallback } from "react";
+import { Alert, Linking } from "react-native";
+import { useForm, Controller, FieldErrors } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import ImagePicker from "react-native-image-crop-picker";
 import {
@@ -8,37 +8,63 @@ import {
   Text,
   TouchableOpacity,
   TextInput,
-  Alert,
-  Linking,
   Image,
   ScrollView,
+  Keyboard,
+  TouchableWithoutFeedback,
   StyleSheet,
 } from "react-native";
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { AppColors } from "../../styles/colors";
-import { SafeAreaView } from "react-native-safe-area-context";
 import Feather from "@expo/vector-icons/Feather";
-import VectorImageSvg from "../../components/svg/VectorImageSvg";
 import { SelectList } from "react-native-dropdown-select-list";
 import { UserContext } from "../../context/UserContext";
-import HoneypotField from "../../../src/components/forms/input_fields/HoneypotField";
-import DateOfBirthField from "../../../src/components/forms/input_fields/DateOfBirthField";
-import GymList from "../../../src/components/GymList";
-import SignOut from "../../components/utils/SignOut";
+import HoneypotField from "../../components/forms/input_fields/HoneypotField";
+import PreferredContact from "../../components/forms/PreferredContact";
+import { globalStyles } from "../../styles/globalStyles";
 import {
-  findRoleOption,
+  localAvatarOptions,
   MAX_PROFILE_PIC_BYTES,
   MIN_SUBMISSION_TIME_MS,
-  normalizeRole,
-  roleData,
   schema,
   sexData,
-} from "../../../src/components/forms/ProfileScreenForm.constants";
-import { showMessage, hideMessage } from "react-native-flash-message";
+} from "../../components/forms/ProfileScreenForm.constants";
+import PinkLeafSvg from "../../assets/svg/PinkLeafSvg";
+import SignOut from "../../components/utils/SignOut";
+import { styles } from "../../styles/registerFormStyles";
+import FlashMessage, {
+  showMessage,
+  hideMessage,
+} from "react-native-flash-message";
+
+
+// ============================================================================
+// COMPONENT
+// ============================================================================
 
 const AddContactScreen = ({ navigation }: { navigation: any }) => {
+  // const { user, setUser } = useContext(UserContext);
+  const { tokens, setTokens } = useContext(UserContext);
   const [website, setWebsite] = useState("");
   const { webServer } = useContext(UserContext);
+  const { setIsLoggedIn } = useContext(UserContext);
+  const [profilePicAPIImage, setProfilePicAPIImage] = useState<string>(""); // State to hold the selected image
+  const preferredContactOptions = [
+    { key: "1", value: "Phone" },
+    { key: "2", value: "WhatsApp" },
+    { key: "3", value: "Email" },
+  ];
+  const getOptionValue = (options: any[], rawValue: any) => {
+    return options.find(
+      (item) => item.key === String(rawValue) || item.value === rawValue,
+    )?.value ?? (rawValue || "");
+  };
 
+  const handleLinkPress = () => {
+    Linking.openURL("https://cleancodeusa.com/about.html");
+  };
+
+  // console.log("UpdateContactForm contact prop:", contact);
   const selectImage = async (onChange: (value: any) => void) => {
     try {
       const profilePic = await ImagePicker.openPicker({
@@ -51,12 +77,11 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
       });
 
       const filename = (profilePic.filename || profilePic.path || "").toLowerCase();
-      const isAllowedFormat =
-        filename.endsWith(".jpg") || filename.endsWith(".jpeg") || filename.endsWith(".png");
+      const isAllowedFormat = filename.endsWith(".jpg") || filename.endsWith(".jpeg") || filename.endsWith(".png");
       const fileSize = (profilePic as any).fileSize ?? (profilePic as any).size;
 
       if (!isAllowedFormat) {
-        Alert.alert("Unsupported Format", "Please select a JPEG or PNG image.");
+        Alert.alert("Unsupported Format. Please select a JPEG or PNG image.");
         return;
       }
 
@@ -69,7 +94,7 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
         ...profilePic,
         path: profilePic.path,
         mime: profilePic.mime,
-        filename: profilePic.filename || "gallery-photo.png",
+        filename: profilePic.filename || "profilePic.jpg",
         fileSize,
       });
     } catch (e) {
@@ -77,530 +102,437 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
     }
   };
 
+  const selectLocalAvatar = (avatar: any, onChange: (value: any) => void) => {
+    const resolved = Image.resolveAssetSource(avatar.asset);
+    onChange({
+      uri: resolved.uri,
+      path: resolved.uri,
+      mime: "image/png",
+      filename: avatar.name,
+      type: "image/png",
+      isLocalAvatar: true,
+    });
+  };
+
+  // Use a ref to store the load time without triggering re-renders
   const formLoadTime = useRef(Date.now());
 
-  useEffect(() => {
-    formLoadTime.current = Date.now();
-  }, []);
-
-  const preferredContactData = [
-    { key: "1", value: "Phone", disabled: false },
-    { key: "2", value: "WhatsApp" },
-    { key: "3", value: "Email" },
-  ];
-
+  // Initialize useForm with the Yup resolver
   const {
     control,
     handleSubmit,
+    setValue,
     watch,
+    reset,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
-    shouldFocusError: true,
+    shouldFocusError: true, // Automatically moves focus and triggers internal scrolling layout
     defaultValues: {
       profilePic: undefined,
       email: "",
-      password: "",
-      confirmPassword: "",
-      role: normalizeRole("2"),
       fname: "",
       lname: "",
-      phoneNumber: "",
-      sex: "",
       company: "",
       job: "",
-      whatsappNumber: "",
-      dateOfBirth: "",
-      preferredContact: "",
-      gymId: "",
+      sex: '',
+      phoneNumber: '',
+      whatsappNumber: '',
+      preferredContact: '',
+      gymId: '',
     },
   });
 
+  // Watch profilePic to display it
   const profilePicValue = watch("profilePic");
 
-  const registerUser = async (data: any) => {
+  const createContact = async (data: any) => {
+    console.log('data: ' + JSON.stringify(data));
     const totalTimeElapsed = Date.now() - formLoadTime.current;
     const formData = new FormData();
+    const emailValue = (data?.email ?? "").trim();
+    const fnameValue = (data?.fname ?? "").trim();
+    const sexValue = getOptionValue(sexData, data?.sex);
+    const preferredContactValue = getOptionValue(preferredContactOptions, data?.preferredContact);
 
+    // 1. Honeypot check
     if (website.trim() !== "") {
       console.log("Submission failed", "Bot behavior detected.");
       return;
     }
 
+    // 2. Timestamp check
     if (totalTimeElapsed < MIN_SUBMISSION_TIME_MS) {
       console.log("Submission failed", "Form submitted too quickly.");
       return;
     }
 
+    // formData.append("uid", contact?.uid);
     formData.append("gym_id", data.gymId);
-    formData.append("email", data.email);
-    formData.append("password", data.password);
-    formData.append("data.confirmPassword", data.confirmPassword);
-    formData.append("role", normalizeRole(data.role));
-    formData.append("fname", data.fname);
+    formData.append("email", emailValue);
+    formData.append("fname", fnameValue);
     formData.append("lname", data.lname);
-    formData.append("phone", data.phoneNumber);
-    formData.append("sex", data.sex);
     formData.append("company", data.company);
     formData.append("job", data.job);
+    formData.append("sex", sexValue);
+    formData.append("phone", data.phoneNumber);
     formData.append("whatsapp", data.whatsappNumber);
-    formData.append("date_of_birth", data.dateOfBirth);
-    formData.append("preferred_contact", data.preferredContact);
-    formData.append("profilePic", {
-      uri: data.profilePic?.path || data.profilePic?.uri,
-      type: data.profilePic?.mime || data.profilePic?.type || "image/png",
-      name: data.profilePic?.filename || data.profilePic?.name || "profile-photo.png",
-    } as any);
+    formData.append("preferred_contact", preferredContactValue);
 
-    const response = await fetch(`${webServer}/api/register-contact.php`, {
-      method: "POST",
-      body: formData,
-    });
+    const profilePicPayload = data.profilePic
+      ? {
+        uri: data.profilePic?.path || data.profilePic?.uri,
+        type: data.profilePic?.mime || data.profilePic?.type || "image/png",
+        name: data.profilePic?.filename || data.profilePic?.name || "profilePic.png",
+      }
+      : profilePicAPIImage || "";
 
-    const apiResponse = await response.json();
+    formData.append("profilePic", profilePicPayload as any);
 
-    if (response.status == 200) {
-      showMessage({
-        message: "Success",
-        description: apiResponse.message || "Your action was confirmed successfully!",
-        type: "success",
-        icon: "success",
-        duration: 3000,
-        onPress: () => hideMessage(),
-      });
-    } else {
-      showMessage({
-        message: "Action Failed",
-        description: apiResponse.message || "Something went wrong.",
-        type: "danger",
-        icon: "danger",
-        autoHide: false,
-      });
+    console.log("FormData ready for fetch:", JSON.stringify(formData));
+
+    try {
+      const response = await fetch(
+        `${webServer}/api/v1/gyms/${data.gymId}/contacts`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: "Bearer " + tokens.access_token,
+          },
+          body: formData,
+        },
+      );
+
+      const rawBody = await response.text();
+      let obj: any = null;
+
+      try {
+        obj = rawBody ? JSON.parse(rawBody) : null;
+      } catch (parseError) {
+        console.log("Update contact response is not valid JSON:", parseError);
+      }
+
+      if (response.status === 200) {
+        showMessage({
+          message: obj?.message || "Contact updated successfully.",
+          type: "success",
+          autoHide: true, // prevents the message from disappearing automatically
+          onPress: () => hideMessage(), // closes the message when pressed
+        });
+      } else {
+        console.log("Update contact failed", {
+          status: response.status,
+          body: obj || rawBody,
+        });
+
+        const refreshResponse = await fetch(`${webServer} /api/refresh.php`, {
+          method: "POST",
+          body: JSON.stringify({
+            token: tokens.refresh_token,
+          }),
+        });
+
+        const refreshJson = await refreshResponse.text();
+        const refreshObj = JSON.parse(refreshJson);
+
+        if (refreshResponse.status === 200) {
+          console.log("Got new access token and refresh token");
+          setTokens({
+            ...tokens,
+            access_token: refreshObj.access_token,
+            refresh_token: refreshObj.refresh_token,
+          });
+        }
+      }
+    } catch (error) {
+      console.log("Update contact request failed", error);
     }
   };
 
-  const handleLinkPress = () => {
-    Linking.openURL("https://cleancodeusa.com/about.html");
+  const handleSubmitErrors = (formErrors: FieldErrors<any>) => {
+    console.log("Save Contact blocked by validation:", formErrors);
+  };
+
+  const handleSaveContactPress = () => {
+    console.log("Save Contact button pressed");
+    handleSubmit(createContact, handleSubmitErrors)();
   };
 
   return (
     <>
-      <SafeAreaView style={styles.container}>
-        <View style={styles.navs}>
-          <Feather
-            name="arrow-left"
-            color={AppColors.blue}
-            size={36}
-            onPress={() => {
-              navigation.goBack();
-            }}
-          />
-          <SignOut />
-        </View>
-        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-          <View style={styles.headingContainer}>
-            <Text style={styles.title}>Add Contact</Text>
-          </View>
-          <View style={styles.body}>
-            <View style={styles.fieldset}>
-              <View style={styles.field}>
-                <Controller
-                  control={control}
-                  name="profilePic"
-                  render={({ field: { onChange, value } }) => {
-                    const selectedProfilePicUri = (value as any)?.path || (value as any)?.uri || "";
-
-                    return (
-                      <View style={styles.imageContainer}>
-                        <Text style={styles.formLabel}>Profile Photo</Text>
-                        <TouchableOpacity
-                          onPress={() => selectImage(onChange)}
-                          style={styles.imagePickerButton}
-                        >
-                          {selectedProfilePicUri ? (
-                            <Image
-                              source={{ uri: selectedProfilePicUri }}
-                              style={styles.avatar}
-                              resizeMode="cover"
-                            />
-                          ) : (
-                            <Image
-                              source={require("../../assets/images/avatars/profile-img.png")}
-                              style={styles.avatar}
-                              resizeMode="cover"
-                            />
-                          )}
-                        </TouchableOpacity>
-                      </View>
-                    );
-                  }}
-                />
-                {errors.profilePic && <Text style={styles.errorText}>{errors.profilePic.message}</Text>}
-              </View>
-
-              <View style={styles.field}>
-                <Text style={styles.formLabel}>E-mail</Text>
-                <Controller
-                  control={control}
-                  name="email"
-                  render={({ field: { onChange, onBlur, value, ref } }) => (
-                    <TextInput
-                      ref={ref}
-                      style={styles.inputField}
-                      onBlur={onBlur}
-                      onChangeText={onChange}
-                      value={value}
-                      keyboardType="email-address"
-                      autoCapitalize="none"
-                    />
-                  )}
-                />
-                {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
-              </View>
-
-              <View style={styles.field}>
-                <Text style={styles.formLabel}>Password</Text>
-                <Controller
-                  control={control}
-                  name="password"
-                  render={({ field: { onChange, onBlur, value, ref } }) => (
-                    <TextInput
-                      ref={ref}
-                      style={styles.inputField}
-                      onBlur={onBlur}
-                      onChangeText={onChange}
-                      value={value}
-                      keyboardType="default"
-                      secureTextEntry
-                    />
-                  )}
-                />
-                {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
-              </View>
-
-              <View style={styles.field}>
-                <Text style={styles.formLabel}>Confirm Password</Text>
-                <Controller
-                  control={control}
-                  name="confirmPassword"
-                  render={({ field: { onChange, onBlur, value, ref } }) => (
-                    <TextInput
-                      ref={ref}
-                      style={styles.inputField}
-                      onBlur={onBlur}
-                      onChangeText={onChange}
-                      value={value}
-                      keyboardType="default"
-                      secureTextEntry
-                    />
-                  )}
-                />
-                {errors.confirmPassword && (
-                  <Text style={styles.errorText}>{errors.confirmPassword.message}</Text>
-                )}
-              </View>
-
-              <View style={styles.field}>
-                <Text style={styles.formLabel}>Role</Text>
-                <Controller
-                  control={control}
-                  name="role"
-                  render={({ field: { onChange, value, ref } }) => {
-                    const selectedRole = findRoleOption(value) || findRoleOption("2");
-
-                    return (
-                      <SelectList
-                        ref={ref}
-                        setSelected={(selectedValue) => onChange(normalizeRole(selectedValue))}
-                        data={roleData}
-                        save="value"
-                        placeholder="Select Category"
-                        defaultOption={
-                          selectedRole
-                            ? { key: selectedRole.key, value: selectedRole.value }
-                            : undefined
-                        }
-                        boxStyles={{
-                          borderColor: AppColors.grey,
-                          borderWidth: 1,
-                          paddingHorizontal: 8,
-                        }}
-                        dropdownStyles={{
-                          borderColor: AppColors.grey2,
-                          borderWidth: 1,
-                          marginTop: 8,
-                          backgroundColor: "white",
-                        }}
-                      />
-                    );
-                  }}
-                />
-                {errors.role && <Text style={styles.errorText}>{errors.role.message}</Text>}
-              </View>
-
-              <View style={styles.field}>
-                <Text style={styles.formLabel}>First Name</Text>
-                <Controller
-                  control={control}
-                  name="fname"
-                  render={({ field: { onChange, onBlur, value, ref } }) => (
-                    <TextInput
-                      ref={ref}
-                      style={styles.inputField}
-                      onBlur={onBlur}
-                      onChangeText={onChange}
-                      value={value}
-                      keyboardType="default"
-                      autoCapitalize="none"
-                    />
-                  )}
-                />
-                {errors.fname && <Text style={styles.errorText}>{errors.fname.message}</Text>}
-              </View>
-
-              <View style={styles.field}>
-                <Text style={styles.formLabel}>Last Name</Text>
-                <Controller
-                  control={control}
-                  name="lname"
-                  render={({ field: { onChange, onBlur, value, ref } }) => (
-                    <TextInput
-                      ref={ref}
-                      style={styles.inputField}
-                      onBlur={onBlur}
-                      onChangeText={onChange}
-                      value={value}
-                      keyboardType="default"
-                      autoCapitalize="none"
-                    />
-                  )}
-                />
-                {errors.lname && <Text style={styles.errorText}>{errors.lname.message}</Text>}
-              </View>
-
-              <View style={styles.field}>
-                <Text style={styles.formLabel}>Phone Number</Text>
-                <Controller
-                  control={control}
-                  name="phoneNumber"
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <TextInput
-                      style={styles.inputField}
-                      onBlur={onBlur}
-                      onChangeText={onChange}
-                      value={value}
-                      keyboardType="default"
-                      autoCapitalize="none"
-                      placeholder="518-555-5555"
-                    />
-                  )}
-                />
-                {errors.phoneNumber && <Text style={styles.errorText}>{errors.phoneNumber.message}</Text>}
-              </View>
-
-              <View style={styles.field}>
-                <Text style={styles.formLabel}>Sex</Text>
-                <Controller
-                  name="sex"
-                  control={control}
-                  render={({ field: { onChange, value, ref } }) => {
-                    const selectedSex = sexData.find(
-                      (item) => item.key === String(value) || item.value === value,
-                    );
-
-                    return (
-                      <SelectList
-                        ref={ref}
-                        setSelected={(selectedValue) => onChange(selectedValue)}
-                        data={sexData}
-                        save="value"
-                        defaultOption={
-                          selectedSex
-                            ? { key: selectedSex.key, value: selectedSex.value }
-                            : undefined
-                        }
-                        placeholder="Select Category"
-                        boxStyles={{
-                          borderColor: AppColors.grey,
-                          borderWidth: 1,
-                          paddingHorizontal: 8,
-                        }}
-                        dropdownStyles={{
-                          borderColor: AppColors.grey2,
-                          borderWidth: 1,
-                          marginTop: 8,
-                          backgroundColor: "white",
-                        }}
-                      />
-                    );
-                  }}
-                />
-                {errors.sex && <Text style={styles.errorText}>{errors.sex.message}</Text>}
-              </View>
-
-              <View style={styles.field}>
-                <Text style={styles.formLabel}>Company</Text>
-                <Controller
-                  control={control}
-                  name="company"
-                  render={({ field: { onChange, onBlur, value, ref } }) => (
-                    <TextInput
-                      ref={ref}
-                      style={styles.inputField}
-                      onBlur={onBlur}
-                      onChangeText={onChange}
-                      value={value}
-                      keyboardType="default"
-                      autoCapitalize="words"
-                    />
-                  )}
-                />
-                {errors.company && <Text style={styles.errorText}>{errors.company.message}</Text>}
-              </View>
-
-              <View style={styles.field}>
-                <Text style={styles.formLabel}>Job</Text>
-                <Controller
-                  control={control}
-                  name="job"
-                  render={({ field: { onChange, onBlur, value, ref } }) => (
-                    <TextInput
-                      ref={ref}
-                      style={styles.inputField}
-                      onBlur={onBlur}
-                      onChangeText={onChange}
-                      value={value}
-                      keyboardType="default"
-                      autoCapitalize="words"
-                    />
-                  )}
-                />
-                {errors.job && <Text style={styles.errorText}>{errors.job.message}</Text>}
-              </View>
-
-              <HoneypotField value={website} onChangeText={setWebsite} />
-
-              <View style={styles.field}>
-                <Text style={styles.formLabel}>WhatsApp Number</Text>
-                <Controller
-                  control={control}
-                  name="whatsappNumber"
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <TextInput
-                      style={styles.inputField}
-                      onBlur={onBlur}
-                      onChangeText={onChange}
-                      value={value}
-                      keyboardType="default"
-                      placeholder="518-555-5555"
-                      autoCapitalize="none"
-                    />
-                  )}
-                />
-                {errors.whatsappNumber && (
-                  <Text style={styles.errorText}>{errors.whatsappNumber.message}</Text>
-                )}
-              </View>
-
-              <View style={styles.field}>
-                <Text style={styles.formLabel}>Date of Birth</Text>
-                <Controller
-                  control={control}
-                  name="dateOfBirth"
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <DateOfBirthField
-                      value={value}
-                      onChange={onChange}
-                      onBlur={onBlur}
-                    />
-                  )}
-                />
-                {errors.dateOfBirth && (
-                  <Text style={styles.errorText}>{errors.dateOfBirth.message}</Text>
-                )}
-              </View>
-
-              <View style={styles.field}>
-                <Text style={styles.formLabel}>Preferred Contact</Text>
-                <Controller
-                  control={control}
-                  name="preferredContact"
-                  render={({ field: { onChange, value } }) => (
-                    <SelectList
-                      setSelected={(selectedValue) => onChange(selectedValue)}
-                      data={preferredContactData}
-                      save="value"
-                      placeholder="Select Category"
-                      boxStyles={{
-                        borderColor: AppColors.grey,
-                        borderWidth: 1,
-                        paddingHorizontal: 8,
-                      }}
-                      dropdownStyles={{
-                        borderColor: AppColors.grey2,
-                        borderWidth: 1,
-                        marginTop: 8,
-                        backgroundColor: "white",
-                      }}
-                    />
-                  )}
-                />
-                {errors.preferredContact && (
-                  <Text style={styles.errorText}>{errors.preferredContact.message}</Text>
-                )}
-              </View>
-
-              <View style={styles.field}>
-                <Text style={styles.formLabel}>Gym Location / Fitness Center</Text>
-                <Controller
-                  control={control}
-                  name="gymId"
-                  render={({ field: { onChange, ref } }) => (
-                    <GymList
-                      ref={ref}
-                      onSelectValue={onChange}
-                    />
-                  )}
-                />
-                {errors.gymId && <Text style={styles.errorText}>{errors.gymId.message}</Text>}
-              </View>
-
-              <Text style={styles.agreement}>
-                By using Classy Fit, you agree and consent to our:{" "}
-                <Text style={styles.linkText} onPress={handleLinkPress}>
-                  Terms of Service -{" "}
-                  <Text style={styles.linkText} onPress={handleLinkPress}>
-                    Cookie Policy -{" "}
-                  </Text>
-                  <Text style={styles.linkText} onPress={handleLinkPress}>
-                    Privacy Policy
-                  </Text>
-                </Text>
-              </Text>
-
-              <View style={styles.loginBtnContainer}>
-                <TouchableOpacity
-                  style={styles.loginBtn}
-                  title="loginSubmit"
-                  onPress={handleSubmit(registerUser)}
-                >
-                  <Text style={styles.loginBtnText}>Create Account</Text>
-                </TouchableOpacity>
-              </View>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <SafeAreaView style={layoutStyles.container}>
+          <View style={layoutStyles.navs}>
+            <Feather
+              name="arrow-left"
+              color={AppColors.blue}
+              size={36}
+              onPress={() => {
+                navigation.goBack();
+              }}
+            />
+            <View style={layoutStyles.rightActions}>
+              <SignOut />
             </View>
           </View>
-          <View style={styles.imageContainer}>
-            <VectorImageSvg />
-          </View>
-        </ScrollView>
-      </SafeAreaView>
+          <ScrollView style={layoutStyles.scrollView} showsVerticalScrollIndicator={false}>
+            <View style={layoutStyles.headingContainer}>
+              <Text style={layoutStyles.title}>Add Contact</Text>
+              <PinkLeafSvg style={layoutStyles.pinkLeaf} />
+            </View>
+            <View style={layoutStyles.body}>
+              <View style={layoutStyles.fieldset}>
+                <View style={layoutStyles.field}>
+                  <Controller
+                    control={control}
+                    name="profilePic"
+                    render={({ field: { onChange, value } }) => {
+                      const selectedProfilePicUri = (value as any)?.path || (value as any)?.uri || "";
+
+                      return (
+                        <View style={styles.imageContainer}>
+                          <TouchableOpacity onPress={() => selectImage(onChange)} style={styles.imagePickerButton}>
+                            {selectedProfilePicUri ? (
+                              <Image source={{ uri: selectedProfilePicUri }} style={styles.avatar} resizeMode="cover" />
+                            ) : (
+                              <Image source={require("../../assets/images/avatars/profile-img.png")} style={styles.avatar} resizeMode="cover" />
+                            )}
+                          </TouchableOpacity>
+                          <Text style={styles.helperText}>Choose a photo from your gallery.</Text>
+                          <Text style={styles.helperText}>Max size: 5 MB. Allowed formats: JPG, JPEG, PNG.</Text>
+                        </View>
+                      );
+                    }}
+                  />
+                  {errors.profilePic && <Text style={styles.errorText}>{errors.profilePic.message}</Text>}
+                </View>
+
+                <View style={layoutStyles.field}>
+                  <Text style={styles.formLabel}>First Name</Text>
+                  <Controller
+                    control={control}
+                    name="fname"
+                    render={({ field: { onChange, onBlur, value, ref } }) => (
+                      <TextInput
+                        ref={ref}
+                        style={styles.inputField}
+                        onBlur={onBlur}
+                        onChangeText={onChange}
+                        value={value ?? ""}
+                        keyboardType="default"
+                        autoCapitalize="none"
+                      />
+                    )}
+                  />
+                  {errors.fname && <Text style={styles.errorText}>{errors.fname.message}</Text>}
+                </View>
+
+                <View style={layoutStyles.field}>
+                  <Text style={styles.formLabel}>Last Name</Text>
+                  <Controller
+                    control={control}
+                    name="lname"
+                    render={({ field: { onChange, onBlur, value, ref } }) => (
+                      <TextInput
+                        ref={ref}
+                        style={styles.inputField}
+                        onBlur={onBlur}
+                        onChangeText={onChange}
+                        value={value}
+                        keyboardType="default"
+                        autoCapitalize="none"
+                      />
+                    )}
+                  />
+                  {errors.lname && <Text style={styles.errorText}>{errors.lname.message}</Text>}
+                </View>
+
+                <View style={layoutStyles.field}>
+                  <Text style={styles.formLabel}>Phone Number</Text>
+                  <Controller
+                    control={control}
+                    name="phoneNumber"
+                    render={({ field: { onChange, onBlur, value, ref } }) => (
+                      <TextInput
+                        ref={ref}
+                        style={styles.inputField}
+                        onBlur={onBlur}
+                        onChangeText={onChange}
+                        value={value}
+                        keyboardType="default"
+                        autoCapitalize="none"
+                        placeholder="518-555-5555"
+                      />
+                    )}
+                  />
+                  {errors.phoneNumber && <Text style={styles.errorText}>{errors.phoneNumber.message}</Text>}
+                </View>
+
+                <View style={layoutStyles.field}>
+                  <Text style={styles.formLabel}>Sex</Text>
+                  <Controller
+                    name="sex"
+                    control={control}
+                    render={({ field: { onChange, value } }) => {
+                      const selectedSex = sexData.find(
+                        (item) => item.key === String(value) || item.value === value,
+                      );
+
+                      return (
+                        <SelectList
+                          setSelected={(selectedValue) => onChange(selectedValue)}
+                          data={sexData}
+                          save="value"
+                          defaultOption={
+                            selectedSex
+                              ? { key: selectedSex.key, value: selectedSex.value }
+                              : undefined
+                          }
+                          placeholder="Select Category"
+                          boxStyles={{
+                            borderColor: AppColors.grey,
+                            borderWidth: 1,
+                            paddingHorizontal: 8,
+                          }}
+                          dropdownStyles={{
+                            borderColor: AppColors.grey2,
+                            borderWidth: 1,
+                            marginTop: 8,
+                            backgroundColor: "white",
+                          }}
+                        />
+                      );
+                    }}
+                  />
+                  {errors.sex && <Text style={styles.errorText}>{errors.sex.message}</Text>}
+                </View>
+
+                <View style={layoutStyles.field}>
+                  <Text style={styles.formLabel}>Company</Text>
+                  <Controller
+                    control={control}
+                    name="company"
+                    render={({ field: { onChange, onBlur, value, ref } }) => (
+                      <TextInput
+                        ref={ref}
+                        style={styles.inputField}
+                        onBlur={onBlur}
+                        onChangeText={onChange}
+                        value={value}
+                        keyboardType="default"
+                        autoCapitalize="words"
+                      />
+                    )}
+                  />
+                  {errors.company && <Text style={styles.errorText}>{errors.company.message}</Text>}
+                </View>
+
+                <View style={layoutStyles.field}>
+                  <Text style={styles.formLabel}>Job</Text>
+                  <Controller
+                    control={control}
+                    name="job"
+                    render={({ field: { onChange, onBlur, value, ref } }) => (
+                      <TextInput
+                        ref={ref}
+                        style={styles.inputField}
+                        onBlur={onBlur}
+                        onChangeText={onChange}
+                        value={value}
+                        keyboardType="default"
+                        autoCapitalize="words"
+                      />
+                    )}
+                  />
+                  {errors.job && <Text style={styles.errorText}>{errors.job.message}</Text>}
+                </View>
+
+                <HoneypotField value={website} onChangeText={setWebsite} />
+
+                <View style={layoutStyles.field}>
+                  <Text style={styles.formLabel}>WhatsApp Number</Text>
+                  <Controller
+                    control={control}
+                    name="whatsappNumber"
+                    render={({ field: { onChange, onBlur, value } }) => (
+                      <TextInput
+                        style={styles.inputField}
+                        onBlur={onBlur}
+                        onChangeText={onChange}
+                        value={value}
+                        keyboardType="default"
+                        placeholder="518-555-5555"
+                        autoCapitalize="none"
+                      />
+                    )}
+                  />
+                  {errors.whatsappNumber && <Text style={styles.errorText}>{errors.whatsappNumber.message}</Text>}
+                </View>
+
+                <View style={layoutStyles.field}>
+                  <Text style={styles.formLabel}>E-mail</Text>
+                  <Controller
+                    control={control}
+                    name="email"
+                    render={({ field: { onChange, onBlur, value } }) => (
+                      <TextInput
+                        style={styles.inputField}
+                        onBlur={onBlur}
+                        onChangeText={onChange}
+                        value={value ?? ""}
+                        keyboardType="email-address"
+                        autoCapitalize="none"
+                      />
+                    )}
+                  />
+                  {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
+                </View>
+
+                <View style={layoutStyles.field}>
+                  <Text style={styles.formLabel}>Preferred Contact</Text>
+                  <Controller
+                    control={control}
+                    name="preferredContact"
+                    render={({ field: { onChange, value } }) => (
+                      <PreferredContact onSelectValue={onChange} value={value} />
+                    )}
+                  />
+                  {errors.preferredContact && <Text style={styles.errorText}>{errors.preferredContact.message}</Text>}
+                </View>
+
+                <Text style={styles.agreement}>
+                  By using Classy Fit, you agree and consent to our:{" "}
+                  <Text style={styles.linkText} onPress={handleLinkPress}>
+                    Terms of Service -{" "}
+                    <Text style={styles.linkText} onPress={handleLinkPress}>
+                      Cookie Policy -{" "}
+                    </Text>
+                    <Text style={styles.linkText} onPress={handleLinkPress}>
+                      Privacy Policy
+                    </Text>
+                  </Text>
+                </Text>
+
+                <View style={styles.loginBtnContainer}>
+                  <TouchableOpacity
+                    style={styles.loginBtn}
+                    onPress={handleSaveContactPress}
+                  >
+                    <Text style={styles.loginBtnText}>Create Account</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </ScrollView>
+        </SafeAreaView>
+      </TouchableWithoutFeedback>
     </>
   );
 };
 
 export default AddContactScreen;
 
-const styles = StyleSheet.create({
+const layoutStyles = StyleSheet.create({
   container: {
     backgroundColor: AppColors.white,
     flex: 1,
@@ -610,153 +542,41 @@ const styles = StyleSheet.create({
   navs: {
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "center",
+  },
+  rightActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    columnGap: 10,
   },
   headingContainer: {
     alignItems: "center",
+    marginTop: 20,
+    marginBottom: 20,
   },
   title: {
     color: AppColors.blue,
-    fontFamily: "Montserrat",
     fontSize: 32,
-    marginTop: 40,
+    marginTop: 20,
+    marginBottom: 40,
     width: 320,
     textAlign: "center",
   },
   pinkLeaf: {
-    position: "relative",
+    position: "absolute",
     zIndex: -1,
-    top: -68,
-    right: -40,
+    right: 96,
   },
   body: {
     flex: 1,
   },
-  bodyText: {
-    fontSize: 16,
-    fontFamily: "Montserrat",
-    lineHeight: 24,
-    color: AppColors.primary,
+  scrollView: {
+    height: "100%",
   },
   fieldset: {
     marginBottom: 32,
   },
-  formLabel: {
-    fontSize: 12,
-    marginTop: 16,
-    marginBottom: 4,
-  },
-  inputField: {
-    marginTop: 5,
-    borderWidth: 1,
-    paddingLeft: 8,
-    borderColor: AppColors.textInputBorderColor,
-    height: 48,
-    borderRadius: 8,
-    backgroundColor: AppColors.grey,
-  },
-  inputButton: {
-    marginTop: 5,
-    borderWidth: 1,
-    paddingHorizontal: 8,
-    borderColor: AppColors.textInputBorderColor,
-    height: 48,
-    borderRadius: 8,
-    backgroundColor: AppColors.grey,
-    justifyContent: "center",
-  },
-  inputButtonText: {
-    color: AppColors.primary,
-  },
-  inputButtonPlaceholder: {
-    color: AppColors.grey3,
-  },
-  errorText: {
-    color: AppColors.red,
-  },
-  imageContainer: {
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  imagePickerButton: {},
-  avatar: {
-    width: 96,
-    height: 96,
-    borderRadius: 20,
-    borderColor: AppColors.grey2,
-  },
-  helperText: {
-    fontSize: 12,
-    color: AppColors.grey2,
-    textAlign: "center",
-    marginTop: 8,
-    marginBottom: 8,
-  },
-  avatarGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "center",
-    gap: 8,
-  },
-  avatarOption: {
-    margin: 1,
-  },
-  avatarOptionImage: {
-    width: 48,
-    height: 48,
-    borderColor: AppColors.grey2,
-  },
-  loginBtnContainer: {
-    alignItems: "center",
-    marginTop: 16,
-  },
-  loginBtn: {
-    backgroundColor: AppColors.blue,
-    borderRadius: 40,
-    width: 250,
-    height: 50,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  loginBtnText: {
-    color: AppColors.white,
-    fontSize: 14,
-  },
-  selectList: {
-    marginBottom: 80,
-  },
-  agreement: {
-    fontSize: 12,
-    marginTop: 20,
-    lineHeight: 24,
-  },
-  linkText: {
-    fontSize: 12,
-    color: AppColors.blue,
-  },
-  scrollView: {
-    height: "100%",
-  },
   field: {
-    marginBottom: 12,
-  },
-  label: {
-    fontSize: 16,
-    marginTop: 20,
-  },
-  textInput: {
-    borderBottomWidth: 1,
-    borderBottomColor: AppColors.grey2,
-    marginTop: 6,
-    marginBottom: 12,
-    padding: 8,
-    fontSize: 16,
-    color: AppColors.primary,
-  },
-  helpers: {
-    fontSize: 12,
-    color: AppColors.grey2,
-  },
-  radioButtonContainer: {
-    marginTop: 8,
+    flexGrow: 1,
   },
 });
