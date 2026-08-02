@@ -49,6 +49,8 @@ export const schema = yup.object().shape({
   role: yup.string(),
   fname: yup.string().required("First name is required").min(2).max(20),
   lname: yup.string().required("Last name is required").min(2).max(20),
+  company: yup.string().nullable().notRequired(),
+  job: yup.string().nullable().notRequired(),
   dateOfBirth: yup
     .string()
     .matches(
