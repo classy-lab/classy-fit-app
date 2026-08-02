@@ -11,7 +11,6 @@ import {
   Image,
   ScrollView,
   Keyboard,
-  TouchableWithoutFeedback,
   StyleSheet,
 } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -260,28 +259,33 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
 
   return (
     <>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <SafeAreaView style={layoutStyles.container}>
-          <View style={layoutStyles.navs}>
-            <Feather
-              name="arrow-left"
-              color={AppColors.blue}
-              size={36}
-              onPress={() => {
-                navigation.goBack();
-              }}
-            />
-            <View style={layoutStyles.rightActions}>
-              <SignOut />
-            </View>
+      <SafeAreaView style={layoutStyles.container}>
+        <View style={layoutStyles.navs}>
+          <Feather
+            name="arrow-left"
+            color={AppColors.blue}
+            size={36}
+            onPress={() => {
+              navigation.goBack();
+            }}
+          />
+          <View style={layoutStyles.rightActions}>
+            <SignOut />
           </View>
-          <ScrollView style={layoutStyles.scrollView} showsVerticalScrollIndicator={false}>
-            <View style={layoutStyles.headingContainer}>
-              <Text style={layoutStyles.title}>Add Contact</Text>
-              <PinkLeafSvg style={layoutStyles.pinkLeaf} />
-            </View>
-            <View style={layoutStyles.body}>
-              <View style={layoutStyles.fieldset}>
+        </View>
+        <ScrollView
+          style={layoutStyles.scrollView}
+          contentContainerStyle={layoutStyles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+        >
+          <View style={layoutStyles.headingContainer}>
+            <Text style={layoutStyles.title}>Add Contact</Text>
+            <PinkLeafSvg style={layoutStyles.pinkLeaf} />
+          </View>
+          <View style={layoutStyles.body}>
+            <View style={layoutStyles.fieldset}>
                 <View style={layoutStyles.field}>
                   <Controller
                     control={control}
@@ -523,9 +527,8 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
                 </View>
               </View>
             </View>
-          </ScrollView>
-        </SafeAreaView>
-      </TouchableWithoutFeedback>
+        </ScrollView>
+      </SafeAreaView>
     </>
   );
 };
@@ -571,12 +574,15 @@ const layoutStyles = StyleSheet.create({
     flex: 1,
   },
   scrollView: {
-    height: "100%",
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 32,
   },
   fieldset: {
     marginBottom: 32,
   },
   field: {
-    flexGrow: 1,
+    marginBottom: 12,
   },
 });
