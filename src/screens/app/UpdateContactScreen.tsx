@@ -17,6 +17,7 @@ import VectorImageSvg from "../../components/svg/VectorImageSvg";
 import SignOut from "../../components/utils/SignOut";
 import { UserContext } from "../../context/UserContext";
 import { showMessage } from "react-native-flash-message";
+import UpdateContactForm from "../../components/forms/UpdateContactForm";
 
 type FormValues = {
   fname: string;
@@ -44,7 +45,8 @@ const UpdateContactScreen = ({ navigation }: { navigation: any }) => {
   });
 
   useEffect(() => {
-    console.log(`${webServer}/api/v1/contacts/${contact.uid}`);
+    // console.log(`${webServer}/api/v1/contacts/${contact.uid}`);
+    // console.log("Contact Data:", contact);
     const fetchContactData = async ({ tokens, webServer, setTokens }) => {
       const response = await fetch(`${webServer}/api/v1/contacts/${contact.uid}`, {
         headers: {
@@ -54,7 +56,7 @@ const UpdateContactScreen = ({ navigation }: { navigation: any }) => {
 
       const json = await response.text();
       const obj = JSON.parse(json);
-      console.log("Fetched contact data:", obj);
+      // console.log("Fetched contact data:", obj);
     }
 
 
@@ -143,111 +145,20 @@ const UpdateContactScreen = ({ navigation }: { navigation: any }) => {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.headingContainer}>
-            <Text style={styles.title}>
-              {contact?.fname || "Contact"} {contact?.lname || ""}
-            </Text>
-            <Text style={styles.subHead}>Update Contact</Text>
+            <View style={styles.imagePickerButton}>
+
+            </View>
+            <View style={styles.contactInfo}>
+              <Text style={styles.title}>
+                {contact?.fname || "Contact"} {contact?.lname || ""}
+              </Text>
+              <Text style={styles.subHead}>
+                Update Contact
+              </Text>
+            </View>
           </View>
           <View style={styles.body}>
-            <View style={styles.field}>
-              <Text style={styles.formLabel}>First Name</Text>
-              <Controller
-                control={control}
-                name="fname"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput
-                    style={styles.inputField}
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                    keyboardType="default"
-                    autoCapitalize="words"
-                  />
-                )}
-              />
-            </View>
-
-            <View style={styles.field}>
-              <Text style={styles.formLabel}>Last Name</Text>
-              <Controller
-                control={control}
-                name="lname"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput
-                    style={styles.inputField}
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                    keyboardType="default"
-                    autoCapitalize="words"
-                  />
-                )}
-              />
-            </View>
-
-            <View style={styles.field}>
-              <Text style={styles.formLabel}>E-mail</Text>
-              <Controller
-                control={control}
-                name="email"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput
-                    style={styles.inputField}
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                  />
-                )}
-              />
-            </View>
-
-            <View style={styles.field}>
-              <Text style={styles.formLabel}>Phone Number</Text>
-              <Controller
-                control={control}
-                name="phone"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput
-                    style={styles.inputField}
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                    keyboardType="phone-pad"
-                    autoCapitalize="none"
-                  />
-                )}
-              />
-            </View>
-
-            <View style={styles.field}>
-              <Text style={styles.formLabel}>WhatsApp Number</Text>
-              <Controller
-                control={control}
-                name="whatsapp"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput
-                    style={styles.inputField}
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                    keyboardType="phone-pad"
-                    autoCapitalize="none"
-                  />
-                )}
-              />
-            </View>
-
-            {(errors.fname || errors.lname || errors.email || errors.phone || errors.whatsapp) && (
-              <Text style={styles.errorText}>Please fix form errors and try again.</Text>
-            )}
-
-            <View style={styles.buttonRow}>
-              <TouchableOpacity style={styles.saveBtn} onPress={handleSubmit(onSubmit)}>
-                <Text style={styles.saveBtnText}>Save Changes</Text>
-              </TouchableOpacity>
-            </View>
+            <UpdateContactForm navigation={navigation} contact={contact} />
           </View>
           <View style={styles.imageContainer}>
             <VectorImageSvg />
@@ -287,6 +198,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     lineHeight: 24,
     marginBottom: 8,
+    textAlign: "center",
   },
   body: {
     paddingLeft: 24,
