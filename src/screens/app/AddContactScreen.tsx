@@ -286,247 +286,247 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
           </View>
           <View style={layoutStyles.body}>
             <View style={layoutStyles.fieldset}>
-                <View style={layoutStyles.field}>
-                  <Controller
-                    control={control}
-                    name="profilePic"
-                    render={({ field: { onChange, value } }) => {
-                      const selectedProfilePicUri = (value as any)?.path || (value as any)?.uri || "";
+              <View style={layoutStyles.field}>
+                <Controller
+                  control={control}
+                  name="profilePic"
+                  render={({ field: { onChange, value } }) => {
+                    const selectedProfilePicUri = (value as any)?.path || (value as any)?.uri || "";
 
-                      return (
-                        <View style={styles.imageContainer}>
-                          <TouchableOpacity onPress={() => selectImage(onChange)} style={styles.imagePickerButton}>
-                            {selectedProfilePicUri ? (
-                              <Image source={{ uri: selectedProfilePicUri }} style={styles.avatar} resizeMode="cover" />
-                            ) : (
-                              <Image source={require("../../assets/images/avatars/profile-img.png")} style={styles.avatar} resizeMode="cover" />
-                            )}
-                          </TouchableOpacity>
-                          <Text style={styles.helperText}>Choose a photo from your gallery.</Text>
-                          <Text style={styles.helperText}>Max size: 5 MB. Allowed formats: JPG, JPEG, PNG.</Text>
-                        </View>
-                      );
-                    }}
-                  />
-                  {errors.profilePic && <Text style={styles.errorText}>{errors.profilePic.message}</Text>}
-                </View>
+                    return (
+                      <View style={styles.imageContainer}>
+                        <TouchableOpacity onPress={() => selectImage(onChange)} style={styles.imagePickerButton}>
+                          {selectedProfilePicUri ? (
+                            <Image source={{ uri: selectedProfilePicUri }} style={styles.avatar} resizeMode="cover" />
+                          ) : (
+                            <Image source={require("../../assets/images/avatars/profile-img.png")} style={styles.avatar} resizeMode="cover" />
+                          )}
+                        </TouchableOpacity>
+                        <Text style={styles.helperText}>Choose a photo from your gallery.</Text>
+                        <Text style={styles.helperText}>Max size: 5 MB. Allowed formats: JPG, JPEG, PNG.</Text>
+                      </View>
+                    );
+                  }}
+                />
+                {errors.profilePic && <Text style={styles.errorText}>{errors.profilePic.message}</Text>}
+              </View>
 
-                <View style={layoutStyles.field}>
-                  <Text style={styles.formLabel}>First Name</Text>
-                  <Controller
-                    control={control}
-                    name="fname"
-                    render={({ field: { onChange, onBlur, value, ref } }) => (
-                      <TextInput
-                        ref={ref}
-                        style={styles.inputField}
-                        onBlur={onBlur}
-                        onChangeText={onChange}
-                        value={value ?? ""}
-                        keyboardType="default"
-                        autoCapitalize="none"
+              <View style={layoutStyles.field}>
+                <Text style={styles.formLabel}>First Name</Text>
+                <Controller
+                  control={control}
+                  name="fname"
+                  render={({ field: { onChange, onBlur, value, ref } }) => (
+                    <TextInput
+                      ref={ref}
+                      style={styles.inputField}
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value ?? ""}
+                      keyboardType="default"
+                      autoCapitalize="none"
+                    />
+                  )}
+                />
+                {errors.fname && <Text style={styles.errorText}>{errors.fname.message}</Text>}
+              </View>
+
+              <View style={layoutStyles.field}>
+                <Text style={styles.formLabel}>Last Name</Text>
+                <Controller
+                  control={control}
+                  name="lname"
+                  render={({ field: { onChange, onBlur, value, ref } }) => (
+                    <TextInput
+                      ref={ref}
+                      style={styles.inputField}
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                      keyboardType="default"
+                      autoCapitalize="none"
+                    />
+                  )}
+                />
+                {errors.lname && <Text style={styles.errorText}>{errors.lname.message}</Text>}
+              </View>
+
+              <View style={layoutStyles.field}>
+                <Text style={styles.formLabel}>Phone Number</Text>
+                <Controller
+                  control={control}
+                  name="phoneNumber"
+                  render={({ field: { onChange, onBlur, value, ref } }) => (
+                    <TextInput
+                      ref={ref}
+                      style={styles.inputField}
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                      keyboardType="default"
+                      autoCapitalize="none"
+                      placeholder="518-555-5555"
+                    />
+                  )}
+                />
+                {errors.phoneNumber && <Text style={styles.errorText}>{errors.phoneNumber.message}</Text>}
+              </View>
+
+              <View style={layoutStyles.field}>
+                <Text style={styles.formLabel}>Sex</Text>
+                <Controller
+                  name="sex"
+                  control={control}
+                  render={({ field: { onChange, value } }) => {
+                    const selectedSex = sexData.find(
+                      (item) => item.key === String(value) || item.value === value,
+                    );
+
+                    return (
+                      <SelectList
+                        setSelected={(selectedValue) => onChange(selectedValue)}
+                        data={sexData}
+                        save="value"
+                        defaultOption={
+                          selectedSex
+                            ? { key: selectedSex.key, value: selectedSex.value }
+                            : undefined
+                        }
+                        placeholder="Select Category"
+                        boxStyles={{
+                          borderColor: AppColors.grey,
+                          borderWidth: 1,
+                          paddingHorizontal: 8,
+                        }}
+                        dropdownStyles={{
+                          borderColor: AppColors.grey2,
+                          borderWidth: 1,
+                          marginTop: 8,
+                          backgroundColor: "white",
+                        }}
                       />
-                    )}
-                  />
-                  {errors.fname && <Text style={styles.errorText}>{errors.fname.message}</Text>}
-                </View>
+                    );
+                  }}
+                />
+                {errors.sex && <Text style={styles.errorText}>{errors.sex.message}</Text>}
+              </View>
 
-                <View style={layoutStyles.field}>
-                  <Text style={styles.formLabel}>Last Name</Text>
-                  <Controller
-                    control={control}
-                    name="lname"
-                    render={({ field: { onChange, onBlur, value, ref } }) => (
-                      <TextInput
-                        ref={ref}
-                        style={styles.inputField}
-                        onBlur={onBlur}
-                        onChangeText={onChange}
-                        value={value}
-                        keyboardType="default"
-                        autoCapitalize="none"
-                      />
-                    )}
-                  />
-                  {errors.lname && <Text style={styles.errorText}>{errors.lname.message}</Text>}
-                </View>
+              <View style={layoutStyles.field}>
+                <Text style={styles.formLabel}>Company</Text>
+                <Controller
+                  control={control}
+                  name="company"
+                  render={({ field: { onChange, onBlur, value, ref } }) => (
+                    <TextInput
+                      ref={ref}
+                      style={styles.inputField}
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                      keyboardType="default"
+                      autoCapitalize="words"
+                    />
+                  )}
+                />
+                {errors.company && <Text style={styles.errorText}>{errors.company.message}</Text>}
+              </View>
 
-                <View style={layoutStyles.field}>
-                  <Text style={styles.formLabel}>Phone Number</Text>
-                  <Controller
-                    control={control}
-                    name="phoneNumber"
-                    render={({ field: { onChange, onBlur, value, ref } }) => (
-                      <TextInput
-                        ref={ref}
-                        style={styles.inputField}
-                        onBlur={onBlur}
-                        onChangeText={onChange}
-                        value={value}
-                        keyboardType="default"
-                        autoCapitalize="none"
-                        placeholder="518-555-5555"
-                      />
-                    )}
-                  />
-                  {errors.phoneNumber && <Text style={styles.errorText}>{errors.phoneNumber.message}</Text>}
-                </View>
+              <View style={layoutStyles.field}>
+                <Text style={styles.formLabel}>Job</Text>
+                <Controller
+                  control={control}
+                  name="job"
+                  render={({ field: { onChange, onBlur, value, ref } }) => (
+                    <TextInput
+                      ref={ref}
+                      style={styles.inputField}
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                      keyboardType="default"
+                      autoCapitalize="words"
+                    />
+                  )}
+                />
+                {errors.job && <Text style={styles.errorText}>{errors.job.message}</Text>}
+              </View>
 
-                <View style={layoutStyles.field}>
-                  <Text style={styles.formLabel}>Sex</Text>
-                  <Controller
-                    name="sex"
-                    control={control}
-                    render={({ field: { onChange, value } }) => {
-                      const selectedSex = sexData.find(
-                        (item) => item.key === String(value) || item.value === value,
-                      );
+              <HoneypotField value={website} onChangeText={setWebsite} />
 
-                      return (
-                        <SelectList
-                          setSelected={(selectedValue) => onChange(selectedValue)}
-                          data={sexData}
-                          save="value"
-                          defaultOption={
-                            selectedSex
-                              ? { key: selectedSex.key, value: selectedSex.value }
-                              : undefined
-                          }
-                          placeholder="Select Category"
-                          boxStyles={{
-                            borderColor: AppColors.grey,
-                            borderWidth: 1,
-                            paddingHorizontal: 8,
-                          }}
-                          dropdownStyles={{
-                            borderColor: AppColors.grey2,
-                            borderWidth: 1,
-                            marginTop: 8,
-                            backgroundColor: "white",
-                          }}
-                        />
-                      );
-                    }}
-                  />
-                  {errors.sex && <Text style={styles.errorText}>{errors.sex.message}</Text>}
-                </View>
+              <View style={layoutStyles.field}>
+                <Text style={styles.formLabel}>WhatsApp Number</Text>
+                <Controller
+                  control={control}
+                  name="whatsappNumber"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                      style={styles.inputField}
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                      keyboardType="default"
+                      placeholder="518-555-5555"
+                      autoCapitalize="none"
+                    />
+                  )}
+                />
+                {errors.whatsappNumber && <Text style={styles.errorText}>{errors.whatsappNumber.message}</Text>}
+              </View>
 
-                <View style={layoutStyles.field}>
-                  <Text style={styles.formLabel}>Company</Text>
-                  <Controller
-                    control={control}
-                    name="company"
-                    render={({ field: { onChange, onBlur, value, ref } }) => (
-                      <TextInput
-                        ref={ref}
-                        style={styles.inputField}
-                        onBlur={onBlur}
-                        onChangeText={onChange}
-                        value={value}
-                        keyboardType="default"
-                        autoCapitalize="words"
-                      />
-                    )}
-                  />
-                  {errors.company && <Text style={styles.errorText}>{errors.company.message}</Text>}
-                </View>
+              <View style={layoutStyles.field}>
+                <Text style={styles.formLabel}>E-mail</Text>
+                <Controller
+                  control={control}
+                  name="email"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                      style={styles.inputField}
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value ?? ""}
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                    />
+                  )}
+                />
+                {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
+              </View>
 
-                <View style={layoutStyles.field}>
-                  <Text style={styles.formLabel}>Job</Text>
-                  <Controller
-                    control={control}
-                    name="job"
-                    render={({ field: { onChange, onBlur, value, ref } }) => (
-                      <TextInput
-                        ref={ref}
-                        style={styles.inputField}
-                        onBlur={onBlur}
-                        onChangeText={onChange}
-                        value={value}
-                        keyboardType="default"
-                        autoCapitalize="words"
-                      />
-                    )}
-                  />
-                  {errors.job && <Text style={styles.errorText}>{errors.job.message}</Text>}
-                </View>
+              <View style={layoutStyles.field}>
+                <Text style={styles.formLabel}>Preferred Contact</Text>
+                <Controller
+                  control={control}
+                  name="preferredContact"
+                  render={({ field: { onChange, value } }) => (
+                    <PreferredContact onSelectValue={onChange} value={value} />
+                  )}
+                />
+                {errors.preferredContact && <Text style={styles.errorText}>{errors.preferredContact.message}</Text>}
+              </View>
 
-                <HoneypotField value={website} onChangeText={setWebsite} />
-
-                <View style={layoutStyles.field}>
-                  <Text style={styles.formLabel}>WhatsApp Number</Text>
-                  <Controller
-                    control={control}
-                    name="whatsappNumber"
-                    render={({ field: { onChange, onBlur, value } }) => (
-                      <TextInput
-                        style={styles.inputField}
-                        onBlur={onBlur}
-                        onChangeText={onChange}
-                        value={value}
-                        keyboardType="default"
-                        placeholder="518-555-5555"
-                        autoCapitalize="none"
-                      />
-                    )}
-                  />
-                  {errors.whatsappNumber && <Text style={styles.errorText}>{errors.whatsappNumber.message}</Text>}
-                </View>
-
-                <View style={layoutStyles.field}>
-                  <Text style={styles.formLabel}>E-mail</Text>
-                  <Controller
-                    control={control}
-                    name="email"
-                    render={({ field: { onChange, onBlur, value } }) => (
-                      <TextInput
-                        style={styles.inputField}
-                        onBlur={onBlur}
-                        onChangeText={onChange}
-                        value={value ?? ""}
-                        keyboardType="email-address"
-                        autoCapitalize="none"
-                      />
-                    )}
-                  />
-                  {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
-                </View>
-
-                <View style={layoutStyles.field}>
-                  <Text style={styles.formLabel}>Preferred Contact</Text>
-                  <Controller
-                    control={control}
-                    name="preferredContact"
-                    render={({ field: { onChange, value } }) => (
-                      <PreferredContact onSelectValue={onChange} value={value} />
-                    )}
-                  />
-                  {errors.preferredContact && <Text style={styles.errorText}>{errors.preferredContact.message}</Text>}
-                </View>
-
-                <Text style={styles.agreement}>
-                  By using Classy Fit, you agree and consent to our:{" "}
+              <Text style={styles.agreement}>
+                By using Classy Fit, you agree and consent to our:{" "}
+                <Text style={styles.linkText} onPress={handleLinkPress}>
+                  Terms of Service -{" "}
                   <Text style={styles.linkText} onPress={handleLinkPress}>
-                    Terms of Service -{" "}
-                    <Text style={styles.linkText} onPress={handleLinkPress}>
-                      Cookie Policy -{" "}
-                    </Text>
-                    <Text style={styles.linkText} onPress={handleLinkPress}>
-                      Privacy Policy
-                    </Text>
+                    Cookie Policy -{" "}
+                  </Text>
+                  <Text style={styles.linkText} onPress={handleLinkPress}>
+                    Privacy Policy
                   </Text>
                 </Text>
+              </Text>
 
-                <View style={styles.loginBtnContainer}>
-                  <TouchableOpacity
-                    style={styles.loginBtn}
-                    onPress={handleSaveContactPress}
-                  >
-                    <Text style={styles.loginBtnText}>Create Account</Text>
-                  </TouchableOpacity>
-                </View>
+              <View style={styles.loginBtnContainer}>
+                <TouchableOpacity
+                  style={styles.loginBtn}
+                  onPress={handleSaveContactPress}
+                >
+                  <Text style={styles.loginBtnText}>Create Account</Text>
+                </TouchableOpacity>
               </View>
             </View>
+          </View>
         </ScrollView>
       </SafeAreaView>
     </>
