@@ -10,7 +10,6 @@ import {
   TextInput,
   Image,
   ScrollView,
-  Keyboard,
   StyleSheet,
 } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -25,7 +24,7 @@ import {
   localAvatarOptions,
   MAX_PROFILE_PIC_BYTES,
   MIN_SUBMISSION_TIME_MS,
-  schema,
+  createContactSchema as schema,
   sexData,
 } from "../../components/forms/ProfileScreenForm.constants";
 import PinkLeafSvg from "../../assets/svg/PinkLeafSvg";
@@ -42,7 +41,7 @@ import FlashMessage, {
 // ============================================================================
 
 const AddContactScreen = ({ navigation }: { navigation: any }) => {
-  // const { user, setUser } = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
   const { tokens, setTokens } = useContext(UserContext);
   const [website, setWebsite] = useState("");
   const { webServer } = useContext(UserContext);
@@ -167,7 +166,7 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
     }
 
     // formData.append("uid", contact?.uid);
-    formData.append("gym_id", data.gymId);
+    formData.append("gym_id", user.gym_id);
     formData.append("email", emailValue);
     formData.append("fname", fnameValue);
     formData.append("lname", data.lname);
@@ -192,7 +191,7 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
 
     try {
       const response = await fetch(
-        `${webServer}/api/v1/gyms/${data.gymId}/contacts`,
+        `${webServer}/api/v1/gyms/${user.gym_id}/contacts`,
         {
           method: "POST",
           headers: {
@@ -224,7 +223,7 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
           body: obj || rawBody,
         });
 
-        const refreshResponse = await fetch(`${webServer} /api/refresh.php`, {
+        const refreshResponse = await fetch(`${webServer}/api/refresh.php`, {
           method: "POST",
           body: JSON.stringify({
             token: tokens.refresh_token,
