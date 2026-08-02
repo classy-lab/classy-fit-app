@@ -6,10 +6,11 @@ export const phoneRegExp =
 export const MIN_SUBMISSION_TIME_MS = 2000;
 export const MAX_PROFILE_PIC_BYTES = 5 * 1024 * 1024;
 
-export const schema = yup.object().shape({
-  profilePic: yup
+const createProfilePicSchema = ({ required = false } = {}) =>
+  yup
     .mixed()
     .test("required", "A profile picture is required", (value: any) => {
+      if (!required) return true;
       if (!value) return false;
       return Boolean(
         value.path || value.uri || value.filename || value.mime || value.type,
@@ -22,7 +23,7 @@ export const schema = yup.object().shape({
       return fileSize <= MAX_PROFILE_PIC_BYTES;
     })
     .test("fileType", "A JPG or PNG profile picture is required", (value: any) => {
-      if (!value) return false;
+      if (!value) return !required;
       if (value.isLocalAvatar) return true;
       const filename = (
         value.filename || value.path || value.uri || ""
@@ -32,7 +33,10 @@ export const schema = yup.object().shape({
         filename.endsWith(".jpeg") ||
         filename.endsWith(".png")
       );
-    }),
+    });
+
+export const schema = yup.object().shape({
+  profilePic: createProfilePicSchema({ required: true }),
   email: yup.string().required("Email is required").email("Invalid email"),
   password: yup
     .string()
@@ -50,6 +54,7 @@ export const schema = yup.object().shape({
   fname: yup.string().required("First name is required").min(2).max(20),
   lname: yup.string().required("Last name is required").min(2).max(20),
   company: yup.string().nullable().notRequired(),
+  job: yup.string().nullable().notRequired(),
   dateOfBirth: yup
     .string()
     .matches(
@@ -76,26 +81,33 @@ export const schema = yup.object().shape({
 });
 
 export const updateContactSchema = yup.object().shape({
-  profilePic: yup
-    .mixed()
-    .test("fileSize", "Image is too large (max 5MB)", (value: any) => {
-      if (!value) return true;
-      const fileSize = value.fileSize ?? value.size;
-      if (!fileSize) return true;
-      return fileSize <= MAX_PROFILE_PIC_BYTES;
-    })
-    .test("fileType", "A JPG or PNG profile picture is required", (value: any) => {
-      if (!value) return true;
-      if (value.isLocalAvatar) return true;
-      const filename = (
-        value.filename || value.path || value.uri || ""
-      ).toLowerCase();
-      return (
-        filename.endsWith(".jpg") ||
-        filename.endsWith(".jpeg") ||
-        filename.endsWith(".png")
-      );
-    }),
+  profilePic: createProfilePicSchema(),
+  email: yup.string().required("Email is required").email("Invalid email"),
+  role: yup.string(),
+  fname: yup.string().required("First name is required").min(2).max(20),
+  lname: yup.string().required("Last name is required").min(2).max(20),
+  company: yup.string().nullable().notRequired(),
+  job: yup.string().nullable().notRequired(),
+  sex: yup.string(),
+  phoneNumber: yup
+    .string()
+    .matches(phoneRegExp, "Phone Number is not valid")
+    .transform((value) => (value === "" ? "" : value))
+    .min(10, 'Phone number must be at least 10 digits')
+    .max(15, 'Phone number must be no more than 15 digits')
+    .matches(/^\+?[1-9]\d{9,14}$/, 'Enter a valid phone number'),
+  whatsappNumber: yup
+    .string()
+    .matches(phoneRegExp, "WhatsApp Number number is not valid")
+    .nullable()
+    .notRequired()
+    .transform((value) => (value === "" ? null : value)),
+  preferredContact: yup.string(),
+  gymId: yup.string().matches(/^\d+$/, "Gym location is required"),
+});
+
+export const createContactSchema = yup.object().shape({
+  profilePic: createProfilePicSchema({ required: true }),
   email: yup.string().required("Email is required").email("Invalid email"),
   role: yup.string(),
   fname: yup.string().required("First name is required").min(2).max(20),
