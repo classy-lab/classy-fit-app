@@ -1,4 +1,4 @@
-import { useState, useRef, useContext, useCallback } from "react";
+import { useState, useRef, useContext, useCallback, useEffect } from "react";
 import { Alert, Linking } from "react-native";
 import { useForm, Controller, FieldErrors } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -144,6 +144,10 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
   // Watch profilePic to display it
   const profilePicValue = watch("profilePic");
 
+  useEffect(() => {
+    setValue("gymId", String(user?.gym_id), { shouldValidate: true });
+  }, []);
+
   const createContact = async (data: any) => {
     console.log('data: ' + JSON.stringify(data));
     const totalTimeElapsed = Date.now() - formLoadTime.current;
@@ -166,7 +170,7 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
     }
 
     // formData.append("uid", contact?.uid);
-    formData.append("gym_id", user.gym_id);
+    formData.append("gym_id", data.gymId || user.gym_id);
     formData.append("email", emailValue);
     formData.append("fname", fnameValue);
     formData.append("lname", data.lname);
