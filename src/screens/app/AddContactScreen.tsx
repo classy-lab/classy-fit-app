@@ -149,7 +149,6 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
   }, []);
 
   const createContact = async (data: any) => {
-    console.log('data: ' + JSON.stringify(data));
     const totalTimeElapsed = Date.now() - formLoadTime.current;
     const formData = new FormData();
     const emailValue = (data?.email ?? "").trim();
@@ -218,8 +217,8 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
         showMessage({
           message: obj?.message || "Contact updated successfully.",
           type: "success",
-          autoHide: true, // prevents the message from disappearing automatically
-          onPress: () => hideMessage(), // closes the message when pressed
+          autoHide: true,
+          onPress: () => hideMessage(),
         });
       } else {
         console.log("Update contact failed", {
