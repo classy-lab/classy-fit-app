@@ -584,7 +584,4 @@ const layoutStyles = StyleSheet.create({
   },
   fieldset: {
   },
-  field: {
-    marginBottom: 0,
-  },
 });
