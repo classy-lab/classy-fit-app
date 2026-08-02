@@ -169,7 +169,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
               profilePic: undefined,
             });
 
-            const picturePath = obj?.data?.user_picture_url;
+            const picturePath = obj?.data?.profilePic;
             setProfilePicAPIImage(picturePath ? `${webServer}/api/${picturePath}` : "");
           } else {
             const refreshResponse = await fetch(`${webServer}/api/refresh.php`, {
@@ -390,7 +390,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
             control={control}
             name="profilePic"
             render={({ field: { onChange, value } }) => {
-              const contactPicturePath = contact?.user_picture_url || contact?.user_profile_url;
+              const contactPicturePath = contact?.profilePic || contact?.user_profile_url;
               const contactPictureUri = contactPicturePath
                 ? `${webServer}/api/${contactPicturePath}`
                 : "";
