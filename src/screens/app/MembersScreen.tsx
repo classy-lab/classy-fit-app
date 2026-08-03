@@ -230,7 +230,7 @@ const MembersScreen = ({ navigation }: { navigation: any }) => {
                     (
                       filteredMembers.map((member, index) => {
                         return (
-                          <TouchableOpacity key={index}>
+                          <TouchableOpacity key={index} onPress={() => navigation.navigate('UpdateMemberScreen', { member })}>
                             <View style={styles.box}>
                               {
                                 member.user_picture_url ? (

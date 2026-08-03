@@ -29,6 +29,7 @@ import AddStaffScreen from '../screens/app/AddStaffScreen'
 import AddContactScreen from '../screens/app/AddContactScreen'
 import UpdateContactScreen from '../screens/app/UpdateContactScreen'
 import UpdateStaffScreen from '../screens/app/UpdateStaffScreen'
+import UpdateMemberScreen from '../screens/app/UpdateMemberScreen'
 
 const Tab = createBottomTabNavigator()
 const HomeStack = createStackNavigator()
@@ -51,6 +52,7 @@ function HomeStackScreen() {
       <HomeStack.Screen name="AllEarnings" component={AllEarnings} />
       <HomeStack.Screen name="AddStaffScreen" component={AddStaffScreen} />
       <HomeStack.Screen name="UpdateStaffScreen" component={UpdateStaffScreen} />
+      <HomeStack.Screen name="UpdateMemberScreen" component={UpdateMemberScreen} />
     </HomeStack.Navigator>
   );
 }
@@ -71,6 +73,7 @@ function StaffStackScreen() {
       <StaffStack.Screen name="AddContactScreen" component={AddContactScreen} />
       <StaffStack.Screen name="UpdateContactScreen" component={UpdateContactScreen} />
       <StaffStack.Screen name="UpdateStaffScreen" component={UpdateStaffScreen} />
+      <StaffStack.Screen name="UpdateMemberScreen" component={UpdateMemberScreen} />
     </StaffStack.Navigator>
   )
 }
