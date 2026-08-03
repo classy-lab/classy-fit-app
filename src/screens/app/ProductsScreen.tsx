@@ -107,7 +107,7 @@ const ProductsScreen = ({ navigation, route }) => {
                   </View>
                 </TouchableOpacity>
 
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('ProductsTab', { screen: 'ProductDetailScreen' })}>
                   <View style={styles.box}>
                     <Image style={styles.image} source={require('../../assets/images/products/proteinShaker.png')} resizeMode="contain" />
                     <Text style={styles.productTitle}>Protein Shaker</Text>
@@ -115,7 +115,7 @@ const ProductsScreen = ({ navigation, route }) => {
                   </View>
                 </TouchableOpacity>
 
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('ProductsTab', { screen: 'ProductDetailScreen' })}>
                   <View style={styles.box}>
                     <Image style={styles.image} source={require('../../assets/images/products/proteinShaker2.png')} resizeMode="contain" />
                     <Text style={styles.productTitle}>Protein Shaker</Text>
@@ -123,7 +123,7 @@ const ProductsScreen = ({ navigation, route }) => {
                   </View>
                 </TouchableOpacity>
 
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('ProductsTab', { screen: 'ProductDetailScreen' })}>
                   <View style={styles.box}>
                     <Image style={styles.image} source={require('../../assets/images/products/tShirt.png')} resizeMode="contain" />
                     <Text style={styles.productTitle}>T Shirt</Text>
@@ -131,7 +131,7 @@ const ProductsScreen = ({ navigation, route }) => {
                   </View>
                 </TouchableOpacity>
 
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('ProductsTab', { screen: 'ProductDetailScreen' })}>
                   <View style={styles.box}>
                     <Image style={styles.image} source={require('../../assets/images/products/wristBand.png')} resizeMode="contain" />
                     <Text style={styles.productTitle}>Wrist band</Text>
@@ -139,7 +139,7 @@ const ProductsScreen = ({ navigation, route }) => {
                   </View>
                 </TouchableOpacity>
 
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('ProductsTab', { screen: 'ProductDetailScreen' })}>
                   <View style={styles.box}>
                     <Image style={styles.image} source={require('../../assets/images/products/headPhones.png')} resizeMode="contain" />
                     <Text style={styles.productTitle}>Headphones</Text>
