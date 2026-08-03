@@ -20,6 +20,7 @@ type StaffContact = {
   email?: string;
   phone?: string;
   whatsapp?: string;
+  job?: string;
 };
 
 const ContractorsScreen = ({ navigation }: { navigation: any }) => {
@@ -219,6 +220,9 @@ const ContractorsScreen = ({ navigation }: { navigation: any }) => {
                                   <Image style={styles.image} source={{ uri: getImageUri(contact.profilePic) }} />
                                 ) : null}
                               <Text style={styles.personName}>{getDisplayName(contact)}</Text>
+                              {contact.job ? (
+                                <Text style={styles.jobText}>{contact.job}</Text>
+                              ) : null}
                             </View>
                           </TouchableOpacity>
                         )
@@ -321,11 +325,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     columnGap: 16,
-    rowGap: 26 + 16,
+    rowGap: 8,
     justifyContent: 'space-evenly',
     // alignItems: 'center',
   },
-  box: { width: 96, height: 96, },
+  box: {
+    width: 96,
+    minHeight: 128,
+  },
   image: {
     marginTop: 16,
     width: 96,
@@ -334,7 +341,14 @@ const styles = StyleSheet.create({
   },
   personName: {
     marginTop: 10,
-    textAlign: 'center'
+    textAlign: 'center',
+    lineHeight: 16,
+  },
+  jobText: {
+    marginTop: 4,
+    textAlign: 'center',
+    color: AppColors.grey2,
+    fontSize: 11,
   },
   noResultsText: {
     marginTop: 12,
