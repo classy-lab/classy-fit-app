@@ -28,6 +28,7 @@ import AllEarnings from '../screens/app/AllEarnings'
 import AddStaffScreen from '../screens/app/AddStaffScreen'
 import AddContactScreen from '../screens/app/AddContactScreen'
 import UpdateContactScreen from '../screens/app/UpdateContactScreen'
+import UpdateStaffScreen from '../screens/app/UpdateStaffScreen'
 
 const Tab = createBottomTabNavigator()
 const HomeStack = createStackNavigator()
@@ -49,6 +50,7 @@ function HomeStackScreen() {
       <HomeStack.Screen name="LoginScreen" component={LoginScreen} />
       <HomeStack.Screen name="AllEarnings" component={AllEarnings} />
       <HomeStack.Screen name="AddStaffScreen" component={AddStaffScreen} />
+      <HomeStack.Screen name="UpdateStaffScreen" component={UpdateStaffScreen} />
     </HomeStack.Navigator>
   );
 }
@@ -68,6 +70,7 @@ function StaffStackScreen() {
       <StaffStack.Screen name="StaffScreen" component={StaffScreen} />
       <StaffStack.Screen name="AddContactScreen" component={AddContactScreen} />
       <StaffStack.Screen name="UpdateContactScreen" component={UpdateContactScreen} />
+      <StaffStack.Screen name="UpdateStaffScreen" component={UpdateStaffScreen} />
     </StaffStack.Navigator>
   )
 }

@@ -205,7 +205,7 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
                   ) : (
                     filteredOwners.map((owner, index) => {
                       return (
-                        <TouchableOpacity key={index}>
+                        <TouchableOpacity key={index} onPress={() => navigation.navigate('UpdateStaffScreen', { staff: owner })}>
                           <View style={styles.box}>
                             {owner.user_picture_url ? (
                               <Image style={styles.image} source={{ uri: getImageUri(owner.user_picture_url) }} />
@@ -227,7 +227,7 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
                   ) : (
                     filteredTrainers.map((trainer, index) => {
                       return (
-                        <TouchableOpacity key={index}>
+                        <TouchableOpacity key={index} onPress={() => navigation.navigate('UpdateStaffScreen', { staff: trainer })}>
                           <View style={styles.box}>
                             {trainer.user_picture_url ? (
                               <Image style={styles.image} source={{ uri: getImageUri(trainer.user_picture_url) }} />

@@ -3,7 +3,12 @@ import { StyleSheet } from "react-native";
 import { SelectList } from "react-native-dropdown-select-list";
 import { AppColors } from "../../styles/colors";
 
-const PreferredContact = ({ onSelectValue, value }) => {
+type PreferredContactProps = {
+  onSelectValue?: (value: any) => void;
+  value?: any;
+};
+
+const PreferredContact = ({ onSelectValue, value }: PreferredContactProps) => {
   const contactTypes = [
     { key: "1", value: "Phone" },
     { key: "2", value: "WhatsApp" },
