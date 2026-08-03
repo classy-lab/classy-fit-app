@@ -47,11 +47,6 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
     { key: "2", value: "WhatsApp" },
     { key: "3", value: "Email" },
   ];
-  const getOptionValue = (options: any[], rawValue: any) => {
-    return options.find(
-      (item) => item.key === String(rawValue) || item.value === rawValue,
-    )?.value ?? (rawValue || "");
-  };
 
   // console.log("UpdateContactForm contact prop:", contact);
   const selectImage = async (onChange: (value: any) => void) => {
@@ -149,10 +144,10 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
           const obj = JSON.parse(json);
 
           if (response.status === 200) {
-            const contactSex = obj?.contact?.sex ?? "";
-            const contactPreferred = obj?.data?.preferred_contact ?? "";
-            const mappedContactSex = getOptionValue(sexData, contactSex);
-            const mappedPreferredContact = getOptionValue(preferredContactOptions, contactPreferred);
+            const contactSex = [obj?.data?.sex, obj?.contact?.sex, obj?.user?.sex, contact?.sex].find(Boolean) ?? "";
+            const contactPreferred = [obj?.data?.preferred_contact, obj?.contact?.preferred_contact].find(Boolean) ?? "";
+            const mappedContactSex = sexData.find((item) => [item.key, item.value].some((option) => String(option ?? "").trim().toLowerCase() === String(contactSex).trim().toLowerCase()))?.value ?? String(contactSex);
+            const mappedPreferredContact = preferredContactOptions.find((item) => [item.key, item.value].some((option) => String(option ?? "").trim().toLowerCase() === String(contactPreferred).trim().toLowerCase()))?.value ?? String(contactPreferred);
             console.log(response.status, "Fetched data:", obj);
 
             reset({
@@ -276,8 +271,8 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
     const formData = new FormData();
     const emailValue = (data?.email ?? contact?.email ?? "").trim();
     const fnameValue = (data?.fname ?? contact?.fname ?? "").trim();
-    const sexValue = getOptionValue(sexData, data?.sex);
-    const preferredContactValue = getOptionValue(preferredContactOptions, data?.preferredContact);
+    const sexValue = sexData.find((item) => [item.key, item.value].some((option) => String(option ?? "").trim().toLowerCase() === String(data?.sex ?? "").trim().toLowerCase()))?.value ?? String(data?.sex ?? "");
+    const preferredContactValue = preferredContactOptions.find((item) => [item.key, item.value].some((option) => String(option ?? "").trim().toLowerCase() === String(data?.preferredContact ?? "").trim().toLowerCase()))?.value ?? String(data?.preferredContact ?? "");
 
     // 1. Honeypot check
     if (website.trim() !== "") {
@@ -513,6 +508,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
 
               return (
                 <SelectList
+                  key={value || "sex-empty"}
                   setSelected={(selectedValue) => onChange(selectedValue)} // Send selection to hook-form
                   data={sexData}
                   save="value"

@@ -55,12 +55,6 @@ const UpdateMemberForm = ({ navigation, member }: { navigation: any; member: any
     { key: "3", value: "Email" },
   ];
 
-  const getOptionValue = (options: any[], rawValue: any) => {
-    return options.find(
-      (item) => item.key === String(rawValue) || item.value === rawValue,
-    )?.value ?? (rawValue || "");
-  };
-
   const selectImage = async (onChange: (value: any) => void) => {
     try {
       const profilePic = await ImagePicker.openPicker({
@@ -142,8 +136,10 @@ const UpdateMemberForm = ({ navigation, member }: { navigation: any; member: any
           const payload = obj?.member || obj?.data || obj?.user || obj;
 
           if (response.status === 200) {
-            const mappedSex = getOptionValue(sexData, payload?.sex || member?.sex || "");
-            const mappedPreferredContact = getOptionValue(preferredContactOptions, payload?.preferred_contact || payload?.preferredContact || member?.preferred_contact || "");
+            const memberSex = [payload?.sex, member?.sex, obj?.data?.sex, obj?.contact?.sex].find(Boolean) ?? "";
+            const memberPreferredContact = [payload?.preferred_contact, payload?.preferredContact, member?.preferred_contact].find(Boolean) ?? "";
+            const mappedSex = sexData.find((item) => [item.key, item.value].some((option) => String(option ?? "").trim().toLowerCase() === String(memberSex).trim().toLowerCase()))?.value ?? String(memberSex);
+            const mappedPreferredContact = preferredContactOptions.find((item) => [item.key, item.value].some((option) => String(option ?? "").trim().toLowerCase() === String(memberPreferredContact).trim().toLowerCase()))?.value ?? String(memberPreferredContact);
 
             reset({
               email: payload?.email ?? member?.email ?? "",
@@ -376,6 +372,7 @@ const UpdateMemberForm = ({ navigation, member }: { navigation: any; member: any
 
             return (
               <SelectList
+                key={value || "sex-empty"}
                 setSelected={(selectedValue) => onChange(selectedValue)}
                 data={sexData}
                 save="value"
