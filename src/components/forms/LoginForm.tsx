@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { AppColors } from "../../styles/colors";
 import { s } from "react-native-size-matters";
+import { useRoute } from "@react-navigation/native";
 import { UserContext } from "../../context/UserContext";
 import HoneypotField from "./input_fields/HoneypotField";
 import FlashMessage, {
@@ -26,6 +27,9 @@ const windowWidth = Dimensions.get("window").width;
 const MIN_SUBMISSION_TIME_MS = 500; // 5 seconds threshold before reg form can be submitted
 
 const LoginForm = () => {
+  const route = useRoute();
+  const selectedGymId = route.params?.gymId || "";
+  const selectedGymName = route.params?.gym || "";
   const { user, setUser } = useContext(UserContext);
   const { tokens, setTokens } = useContext(UserContext);
   const { isLoggedIn, setIsLoggedIn } = useContext(UserContext);
@@ -96,6 +100,7 @@ const LoginForm = () => {
           body: JSON.stringify({
             email: data.email,
             password: data.password,
+            gym_id: selectedGymId,
           }),
         },
       );
