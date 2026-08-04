@@ -148,10 +148,9 @@ export const sexData = [
 ];
 
 export const roleData = [
-  { key: "1", value: "Owner", disabled: false },
+  { key: "1", value: "Owner", disabled: true },
   { key: "2", value: "Member" },
   { key: "3", value: "Trainer" },
-  { key: "4", value: "Contractor" },
 ];
 
 export const findRoleOption = (role?: string | null) => {
