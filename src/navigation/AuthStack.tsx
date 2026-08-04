@@ -43,6 +43,7 @@ const AuthStack = () => {
   const navigation = useNavigation();
   const Drawer = createDrawerNavigator();
   const gyms = [
+    {},
     {
       About: {
         title: "About Us",
