@@ -102,6 +102,12 @@ const RegisterForm = () => {
     formLoadTime.current = Date.now();
   }, []);
 
+  useEffect(() => {
+    if (preselectedGymId) {
+      setValue("gymId", String(preselectedGymId));
+    }
+  }, [preselectedGymId, setValue]);
+
   const [sex, setSelected] = useState(""); // sex state lives here
 
   const [PreferredContact, setPreferredContact] = React.useState("");
