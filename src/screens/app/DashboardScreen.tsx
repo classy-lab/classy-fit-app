@@ -21,9 +21,7 @@ const DashboardScreen = ({ navigation, route }) => {
         <View style={styles.navs}>
           <View style={styles.greetingContainer}>
             <Text style={styles.welcomeText}>Hi {user?.given_name}!</Text>
-            <Text style={styles.gymNameText}>
-              {user?.gym_name || user?.gym?.name || user?.gym?.gym_name || "No gym selected"}
-            </Text>
+            <Text style={styles.gymNameText}>{user?.gym_name}</Text>
           </View>
           <SignOut />
         </View>
