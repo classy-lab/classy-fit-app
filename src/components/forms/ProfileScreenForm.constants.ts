@@ -77,7 +77,10 @@ export const schema = yup.object().shape({
     .notRequired()
     .transform((value) => (value === "" ? null : value)),
   preferredContact: yup.string(),
-  gymId: yup.string().matches(/^\d+$/, "Gym location is required"),
+  gymId: yup
+    .string()
+    .required("Gym location is required")
+    .matches(/^\d+$/, "Gym location is required"),
 });
 
 export const updateContactSchema = yup.object().shape({
@@ -103,7 +106,10 @@ export const updateContactSchema = yup.object().shape({
     .notRequired()
     .transform((value) => (value === "" ? null : value)),
   preferredContact: yup.string(),
-  gymId: yup.string().matches(/^\d+$/, "Gym location is required"),
+  gymId: yup
+    .string()
+    .required("Gym location is required")
+    .matches(/^\d+$/, "Gym location is required"),
 });
 
 export const createContactSchema = yup.object().shape({
@@ -129,7 +135,10 @@ export const createContactSchema = yup.object().shape({
     .notRequired()
     .transform((value) => (value === "" ? null : value)),
   preferredContact: yup.string(),
-  gymId: yup.string().matches(/^\d+$/, "Gym location is required"),
+  gymId: yup
+    .string()
+    .required("Gym location is required")
+    .matches(/^\d+$/, "Gym location is required"),
 });
 
 export const sexData = [
