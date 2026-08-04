@@ -388,7 +388,13 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
             control={control}
             name="profilePic"
             render={({ field: { onChange, value } }) => {
-              const selectedProfilePicUri = (value as any)?.path || (value as any)?.uri || profilePicAPIImage || "";
+              const selectedProfilePicUri =
+                (value as any)?.path ||
+                (value as any)?.uri ||
+                profilePicAPIImage ||
+                // user?.profile_picture_url ||
+                // user?.user_picture_url ||
+                "";
 
               return (
                 <View style={styles.imageContainer}>
