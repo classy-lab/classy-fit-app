@@ -113,8 +113,8 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
     defaultValues: {
       profilePic: undefined,
       email: user?.email,
-      password: "pppppppppppp",
-      confirmPassword: "pppppppppppp",
+      password: "",
+      confirmPassword: "",
       role: normalizeRole(user?.role),
       fname: user?.given_name,
       lname: user?.family_name,
@@ -122,6 +122,7 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
       sex: user?.gender,
       phoneNumber: '',
       whatsappNumber: '',
+      preferredContact: user?.preferred_contact,
       gymId: user?.gym_id,
     },
   });
