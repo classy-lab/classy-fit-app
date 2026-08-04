@@ -19,7 +19,12 @@ const DashboardScreen = ({ navigation, route }) => {
     <>
       <SafeAreaView style={styles.container}>
         <View style={styles.navs}>
-          <Text style={styles.welcomeText}>Hi {user?.given_name}!</Text>
+          <View style={styles.greetingContainer}>
+            <Text style={styles.welcomeText}>Hi {user?.given_name}!</Text>
+            <Text style={styles.gymNameText}>
+              {user?.gym_name || user?.gym?.name || user?.gym?.gym_name || "No gym selected"}
+            </Text>
+          </View>
           <SignOut />
         </View>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
@@ -85,7 +90,16 @@ const styles = StyleSheet.create({
     paddingRight: 24,
     alignItems: 'center'
   },
+  greetingContainer: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+  },
   welcomeText: { color: AppColors.blue, fontSize: 14 },
+  gymNameText: {
+    color: AppColors.primary,
+    fontSize: 12,
+    marginTop: 2,
+  },
   headingContainer: {
     alignItems: 'center',
     marginBottom: 20
