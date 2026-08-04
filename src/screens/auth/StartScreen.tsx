@@ -19,10 +19,10 @@ import { GymContext } from "../../context/GymContext";
 const StartScreen = () => {
   const navigation = useNavigation();
   const gyms = [
-    { key: "0", value: "Classy Gym, Cobleskill, NY" },
-    { key: "1", value: "Vent Fitness, Clifton Park, NY" },
-    { key: "2", value: "The Bodyshop Gym, Cobleskill, NY" },
-    { key: "3", value: "Sarah's Gym, Cobleskill, NY" },
+    { key: "1", value: "Classy Gym, Cobleskill, NY" },
+    { key: "2", value: "Vent Fitness, Clifton Park, NY" },
+    { key: "3", value: "The Bodyshop Gym, Cobleskill, NY" },
+    { key: "4", value: "Sarah's Gym, Cobleskill, NY" },
   ];
   // GymContext variables
   const { gymID, setGymID } = useContext(GymContext);
