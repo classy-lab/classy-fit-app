@@ -88,7 +88,7 @@ const StartScreen = () => {
           <View style={styles.fieldset}>
             <View style={styles.field}>
               <View style={styles.highlightedFieldBox}>
-                <Text style={styles.formLabel}>Choose Gym for Details</Text>
+                <Text style={styles.formLabel}>Select a Gym to Continue</Text>
                 {!selectedGym ? (
                   <Text style={styles.helperText}>
                     Select a gym first to enable Register and Login
