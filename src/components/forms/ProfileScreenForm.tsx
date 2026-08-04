@@ -133,46 +133,52 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
   useEffect(() => {
     formLoadTime.current = Date.now();
     const fetchUserData = async ({ tokens, webServer, user, setTokens }) => {
-      const response = await fetch(`${webServer}/api/v1/users/${user.sub}`, {
-        headers: {
-          Authorization: "Bearer " + tokens.access_token,
-        },
-      });
-      const json = await response.text();
-      const obj = JSON.parse(json);
+      if (!user?.sub || !tokens?.access_token) {
+        return;
+      }
 
-      if (response.status == 200) {
-        //set profile fields here on success
-        reset({
-          dateOfBirth: obj.profile_fields.date_of_birth,
-          phoneNumber: obj.profile_fields.phone,
-          whatsappNumber: obj.profile_fields.whatsapp,
-          profilePic: obj.profile_fields.user_picture_url ? { path: 'http://localhost:8080/classy-api/api/' + obj.profile_fields.user_picture_url } : {},
+      try {
+        const response = await fetch(`${webServer}/api/v1/users/${user.sub}`, {
+          headers: {
+            Authorization: "Bearer " + tokens.access_token,
+          },
         });
-        setProfilePicAPIImage('http://localhost:8080/classy-api/api/' + obj.profile_fields.user_picture_url);
-      } else {
-        // console.log("Access token expired, requesting new one");
-
-        const response = await fetch(`${webServer}/api/refresh.php`, {
-          method: "POST",
-          body: JSON.stringify({
-            token: tokens.refresh_token,
-          }),
-        });
-
         const json = await response.text();
-        const obj = JSON.parse(json);
+        const obj = json ? JSON.parse(json) : {};
+        console.log("Fetched user data:", obj);
 
         if (response.status == 200) {
-          // console.log("Got new access token and refresh token");
-          setTokens({
-            ...tokens,
-            access_token: obj.access_token,
-            refresh_token: obj.refresh_token,
+          reset({
+            dateOfBirth: obj?.profile_fields?.date_of_birth,
+            phoneNumber: obj?.profile_fields?.phone,
+            whatsappNumber: obj?.profile_fields?.whatsapp,
+            profilePic: obj?.profile_fields?.user_picture_url ? { path: 'http://localhost:8080/classy-api/api/' + obj.profile_fields.user_picture_url } : {},
           });
+          setProfilePicAPIImage(obj?.profile_fields?.user_picture_url ? 'http://localhost:8080/classy-api/api/' + obj.profile_fields.user_picture_url : '');
+        } else {
+          const refreshResponse = await fetch(`${webServer}/api/refresh.php`, {
+            method: "POST",
+            body: JSON.stringify({
+              token: tokens.refresh_token,
+            }),
+          });
+
+          const refreshJson = await refreshResponse.text();
+          const refreshObj = refreshJson ? JSON.parse(refreshJson) : {};
+
+          if (refreshResponse.status == 200) {
+            setTokens({
+              ...tokens,
+              access_token: refreshObj.access_token,
+              refresh_token: refreshObj.refresh_token,
+            });
+          }
         }
+      } catch (error) {
+        console.log("Failed to fetch user data", error);
       }
     };
+
     fetchUserData({ tokens, webServer, user, setTokens });
   }, [reset]); // Always include reset in the dependency array
 
