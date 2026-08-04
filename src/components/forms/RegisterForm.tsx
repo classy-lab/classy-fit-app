@@ -16,7 +16,7 @@ import {
   Button,
 } from "react-native";
 import { AppColors } from "../../styles/colors";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { SelectList } from "react-native-dropdown-select-list";
 import { UserContext } from "../../context/UserContext";
 import HoneypotField from "./input_fields/HoneypotField";
@@ -40,8 +40,10 @@ import FlashMessage, {
 
 const RegisterForm = () => {
   const navigation = useNavigation();
+  const route = useRoute();
   const [website, setWebsite] = useState("");
   const { webServer } = useContext(UserContext);
+  const preselectedGymId = route.params?.gymId || "";
 
   const selectImage = async (onChange: (value: any) => void) => {
     try {
@@ -143,7 +145,7 @@ const RegisterForm = () => {
       sex: '',
       phoneNumber: "",
       whatsappNumber: "",
-      gymId: "",
+      gymId: preselectedGymId,
     },
   });
 
@@ -551,7 +553,8 @@ const RegisterForm = () => {
             render={({ field: { onChange, onBlur, value, ref } }) => (
               <GymList
                 ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
-                onSelectValue={onChange} />
+                onSelectValue={onChange}
+                initialValue={preselectedGymId} />
             )}
           />
           {errors.gymId && (

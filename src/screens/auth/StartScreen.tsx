@@ -19,15 +19,16 @@ import { GymContext } from "../../context/GymContext";
 const StartScreen = () => {
   const navigation = useNavigation();
   const gyms = [
-    { key: "0", value: "Classy Gym, Cobleskill, NY" },
-    { key: "1", value: "Vent Fitness, Clifton Park, NY" },
-    { key: "2", value: "The Bodyshop Gym, Cobleskill, NY" },
-    { key: "3", value: "Sarah's Gym, Cobleskill, NY" },
+    { key: "1", value: "Classy Gym, Cobleskill, NY" },
+    { key: "2", value: "Vent Fitness, Clifton Park, NY" },
+    { key: "3", value: "The Bodyshop Gym, Cobleskill, NY" },
+    { key: "4", value: "Sarah's Gym, Cobleskill, NY" },
   ];
   // GymContext variables
   const { gymID, setGymID } = useContext(GymContext);
   const { gymsInfo } = useContext(GymContext);
   const [navOpacity, setNavOpacity] = useState(0);
+  const selectedGym = gyms.find((item) => item.key === String(gymID));
 
   useEffect(() => {
     setGymID(null);
@@ -54,7 +55,7 @@ const StartScreen = () => {
           <View style={styles.headingContainer}>
             <Text style={styles.title}>Classy Fit</Text>
             <PinkLeafSvg style={styles.pinkLeaf} />
-            <Text style={styles.subTitle}>{gyms[gymID]?.value}</Text>
+            <Text style={styles.subTitle}>{selectedGym?.value || ""}</Text>
           </View>
         </TouchableOpacity>
 
@@ -88,15 +89,12 @@ const StartScreen = () => {
             <View style={styles.field}>
               <Text style={styles.formLabel}>Choose Gym for Details</Text>
               <SelectList
+                name="gym"
                 setSelected={(val) => {
                   setGymID(val);
                   setNavOpacity(100);
                 }} // Send selection to hook-form
                 data={gyms}
-                defaultOption={{
-                  key: "0",
-                  value: "Classy Gym, Cobleskill, NY",
-                }}
                 save="key"
                 placeholder="Select Category"
                 boxStyles={{
@@ -119,19 +117,29 @@ const StartScreen = () => {
           <View style={styles.fieldset}>
             <View style={styles.row}>
               <TouchableOpacity
-                style={styles.registerBtn}
+                style={[styles.registerBtn, !selectedGym && styles.disabledBtn]}
+                disabled={!selectedGym}
+                activeOpacity={selectedGym ? 0.8 : 1}
                 // title="Register"
                 onPress={() => {
-                  navigation.navigate("RegisterScreen");
+                  navigation.navigate("RegisterScreen", {
+                    gym: selectedGym?.value || "",
+                    gymId: selectedGym?.key || "",
+                  });
                 }}
               >
                 <Text style={styles.registerBtnText}>Register</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.loginBtn}
+                style={[styles.loginBtn, !selectedGym && styles.disabledBtn]}
+                disabled={!selectedGym}
+                activeOpacity={selectedGym ? 0.8 : 1}
                 // title="Login"
                 onPress={() => {
-                  navigation.navigate("LoginScreen");
+                  navigation.navigate("LoginScreen", {
+                    gym: selectedGym?.value || "",
+                    gymId: selectedGym?.key || "",
+                  });
                 }}
               >
                 <Text style={styles.loginBtnText}>Login</Text>
@@ -212,6 +220,9 @@ const styles = StyleSheet.create({
   registerBtnText: {
     color: "#fff",
     fontSize: 16,
+  },
+  disabledBtn: {
+    opacity: 0.5,
   },
   loginBtn: {
     backgroundColor: "white",

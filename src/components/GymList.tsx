@@ -4,7 +4,7 @@ import { SelectList } from "react-native-dropdown-select-list";
 import { AppColors } from "../styles/colors";
 import { UserContext } from "../context/UserContext";
 
-const GymList = ({ onSelectValue }) => {
+const GymList = ({ onSelectValue, initialValue }: { onSelectValue: (value: any) => void; initialValue?: any }) => {
   // 1. Parent controls the selected value
   const gymData = [
     { key: "1", value: "Classy Gym, Cobleskill, NY" },
@@ -13,7 +13,8 @@ const GymList = ({ onSelectValue }) => {
     { key: "4", value: "Sarah's Gym, Cobleskill, NY" },
   ];
   const { user } = useContext(UserContext);
-  const selectedGym = gymData.find((gym) => gym.key === String(user?.gym_id || ""));
+  const resolvedInitialValue = initialValue ?? user?.gym_id;
+  const selectedGym = gymData.find((gym) => gym.key === String(resolvedInitialValue || ""));
 
   return (
     <SelectList

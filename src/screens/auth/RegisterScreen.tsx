@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { StyleSheet, Text, View, ScrollView } from 'react-native'
 import { AppColors } from '../../styles/colors'
-import { useNavigation } from '@react-navigation/native'
+import { useNavigation, useRoute } from '@react-navigation/native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import Feather from '@expo/vector-icons/Feather'
@@ -10,6 +10,8 @@ import RegisterForm from '../../components/forms/RegisterForm'
 
 const RegisterScreen = () => {
   const navigation = useNavigation()
+  const route = useRoute()
+  const selectedGym = route.params?.gym || ''
   return (
     <>
       <SafeAreaView style={styles.container}>
@@ -21,6 +23,7 @@ const RegisterScreen = () => {
           <View style={styles.headingContainer}>
             <Text style={styles.title}>Register</Text>
             <Text style={styles.subHead}>Create an account to start.</Text>
+            {selectedGym ? <Text style={styles.selectedGym}>Selected gym: {selectedGym}</Text> : null}
           </View>
           <View style={styles.body}>
             <RegisterForm />
@@ -96,6 +99,12 @@ const styles = StyleSheet.create({
     fontFamily: 'Montserrat',
     fontSize: 20,
     lineHeight: 24
+  },
+  selectedGym: {
+    marginTop: 8,
+    fontFamily: 'Montserrat',
+    fontSize: 14,
+    color: AppColors.blue,
   },
   scrollView: {}
 })

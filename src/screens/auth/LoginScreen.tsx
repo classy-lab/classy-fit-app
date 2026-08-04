@@ -8,7 +8,7 @@ import {
   ScrollView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Feather from "@expo/vector-icons/Feather";
 import { AppColors } from "../../styles/colors";
@@ -22,6 +22,8 @@ const windowWidth = Dimensions.get("window").width;
 
 const LoginScreen = () => {
   const navigation = useNavigation();
+  const route = useRoute();
+  const selectedGym = route.params?.gym || "";
   const [fontsLoaded] = useFonts({
     Montserrat: require("../../assets/fonts/montserrat/Montserrat-Regular.ttf"),
     "Montserrat-Bold": require("../../assets/fonts/montserrat/Montserrat-Bold.ttf"),
@@ -55,6 +57,9 @@ const LoginScreen = () => {
           <Text style={styles.subHead}>
             Please sign in to proceed to your account.
           </Text>
+          {selectedGym ? (
+            <Text style={styles.selectedGym}>Selected gym: {selectedGym}</Text>
+          ) : null}
         </View>
         <LoginForm />
         <View style={styles.body}></View>
@@ -142,6 +147,12 @@ const styles = StyleSheet.create({
     fontFamily: "Montserrat",
     fontSize: s(20),
     lineHeight: s(24),
+  },
+  selectedGym: {
+    marginTop: s(8),
+    fontFamily: "Montserrat",
+    fontSize: s(14),
+    color: AppColors.blue,
   },
   scrollView: {
     // borderWidth: 1, borderColor: 'red',
