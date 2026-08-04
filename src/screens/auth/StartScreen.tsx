@@ -87,7 +87,14 @@ const StartScreen = () => {
 
           <View style={styles.fieldset}>
             <View style={styles.field}>
-              <Text style={styles.formLabel}>Choose Gym for Details</Text>
+              <View style={styles.highlightedFieldBox}>
+                <Text style={styles.formLabel}>Choose Gym for Details</Text>
+                {!selectedGym ? (
+                  <Text style={styles.helperText}>
+                    Select a gym first to enable Register and Login
+                  </Text>
+                ) : null}
+              </View>
               <SelectList
                 name="gym"
                 setSelected={(val) => {
@@ -256,7 +263,23 @@ const styles = StyleSheet.create({
   },
   formLabel: {
     fontWeight: "bold",
-    marginBottom: 16,
+    marginBottom: 4,
+    color: AppColors.blue,
+    fontSize: 16,
+  },
+  helperText: {
+    color: AppColors.primary,
+    fontSize: 13,
+    marginBottom: 8,
+  },
+  highlightedFieldBox: {
+    backgroundColor: AppColors.grey,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: AppColors.blue,
   },
   field: {
     marginBottom: 16,
