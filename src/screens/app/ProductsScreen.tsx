@@ -9,10 +9,17 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import * as yup from 'yup'
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { useEffect, useState, useContext } from "react";
+import { UserContext } from '../../context/UserContext';
 
 const windowHeight = Dimensions.get('window').height
 
 const ProductsScreen = ({ navigation, route }) => {
+  const { user } = useContext(UserContext);
+  const { tokens, setTokens } = useContext(UserContext);
+  const { webServer } = useContext(UserContext);
+  const [products, setProducts] = useState([]);
+
   // 1. Define the Yup validation schema
   const schema = yup.object().shape({
     search: yup.string().required('Search field is required').matches(
@@ -20,6 +27,34 @@ const ProductsScreen = ({ navigation, route }) => {
       'Password must only contain alphanumeric characters (letters and numbers)'
     )
   })
+
+  useEffect(() => {
+    console.log("ProductsScreen mounted");
+    const fetchProducts = async () => {
+      if (!user?.gym_id || !tokens?.access_token) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/products`, {
+          headers: {
+            Authorization: "Bearer " + tokens.access_token,
+          },
+        });
+
+        const data = await response.json();
+        console.log("Fetched products:", data);
+
+        if (response.status === 200) {
+          // setProducts(data.products);
+        }
+
+      } catch (error) {
+        console.log('Failed to fetch products:', error);
+      }
+    }
+    fetchProducts();
+  }, [user?.gym_id, tokens?.access_token]);
 
   // 2. Initialize useForm with the Yup resolver
   const { control, handleSubmit, formState: { errors } } = useForm({
@@ -98,7 +133,7 @@ const ProductsScreen = ({ navigation, route }) => {
                 <Text style={styles.sectionTitle}>Products</Text>
                 <Text style={styles.countText}>Count: 6</Text>
               </View>
-              <View style={styles.boxes}>
+              {/* <View style={styles.boxes}>
                 <TouchableOpacity onPress={() => navigation.navigate('ProductsTab', { screen: 'ProductDetailScreen' })}>
                   <View style={styles.box}>
                     <Image style={styles.image} source={require('../../assets/images/products/boxingGloves.jpg')} resizeMode="contain" />
@@ -146,6 +181,9 @@ const ProductsScreen = ({ navigation, route }) => {
                     <Text style={styles.cost}>$100.00</Text>
                   </View>
                 </TouchableOpacity>
+              </View> */}
+              <View style={styles.boxes}>
+                <Text>testing</Text>
               </View>
             </View>
 
