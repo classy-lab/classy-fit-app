@@ -133,7 +133,6 @@ const ProductsScreen = ({ navigation, route }) => {
             showsVerticalScrollIndicator={false}
           >
             <View style={styles.headingContainer}>
-              <Text style={styles.title}>Staff</Text>
               <Text style={styles.title}>Products</Text>
               <PinkLeafSvg style={styles.pinkLeaf} />
             </View>
@@ -172,27 +171,35 @@ const ProductsScreen = ({ navigation, route }) => {
               </View>
 
               <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Products</Text>
+                <View style={styles.sectionHeading}>
+                  <Text style={styles.sectionTitle}>Products</Text>
+                  <Text style={styles.countText}>Count: {filteredProducts.length}</Text>
+                </View>
                 <View style={styles.boxes}>
                   {filteredProducts.length === 0 ? (
                     <Text style={styles.noResultsText}>No results found</Text>
-                  ) : (
-                    filteredProducts.map((product, index) => {
-                      return (
-                        <TouchableOpacity key={index} onPress={() => navigation.navigate('UpdateProductScreen', { product: product })}>
-                          <View style={styles.box}>
-                            {product.title ? (
-                              <Image style={styles.image} source={{ uri: getImageUri(product.primaryImageURL) }} />
-                            ) : null}
-                            <Text style={styles.personName} numberOfLines={1} ellipsizeMode="tail">{product.title ?? ''}</Text>
-                            <Text style={styles.personName}>{product.price ?? ''}</Text>
-                          </View>
-                        </TouchableOpacity>
-                      );
-                    })
-                  )}
+                  ) :
+                    (
+                      filteredProducts.map((product, index) => {
+                        return (
+                          <TouchableOpacity key={index} onPress={() => navigation.navigate('UpdateProductScreen', { product })}>
+                            <View style={styles.box}>
+                              {
+                                product.title ? (
+                                  <Image style={styles.image} source={{ uri: getImageUri(product.primaryImageURL) }} />
+                                ) : null
+                              }
+                              <Text style={styles.productTitle} numberOfLines={1} ellipsizeMode="tail">{product.title ?? ''}</Text>
+                              <Text style={styles.productPrice}>{product.price ?? ''}</Text>
+                            </View>
+                          </TouchableOpacity>
+                        );
+                      })
+                    )}
                 </View>
+
               </View>
+
             </View>
           </ScrollView>
         </SafeAreaView>
@@ -216,21 +223,20 @@ const styles = StyleSheet.create({
   },
   headingContainer: {
     alignItems: 'center',
+    marginBottom: 20
   },
   title: {
     color: AppColors.blue,
-    fontFamily: "Montserrat",
     fontSize: 32,
-    marginTop: 60,
+    marginTop: 20,
     marginBottom: 40,
-    // width: 320,
+    width: 320,
     textAlign: "center",
   },
   pinkLeaf: {
-    position: "relative",
+    position: "absolute",
     zIndex: -1,
-    top: -96,
-    right: -56,
+    right: 96,
   },
   body: {
     flex: 1,
@@ -252,7 +258,6 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: AppColors.red,
-    // marginTop: 8
   },
   fieldset: {},
   field: {
@@ -270,21 +275,18 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   section: {
-    // flexDirection: 'column',
     marginTop: 24,
     marginBottom: 32
   },
   sectionTitle: {
     fontSize: 24,
-    marginBottom: 16,
   },
   boxes: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     columnGap: 16,
-    rowGap: 20,
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
+    rowGap: 24,
+    justifyContent: 'space-evenly',
   },
   box: {
     width: 96,
@@ -295,9 +297,20 @@ const styles = StyleSheet.create({
     height: 96,
     borderRadius: 16
   },
-  personName: {
+  productTitle: {
     marginTop: 10,
-    textAlign: 'center'
+    textAlign: 'center',
+  },
+  noResultsText: {
+    marginTop: 12,
+    color: AppColors.primary,
+    fontSize: 14,
+  },
+  productPrice: {
+    marginTop: 4,
+    color: AppColors.grey2,
+    lineHeight: 18,
+    minHeight: 18,
   },
   noResultsText: {
     marginTop: 12,
@@ -312,6 +325,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  sectionHeading: {},
-  countText: {},
+  sectionHeading: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  countText: {
+    color: AppColors.blue
+  },
 })
