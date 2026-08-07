@@ -1,68 +1,54 @@
 // @ts-nocheck
-import { StyleSheet, Text, View, Dimensions, TouchableOpacity, ScrollView, TextInput, Image } from 'react-native'
+import { useState, useContext, useEffect, useCallback } from 'react'
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, TextInput, Image, Keyboard, TouchableWithoutFeedback } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { AppColors } from '../../styles/colors'
-import { s } from 'react-native-size-matters'
-import Feather from '@expo/vector-icons/Feather'
+import { Feather, MaterialIcons } from '@expo/vector-icons'
 import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
-import MaterialIcons from '@expo/vector-icons/MaterialIcons'
+import SignOut from '../../components/utils/SignOut'
+import { useFocusEffect } from '@react-navigation/native'
 import * as yup from 'yup'
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { useEffect, useState, useContext } from "react";
-import { UserContext } from '../../context/UserContext';
+import { UserContext } from '../../context/UserContext'
 
-const windowHeight = Dimensions.get('window').height
+type Product = {
+  title?: string;
+  primaryImageURL?: string;
+  price?: string;
+};
 
 const ProductsScreen = ({ navigation, route }) => {
   const { user } = useContext(UserContext);
   const { tokens, setTokens } = useContext(UserContext);
   const { webServer } = useContext(UserContext);
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<Product[]>([]);
 
   // 1. Define the Yup validation schema
   const schema = yup.object().shape({
     search: yup.string().required('Search field is required').matches(
       /^[a-zA-Z0-9]+$/,
-      'Password must only contain alphanumeric characters (letters and numbers)'
+      'Search must only contain alphanumeric characters (letters and numbers)'
     )
   })
 
-  useEffect(() => {
-    console.log("ProductsScreen mounted");
-    const fetchProducts = async () => {
-      if (!user?.gym_id || !tokens?.access_token) {
-        return;
-      }
-
-      try {
-        const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/products`, {
-          headers: {
-            Authorization: "Bearer " + tokens.access_token,
-          },
-        });
-
-        const data = await response.json();
-        console.log("Fetched products:", data);
-
-        if (response.status === 200) {
-          // setProducts(data.products);
-        }
-
-      } catch (error) {
-        console.log('Failed to fetch products:', error);
-      }
-    }
-    fetchProducts();
-  }, [user?.gym_id, tokens?.access_token]);
-
   // 2. Initialize useForm with the Yup resolver
-  const { control, handleSubmit, formState: { errors } } = useForm({
+  const { control, watch, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
       search: '',
     },
   })
+
+  const searchQuery = (watch('search') || '').trim().toLowerCase();
+
+  const matchesSearch = (product: Product) => {
+    if (!searchQuery) return true; // If search query is empty, show all products
+    const title = (product.title || '').toLowerCase();
+    return title.includes(searchQuery);
+  }
+
+  const filteredProducts = products.filter(matchesSearch);
 
   // 3. Define the submit handler
   const onSubmit = async (data) => {
@@ -81,115 +67,129 @@ const ProductsScreen = ({ navigation, route }) => {
     }
   }
 
+  const getImageUri = (path?: string) => {
+    if (!path) return '';
+    const queryJoiner = path.includes('?') ? '&' : '?';
+    return `${webServer}/api/uploads/${path}${queryJoiner}v=${imageCacheKey}`;
+  };
+  const [imageCacheKey, setImageCacheKey] = useState(Date.now());
+
+  useEffect(() => {
+    console.log("ProductsScreen mounted");
+    const fetchProducts = async () => {
+      if (!user?.gym_id || !tokens?.access_token) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/products`, {
+          headers: {
+            Authorization: "Bearer " + tokens.access_token,
+          },
+        });
+
+        const data = await response.json();
+        console.log(response.status, data);
+        if (response.status === 200) {
+          setProducts(data.data);
+        }
+      } catch (error) {
+        console.log('Failed to fetch products:', error);
+      }
+    }
+    fetchProducts();
+  }, [user?.gym_id, tokens?.access_token]);
+
   return (
     <>
-      <SafeAreaView style={styles.container}>
-        <View style={styles.navs}>
-          <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
-          <View style={styles.signOut}>
-            <Text style={styles.signOutText}>Add</Text>
-            <View style={styles.circle}>
-              <Feather name="plus" size={24} color={AppColors.white} onPress={() => { navigation.navigate('AddProductScreen') }} />
-            </View>
-            <Text style={styles.signOutText}>Log out</Text>
-            <View style={styles.circle}>
-              <MaterialIcons name="logout" color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <SafeAreaView style={styles.container}>
+          <View style={styles.navs}>
+            <Feather
+              name="arrow-left"
+              color={AppColors.blue}
+              size={36}
+              onPress={() => {
+                navigation.goBack();
+              }}
+            />
+            <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: 10 }}>
+              {/* move to separate component */}
+              <TouchableOpacity onPress={() => navigation.navigate('AddStaffScreen')} style={styles.signOut}>
+                <Text style={styles.signOutText}>Add</Text>
+                <View style={styles.circle}>
+                  <MaterialIcons name="add" color={AppColors.white} size={16} />
+                </View>
+              </TouchableOpacity>
+              <SignOut />
             </View>
           </View>
-        </View>
-        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-          <View style={styles.headingContainer}>
-            <Text style={styles.title}>Products</Text>
-            <PinkLeafSvg style={styles.pinkLeaf} />
-          </View>
-          <View style={styles.body}>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.headingContainer}>
+              <Text style={styles.title}>Staff</Text>
+              <PinkLeafSvg style={styles.pinkLeaf} />
+            </View>
+            <View style={styles.body}>
 
-            <View style={styles.fieldset}>
-              <View style={styles.field}>
-                <Controller
-                  control={control}
-                  name="search"
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <TextInput
-                      style={styles.inputField}
-                      // onBlur={onBlur}
-                      onChangeText={onChange}
-                      value={value}
-                      keyboardType="default"
-                      autoCapitalize="none"
-                      placeholder="Search"
-                      placeholderTextColor={AppColors.blue}
-                      onBlur={handleSubmit(onSubmit)}
-                    />
-                  )}
-                />
+              <View style={styles.fieldset}>
+                <View style={styles.field}>
+                  <Controller
+                    control={control}
+                    name="search"
+                    render={({ field: { onChange, onBlur, value } }) => (
+                      <TextInput
+                        onBlur={() => {
+                          onBlur();
+                          console.log('Search value on blur:', value);
+                          handleSubmit(onSubmit)();
+                        }}
+                        onSubmitEditing={() => {
+                          Keyboard.dismiss();
+                        }}
+                        onChangeText={onChange}
+                        value={value}
+                        placeholder="Search"
+                        style={styles.inputField}
+                        keyboardType="default"
+                        returnKeyType="done"
+                        blurOnSubmit
+                        autoCapitalize="none"
+                        placeholderTextColor={AppColors.blue}
+                      />
+                    )}
+                  />
+                </View>
+                {/* Render other form inputs and their corresponding error messages */}
+                {errors.search && <Text style={styles.errorText}>{errors.search.message}</Text>}
               </View>
-              {/* Render other form inputs and their corresponding error messages */}
-              {errors.search && <Text style={styles.errorText}>{errors.search.message}</Text>}
-            </View>
 
-            <View style={styles.section}>
-              <View style={styles.sectionHeading}>
+              <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Products</Text>
-                <Text style={styles.countText}>Count: 6</Text>
-              </View>
-              {/* <View style={styles.boxes}>
-                <TouchableOpacity onPress={() => navigation.navigate('ProductsTab', { screen: 'ProductDetailScreen' })}>
-                  <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/products/boxingGloves.jpg')} resizeMode="contain" />
-                    <Text style={styles.productTitle}>Boxing Gloves</Text>
-                    <Text style={styles.cost}>$25.00</Text>
-                  </View>
-                </TouchableOpacity>
-
-                <TouchableOpacity onPress={() => navigation.navigate('ProductsTab', { screen: 'ProductDetailScreen' })}>
-                  <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/products/proteinShaker.png')} resizeMode="contain" />
-                    <Text style={styles.productTitle}>Protein Shaker</Text>
-                    <Text style={styles.cost}>$10.00</Text>
-                  </View>
-                </TouchableOpacity>
-
-                <TouchableOpacity onPress={() => navigation.navigate('ProductsTab', { screen: 'ProductDetailScreen' })}>
-                  <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/products/proteinShaker2.png')} resizeMode="contain" />
-                    <Text style={styles.productTitle}>Protein Shaker</Text>
-                    <Text style={styles.cost}>$10.00</Text>
-                  </View>
-                </TouchableOpacity>
-
-                <TouchableOpacity onPress={() => navigation.navigate('ProductsTab', { screen: 'ProductDetailScreen' })}>
-                  <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/products/tShirt.png')} resizeMode="contain" />
-                    <Text style={styles.productTitle}>T Shirt</Text>
-                    <Text style={styles.cost}>$21.00</Text>
-                  </View>
-                </TouchableOpacity>
-
-                <TouchableOpacity onPress={() => navigation.navigate('ProductsTab', { screen: 'ProductDetailScreen' })}>
-                  <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/products/wristBand.png')} resizeMode="contain" />
-                    <Text style={styles.productTitle}>Wrist band</Text>
-                    <Text style={styles.cost}>$20.50</Text>
-                  </View>
-                </TouchableOpacity>
-
-                <TouchableOpacity onPress={() => navigation.navigate('ProductsTab', { screen: 'ProductDetailScreen' })}>
-                  <View style={styles.box}>
-                    <Image style={styles.image} source={require('../../assets/images/products/headPhones.png')} resizeMode="contain" />
-                    <Text style={styles.productTitle}>Headphones</Text>
-                    <Text style={styles.cost}>$100.00</Text>
-                  </View>
-                </TouchableOpacity>
-              </View> */}
-              <View style={styles.boxes}>
-                <Text>testing</Text>
+                <View style={styles.boxes}>
+                  {filteredProducts.length === 0 ? (
+                    <Text style={styles.noResultsText}>No results found</Text>
+                  ) : (
+                    filteredProducts.map((product, index) => {
+                      return (
+                        <TouchableOpacity key={index} onPress={() => navigation.navigate('UpdateProductScreen', { product: product })}>
+                          <View style={styles.box}>
+                            {product.title ? (
+                              <Image style={styles.image} source={{ uri: getImageUri(product.primaryImageURL) }} />
+                            ) : null}
+                            <Text style={styles.personName}>{product.title ?? ''}</Text>
+                          </View>
+                        </TouchableOpacity>
+                      );
+                    })
+                  )}
+                </View>
               </View>
             </View>
-
-          </View>
-        </ScrollView>
-      </SafeAreaView>
+          </ScrollView>
+        </SafeAreaView>
+      </TouchableWithoutFeedback>
     </>
   )
 }
@@ -199,13 +199,38 @@ export default ProductsScreen
 const styles = StyleSheet.create({
   container: {
     backgroundColor: AppColors.white,
+    flex: 1,
+    paddingLeft: 24,
+    paddingRight: 24,
   },
   navs: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingLeft: 24,
-    paddingRight: 24,
-    width: '100%',
+  },
+  headingContainer: {
+    alignItems: 'center',
+    marginBottom: 20
+  },
+  title: {
+    color: AppColors.blue,
+    fontSize: 32,
+    marginTop: 20,
+    marginBottom: 40,
+    width: 320,
+    textAlign: "center",
+  },
+  pinkLeaf: {
+    position: "absolute",
+    zIndex: -1,
+    right: 96,
+  },
+  body: {
+    flex: 1,
+  },
+  bodyText: {
+    fontSize: 16,
+    lineHeight: 24,
+    color: AppColors.primary,
   },
   signOut: {
     flexDirection: 'row',
@@ -216,39 +241,6 @@ const styles = StyleSheet.create({
     marginRight: 4,
     color: AppColors.blue,
     fontSize: 14
-  },
-  circle: {
-    width: 30,
-    height: 30,
-    borderRadius: '50%',
-    backgroundColor: AppColors.blue,
-    justifyContent: 'center',
-    alignItems: 'center',
-    // paddingLeft: 3
-  },
-  headingContainer: {
-    alignItems: 'center',
-    marginBottom: 20
-  },
-  title: {
-    color: AppColors.blue,
-    fontFamily: 'Montserrat',
-    fontSize: 32,
-    marginTop: 20,
-  },
-  pinkLeaf: {
-    position: 'absolute',
-    // zIndex: -1,
-    // top: 0,
-    right: 88
-  },
-  body: {
-    paddingLeft: 24,
-    paddingRight: 24,
-    marginBottom: 8,
-    flex: 1,
-    height: windowHeight,
-    // borderWidth: 1, borderColor: 'red',
   },
   errorText: {
     color: AppColors.red,
@@ -263,48 +255,52 @@ const styles = StyleSheet.create({
     borderColor: AppColors.textInputBorderColor,
     backgroundColor: AppColors.grey,
     paddingLeft: 22,
-    marginTop: 20,
-    height: s(48),
-    borderRadius: s(8),
+    height: 48,
+    borderRadius: 8,
+    color: AppColors.blue,
+    fontFamily: "Montserrat",
+    fontSize: 16,
   },
   section: {
     // flexDirection: 'column',
     marginTop: 24,
     marginBottom: 32
   },
-  sectionHeading: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
   sectionTitle: {
     fontSize: 24,
     // marginBottom: 16,
-  },
-  countText: {
-    fontSize: 12
   },
   boxes: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     columnGap: 16,
-    justifyContent: 'space-evenly',
+    justifyContent: 'flex-start',
     // alignItems: 'center',
   },
+  box: { width: 96, height: 96 },
   image: {
     marginTop: 16,
     width: 96,
-    height: 96
+    height: 96,
+    borderRadius: 16
   },
-  productTitle: {
+  personName: {
     marginTop: 10,
     textAlign: 'center'
   },
-  scrollView: {
-    marginBottom: 32
+  noResultsText: {
+    marginTop: 12,
+    color: AppColors.primary,
+    fontSize: 14,
   },
-  cost: {
-    marginTop: 8,
-    textAlign: 'center',
-    color: AppColors.grey2
-  }
+  circle: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: AppColors.blue,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  sectionHeading: {},
+  countText: {},
 })
