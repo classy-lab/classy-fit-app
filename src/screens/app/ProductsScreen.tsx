@@ -90,6 +90,11 @@ const ProductsScreen = ({ navigation, route }) => {
 
         const data = await response.json();
         console.log(response.status, data);
+
+        data.data.forEach((product) => {
+          console.log(`${webServer}/api/uploads/` + product.primaryImageURL);
+        });
+
         if (response.status === 200) {
           setProducts(data.data);
         }
@@ -129,6 +134,7 @@ const ProductsScreen = ({ navigation, route }) => {
           >
             <View style={styles.headingContainer}>
               <Text style={styles.title}>Staff</Text>
+              <Text style={styles.title}>Products</Text>
               <PinkLeafSvg style={styles.pinkLeaf} />
             </View>
             <View style={styles.body}>
@@ -178,7 +184,8 @@ const ProductsScreen = ({ navigation, route }) => {
                             {product.title ? (
                               <Image style={styles.image} source={{ uri: getImageUri(product.primaryImageURL) }} />
                             ) : null}
-                            <Text style={styles.personName}>{product.title ?? ''}</Text>
+                            <Text style={styles.personName} numberOfLines={1} ellipsizeMode="tail">{product.title ?? ''}</Text>
+                            <Text style={styles.personName}>{product.price ?? ''}</Text>
                           </View>
                         </TouchableOpacity>
                       );
@@ -209,20 +216,21 @@ const styles = StyleSheet.create({
   },
   headingContainer: {
     alignItems: 'center',
-    marginBottom: 20
   },
   title: {
     color: AppColors.blue,
+    fontFamily: "Montserrat",
     fontSize: 32,
-    marginTop: 20,
+    marginTop: 60,
     marginBottom: 40,
-    width: 320,
+    // width: 320,
     textAlign: "center",
   },
   pinkLeaf: {
-    position: "absolute",
+    position: "relative",
     zIndex: -1,
-    right: 96,
+    top: -96,
+    right: -56,
   },
   body: {
     flex: 1,
@@ -268,18 +276,21 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 24,
-    // marginBottom: 16,
+    marginBottom: 16,
   },
   boxes: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     columnGap: 16,
+    rowGap: 20,
     justifyContent: 'flex-start',
-    // alignItems: 'center',
+    alignItems: 'flex-start',
   },
-  box: { width: 96, height: 96 },
+  box: {
+    width: 96,
+    alignItems: 'center',
+  },
   image: {
-    marginTop: 16,
     width: 96,
     height: 96,
     borderRadius: 16
