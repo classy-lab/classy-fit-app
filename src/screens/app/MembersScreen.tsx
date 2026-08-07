@@ -244,9 +244,7 @@ const MembersScreen = ({ navigation }: { navigation: any }) => {
                     )
                   }
                 </View>
-
               </View>
-
             </View>
           </ScrollView>
         </SafeAreaView>
