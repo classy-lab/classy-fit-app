@@ -134,7 +134,7 @@ const MembersScreen = ({ navigation }: { navigation: any }) => {
             const json = await response.text();
             const obj = JSON.parse(json);
 
-            if (response.status == 200) {
+            if (response.status === 200) {
               console.log("Got new access token and refresh token");
               setTokens((prev: any) => ({
                 ...prev,
@@ -244,7 +244,9 @@ const MembersScreen = ({ navigation }: { navigation: any }) => {
                     )
                   }
                 </View>
+
               </View>
+
             </View>
           </ScrollView>
         </SafeAreaView>
@@ -321,7 +323,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   section: {
-    // flexDirection: 'column',
     marginTop: 24,
     marginBottom: 32
   },
@@ -334,7 +335,6 @@ const styles = StyleSheet.create({
     columnGap: 16,
     rowGap: 26 + 16,
     justifyContent: 'space-evenly',
-    // alignItems: 'center',
   },
   box: { width: 96, height: 96, },
   image: {
@@ -363,7 +363,8 @@ const styles = StyleSheet.create({
   sectionHeading: {
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   countText: {
     color: AppColors.blue
