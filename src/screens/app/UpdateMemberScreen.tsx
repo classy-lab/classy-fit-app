@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useCallback, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -13,16 +13,74 @@ import Feather from "@expo/vector-icons/Feather";
 import VectorImageSvg from "../../components/svg/VectorImageSvg";
 import SignOut from "../../components/utils/SignOut";
 import UpdateMemberForm from "../../components/forms/UpdateMemberForm";
+import { UserContext } from '../../context/UserContext'
 
 const UpdateMemberScreen = ({ navigation }: { navigation: any }) => {
+  const { user } = useContext(UserContext);
+  const { tokens, setTokens } = useContext(UserContext);
+  const { webServer } = useContext(UserContext);
   const route = useRoute<any>();
   const member = route?.params?.member || {};
+  const [memberData, setMemberData] = useState(member);
 
   useEffect(() => {
-    if (!member?.uid && !member?.id && !member?.user_id && !member?.sub) {
+    // console.log(user.gym_id, "user gym id");
+    const memberId = member?.uid || member?.id || member?.user_id || member?.sub;
+
+    if (!memberId) {
       console.log("No member id available for update screen");
+      return;
     }
-  }, [member]);
+
+    const fetchMemberData = async () => {
+      try {
+        const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/members/${memberId}`, { // /api/v1/gyms/${gymId}/members/${uid}
+          headers: {
+            Authorization: "Bearer " + tokens.access_token,
+          }
+        });
+
+        const json = await response.json();
+        const fetchedMember = json?.member || json?.data || json?.user || json;
+
+        console.log("Fetched member data:", fetchedMember);
+
+        if (response.ok) {
+          setMemberData((prev: any) => ({
+            ...prev,
+            ...fetchedMember,
+          }));
+
+        }
+        else {
+          console.log("Access token expired, requesting new one - useFocusEffect()");
+
+          const response = await fetch(`${webServer}/api/refresh.php`, {
+            method: "POST",
+            body: JSON.stringify({
+              token: tokens.refresh_token,
+            }),
+          });
+
+          const json = await response.text();
+          const obj = JSON.parse(json);
+
+          if (response.status === 200) {
+            console.log("Got new access token and refresh token");
+            setTokens((prev: any) => ({
+              ...prev,
+              access_token: obj.access_token,
+              refresh_token: obj.refresh_token,
+            }));
+          }
+        }
+      } catch (error) {
+        console.log('Failed to fetch member data:', error);
+      }
+    }
+
+    fetchMemberData();
+  }, [tokens?.access_token, tokens?.refresh_token, setTokens]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -39,13 +97,13 @@ const UpdateMemberScreen = ({ navigation }: { navigation: any }) => {
         <View style={styles.headingContainer}>
           <View style={styles.contactInfo}>
             <Text style={styles.title}>
-              {member?.fname || "Member"} {member?.lname || ""}
+              {memberData?.fname || member?.fname || "Member"} {memberData?.lname || member?.lname || ""}
             </Text>
             <Text style={styles.subHead}>Update Member Information</Text>
           </View>
         </View>
         <View style={styles.body}>
-          <UpdateMemberForm navigation={navigation} member={member} />
+          <UpdateMemberForm navigation={navigation} memberData={memberData} />
         </View>
         <View style={styles.imageContainer}>
           <VectorImageSvg />
