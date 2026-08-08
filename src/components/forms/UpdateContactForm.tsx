@@ -150,6 +150,19 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
             const mappedPreferredContact = preferredContactOptions.find((item) => [item.key, item.value].some((option) => String(option ?? "").trim().toLowerCase() === String(contactPreferred).trim().toLowerCase()))?.value ?? String(contactPreferred);
             console.log(response.status, "Fetched data:", obj);
 
+            const picturePath = obj?.data?.profilePic;
+            const pictureUri = picturePath ? `${webServer}/api/${picturePath}` : "";
+            const existingProfilePic = pictureUri
+              ? {
+                  path: pictureUri,
+                  uri: pictureUri,
+                  filename: picturePath.split("/").pop() || "profilePic.png",
+                  mime: "image/jpeg",
+                  type: "image/jpeg",
+                  isExistingImage: true,
+                }
+              : undefined;
+
             reset({
               email: obj?.data?.email,
               fname: obj?.data?.fname,
@@ -161,11 +174,10 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
               whatsappNumber: obj?.data?.whatsapp,
               gymId: obj?.data?.gym_id,
               preferredContact: mappedPreferredContact,
-              profilePic: undefined,
+              profilePic: existingProfilePic,
             });
 
-            const picturePath = obj?.data?.profilePic;
-            setProfilePicAPIImage(picturePath ? `${webServer}/api/${picturePath}` : "");
+            setProfilePicAPIImage(pictureUri);
           } else {
             const refreshResponse = await fetch(`${webServer}/api/refresh.php`, {
               method: "POST",
