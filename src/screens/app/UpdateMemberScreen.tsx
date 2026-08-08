@@ -24,14 +24,6 @@ const UpdateMemberScreen = ({ navigation }: { navigation: any }) => {
   const [memberData, setMemberData] = useState(member);
 
   useEffect(() => {
-    // console.log(user.gym_id, "user gym id");
-    const memberId = member?.uid || member?.id || member?.user_id || member?.sub;
-
-    if (!memberId) {
-      console.log("No member id available for update screen");
-      return;
-    }
-
     const fetchMemberData = async () => {
       try {
         const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/members/${memberId}`, { // /api/v1/gyms/${gymId}/members/${uid}
@@ -42,8 +34,6 @@ const UpdateMemberScreen = ({ navigation }: { navigation: any }) => {
 
         const json = await response.json();
         const fetchedMember = json?.member || json?.data || json?.user || json;
-
-        console.log("Fetched member data:", fetchedMember);
 
         if (response.ok) {
           setMemberData((prev: any) => ({
