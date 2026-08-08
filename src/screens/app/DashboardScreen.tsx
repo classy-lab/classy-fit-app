@@ -36,7 +36,7 @@ const DashboardScreen = ({ navigation, route }) => {
                 <Feather name="arrow-right" style={styles.statementsArrowIcon} size={32} color={AppColors.white} />
               </TouchableOpacity>
               <TouchableOpacity style={[styles.blueRectangle, styles.statementsButton]} onPress={() => { navigation.navigate('EarningsScreen') }}>
-                <Text style={styles.earningsText}>Statements</Text>
+                <Text style={styles.earningsText}>Earnings</Text>
                 <Feather name="arrow-right" style={styles.statementsArrowIcon} size={32} color={AppColors.white} />
               </TouchableOpacity>
 
@@ -54,6 +54,12 @@ const DashboardScreen = ({ navigation, route }) => {
                 </View>
                 <Text>Members</Text>
               </TouchableOpacity>
+              <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('ContractorsScreen')}>
+                <View style={styles.whiteSquare}>
+                  <FontAwesome5 name="user-alt" size={24} color={AppColors.blue} />
+                </View>
+                <Text>Contractors</Text>
+              </TouchableOpacity>
               <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('ProductsScreen')
               }>
                 <View style={styles.whiteSquare}>
@@ -61,12 +67,7 @@ const DashboardScreen = ({ navigation, route }) => {
                 </View>
                 <Text>Products</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('ContractorsScreen')}>
-                <View style={styles.whiteSquare}>
-                  <FontAwesome5 name="user-alt" size={24} color={AppColors.blue} />
-                </View>
-                <Text>Contractors</Text>
-              </TouchableOpacity>
+
             </View>
           </View>
         </ScrollView>
