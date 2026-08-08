@@ -25,6 +25,8 @@ const UpdateMemberScreen = ({ navigation }: { navigation: any }) => {
 
   useEffect(() => {
     const fetchMemberData = async () => {
+      const memberId = member?.uid;
+
       try {
         const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/members/${memberId}`, { // /api/v1/gyms/${gymId}/members/${uid}
           headers: {
