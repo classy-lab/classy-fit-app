@@ -302,7 +302,7 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
         {errors.profilePic && <Text style={styles.errorText}>{errors.profilePic.message}</Text>}
       </View>
 
-      <View style={styles.field}>
+      <View style={[styles.field, { opacity: 0.5 }]} pointerEvents="none">
         <Text style={styles.formLabel}>First Name</Text>
         <Controller
           control={control}
@@ -316,13 +316,14 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
               value={value ?? ""}
               keyboardType="default"
               autoCapitalize="none"
+              editable={false}
             />
           )}
         />
         {errors.fname && <Text style={styles.errorText}>{errors.fname.message}</Text>}
       </View>
 
-      <View style={styles.field}>
+      <View style={[styles.field, { opacity: 0.5 }]} pointerEvents="none">
         <Text style={styles.formLabel}>Last Name</Text>
         <Controller
           control={control}
@@ -336,13 +337,14 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
               value={value ?? ""}
               keyboardType="default"
               autoCapitalize="none"
+              editable={false}
             />
           )}
         />
         {errors.lname && <Text style={styles.errorText}>{errors.lname.message}</Text>}
       </View>
 
-      <View style={styles.field}>
+      <View style={[styles.field, { opacity: 0.5 }]} pointerEvents="none">
         <Text style={styles.formLabel}>Phone Number</Text>
         <Controller
           control={control}
@@ -356,13 +358,14 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
               value={value ?? ""}
               keyboardType="default"
               autoCapitalize="none"
+              editable={false}
             />
           )}
         />
         {errors.phoneNumber && <Text style={styles.errorText}>{errors.phoneNumber.message}</Text>}
       </View>
 
-      <View style={styles.field}>
+      <View style={[styles.field, { opacity: 0.5 }]} pointerEvents="none">
         <Text style={styles.formLabel}>Sex</Text>
         <Controller
           name="sex"
@@ -391,6 +394,7 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
                   marginTop: 8,
                   backgroundColor: "white",
                 }}
+                disabled={true}
               />
             );
           }}
@@ -400,7 +404,7 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
 
       <HoneypotField value={website} onChangeText={setWebsite} />
 
-      <View style={styles.field}>
+      <View style={[styles.field, { opacity: 0.5 }]} pointerEvents="none">
         <Text style={styles.formLabel}>WhatsApp Number</Text>
         <Controller
           control={control}
@@ -414,13 +418,14 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
               keyboardType="default"
               placeholder="518-555-5555"
               autoCapitalize="none"
+              editable={false}
             />
           )}
         />
         {errors.whatsappNumber && <Text style={styles.errorText}>{errors.whatsappNumber.message}</Text>}
       </View>
 
-      <View style={styles.field}>
+      <View style={[styles.field, { opacity: 0.5 }]} pointerEvents="none">
         <Text style={styles.formLabel}>E-mail</Text>
         <Controller
           control={control}
@@ -433,26 +438,27 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
               value={value ?? ""}
               keyboardType="email-address"
               autoCapitalize="none"
+              editable={false}
             />
           )}
         />
         {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
       </View>
 
-      <View style={styles.field}>
+      <View style={[styles.field, { opacity: 0.5 }]} pointerEvents="none">
         <Text style={styles.formLabel}>Preferred Contact</Text>
         <Controller
           control={control}
           name="preferredContact"
           render={({ field: { onChange, value } }) => (
-            <PreferredContact onSelectValue={onChange} value={value} />
+            <PreferredContact onSelectValue={() => { }} value={value} />
           )}
         />
         {errors.preferredContact && <Text style={styles.errorText}>{errors.preferredContact.message}</Text>}
       </View>
 
       <View style={globalStyles.loginBtnContainer}>
-        <TouchableOpacity style={globalStyles.registerBtn} onPress={handleSaveMemberPress}>
+        <TouchableOpacity style={[globalStyles.registerBtn, { opacity: 0.5 }]} disabled={true} onPress={handleSaveMemberPress}>
           <Text style={globalStyles.registerBtnText}>Save Member</Text>
         </TouchableOpacity>
       </View>
