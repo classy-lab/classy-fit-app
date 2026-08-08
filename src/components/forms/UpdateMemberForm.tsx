@@ -45,7 +45,7 @@ type FormValues = {
   gymId: string;
 };
 
-const UpdateMemberForm = ({ navigation, member }: { navigation: any; member: any }) => {
+const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberData: any }) => {
   const { tokens, setTokens, webServer } = useContext(UserContext);
   const [website, setWebsite] = useState("");
   const [profilePicAPIImage, setProfilePicAPIImage] = useState<string>("");
@@ -54,7 +54,6 @@ const UpdateMemberForm = ({ navigation, member }: { navigation: any; member: any
     { key: "2", value: "WhatsApp" },
     { key: "3", value: "Email" },
   ];
-
   const selectImage = async (onChange: (value: any) => void) => {
     try {
       const profilePic = await ImagePicker.openPicker({
@@ -105,24 +104,25 @@ const UpdateMemberForm = ({ navigation, member }: { navigation: any; member: any
     shouldFocusError: true,
     defaultValues: {
       profilePic: undefined,
-      email: member?.email ?? "",
-      fname: member?.fname ?? "",
-      lname: member?.lname ?? "",
-      company: member?.company ?? "",
-      job: member?.job ?? "",
+      email: memberData?.email ?? "",
+      fname: memberData?.fname ?? "",
+      lname: memberData?.lname ?? "",
+      company: memberData?.company ?? "",
+      job: memberData?.job ?? "",
       sex: "",
-      phoneNumber: member?.phone ?? "",
-      whatsappNumber: member?.whatsapp ?? "",
+      phoneNumber: memberData?.phone ?? "",
+      whatsappNumber: memberData?.whatsapp ?? "",
       preferredContact: "",
-      gymId: member?.gym_id ?? "",
+      gymId: memberData?.gym_id ?? memberData?.gymId ?? "",
     },
   });
 
   useFocusEffect(
     useCallback(() => {
       const fetchMemberData = async () => {
-        const memberId = member?.uid || member?.id || member?.user_id || member?.sub;
-        if (!memberId) return;
+        // const memberId = memberData?.uid || memberData?.id || memberData?.user_id || memberData?.sub;
+
+        // if (!memberId) return;
 
         try {
           const response = await fetch(`${webServer}/api/v1/gyms/${member?.gym_id || member?.gymId}/members/${memberId}`, {
@@ -164,7 +164,7 @@ const UpdateMemberForm = ({ navigation, member }: { navigation: any; member: any
       };
 
       fetchMemberData();
-    }, [member?.uid, member?.id, member?.user_id, member?.sub, member?.gym_id, member?.gymId, tokens?.access_token, tokens?.refresh_token, webServer, setTokens, reset])
+    }, [tokens?.access_token, tokens?.refresh_token, setTokens, reset])
   );
 
   const updateMember = async (data: FormValues) => {
@@ -273,7 +273,7 @@ const UpdateMemberForm = ({ navigation, member }: { navigation: any; member: any
           control={control}
           name="profilePic"
           render={({ field: { onChange, value } }) => {
-            const memberPicturePath = member?.profilePic || member?.user_picture_url;
+            const memberPicturePath = memberData?.profilePic || memberData?.user_picture_url;
             const memberPictureUri = memberPicturePath ? `${webServer}/api/${memberPicturePath}` : "";
             const selectedProfilePicUri =
               (value as any)?.path ||
