@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { useState, useRef, useContext, useCallback } from "react";
+import { useState, useRef, useContext, useCallback, useEffect } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import { Alert } from "react-native";
 import { useForm, Controller, FieldErrors } from "react-hook-form";
@@ -36,8 +36,6 @@ type FormValues = {
   email: string;
   fname: string;
   lname: string;
-  company: string;
-  job: string;
   sex: string;
   phoneNumber: string;
   whatsappNumber: string;
@@ -46,7 +44,7 @@ type FormValues = {
 };
 
 const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberData: any }) => {
-  const { tokens, setTokens, webServer } = useContext(UserContext);
+  const { tokens, webServer } = useContext(UserContext);
   const [website, setWebsite] = useState("");
   const [profilePicAPIImage, setProfilePicAPIImage] = useState<string>("");
   const preferredContactOptions = [
@@ -104,28 +102,45 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
     shouldFocusError: true,
     defaultValues: {
       profilePic: undefined,
-      email: memberData?.email ?? "",
-      fname: memberData?.fname ?? "",
-      lname: memberData?.lname ?? "",
-      company: memberData?.company ?? "",
-      job: memberData?.job ?? "",
+      email: memberData.email,
+      fname: memberData.fname,
+      lname: memberData.lname,
       sex: "",
-      phoneNumber: memberData?.phone ?? "",
-      whatsappNumber: memberData?.whatsapp ?? "",
+      phoneNumber: memberData.phone,
+      whatsappNumber: memberData.whatsapp,
       preferredContact: "",
-      gymId: memberData?.gym_id ?? memberData?.gymId ?? "",
+      gymId: memberData.gym_id,
     },
   });
+
+  useEffect(() => {
+    const memberSex = memberData.sex;
+    const memberPreferredContact = memberData.preferred_contact;
+    const mappedSex = sexData.find((item) => [item.key, item.value].some((option) => String(option ?? "").trim().toLowerCase() === String(memberSex).trim().toLowerCase()))?.value ?? String(memberSex);
+    const mappedPreferredContact = preferredContactOptions.find((item) => [item.key, item.value].some((option) => String(option ?? "").trim().toLowerCase() === String(memberPreferredContact).trim().toLowerCase()))?.value ?? String(memberPreferredContact);
+
+    reset({
+      profilePic: undefined,
+      email: memberData.email,
+      fname: memberData.fname,
+      lname: memberData.lname,
+      sex: mappedSex,
+      phoneNumber: memberData.phone,
+      whatsappNumber: memberData.whatsapp,
+      preferredContact: mappedPreferredContact,
+      gymId: memberData.gym_id,
+    });
+  }, [memberData, reset]);
 
   useFocusEffect(
     useCallback(() => {
       const fetchMemberData = async () => {
-        // const memberId = memberData?.uid || memberData?.id || memberData?.user_id || memberData?.sub;
-
-        // if (!memberId) return;
+        const memberId = memberData.uid;
+        console.log("Fetching member data for memberId:", memberId);
+        console.log("Gym ID:", memberData.gym_id);
 
         try {
-          const response = await fetch(`${webServer}/api/v1/gyms/${member?.gym_id || member?.gymId}/members/${memberId}`, {
+          const response = await fetch(`${webServer}/api/v1/gyms/${memberData.gym_id}/members/${memberId}`, {
             headers: {
               Authorization: `Bearer ${tokens.access_token}`,
             },
@@ -136,26 +151,24 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
           const payload = obj?.member || obj?.data || obj?.user || obj;
 
           if (response.status === 200) {
-            const memberSex = [payload?.sex, member?.sex, obj?.data?.sex, obj?.contact?.sex].find(Boolean) ?? "";
-            const memberPreferredContact = [payload?.preferred_contact, payload?.preferredContact, member?.preferred_contact].find(Boolean) ?? "";
+            const memberSex = payload?.sex || memberData.sex;
+            const memberPreferredContact = payload?.preferred_contact || memberData.preferred_contact;
             const mappedSex = sexData.find((item) => [item.key, item.value].some((option) => String(option ?? "").trim().toLowerCase() === String(memberSex).trim().toLowerCase()))?.value ?? String(memberSex);
             const mappedPreferredContact = preferredContactOptions.find((item) => [item.key, item.value].some((option) => String(option ?? "").trim().toLowerCase() === String(memberPreferredContact).trim().toLowerCase()))?.value ?? String(memberPreferredContact);
 
             reset({
-              email: payload?.email ?? member?.email ?? "",
-              fname: payload?.fname ?? member?.fname ?? "",
-              lname: payload?.lname ?? member?.lname ?? "",
-              company: payload?.company ?? member?.company ?? "",
-              job: payload?.job ?? member?.job ?? "",
+              email: payload?.email || memberData.email,
+              fname: payload?.fname || memberData.fname,
+              lname: payload?.lname || memberData.lname,
               sex: mappedSex,
-              phoneNumber: payload?.phone ?? member?.phone ?? "",
-              whatsappNumber: payload?.whatsapp ?? member?.whatsapp ?? "",
-              gymId: payload?.gym_id ?? member?.gym_id ?? member?.gymId ?? "",
+              phoneNumber: payload?.phone || memberData.phone,
+              whatsappNumber: payload?.whatsapp || memberData.whatsapp,
+              gymId: payload?.gym_id || memberData.gym_id,
               preferredContact: mappedPreferredContact,
               profilePic: undefined,
             });
 
-            const picturePath = payload?.profilePic || payload?.user_picture_url || member?.user_picture_url || member?.profilePic;
+            const picturePath = payload?.profilePic || payload?.user_picture_url || memberData.user_picture_url || memberData.profilePic;
             setProfilePicAPIImage(picturePath ? `${webServer}/api/${picturePath}` : "");
           }
         } catch (error) {
@@ -164,21 +177,12 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
       };
 
       fetchMemberData();
-    }, [tokens?.access_token, tokens?.refresh_token, setTokens, reset])
+    }, [memberData.uid, memberData.gym_id, tokens?.access_token, webServer, reset])
   );
 
   const updateMember = async (data: FormValues) => {
     const totalTimeElapsed = Date.now() - formLoadTime.current;
-    const memberId = member?.uid || member?.id || member?.user_id || member?.sub;
-
-    if (!memberId) {
-      showMessage({
-        message: "Action Failed",
-        description: "Missing member id. Please reopen this member from the list.",
-        type: "danger",
-      });
-      return;
-    }
+    // const memberId = memberData.uid;
 
     if (totalTimeElapsed < MIN_SUBMISSION_TIME_MS) {
       return;
@@ -189,21 +193,19 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
     }
 
     const formData = new FormData();
-    const emailValue = (data?.email ?? member?.email ?? "").trim();
-    const fnameValue = (data?.fname ?? member?.fname ?? "").trim();
-    const sexValue = getOptionValue(sexData, data?.sex);
-    const preferredContactValue = getOptionValue(preferredContactOptions, data?.preferredContact);
+    const emailValue = data.email.trim();
+    const fnameValue = data.fname.trim();
+    const sexValue = getOptionValue(sexData, data.sex);
+    const preferredContactValue = getOptionValue(preferredContactOptions, data.preferredContact);
 
-    formData.append("uid", memberId);
-    formData.append("gym_id", data.gymId || member?.gym_id || member?.gymId || "");
+    formData.append("uid", memberData.uid);
+    formData.append("gym_id", data.gymId);
     formData.append("email", emailValue);
     formData.append("fname", fnameValue);
-    formData.append("lname", data.lname || member?.lname || "");
-    formData.append("company", data.company || member?.company || "");
-    formData.append("job", data.job || member?.job || "");
+    formData.append("lname", data.lname);
     formData.append("sex", sexValue);
-    formData.append("phone", data.phoneNumber || member?.phone || "");
-    formData.append("whatsapp", data.whatsappNumber || member?.whatsapp || "");
+    formData.append("phone", data.phoneNumber);
+    formData.append("whatsapp", data.whatsappNumber);
     formData.append("preferred_contact", preferredContactValue);
 
     const profilePicPayload = data.profilePic
@@ -217,7 +219,7 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
     formData.append("profilePic", profilePicPayload as any);
 
     try {
-      const response = await fetch(`${webServer}/api/v1/gyms/${member?.gym_id || member?.gymId}/members/${memberId}`, {
+      const response = await fetch(`${webServer}/api/v1/gyms/${memberData.gym_id}/members/${memberData.uid}`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${tokens.access_token}`,
@@ -273,7 +275,7 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
           control={control}
           name="profilePic"
           render={({ field: { onChange, value } }) => {
-            const memberPicturePath = memberData?.profilePic || memberData?.user_picture_url;
+            const memberPicturePath = memberData.profilePic || memberData.user_picture_url;
             const memberPictureUri = memberPicturePath ? `${webServer}/api/${memberPicturePath}` : "";
             const selectedProfilePicUri =
               (value as any)?.path ||
@@ -394,46 +396,6 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
           }}
         />
         {errors.sex && <Text style={styles.errorText}>{errors.sex.message}</Text>}
-      </View>
-
-      <View style={styles.field}>
-        <Text style={styles.formLabel}>Company</Text>
-        <Controller
-          control={control}
-          name="company"
-          render={({ field: { onChange, onBlur, value, ref } }) => (
-            <TextInput
-              ref={ref}
-              style={styles.inputField}
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value ?? ""}
-              keyboardType="default"
-              autoCapitalize="words"
-            />
-          )}
-        />
-        {errors.company && <Text style={styles.errorText}>{errors.company.message}</Text>}
-      </View>
-
-      <View style={styles.field}>
-        <Text style={styles.formLabel}>Job</Text>
-        <Controller
-          control={control}
-          name="job"
-          render={({ field: { onChange, onBlur, value, ref } }) => (
-            <TextInput
-              ref={ref}
-              style={styles.inputField}
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value ?? ""}
-              keyboardType="default"
-              autoCapitalize="words"
-            />
-          )}
-        />
-        {errors.job && <Text style={styles.errorText}>{errors.job.message}</Text>}
       </View>
 
       <HoneypotField value={website} onChangeText={setWebsite} />
