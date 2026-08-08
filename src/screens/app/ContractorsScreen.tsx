@@ -93,9 +93,9 @@ const ContractorsScreen = ({ navigation }: { navigation: any }) => {
   useFocusEffect(
     useCallback(() => {
       const fetchStaffData = async () => {
-        // if (!user?.gym_id || !tokens?.access_token) {
-        //   return;
-        // }
+        if (!user?.gym_id || !tokens?.access_token) {
+          return;
+        }
 
         try {
           const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/contacts`, {
