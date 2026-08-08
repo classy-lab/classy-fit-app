@@ -93,9 +93,9 @@ const ProductsScreen = ({ navigation, route }) => {
 
         if (response.status === 200) {
           setProducts(data.data);
-          data.data.forEach((product) => {
-            console.log(`${webServer}/api/uploads/` + product.primaryImageURL);
-          });
+          // data.data.forEach((product) => {
+          //   console.log(`${webServer}/api/uploads/` + product.primaryImageURL);
+          // });
         }
         else {
           console.log("Access token expired, requesting new one - useFocusEffect()");
