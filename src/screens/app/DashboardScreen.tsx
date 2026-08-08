@@ -31,14 +31,15 @@ const DashboardScreen = ({ navigation, route }) => {
           </View>
           <View style={styles.body}>
             <View style={{ alignItems: 'center', }}>
-              <TouchableOpacity style={[styles.blueRectangle, styles.statementsButton]} onPress={() => { navigation.navigate('EarningsScreen') }}>
-                <Text style={styles.earningsText}>Statements</Text>
-                <Feather name="arrow-right" style={styles.statementsArrowIcon} size={32} color={AppColors.white} />
-              </TouchableOpacity>
               <TouchableOpacity style={styles.blueRectangle} onPress={() => navigation.navigate('GymScreen')}>
                 <Text style={styles.earningsText}>Gym</Text>
                 <Feather name="arrow-right" style={styles.statementsArrowIcon} size={32} color={AppColors.white} />
               </TouchableOpacity>
+              <TouchableOpacity style={[styles.blueRectangle, styles.statementsButton]} onPress={() => { navigation.navigate('EarningsScreen') }}>
+                <Text style={styles.earningsText}>Statements</Text>
+                <Feather name="arrow-right" style={styles.statementsArrowIcon} size={32} color={AppColors.white} />
+              </TouchableOpacity>
+
             </View>
             <View style={styles.greySquares}>
               <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('StaffScreen')}>
