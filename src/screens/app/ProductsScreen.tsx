@@ -91,12 +91,33 @@ const ProductsScreen = ({ navigation, route }) => {
         const data = await response.json();
         console.log(response.status, data);
 
-        data.data.forEach((product) => {
-          console.log(`${webServer}/api/uploads/` + product.primaryImageURL);
-        });
-
         if (response.status === 200) {
           setProducts(data.data);
+          data.data.forEach((product) => {
+            console.log(`${webServer}/api/uploads/` + product.primaryImageURL);
+          });
+        }
+        else {
+          console.log("Access token expired, requesting new one - useFocusEffect()");
+
+          const response = await fetch(`${webServer}/api/refresh.php`, {
+            method: "POST",
+            body: JSON.stringify({
+              token: tokens.refresh_token,
+            }),
+          });
+
+          const json = await response.text();
+          const obj = JSON.parse(json);
+
+          if (response.status === 200) {
+            console.log("Got new access token and refresh token");
+            setTokens((prev: any) => ({
+              ...prev,
+              access_token: obj.access_token,
+              refresh_token: obj.refresh_token,
+            }));
+          }
         }
       } catch (error) {
         console.log('Failed to fetch products:', error);
