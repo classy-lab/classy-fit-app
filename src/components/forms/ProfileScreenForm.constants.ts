@@ -84,7 +84,7 @@ export const schema = yup.object().shape({
 });
 
 export const updateContactSchema = yup.object().shape({
-  profilePic: createProfilePicSchema(),
+  profilePic: createProfilePicSchema({ required: true }),
   email: yup.string().required("Email is required").email("Invalid email"),
   role: yup.string(),
   fname: yup.string().required("First name is required").min(2).max(20),
