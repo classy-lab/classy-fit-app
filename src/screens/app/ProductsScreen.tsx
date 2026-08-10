@@ -141,7 +141,7 @@ const ProductsScreen = ({ navigation, route }) => {
             />
             <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: 10 }}>
               {/* move to separate component */}
-              <TouchableOpacity onPress={() => navigation.navigate('AddStaffScreen')} style={styles.signOut}>
+              <TouchableOpacity onPress={() => navigation.navigate('ProductsTab', { screen: 'AddProductScreen' })} style={styles.signOut}>
                 <Text style={styles.signOutText}>Add</Text>
                 <View style={styles.circle}>
                   <MaterialIcons name="add" color={AppColors.white} size={16} />
@@ -203,7 +203,7 @@ const ProductsScreen = ({ navigation, route }) => {
                     (
                       filteredProducts.map((product, index) => {
                         return (
-                          <TouchableOpacity key={index} onPress={() => navigation.navigate('UpdateProductScreen', { product })}>
+                          <TouchableOpacity key={index} onPress={() => navigation.navigate('ProductsTab', { screen: 'ProductDetailScreen', params: { product } })}>
                             <View style={styles.box}>
                               {
                                 product.title ? (
