@@ -93,9 +93,6 @@ const ProductsScreen = ({ navigation, route }) => {
 
         if (response.status === 200) {
           setProducts(data.data);
-          // data.data.forEach((product) => {
-          //   console.log(`${webServer}/api/uploads/` + product.primaryImageURL);
-          // });
         }
         else {
           console.log("Access token expired, requesting new one - useFocusEffect()");
@@ -203,7 +200,7 @@ const ProductsScreen = ({ navigation, route }) => {
                     (
                       filteredProducts.map((product, index) => {
                         return (
-                          <TouchableOpacity key={index} onPress={() => navigation.navigate('ProductsTab', { screen: 'ProductDetailScreen', params: { product } })}>
+                          <TouchableOpacity key={index} onPress={() => navigation.navigate('ProductsTab', { screen: 'ProductDetailScreen', params: { product: product } })}>
                             <View style={styles.box}>
                               {
                                 product.title ? (
