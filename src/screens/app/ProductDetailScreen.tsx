@@ -16,16 +16,15 @@ const ProductDetailScreen = ({ navigation, route, }) => {
   const { tokens, setTokens } = useContext(UserContext);
   const { webServer } = useContext(UserContext);
   const product = route?.params?.product ?? '';
+
   const handleSubmit = () => {
     console.log('handleSubmit() pressed')
   }
 
   useEffect(() => {
-    console.log('ProductDetailScreen product mounted')
-
     const fetchProduct = async () => {
       try {
-        const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/products/${product.id}`, {
+        const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/products/${route.params.product.pid}`, {
           headers: {
             Authorization: "Bearer " + tokens.access_token,
           },
@@ -35,7 +34,7 @@ const ProductDetailScreen = ({ navigation, route, }) => {
         console.log('ProductDetailScreen product data: ', data);
 
         if (response.status === 200) {
-          setProducts(data.data);
+          // setProducts(data.data);
         }
         else {
           console.log("Access token expired, requesting new one - useFocusEffect()");
