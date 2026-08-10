@@ -11,7 +11,7 @@ const AddProductScreen = () => {
     <>
       <SafeAreaView style={styles.container}>
         <View style={styles.navs}>
-          <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
+          <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => navigation.navigate('ProductsScreen')} />
           {/* <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} /> */}
         </View>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
