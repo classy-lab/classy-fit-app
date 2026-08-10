@@ -1,5 +1,7 @@
 // @ts-nocheck
 import { StyleSheet, Text, View, ScrollView, Image, useWindowDimensions, TouchableOpacity } from 'react-native'
+import { useState, useEffect, useContext } from 'react'
+import { webServer, user, tokens, setTokens } from '../../config'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
 import { AppColors } from '../../styles/colors'
@@ -7,12 +9,62 @@ import { s } from 'react-native-size-matters'
 import ProductSizepicker from '../../components/forms/ProductSizePicker'
 import QuantityPicker from '../../components/forms/QuantityPicker'
 import ColorPicker from '../../components/forms/ColorPicker'
+import { UserContext } from '../../context/UserContext'
 
-const ProductDetailScreen = ({ navigation, route }) => {
-
+const ProductDetailScreen = ({ navigation, route, }) => {
+  const { user } = useContext(UserContext);
+  const { tokens, setTokens } = useContext(UserContext);
+  const { webServer } = useContext(UserContext);
+  const product = route?.params?.product ?? '';
   const handleSubmit = () => {
     console.log('handleSubmit() pressed')
   }
+
+  useEffect(() => {
+    console.log('ProductDetailScreen product mounted')
+
+    const fetchProduct = async () => {
+      try {
+        const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/products/${product.id}`, {
+          headers: {
+            Authorization: "Bearer " + tokens.access_token,
+          },
+        });
+
+        const data = await response.json();
+        console.log('ProductDetailScreen product data: ', data);
+
+        if (response.status === 200) {
+          setProducts(data.data);
+        }
+        else {
+          console.log("Access token expired, requesting new one - useFocusEffect()");
+
+          const response = await fetch(`${webServer}/api/refresh.php`, {
+            method: "POST",
+            body: JSON.stringify({
+              token: tokens.refresh_token,
+            }),
+          });
+
+          const json = await response.text();
+          const obj = JSON.parse(json);
+
+          if (response.status === 200) {
+            console.log("Got new access token and refresh token");
+            setTokens((prev: any) => ({
+              ...prev,
+              access_token: obj.access_token,
+              refresh_token: obj.refresh_token,
+            }));
+          }
+        }
+      } catch (error) {
+        console.log('ProductDetailScreen product error: ', error);
+      }
+    }
+    fetchProduct();
+  }, [product, tokens?.access_token, tokens?.refresh_token]);
 
   return (
     <>
