@@ -16,6 +16,7 @@ const ProductDetailScreen = ({ navigation, route, }) => {
   const { tokens, setTokens } = useContext(UserContext);
   const { webServer } = useContext(UserContext);
   const product = route?.params?.product ?? '';
+  console.log('ProductDetailScreen product: ', product);
 
   const handleSubmit = () => {
     console.log('handleSubmit() pressed')
@@ -31,7 +32,7 @@ const ProductDetailScreen = ({ navigation, route, }) => {
         });
 
         const data = await response.json();
-        console.log('ProductDetailScreen product data: ', data);
+        // console.log('ProductDetailScreen product data: ', data);
 
         if (response.status === 200) {
           // setProducts(data.data);
@@ -85,7 +86,7 @@ const ProductDetailScreen = ({ navigation, route, }) => {
               </View>
             </View>
             <View style={styles.content}>
-              <Text style={styles.productTitle}>Boxing Gloves</Text>
+              <Text style={styles.productTitle}>{product?.title}</Text>
               <Text style={styles.productDesc}>
                 About this item:{'\n'}
                 Enhanced Protection and Comfort. The updated design features a three-layer foam construction, providing superior cushioning and impact absorption during training sessions. The curved anatomical grip ensures a snug fit, allowing for optimal hand positioning and reduced fatigue. This thoughtful design enables athletes to maintain proper form throughout extended workout periods, enhancing both performance and safety.{'\n'}
