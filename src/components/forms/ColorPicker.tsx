@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native'
 import { SelectList } from 'react-native-dropdown-select-list'
 import { AppColors } from '../../styles/colors'
 
-const ColorPicker = () => {
+const ColorPicker = ({ color }) => {
   const [selected, setSelected] = React.useState("")
   const data = [
     { key: '1', value: 'Black', disabled: false },
@@ -12,9 +12,14 @@ const ColorPicker = () => {
     { key: '4', value: 'Red' },
   ]
 
+  const normalizedColor = typeof color === 'string' ? color.toLowerCase().trim() : ''
+  const defaultOption = data.find((item) => item.value.toLowerCase() === normalizedColor)
+
   return (
     <SelectList
       setSelected={(val) => setSelected(val)}
+      key={normalizedColor || 'empty-color'}
+      defaultOption={defaultOption}
       data={data}
       save="value"
       boxStyles={styles.listBox} // Style the main input box
