@@ -6,7 +6,7 @@ import { AppColors } from '../../styles/colors'
 import { s } from 'react-native-size-matters'
 import ProductSizepicker from '../../components/forms/ProductSizePicker'
 import QuantityPicker from '../../components/forms/QuantityPicker'
-import ColorPicker from '../../components/forms/ColorPicker'
+import ColorPicker from '../../components/forms/InputField'
 
 const TreadmillEquipmentScreen = ({ navigation, route }) => {
 
