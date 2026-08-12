@@ -174,13 +174,10 @@ const styles = StyleSheet.create({
     paddingLeft: 24,
     paddingRight: 24,
     marginBottom: 24,
-    // flex: 1,
-    // borderWidth: 1, borderColor: 'red',
   },
   heroImageContainer: {
     alignItems: 'center',
     marginBottom: 16,
-    // borderWidth: 1, borderColor: 'red',
   },
   heroImage: {
     width: 232,
@@ -188,29 +185,27 @@ const styles = StyleSheet.create({
   heroImageThumbnails: {
     flexDirection: 'row',
     justifyContent: 'space-evenly',
-    // borderWidth: 1, borderColor: 'red',
   },
   thumbnail: {
     marginRight: 8,
-    // borderWidth: 1, borderColor: 'blue',
   },
   content: {
     marginTop: 24,
   },
   productTitle: {
-    fontSize: s(32),
+    fontSize: 20,
     color: AppColors.blue
   },
   productDesc: {
-    marginTop: s(24),
-    lineHeight: s(24),
-    marginBottom: s(24)
+    marginTop: 24,
+    lineHeight: 24,
+    marginBottom: 24
   },
   formLabel: {
-    marginBottom: s(8)
+    marginBottom: 8,
   },
   selectList: {
-    marginBottom: s(24)
+    marginBottom: 24,
   },
   row: {
     justifyContent: 'space-between',
