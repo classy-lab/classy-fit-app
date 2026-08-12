@@ -157,7 +157,7 @@ const StartScreen = () => {
       </ScrollView>
 
       <View style={styles.imageContainer}>
-        <VectorImageSvg />
+        {/* <VectorImageSvg /> */}
       </View>
     </SafeAreaView>
   );
