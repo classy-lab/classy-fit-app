@@ -2,17 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, TextInput } from 'react-native'
 import { AppColors } from '../../styles/colors'
 
-const InputField = ({ val: initialValue }) => {
-  const [val, setValue] = useState(initialValue)
+const InputField = ({ value }) => {
+  const [val, setValue] = useState(value ?? '')
 
   useEffect(() => {
-    if (val === null || val === undefined) {
+    if (value === null || value === undefined) {
       setValue('')
       return
     }
 
-    setValue(String(val))
-  }, [val])
+    setValue(String(value))
+  }, [value])
 
   return (
     <TextInput
