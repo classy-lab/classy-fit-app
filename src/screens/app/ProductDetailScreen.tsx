@@ -94,10 +94,6 @@ const ProductDetailScreen = ({ navigation, route }) => {
                 <ProductSizepicker size={product?.size} />
               </View>
               <View style={styles.inputField}>
-                <Text style={styles.formLabel}>Quantity</Text>
-                <QuantityPicker quantity={product?.quantity_in_stock} />
-              </View>
-              <View style={styles.inputField}>
                 <Text style={styles.formLabel}>SKU</Text>
                 <InputField value={product?.sku} />
               </View>
@@ -106,8 +102,28 @@ const ProductDetailScreen = ({ navigation, route }) => {
                 <InputField value={product?.color} />
               </View>
               <View style={styles.inputField}>
-                <Text style={styles.formLabel}>SKU</Text>
-                <InputField value={product?.sku} />
+                <Text style={styles.formLabel}>Brand</Text>
+                <InputField value={product?.brand} />
+              </View>
+              <View style={styles.inputField}>
+                <Text style={styles.formLabel}>Price</Text>
+                <InputField value={product?.price} />
+              </View>
+              <View style={styles.inputField}>
+                <Text style={styles.formLabel}>Sale Price</Text>
+                <InputField value={product?.sale_price} />
+              </View>
+              <View style={styles.inputField}>
+                <Text style={styles.formLabel}>Cost Price</Text>
+                <InputField value={product?.cost_price} />
+              </View>
+              <View style={styles.inputField}>
+                <Text style={styles.formLabel}>Quantity</Text>
+                <QuantityPicker quantity={product?.quantity_in_stock} />
+              </View>
+              <View style={styles.inputField}>
+                <Text style={styles.formLabel}>Weight</Text>
+                <QuantityPicker quantity={product?.weight} />
               </View>
               <View style={styles.row}>
                 <TouchableOpacity
