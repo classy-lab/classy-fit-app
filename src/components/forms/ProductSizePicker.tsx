@@ -3,17 +3,28 @@ import { StyleSheet } from 'react-native'
 import { SelectList } from 'react-native-dropdown-select-list'
 import { AppColors } from '../../styles/colors'
 
-const ProductSizepicker = () => {
-  const [selected, setSelected] = React.useState("")
+const ProductSizepicker = ({ size }) => {
+  const [selected, setSelected] = useState('')
   const data = [
     { key: '1', value: 'Small', disabled: false },
     { key: '2', value: 'Medium' },
     { key: '3', value: 'Large' },
   ]
 
+  const rawSize = typeof size === 'string' ? size.toLowerCase().trim() : ''
+  const sizeAliases = {
+    s: 'small',
+    m: 'medium',
+    l: 'large',
+  }
+  const normalizedSize = sizeAliases[rawSize] || rawSize
+  const defaultOption = data.find((item) => item.value.toLowerCase() === normalizedSize)
+
   return (
     <SelectList
       setSelected={(val) => setSelected(val)}
+      key={normalizedSize || 'empty-size'}
+      defaultOption={defaultOption}
       data={data}
       save="value"
       boxStyles={styles.listBox} // Style the main input box
