@@ -94,12 +94,12 @@ const ProductDetailScreen = ({ navigation, route }) => {
                 <ProductSizepicker size={product?.size} />
               </View>
               <View style={styles.selectList}>
-                <Text style={styles.formLabel}>Quantity: </Text>
+                <Text style={styles.formLabel}>Quantity</Text>
                 <QuantityPicker quantity={product?.quantity_in_stock} />
               </View>
               <View style={styles.selectList}>
-                <Text style={styles.formLabel}>Color: {product?.color}</Text>
-                <ColorPicker />
+                <Text style={styles.formLabel}>Color</Text>
+                <ColorPicker color={product?.color} />
               </View>
               <View style={styles.row}>
                 <TouchableOpacity
