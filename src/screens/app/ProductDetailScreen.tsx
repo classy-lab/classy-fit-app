@@ -8,7 +8,7 @@ import { AppColors } from '../../styles/colors'
 import { s } from 'react-native-size-matters'
 import ProductSizepicker from '../../components/forms/ProductSizePicker'
 import QuantityPicker from '../../components/forms/QuantityPicker'
-import ColorPicker from '../../components/forms/ColorPicker'
+import InputField from '../../components/forms/InputField'
 import { UserContext } from '../../context/UserContext'
 
 const ProductDetailScreen = ({ navigation, route }) => {
@@ -89,17 +89,25 @@ const ProductDetailScreen = ({ navigation, route }) => {
               <Text style={styles.productDesc}>
                 {product?.short_description}
               </Text>
-              <View style={styles.selectList}>
+              <View style={styles.inputField}>
                 <Text style={styles.formLabel}>Size</Text>
                 <ProductSizepicker size={product?.size} />
               </View>
-              <View style={styles.selectList}>
+              <View style={styles.inputField}>
                 <Text style={styles.formLabel}>Quantity</Text>
                 <QuantityPicker quantity={product?.quantity_in_stock} />
               </View>
-              <View style={styles.selectList}>
+              <View style={styles.inputField}>
+                <Text style={styles.formLabel}>SKU</Text>
+                <InputField value={product?.sku} />
+              </View>
+              <View style={styles.inputField}>
                 <Text style={styles.formLabel}>Color</Text>
-                <ColorPicker color={product?.color} />
+                <InputField value={product?.color} />
+              </View>
+              <View style={styles.inputField}>
+                <Text style={styles.formLabel}>SKU</Text>
+                <InputField value={product?.sku} />
               </View>
               <View style={styles.row}>
                 <TouchableOpacity
@@ -193,18 +201,18 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   productTitle: {
-    fontSize: 20,
+    fontSize: 16,
     color: AppColors.blue
   },
   productDesc: {
     marginTop: 24,
     lineHeight: 24,
-    marginBottom: 24
+    marginBottom: 24,
   },
   formLabel: {
     marginBottom: 8,
   },
-  selectList: {
+  inputField: {
     marginBottom: 24,
   },
   row: {
