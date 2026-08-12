@@ -89,7 +89,7 @@ const ProductsScreen = ({ navigation, route }) => {
         });
 
         const data = await response.json();
-        console.log(response.status, data);
+        // console.log(response.status, data);
 
         if (response.status === 200) {
           setProducts(data.data);
