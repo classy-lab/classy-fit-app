@@ -11,31 +11,29 @@ import QuantityPicker from '../../components/forms/QuantityPicker'
 import ColorPicker from '../../components/forms/ColorPicker'
 import { UserContext } from '../../context/UserContext'
 
-const ProductDetailScreen = ({ navigation, route, }) => {
+const ProductDetailScreen = ({ navigation, route }) => {
   const { user } = useContext(UserContext);
   const { tokens, setTokens } = useContext(UserContext);
   const { webServer } = useContext(UserContext);
-  const product = route?.params?.product ?? '';
-  console.log('ProductDetailScreen product: ', product);
+  const [product, setProduct] = useState({});
 
   const handleSubmit = () => {
-    console.log('handleSubmit() pressed')
+    // console.log('handleSubmit() pressed')
   }
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/products/${route.params.product.pid}`, {
+        const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/products/${route.params.product.pid}`, {// http://localhost:8080/classy-api/api/v1/gyms/1/products/5
           headers: {
             Authorization: "Bearer " + tokens.access_token,
           },
         });
 
         const data = await response.json();
-        // console.log('ProductDetailScreen product data: ', data);
 
         if (response.status === 200) {
-          // setProducts(data.data);
+          setProduct(data.data);
         }
         else {
           console.log("Access token expired, requesting new one - useFocusEffect()");
@@ -64,7 +62,8 @@ const ProductDetailScreen = ({ navigation, route, }) => {
       }
     }
     fetchProduct();
-  }, [product, tokens?.access_token, tokens?.refresh_token]);
+    console.log(product);
+  }, [tokens?.access_token, tokens?.refresh_token]);
 
   return (
     <>
@@ -88,29 +87,18 @@ const ProductDetailScreen = ({ navigation, route, }) => {
             <View style={styles.content}>
               <Text style={styles.productTitle}>{product?.title}</Text>
               <Text style={styles.productDesc}>
-                About this item:{'\n'}
-                Enhanced Protection and Comfort. The updated design features a three-layer foam construction, providing superior cushioning and impact absorption during training sessions. The curved anatomical grip ensures a snug fit, allowing for optimal hand positioning and reduced fatigue. This thoughtful design enables athletes to maintain proper form throughout extended workout periods, enhancing both performance and safety.{'\n'}
-                Cost: $40.00 USD{'\n'}
-                Material: Synthetic{'\n'}
-                Glove Type: Bag{'\n'}
-                Brand Name: Everlast{'\n'}
-                Warranty Description: 120 days{'\n'}
-                Model Name: Prostyle 2{'\n'}
-                Manufacturer: Everlast{'\n'}
-                Part Number: 925330-70{'\n'}
-                Item Dimensions LxWxH: 11.81 x 6.69 x 4.72 inches{'\n'}
-                Item Weight: 1.3 Pounds
+                {product?.short_description}
               </Text>
               <View style={styles.selectList}>
                 <Text style={styles.formLabel}>Size</Text>
-                <ProductSizepicker />
+                <ProductSizepicker size={product?.size} />
               </View>
               <View style={styles.selectList}>
-                <Text style={styles.formLabel}>Quantity</Text>
+                <Text style={styles.formLabel}>Quantity: {product?.quantity_in_stock}</Text>
                 <QuantityPicker />
               </View>
               <View style={styles.selectList}>
-                <Text style={styles.formLabel}>Color</Text>
+                <Text style={styles.formLabel}>Color: {product?.color}</Text>
                 <ColorPicker />
               </View>
               <View style={styles.row}>
