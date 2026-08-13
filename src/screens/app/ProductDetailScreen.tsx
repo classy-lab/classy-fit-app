@@ -82,7 +82,6 @@ const ProductDetailScreen = ({ navigation, route }) => {
           <View style={styles.body}>
             <View>
               <View style={styles.heroImageContainer}>
-                {/* <Image style={styles.image} source={{ uri: product.primaryImageURL }} /> */}
                 <Image
                   style={styles.heroImage}
                   source={{ uri: product?.images?.[0]?.image_url || null }}
