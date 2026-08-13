@@ -6,7 +6,7 @@ import Feather from '@expo/vector-icons/Feather'
 import AddProductForm from '../../components/forms/AddProductForm'
 
 const AddProductScreen = () => {
-  const navigation = useNavigation()
+  const navigation = useNavigation<any>()
   return (
     <>
       <SafeAreaView style={styles.container}>
