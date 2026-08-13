@@ -19,6 +19,7 @@ const ProductDetailScreen = ({ navigation, route }) => {
   const { tokens, setTokens } = useContext(UserContext);
   const { webServer } = useContext(UserContext);
   const [product, setProduct] = useState({});
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   const handleSubmit = () => {
     // console.log('handleSubmit() pressed')
@@ -37,6 +38,7 @@ const ProductDetailScreen = ({ navigation, route }) => {
 
         if (response.status === 200) {
           setProduct(data.data);
+          setSelectedImageIndex(0);
         }
         else {
           console.log("Access token expired, requesting new one - useFocusEffect()");
@@ -68,6 +70,8 @@ const ProductDetailScreen = ({ navigation, route }) => {
     // console.log(product.images[0]?.image_url);
   }, [tokens?.access_token, tokens?.refresh_token]);
 
+  const selectedImage = product?.images?.[selectedImageIndex]?.image_url || product?.images?.[0]?.image_url || null;
+
   return (
     <>
       <SafeAreaView style={styles.container}>
@@ -84,32 +88,26 @@ const ProductDetailScreen = ({ navigation, route }) => {
               <View style={styles.heroImageContainer}>
                 <Image
                   style={styles.heroImage}
-                  source={{ uri: product?.images?.[0]?.image_url || null }}
+                  source={{ uri: selectedImage }}
                   resizeMode="cover"
                 />
               </View>
-              <View style={styles.heroImageThumbnails}>
-                <Image
-                  style={styles.thumbnail}
-                  source={{ uri: product?.images?.[1]?.image_url || null }}
-                  resizeMode="cover"
-                />
-                <Image
-                  style={styles.thumbnail}
-                  source={{ uri: product?.images?.[2]?.image_url || null }}
-                  resizeMode="cover"
-                />
-                <Image
-                  style={styles.thumbnail}
-                  source={{ uri: product?.images?.[3]?.image_url || null }}
-                  resizeMode="cover"
-                />
-                <Image
-                  style={styles.thumbnail}
-                  source={{ uri: product?.images?.[4]?.image_url || null }}
-                  resizeMode="cover"
-                />
-              </View>
+              {product?.images?.length > 0 && (
+                <View style={styles.heroImageThumbnails}>
+                  {product.images.map((image, index) => (
+                    <TouchableOpacity key={`${image?.image_url || index}`} onPress={() => setSelectedImageIndex(index)}>
+                      <Image
+                        style={[
+                          styles.thumbnail,
+                          selectedImageIndex === index && styles.selectedThumbnail,
+                        ]}
+                        source={{ uri: image?.image_url || null }}
+                        resizeMode="cover"
+                      />
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
             </View>
             <View style={styles.content}>
               <Text style={styles.productTitle}>{product?.title}</Text>
@@ -264,6 +262,10 @@ const styles = StyleSheet.create({
     height: 56,
     marginRight: 8,
     borderRadius: 8,
+  },
+  selectedThumbnail: {
+    borderWidth: 2,
+    borderColor: AppColors.blue,
   },
   content: {
     marginTop: 24,
