@@ -65,7 +65,6 @@ const ProductDetailScreen = ({ navigation, route }) => {
       }
     }
     fetchProduct();
-    console.log(product);
   }, [tokens?.access_token, tokens?.refresh_token]);
 
   return (
@@ -82,13 +81,17 @@ const ProductDetailScreen = ({ navigation, route }) => {
           <View style={styles.body}>
             <View>
               <View style={styles.heroImageContainer}>
-                <Image style={styles.heroImage} source={require('../../assets/images/products/boxingGloves.jpg')} />
+                <Image
+                  style={styles.heroImage}
+                  source={{ uri: product.images[0].image_url }}
+                  resizeMode="cover"
+                />
               </View>
               <View style={styles.heroImageThumbnails}>
-                <Image style={styles.thumbnail} source={require('../../assets/images/products/boxingGloves2.jpg')} />
-                <Image style={styles.thumbnail} source={require('../../assets/images/products/boxingGloves3.jpg')} />
-                <Image style={styles.thumbnail} source={require('../../assets/images/products/boxingGloves4.jpg')} />
-                <Image style={styles.thumbnail} source={require('../../assets/images/products/boxingGloves5.jpg')} />
+                <Image style={styles.thumbnail} source={{ uri: product.images[1].image_url }} resizeMode="cover" />
+                <Image style={styles.thumbnail} source={{ uri: product.images[2].image_url }} resizeMode="cover" />
+                <Image style={styles.thumbnail} source={{ uri: product.images[3].image_url }} resizeMode="cover" />
+                <Image style={styles.thumbnail} source={{ uri: product.images[4].image_url }} resizeMode="cover" />
               </View>
             </View>
             <View style={styles.content}>
@@ -226,13 +229,13 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: 120,
   },
-  heroImageContainer: {
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  heroImage: {
-    width: 232,
-  },
+  // heroImageContainer: {
+  //   alignItems: 'center',
+  //   marginBottom: 16,
+  // },
+  // heroImage: {
+  //   width: 232,
+  // },
   heroImageThumbnails: {
     flexDirection: 'row',
     justifyContent: 'space-evenly',
