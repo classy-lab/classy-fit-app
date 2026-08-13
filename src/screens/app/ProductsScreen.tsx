@@ -70,7 +70,6 @@ const ProductsScreen = ({ navigation, route }) => {
   const [imageCacheKey, setImageCacheKey] = useState(Date.now());
 
   useEffect(() => {
-    console.log("ProductsScreen mounted");
     const fetchProducts = async () => {
       if (!user?.gym_id || !tokens?.access_token) {
         return;
@@ -159,7 +158,6 @@ const ProductsScreen = ({ navigation, route }) => {
                       <TextInput
                         onBlur={() => {
                           onBlur();
-                          console.log('Search value on blur:', value);
                           handleSubmit(onSubmit)();
                         }}
                         onSubmitEditing={() => {
