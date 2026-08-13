@@ -143,11 +143,11 @@ const ProductDetailScreen = ({ navigation, route }) => {
               </View>
               <View style={styles.row}>
                 <TouchableOpacity
-                  style={styles.registerBtn}
+                  style={styles.loginBtn}
                   title="Add to Cart"
                   onPress={() => { handleSubmit() }}
                 >
-                  <Text style={styles.registerBtnText}>Add to Cart</Text>
+                  <Text style={styles.loginBtnText}>Add to Cart</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.registerBtn}
@@ -295,6 +295,7 @@ const styles = StyleSheet.create({
     height: 50,
     justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: 8
   },
   loginBtnText: {
     color: AppColors.blue,
