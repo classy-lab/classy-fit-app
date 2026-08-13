@@ -74,7 +74,11 @@ const ProductDetailScreen = ({ navigation, route }) => {
         <View style={styles.navs}>
           <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => navigation.navigate('ProductsScreen')} />
         </View>
-        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
           <View style={styles.body}>
             <View>
               <View style={styles.heroImageContainer}>
@@ -90,51 +94,52 @@ const ProductDetailScreen = ({ navigation, route }) => {
             <View style={styles.content}>
               <Text style={styles.productTitle}>{product?.title}</Text>
               <View style={styles.descriptionBlock}>
-                <Text style={styles.formLabel}>Description</Text>
-                <ScrollView style={styles.descriptionScroll} showsVerticalScrollIndicator={true}>
-                  <RenderHtml
-                    contentWidth={width - 48}
-                    source={{ html: product?.description || '<p>No description available.</p>' }}
-                    tagsStyles={tagsStyles}
-                    baseStyle={styles.productDesc}
-                  />
-                </ScrollView>
+                <Text style={styles.formLabel}>Description:</Text>
+                {/* <ScrollView style={styles.descriptionScroll} showsVerticalScrollIndicator={false}> */}
+                <RenderHtml
+                  contentWidth={width - 48}
+                  source={{ html: product?.description || '<p>No description available.</p>' }}
+                  tagsStyles={tagsStyles}
+                  baseStyle={styles.productDesc}
+                />
+                {/* </ScrollView> */}
               </View>
               <View style={styles.inputField}>
-                <Text style={styles.formLabel}>Size</Text>
-                <ProductSizepicker size={product?.size} />
+                <Text style={styles.formLabel}>Size: {product?.size}
+                  {/* <ProductSizepicker size={product?.size} /> */}
+                </Text>
               </View>
               <View style={styles.inputField}>
-                <Text style={styles.formLabel}>SKU</Text>
-                <InputField value={product?.sku} />
+                <Text style={styles.formLabel}>SKU: {product?.sku}</Text>
+                {/* <InputField value={product?.sku} /> */}
               </View>
               <View style={styles.inputField}>
-                <Text style={styles.formLabel}>Color</Text>
-                <InputField value={product?.color} />
+                <Text style={styles.formLabel}>Color: {product?.color}</Text>
+                {/* <InputField value={product?.color} /> */}
               </View>
               <View style={styles.inputField}>
-                <Text style={styles.formLabel}>Brand</Text>
-                <InputField value={product?.brand} />
+                <Text style={styles.formLabel}>Brand: {product?.brand}</Text>
+                {/* <InputField value={product?.brand} /> */}
               </View>
               <View style={styles.inputField}>
-                <Text style={styles.formLabel}>Price</Text>
-                <InputField value={product?.price} />
+                <Text style={styles.formLabel}>Price: {product?.price}</Text>
+                {/* <InputField value={product?.price} /> */}
               </View>
               <View style={styles.inputField}>
-                <Text style={styles.formLabel}>Sale Price</Text>
-                <InputField value={product?.sale_price} />
+                <Text style={styles.formLabel}>Sale Price: {product?.sale_price}</Text>
+                {/* <InputField value={product?.sale_price} /> */}
               </View>
               <View style={styles.inputField}>
-                <Text style={styles.formLabel}>Cost Price</Text>
-                <InputField value={product?.cost_price} />
+                <Text style={styles.formLabel}>Cost Price: {product?.cost_price}</Text>
+                {/* <InputField value={product?.cost_price} /> */}
               </View>
               <View style={styles.inputField}>
-                <Text style={styles.formLabel}>Quantity</Text>
-                <QuantityPicker quantity={product?.quantity_in_stock} />
+                <Text style={styles.formLabel}>Quantity: {product?.quantity_in_stock}</Text>
+                {/* <QuantityPicker quantity={product?.quantity_in_stock} /> */}
               </View>
               <View style={styles.inputField}>
-                <Text style={styles.formLabel}>Weight</Text>
-                <QuantityPicker quantity={product?.weight} />
+                <Text style={styles.formLabel}>Weight: {product?.weight}</Text>
+                {/* <QuantityPicker quantity={product?.weight} /> */}
               </View>
               <View style={styles.row}>
                 <TouchableOpacity
@@ -145,11 +150,18 @@ const ProductDetailScreen = ({ navigation, route }) => {
                   <Text style={styles.registerBtnText}>Add to Cart</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={styles.loginBtn}
+                  style={styles.registerBtn}
                   title="View Cart"
                   onPress={() => { navigation.navigate('ViewCartScreen') }}
                 >
-                  <Text style={styles.loginBtnText}>View Cart</Text>
+                  <Text style={styles.registerBtnText}>View Cart</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.registerBtn}
+                  title="Edit Product"
+                  onPress={() => { navigation.navigate('EditProductScreen') }}
+                >
+                  <Text style={styles.registerBtnText}>Edit Product</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -164,6 +176,7 @@ export default ProductDetailScreen
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     backgroundColor: AppColors.white,
   },
   navs: {
@@ -210,6 +223,10 @@ const styles = StyleSheet.create({
     paddingRight: 24,
     marginBottom: 24,
   },
+  scrollView: {},
+  scrollContent: {
+    paddingBottom: 120,
+  },
   heroImageContainer: {
     alignItems: 'center',
     marginBottom: 16,
@@ -232,9 +249,9 @@ const styles = StyleSheet.create({
     color: AppColors.blue
   },
   descriptionBlock: {
-    marginTop: 24,
-    marginBottom: 24,
-    height: 200,
+    marginTop: 16,
+    marginBottom: 8,
+    // height: 200,
   },
   descriptionScroll: {
     flex: 1,
@@ -248,7 +265,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   inputField: {
-    marginBottom: 24,
+    marginBottom: 8,
   },
   row: {
     justifyContent: 'space-between',
@@ -263,6 +280,7 @@ const styles = StyleSheet.create({
     height: 50,
     justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: 8
   },
   registerBtnText: {
     fontSize: 16,
@@ -286,7 +304,7 @@ const styles = StyleSheet.create({
 
 const tagsStyles = {
   p: {
-    color: '#333333',
+    color: AppColors.primary,
     lineHeight: 20,
     marginBottom: 10,
   },
@@ -298,7 +316,7 @@ const tagsStyles = {
     marginBottom: 10,
   },
   li: {
-    color: AppColors.blue,
+    color: AppColors.primary,
     lineHeight: 20,
   },
 };
