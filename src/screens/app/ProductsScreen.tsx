@@ -67,11 +67,6 @@ const ProductsScreen = ({ navigation, route }) => {
     }
   }
 
-  const getImageUri = (path?: string) => {
-    if (!path) return '';
-    const queryJoiner = path.includes('?') ? '&' : '?';
-    return `${webServer}/api/uploads/${path}${queryJoiner}v=${imageCacheKey}`;
-  };
   const [imageCacheKey, setImageCacheKey] = useState(Date.now());
 
   useEffect(() => {
@@ -89,7 +84,6 @@ const ProductsScreen = ({ navigation, route }) => {
         });
 
         const data = await response.json();
-        // console.log(response.status, data);
 
         if (response.status === 200) {
           setProducts(data.data);
@@ -204,7 +198,7 @@ const ProductsScreen = ({ navigation, route }) => {
                             <View style={styles.box}>
                               {
                                 product.title ? (
-                                  <Image style={styles.image} source={{ uri: getImageUri(product.primaryImageURL) }} />
+                                  <Image style={styles.image} source={{ uri: product.primaryImageURL }} />
                                 ) : null
                               }
                               <Text style={styles.productTitle} numberOfLines={1} ellipsizeMode="tail">{product.title ?? ''}</Text>
