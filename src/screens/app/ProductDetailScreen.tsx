@@ -65,6 +65,7 @@ const ProductDetailScreen = ({ navigation, route }) => {
       }
     }
     fetchProduct();
+    // console.log(product.images[0]?.image_url);
   }, [tokens?.access_token, tokens?.refresh_token]);
 
   return (
@@ -81,17 +82,34 @@ const ProductDetailScreen = ({ navigation, route }) => {
           <View style={styles.body}>
             <View>
               <View style={styles.heroImageContainer}>
+                {/* <Image style={styles.image} source={{ uri: product.primaryImageURL }} /> */}
                 <Image
                   style={styles.heroImage}
-                  source={{ uri: product.images[0].image_url }}
+                  source={{ uri: product?.images?.[0]?.image_url || null }}
                   resizeMode="cover"
                 />
               </View>
               <View style={styles.heroImageThumbnails}>
-                <Image style={styles.thumbnail} source={{ uri: product.images[1].image_url }} resizeMode="cover" />
-                <Image style={styles.thumbnail} source={{ uri: product.images[2].image_url }} resizeMode="cover" />
-                <Image style={styles.thumbnail} source={{ uri: product.images[3].image_url }} resizeMode="cover" />
-                <Image style={styles.thumbnail} source={{ uri: product.images[4].image_url }} resizeMode="cover" />
+                <Image
+                  style={styles.thumbnail}
+                  source={{ uri: product?.images?.[1]?.image_url || null }}
+                  resizeMode="cover"
+                />
+                <Image
+                  style={styles.thumbnail}
+                  source={{ uri: product?.images?.[2]?.image_url || null }}
+                  resizeMode="cover"
+                />
+                <Image
+                  style={styles.thumbnail}
+                  source={{ uri: product?.images?.[3]?.image_url || null }}
+                  resizeMode="cover"
+                />
+                <Image
+                  style={styles.thumbnail}
+                  source={{ uri: product?.images?.[4]?.image_url || null }}
+                  resizeMode="cover"
+                />
               </View>
             </View>
             <View style={styles.content}>
@@ -229,19 +247,24 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: 120,
   },
-  // heroImageContainer: {
-  //   alignItems: 'center',
-  //   marginBottom: 16,
-  // },
-  // heroImage: {
-  //   width: 232,
-  // },
+  heroImageContainer: {
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  heroImage: {
+    width: 232,
+    height: 232,
+    borderRadius: 12,
+  },
   heroImageThumbnails: {
     flexDirection: 'row',
     justifyContent: 'space-evenly',
   },
   thumbnail: {
+    width: 56,
+    height: 56,
     marginRight: 8,
+    borderRadius: 8,
   },
   content: {
     marginTop: 24,
