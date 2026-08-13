@@ -26,8 +26,8 @@ const ProductDetailScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     const fetchProduct = async () => {
-      try {
-        const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/products/${route.params.product.pid}`, {// http://localhost:8080/classy-api/api/v1/gyms/1/products/5
+      try {                           // http://localhost:8080/classy-api/api/v1/gyms/1/products/5
+        const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/products/${route.params.product.pid}`, {
           headers: {
             Authorization: "Bearer " + tokens.access_token,
           },
