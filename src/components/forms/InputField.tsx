@@ -1,9 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, TextInput } from 'react-native'
+import { StyleSheet } from 'react-native'
+import { SelectList } from 'react-native-dropdown-select-list'
 import { AppColors } from '../../styles/colors'
 
-const InputField = ({ value }) => {
+const InputField = ({ value, data = [], placeholder = 'Select value' }) => {
   const [val, setValue] = useState(value ?? '')
+
+  const options = data.length
+    ? data
+    : [{ key: '1', value: value === null || value === undefined ? placeholder : String(value) }]
 
   useEffect(() => {
     if (value === null || value === undefined) {
@@ -15,12 +20,17 @@ const InputField = ({ value }) => {
   }, [value])
 
   return (
-    <TextInput
-      style={styles.inputField}
-      value={val}
-      onChangeText={setValue}
-      placeholder="Enter value"
-      placeholderTextColor={AppColors.grey2}
+    <SelectList
+      boxStyles={styles.inputField}
+      dropdownStyles={styles.dropdown}
+      setSelected={(selectedValue) => setValue(selectedValue)}
+      data={options}
+      save="value"
+      defaultOption={{
+        key: options.find((item) => item.value === val)?.key || options[0]?.key || '1',
+        value: val || placeholder,
+      }}
+      search={false}
     />
   )
 };
@@ -32,10 +42,12 @@ const styles = StyleSheet.create({
     borderColor: AppColors.grey,
     borderWidth: 1,
     paddingHorizontal: 8,
-    paddingVertical: 10,
     borderRadius: 6,
     backgroundColor: '#F5F6FA',
-    color: 'black',
-    fontSize: 16,
+  },
+  dropdown: {
+    borderColor: AppColors.grey2,
+    borderWidth: 1,
+    marginTop: 8,
   },
 })
