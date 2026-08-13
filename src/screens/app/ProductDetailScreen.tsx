@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
 import { AppColors } from '../../styles/colors'
 import { s } from 'react-native-size-matters'
-import ProductSizepicker from '../../components/forms/ProductSizePicker'
+import ProductSizePicker from '../../components/forms/ProductSizePicker'
 import QuantityPicker from '../../components/forms/QuantityPicker'
 import InputField from '../../components/forms/InputField'
 import { UserContext } from '../../context/UserContext'
@@ -105,17 +105,8 @@ const ProductDetailScreen = ({ navigation, route }) => {
                 {/* </ScrollView> */}
               </View>
               <View style={styles.inputField}>
-                <Text style={styles.formLabel}>Size: {product?.size}
-                  {/* <ProductSizepicker size={product?.size} /> */}
-                </Text>
-              </View>
-              <View style={styles.inputField}>
                 <Text style={styles.formLabel}>SKU: {product?.sku}</Text>
                 {/* <InputField value={product?.sku} /> */}
-              </View>
-              <View style={styles.inputField}>
-                <Text style={styles.formLabel}>Color: {product?.color}</Text>
-                {/* <InputField value={product?.color} /> */}
               </View>
               <View style={styles.inputField}>
                 <Text style={styles.formLabel}>Brand: {product?.brand}</Text>
@@ -140,6 +131,14 @@ const ProductDetailScreen = ({ navigation, route }) => {
               <View style={styles.inputField}>
                 <Text style={styles.formLabel}>Weight: {product?.weight}</Text>
                 {/* <QuantityPicker quantity={product?.weight} /> */}
+              </View>
+              <View style={styles.inputField}>
+                <Text style={styles.formLabel}>Size</Text>
+                <ProductSizePicker size={product?.size} />
+              </View>
+              <View style={styles.inputField}>
+                <Text style={styles.formLabel}>Color</Text>
+                <InputField value={product?.color} />
               </View>
               <View style={styles.row}>
                 <TouchableOpacity
