@@ -10,8 +10,11 @@ import ProductSizepicker from '../../components/forms/ProductSizePicker'
 import QuantityPicker from '../../components/forms/QuantityPicker'
 import InputField from '../../components/forms/InputField'
 import { UserContext } from '../../context/UserContext'
+import RenderHtml from 'react-native-render-html';
+import App from '../../../App'
 
 const ProductDetailScreen = ({ navigation, route }) => {
+  const { width } = useWindowDimensions();
   const { user } = useContext(UserContext);
   const { tokens, setTokens } = useContext(UserContext);
   const { webServer } = useContext(UserContext);
@@ -86,9 +89,17 @@ const ProductDetailScreen = ({ navigation, route }) => {
             </View>
             <View style={styles.content}>
               <Text style={styles.productTitle}>{product?.title}</Text>
-              <Text style={styles.productDesc}>
-                {product?.short_description}
-              </Text>
+              <View style={styles.descriptionBlock}>
+                <Text style={styles.formLabel}>Description</Text>
+                <ScrollView style={styles.descriptionScroll} showsVerticalScrollIndicator={true}>
+                  <RenderHtml
+                    contentWidth={width - 48}
+                    source={{ html: product?.description || '<p>No description available.</p>' }}
+                    tagsStyles={tagsStyles}
+                    baseStyle={styles.productDesc}
+                  />
+                </ScrollView>
+              </View>
               <View style={styles.inputField}>
                 <Text style={styles.formLabel}>Size</Text>
                 <ProductSizepicker size={product?.size} />
@@ -217,13 +228,21 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   productTitle: {
-    fontSize: 16,
+    fontSize: 20,
     color: AppColors.blue
   },
-  productDesc: {
+  descriptionBlock: {
     marginTop: 24,
-    lineHeight: 24,
     marginBottom: 24,
+    height: 200,
+  },
+  descriptionScroll: {
+    flex: 1,
+    lineHeight: 24,
+  },
+  productDesc: {
+    lineHeight: 24,
+    color: '#333',
   },
   formLabel: {
     marginBottom: 8,
@@ -264,3 +283,22 @@ const styles = StyleSheet.create({
     fontSize: 16
   },
 })
+
+const tagsStyles = {
+  p: {
+    color: '#333333',
+    lineHeight: 20,
+    marginBottom: 10,
+  },
+  h1: {
+    color: '#111111',
+    marginBottom: 15,
+  },
+  ul: {
+    marginBottom: 10,
+  },
+  li: {
+    color: AppColors.blue,
+    lineHeight: 20,
+  },
+};
