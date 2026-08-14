@@ -21,6 +21,7 @@ import SignoutScreen from '../screens/app/SignoutScreen'
 import LoginScreen from '../screens/auth/LoginScreen'
 import ProductDetailScreen from '../screens/app/ProductDetailScreen'
 import AddProductScreen from '../screens/app/AddProductScreen'
+import EditProductScreen from '../screens/app/EditProductScreen'
 import ViewCartScreen from '../screens/app/ViewCartScreen'
 import ThankYouScreen from '../screens/app/ThankYouScreen'
 import TreadmillEquipmentScreen from '../screens/app/TreadmillEquipmentScreen'
@@ -84,6 +85,7 @@ function ProductStackScreen() {
       <ProductStack.Screen name="ProductsScreen" component={ProductsScreen} />
       <ProductStack.Screen name="ProductDetailScreen" component={ProductDetailScreen} />
       <ProductStack.Screen name="AddProductScreen" component={AddProductScreen} />
+      <ProductStack.Screen name="EditProductScreen" component={EditProductScreen} />
       <ProductStack.Screen name="ViewCartScreen" component={ViewCartScreen} />
       <ProductStack.Screen name="ThankYouScreen" component={ThankYouScreen} />
     </ProductStack.Navigator>
