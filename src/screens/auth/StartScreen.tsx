@@ -131,7 +131,7 @@ const StartScreen = () => {
                 onPress={() => {
                   navigation.navigate("RegisterScreen", {
                     gym: selectedGym?.value || "",
-                    gymId: selectedGym?.key || "",
+                    gymId: Number(selectedGym?.key) || "",
                   });
                 }}
               >
