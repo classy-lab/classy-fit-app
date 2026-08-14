@@ -176,7 +176,7 @@ const ProductDetailScreen = ({ navigation, route }) => {
                 <TouchableOpacity
                   style={styles.registerBtn}
                   title="Edit Product"
-                  onPress={() => { navigation.navigate('EditProductScreen') }}
+                  onPress={() => { navigation.navigate('EditProductScreen', { screen: 'ProductsTab' }) }}
                 >
                   <Text style={styles.registerBtnText}>Edit Product</Text>
                 </TouchableOpacity>
