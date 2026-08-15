@@ -3,7 +3,7 @@ import { useState, useContext, useEffect, useCallback } from 'react'
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView, TextInput, Image, Keyboard, TouchableWithoutFeedback } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { AppColors } from '../../styles/colors'
-import { Feather, MaterialIcons } from '@expo/vector-icons'
+import { Feather, MaterialIcons, Ionicons } from '@expo/vector-icons'
 import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
 import SignOut from '../../components/utils/SignOut'
 import { useFocusEffect } from '@react-navigation/native'
@@ -129,12 +129,18 @@ const ProductsScreen = ({ navigation, route }) => {
                 navigation.goBack();
               }}
             />
-            <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: 10 }}>
+            <View style={styles.headerActions}>
               {/* move to separate component */}
               <TouchableOpacity onPress={() => navigation.navigate('ProductsTab', { screen: 'AddProductScreen' })} style={styles.signOut}>
-                <Text style={styles.signOutText}>Add</Text>
+                <Text style={styles.signOutText}>Add Product</Text>
                 <View style={styles.circle}>
                   <MaterialIcons name="add" color={AppColors.white} size={16} />
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate('ProductsTab', { screen: 'ViewCartScreen' })} style={styles.signOut}>
+                <Text style={styles.signOutText}>Cart</Text>
+                <View style={styles.circle}>
+                  <Ionicons name="bag-outline" color={AppColors.white} size={16} />
                 </View>
               </TouchableOpacity>
               <SignOut />
@@ -261,10 +267,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   signOutText: {
-    marginLeft: 10,
-    marginRight: 4,
+    marginRight: 6,
     color: AppColors.blue,
     fontSize: 14
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    columnGap: 8,
   },
   errorText: {
     color: AppColors.red,
