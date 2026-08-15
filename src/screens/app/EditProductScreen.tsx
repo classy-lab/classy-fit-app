@@ -331,7 +331,7 @@ const styles = StyleSheet.create({
   },
   scrollView: {},
   scrollContent: {
-    paddingBottom: 120,
+    paddingBottom: 24,
   },
   heroImageContainer: {
     alignItems: 'center',
@@ -443,6 +443,7 @@ const styles = StyleSheet.create({
     height: 50,
     justifyContent: 'center',
     alignItems: 'center',
+    marginTop: 24,
     marginBottom: 8
   },
   loginBtnText: {
