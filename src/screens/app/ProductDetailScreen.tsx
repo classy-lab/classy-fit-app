@@ -6,9 +6,6 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
 import { AppColors } from '../../styles/colors'
 import { s } from 'react-native-size-matters'
-import ProductSizePicker from '../../components/forms/ProductSizePicker'
-import QuantityPicker from '../../components/forms/QuantityPicker'
-import InputField from '../../components/forms/InputField'
 import { UserContext } from '../../context/UserContext'
 import RenderHtml from 'react-native-render-html';
 import App from '../../../App'
@@ -71,6 +68,9 @@ const ProductDetailScreen = ({ navigation, route }) => {
   }, [tokens?.access_token, tokens?.refresh_token]);
 
   const selectedImage = product?.images?.[selectedImageIndex]?.image_url || product?.images?.[0]?.image_url || null;
+  const sizeLabelMap = { S: 'Small', M: 'Medium', L: 'Large' };
+  const normalizedSize = String(product?.size ?? '').trim().toUpperCase();
+  const displaySize = sizeLabelMap[normalizedSize] || product?.size;
 
   return (
     <>
@@ -151,12 +151,10 @@ const ProductDetailScreen = ({ navigation, route }) => {
                 {/* <QuantityPicker quantity={product?.weight} /> */}
               </View>
               <View style={styles.inputField}>
-                <Text style={styles.formLabel}>Size</Text>
-                <ProductSizePicker size={product?.size} />
+                <Text style={styles.formLabel}>Size: {displaySize}</Text>
               </View>
               <View style={styles.inputField}>
-                <Text style={styles.formLabel}>Color</Text>
-                <InputField value={product?.color} />
+                <Text style={styles.formLabel}>Color: {product?.color}</Text>
               </View>
               <View style={styles.row}>
                 <TouchableOpacity
