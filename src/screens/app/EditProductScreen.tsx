@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, TextInput } from 'react-native'
-import { useState, useEffect, useContext } from 'react'
+import { useState, useEffect, useContext, useRef } from 'react'
 import { webServer, user, tokens, setTokens } from '../../config'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
@@ -10,6 +10,7 @@ import ProductSizePicker from '../../components/forms/ProductSizePicker'
 import QuantityPicker from '../../components/forms/QuantityPicker'
 import InputField from '../../components/forms/InputField'
 import { UserContext } from '../../context/UserContext'
+import { RichEditor, RichToolbar, actions } from 'react-native-pell-rich-editor'
 import App from '../../../App'
 
 const EditProductScreen = ({ navigation, route }) => {
@@ -18,6 +19,8 @@ const EditProductScreen = ({ navigation, route }) => {
   const { webServer } = useContext(UserContext);
   const [product, setProduct] = useState({});
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [descriptionHtml, setDescriptionHtml] = useState('');
+  const richText = useRef(null);
   const getTextValue = (value) => String(value ?? '');
 
   const handleProductFieldChange = (field, value) => {
@@ -46,6 +49,7 @@ const EditProductScreen = ({ navigation, route }) => {
 
         if (response.status === 200) {
           setProduct(data.data);
+          setDescriptionHtml(getTextValue(data?.data?.description));
           setSelectedImageIndex(0);
         }
         else {
@@ -135,16 +139,45 @@ const EditProductScreen = ({ navigation, route }) => {
               </View>
               <View style={styles.descriptionBlock}>
                 <Text style={styles.formLabel}>Description:</Text>
-                <TextInput
-                  style={styles.textAreaField}
-                  value={getTextValue(product?.description)}
-                  onChangeText={(value) => handleProductFieldChange('description', value)}
-                  placeholder="Enter description"
-                  placeholderTextColor={AppColors.grey2}
-                  multiline
-                  numberOfLines={6}
-                  textAlignVertical="top"
+                <RichToolbar
+                  editor={richText}
+                  style={styles.richToolbar}
+                  iconTint={AppColors.blue}
+                  selectedIconTint={AppColors.white}
+                  selectedButtonStyle={styles.richToolbarSelectedButton}
+                  actions={[
+                    actions.setBold,
+                    actions.setItalic,
+                    actions.setUnderline,
+                    actions.setStrikethrough,
+                    actions.insertBulletsList,
+                    actions.insertOrderedList,
+                    actions.insertLink,
+                    actions.undo,
+                    actions.redo,
+                    actions.checkboxList,
+                  ]}
                 />
+                <View style={styles.richEditorContainer}>
+                  <RichEditor
+                    ref={richText}
+                    useContainer={false}
+                    style={styles.richEditor}
+                    initialContentHTML={descriptionHtml}
+                    initialHeight={36}
+                    placeholder="Enter description"
+                    editorStyle={{
+                      backgroundColor: AppColors.grey,
+                      color: AppColors.blue,
+                      placeholderColor: AppColors.grey2,
+                      contentCSSText: 'font-size: 14px; line-height: 18px; min-height: 28px;'
+                    }}
+                    onChange={(value) => {
+                      setDescriptionHtml(value);
+                      handleProductFieldChange('description', value);
+                    }}
+                  />
+                </View>
               </View>
               <View style={styles.inputField}>
                 <Text style={styles.formLabel}>SKU:</Text>
@@ -366,17 +399,28 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     color: AppColors.blue,
   },
-  textAreaField: {
-    marginTop: 5,
+  richEditorContainer: {
+    height: 400,
     borderWidth: 1,
     borderColor: AppColors.textInputBorderColor,
-    backgroundColor: AppColors.grey,
-    paddingLeft: 12,
-    paddingRight: 12,
-    paddingTop: 12,
-    minHeight: 120,
     borderRadius: 8,
-    color: AppColors.blue,
+    overflow: 'hidden',
+    backgroundColor: AppColors.grey,
+  },
+  richEditor: {
+    flex: 1,
+    backgroundColor: AppColors.grey,
+  },
+  richToolbar: {
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: AppColors.textInputBorderColor,
+    borderRadius: 8,
+    backgroundColor: AppColors.grey,
+  },
+  richToolbarSelectedButton: {
+    backgroundColor: AppColors.blue,
+    borderRadius: 6,
   },
   row: {
     justifyContent: 'space-between',
