@@ -6,9 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
 import { AppColors } from '../../styles/colors'
 import { s } from 'react-native-size-matters'
-import ProductSizePicker from '../../components/forms/ProductSizePicker'
 import QuantityPicker from '../../components/forms/QuantityPicker'
-import InputField from '../../components/forms/InputField'
 import { UserContext } from '../../context/UserContext'
 import { RichEditor, RichToolbar, actions } from 'react-native-pell-rich-editor'
 import App from '../../../App'
@@ -272,11 +270,27 @@ const EditProductScreen = ({ navigation, route }) => {
               </View>
               <View style={styles.inputField}>
                 <Text style={styles.formLabel}>Size</Text>
-                <ProductSizePicker size={product?.size} />
+                <TextInput
+                  style={styles.textField}
+                  value={getTextValue(product?.size)}
+                  onChangeText={(value) => handleProductFieldChange('size', value)}
+                  placeholder="Enter size"
+                  placeholderTextColor={AppColors.grey2}
+                  autoCapitalize="characters"
+                  returnKeyType="done"
+                />
               </View>
               <View style={styles.inputField}>
                 <Text style={styles.formLabel}>Color</Text>
-                <InputField value={product?.color} />
+                <TextInput
+                  style={styles.textField}
+                  value={getTextValue(product?.color)}
+                  onChangeText={(value) => handleProductFieldChange('color', value)}
+                  placeholder="Enter color"
+                  placeholderTextColor={AppColors.grey2}
+                  autoCapitalize="words"
+                  returnKeyType="done"
+                />
               </View>
               <View style={styles.row}>
                 <TouchableOpacity
