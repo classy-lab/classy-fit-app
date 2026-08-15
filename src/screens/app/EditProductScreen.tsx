@@ -22,6 +22,11 @@ const EditProductScreen = ({ navigation, route }) => {
   const [descriptionHtml, setDescriptionHtml] = useState('');
   const richText = useRef(null);
   const getTextValue = (value) => String(value ?? '');
+  const productIdentifier =
+    route?.params?.product?.pid ||
+    route?.params?.product?.uid ||
+    product?.pid ||
+    product?.uid;
 
   const handleProductFieldChange = (field, value) => {
     setProduct((prev: any) => ({
@@ -88,7 +93,25 @@ const EditProductScreen = ({ navigation, route }) => {
     <>
       <SafeAreaView style={styles.container}>
         <View style={styles.navs}>
-          <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => navigation.navigate('ProductsScreen')} />
+          <Feather
+            name="arrow-left"
+            color={AppColors.blue}
+            size={36}
+            onPress={() => {
+              if (navigation.canGoBack()) {
+                navigation.goBack();
+                return;
+              }
+
+              navigation.navigate('ProductDetailScreen', {
+                product: {
+                  ...(route?.params?.product || {}),
+                  ...(product || {}),
+                  pid: productIdentifier,
+                },
+              });
+            }}
+          />
         </View>
         <ScrollView
           style={styles.scrollView}
