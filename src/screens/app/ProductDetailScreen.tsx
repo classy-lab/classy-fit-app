@@ -19,8 +19,10 @@ const ProductDetailScreen = ({ navigation, route }) => {
   const { webServer } = useContext(UserContext);
   const [product, setProduct] = useState({});
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [cartCount, setCartCount] = useState(0);
 
   const handleSubmit = (quantity = 1) => {
+    setCartCount((prevCount) => prevCount + quantity);
     showMessage({
       message: 'Added to Cart',
       description: `${quantity} item added to cart`,
@@ -83,12 +85,28 @@ const ProductDetailScreen = ({ navigation, route }) => {
       <SafeAreaView style={styles.container}>
         <View style={styles.navs}>
           <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => navigation.navigate('ProductsScreen')} />
-          <TouchableOpacity
-            style={styles.viewCartIconButton}
-            onPress={() => { navigation.navigate('ViewCartScreen') }}
-          >
-            <Ionicons name="bag-handle-outline" color={AppColors.blue} size={24} />
-          </TouchableOpacity>
+          <View style={styles.headerActions}>
+            <TouchableOpacity
+              style={styles.quickAddButton}
+              onPress={() => { handleSubmit(1) }}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="add-circle-outline" color={AppColors.blue} size={18} />
+              <Text style={styles.quickAddButtonText}>Add 1</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.viewCartIconButton}
+              onPress={() => { navigation.navigate('ViewCartScreen') }}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="bag-outline" color={AppColors.blue} size={24} />
+              {cartCount > 0 && (
+                <View style={styles.cartBadge}>
+                  <Text style={styles.cartBadgeText}>{cartCount}</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          </View>
         </View>
         <ScrollView
           style={styles.scrollView}
@@ -210,6 +228,26 @@ const styles = StyleSheet.create({
     paddingLeft: 24,
     paddingRight: 24,
   },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    columnGap: 12,
+  },
+  quickAddButton: {
+    height: 36,
+    borderRadius: 18,
+    paddingHorizontal: 12,
+    borderWidth: 1,
+    borderColor: AppColors.textInputBorderColor,
+    backgroundColor: AppColors.grey,
+    flexDirection: 'row',
+    alignItems: 'center',
+    columnGap: 6,
+  },
+  quickAddButtonText: {
+    color: AppColors.blue,
+    fontSize: 14,
+  },
   viewCartIconButton: {
     width: 36,
     height: 36,
@@ -219,6 +257,23 @@ const styles = StyleSheet.create({
     backgroundColor: AppColors.grey,
     justifyContent: 'center',
     alignItems: 'center',
+    position: 'relative',
+  },
+  cartBadge: {
+    position: 'absolute',
+    top: -6,
+    right: -6,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: AppColors.blue,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 4,
+  },
+  cartBadgeText: {
+    color: AppColors.white,
+    fontSize: 10,
   },
   signOut: {
     flexDirection: 'row',
