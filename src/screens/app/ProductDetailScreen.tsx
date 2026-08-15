@@ -241,6 +241,14 @@ const ProductDetailScreen = ({ navigation, route }) => {
                   </View>
                 </View>
               </View>
+
+              <TouchableOpacity
+                style={styles.bottomAddToCartButton}
+                onPress={() => { handleSubmit(1) }}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.bottomAddToCartButtonText}>Add to Cart</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </ScrollView>
@@ -467,6 +475,20 @@ const styles = StyleSheet.create({
   summaryChipText: {
     color: AppColors.primary,
     fontSize: 12,
+  },
+  bottomAddToCartButton: {
+    backgroundColor: AppColors.blue,
+    borderRadius: 40,
+    width: 248,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
+    marginBottom: 24,
+  },
+  bottomAddToCartButtonText: {
+    color: AppColors.white,
+    fontSize: 16,
   },
 })
 
