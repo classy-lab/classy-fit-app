@@ -4,6 +4,7 @@ import { useState, useEffect, useContext } from 'react'
 import { webServer, user, tokens, setTokens } from '../../config'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
+import Ionicons from '@expo/vector-icons/Ionicons'
 import { AppColors } from '../../styles/colors'
 import { s } from 'react-native-size-matters'
 import { UserContext } from '../../context/UserContext'
@@ -82,8 +83,11 @@ const ProductDetailScreen = ({ navigation, route }) => {
       <SafeAreaView style={styles.container}>
         <View style={styles.navs}>
           <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => navigation.navigate('ProductsScreen')} />
-          <TouchableOpacity onPress={() => { navigation.navigate('ViewCartScreen') }}>
-            <Text style={styles.viewCartLinkText}>View Cart</Text>
+          <TouchableOpacity
+            style={styles.viewCartIconButton}
+            onPress={() => { navigation.navigate('ViewCartScreen') }}
+          >
+            <Ionicons name="bag-handle-outline" color={AppColors.blue} size={24} />
           </TouchableOpacity>
         </View>
         <ScrollView
@@ -206,10 +210,15 @@ const styles = StyleSheet.create({
     paddingLeft: 24,
     paddingRight: 24,
   },
-  viewCartLinkText: {
-    color: AppColors.blue,
-    fontSize: 16,
-    textDecorationLine: 'underline',
+  viewCartIconButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: AppColors.textInputBorderColor,
+    backgroundColor: AppColors.grey,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   signOut: {
     flexDirection: 'row',
