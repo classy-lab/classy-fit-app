@@ -8,6 +8,7 @@ import { AppColors } from '../../styles/colors'
 import { s } from 'react-native-size-matters'
 import { UserContext } from '../../context/UserContext'
 import RenderHtml from 'react-native-render-html';
+import { showMessage } from 'react-native-flash-message'
 import App from '../../../App'
 
 const ProductDetailScreen = ({ navigation, route }) => {
@@ -18,8 +19,12 @@ const ProductDetailScreen = ({ navigation, route }) => {
   const [product, setProduct] = useState({});
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
-  const handleSubmit = () => {
-    // console.log('handleSubmit() pressed')
+  const handleSubmit = (quantity = 1) => {
+    showMessage({
+      message: 'Added to Cart',
+      description: `${quantity} item added to cart`,
+      type: 'success',
+    });
   }
 
   useEffect(() => {
@@ -77,6 +82,9 @@ const ProductDetailScreen = ({ navigation, route }) => {
       <SafeAreaView style={styles.container}>
         <View style={styles.navs}>
           <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => navigation.navigate('ProductsScreen')} />
+          <TouchableOpacity onPress={() => { navigation.navigate('ViewCartScreen') }}>
+            <Text style={styles.viewCartLinkText}>View Cart</Text>
+          </TouchableOpacity>
         </View>
         <ScrollView
           style={styles.scrollView}
@@ -142,10 +150,15 @@ const ProductDetailScreen = ({ navigation, route }) => {
                 <Text style={styles.formLabel}>Cost Price: {product?.cost_price}</Text>
                 {/* <InputField value={product?.cost_price} /> */}
               </View>
-              <View style={styles.inputField}>
-                <Text style={styles.formLabel}>Quantity: {product?.quantity_in_stock}</Text>
-                {/* <QuantityPicker quantity={product?.quantity_in_stock} /> */}
-              </View>
+              {/* <View style={styles.inputField}>
+                <Text style={styles.formLabel}>Quantity:</Text>
+                <TouchableOpacity
+                  style={styles.addOneBtn}
+                  onPress={() => { handleSubmit(1) }}
+                >
+                  <Text style={styles.addOneBtnText}>+ Add 1 Item</Text>
+                </TouchableOpacity>
+              </View> */}
               <View style={styles.inputField}>
                 <Text style={styles.formLabel}>Weight: {product?.weight}</Text>
                 {/* <QuantityPicker quantity={product?.weight} /> */}
@@ -160,16 +173,9 @@ const ProductDetailScreen = ({ navigation, route }) => {
                 <TouchableOpacity
                   style={styles.loginBtn}
                   title="Add to Cart"
-                  onPress={() => { handleSubmit() }}
+                  onPress={() => { handleSubmit(1) }}
                 >
-                  <Text style={styles.loginBtnText}>Add to Cart</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.registerBtn}
-                  title="View Cart"
-                  onPress={() => { navigation.navigate('ViewCartScreen') }}
-                >
-                  <Text style={styles.registerBtnText}>View Cart</Text>
+                  <Text style={styles.loginBtnText}>+ Add 1 Item to Cart</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.registerBtn}
@@ -196,8 +202,14 @@ const styles = StyleSheet.create({
   navs: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
     paddingLeft: 24,
     paddingRight: 24,
+  },
+  viewCartLinkText: {
+    color: AppColors.blue,
+    fontSize: 16,
+    textDecorationLine: 'underline',
   },
   signOut: {
     flexDirection: 'row',
@@ -289,6 +301,19 @@ const styles = StyleSheet.create({
   },
   inputField: {
     marginBottom: 8,
+  },
+  addOneBtn: {
+    backgroundColor: AppColors.grey,
+    borderWidth: 1,
+    borderColor: AppColors.textInputBorderColor,
+    borderRadius: 8,
+    height: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  addOneBtnText: {
+    color: AppColors.blue,
+    fontSize: 14,
   },
   row: {
     justifyContent: 'space-between',
