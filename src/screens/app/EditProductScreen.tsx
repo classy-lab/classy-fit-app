@@ -258,23 +258,16 @@ const EditProductScreen = ({ navigation, route }) => {
               <View style={styles.row}>
                 <TouchableOpacity
                   style={styles.loginBtn}
-                  title="Add to Cart"
+                  title="Save Product"
                   onPress={() => { handleSubmit() }}
                 >
-                  <Text style={styles.loginBtnText}>Add to Cart</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.registerBtn}
-                  title="View Cart"
-                  onPress={() => { navigation.navigate('ViewCartScreen') }}
-                >
-                  <Text style={styles.registerBtnText}>View Cart</Text>
+                  <Text style={styles.loginBtnText}>Save Product</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.registerBtn}
                   title="Edit Product"
-                  onPress={() => { navigation.navigate('EditProductScreen', { product }) }}>
-                  <Text style={styles.registerBtnText}>Edit Product</Text>
+                  onPress={() => { console.log('Call delete()') }}>
+                  <Text style={styles.registerBtnText}>Delete Product</Text>
                 </TouchableOpacity>
               </View>
             </View>
