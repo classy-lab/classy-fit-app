@@ -1,45 +1,248 @@
-import React from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import Feather from '@expo/vector-icons/Feather';
-import { useRoute } from '@react-navigation/native';
-import { AppColors } from '../../styles/colors';
+// @ts-nocheck
+import { StyleSheet, Text, View, ScrollView, Image, useWindowDimensions, TouchableOpacity, TextInput } from 'react-native'
+import { useState, useEffect, useContext } from 'react'
+import { webServer, user, tokens, setTokens } from '../../config'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import Feather from '@expo/vector-icons/Feather'
+import { AppColors } from '../../styles/colors'
+import { s } from 'react-native-size-matters'
+import ProductSizePicker from '../../components/forms/ProductSizePicker'
+import QuantityPicker from '../../components/forms/QuantityPicker'
+import InputField from '../../components/forms/InputField'
+import { UserContext } from '../../context/UserContext'
+import RenderHtml from 'react-native-render-html';
+import App from '../../../App'
 
-const EditProductScreen = ({ navigation }: { navigation: any }) => {
-  const route = useRoute<any>();
-  const product = route?.params?.product || {};
+const EditProductScreen = ({ navigation, route }) => {
+  const { width } = useWindowDimensions();
+  const { user } = useContext(UserContext);
+  const { tokens, setTokens } = useContext(UserContext);
+  const { webServer } = useContext(UserContext);
+  const [product, setProduct] = useState({});
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+
+  const handleProductFieldChange = (field, value) => {
+    setProduct((prev: any) => ({
+      ...prev,
+      [field]: value,
+    }));
+  }
+
+  // console.log(route.params?.product?.uid);
+
+  const handleSubmit = () => {
+    // console.log('handleSubmit() pressed')
+  }
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {                           // http://localhost:8080/classy-api/api/v1/gyms/1/products/5
+        const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/products/${route.params.product.uid}`, {
+          headers: {
+            Authorization: "Bearer " + tokens.access_token,
+          },
+        });
+
+        const data = await response.json();
+
+        if (response.status === 200) {
+          setProduct(data.data);
+          setSelectedImageIndex(0);
+        }
+        else {
+          console.log("Access token expired, requesting new one - useFocusEffect()");
+
+          const response = await fetch(`${webServer}/api/refresh.php`, {
+            method: "POST",
+            body: JSON.stringify({
+              token: tokens.refresh_token,
+            }),
+          });
+
+          const json = await response.text();
+          const obj = JSON.parse(json);
+
+          if (response.status === 200) {
+            console.log("Got new access token and refresh token");
+            setTokens((prev: any) => ({
+              ...prev,
+              access_token: obj.access_token,
+              refresh_token: obj.refresh_token,
+            }));
+          }
+        }
+      } catch (error) {
+        console.log('ProductDetailScreen product error: ', error);
+      }
+    }
+    fetchProduct();
+    // console.log(product.images[0]?.image_url);
+  }, [tokens?.access_token, tokens?.refresh_token]);
+
+  const selectedImage = product?.images?.[selectedImageIndex]?.image_url || product?.images?.[0]?.image_url || null;
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.navs}>
-        <Feather
-          name="arrow-left"
-          color={AppColors.blue}
-          size={36}
-          onPress={() => navigation.goBack()}
-        />
-      </View>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        <View style={styles.headingContainer}>
-          <Text style={styles.title}>Edit Product</Text>
-          <Text style={styles.subHead}>{product?.title || 'Product'}</Text>
+    <>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.navs}>
+          <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => navigation.navigate('ProductsScreen')} />
         </View>
-        <View style={styles.body}>
-          <Text style={styles.placeholderText}>
-            EditProductScreen is ready for product editing form wiring.
-          </Text>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
-};
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.body}>
+            <View>
+              <View style={styles.heroImageContainer}>
+                <Image
+                  style={styles.heroImage}
+                  source={{ uri: selectedImage }}
+                  resizeMode="cover"
+                />
+              </View>
+              {product?.images?.length > 0 && (
+                <View style={styles.heroImageThumbnails}>
+                  {product.images.map((image, index) => (
+                    <TouchableOpacity key={`${image?.image_url || index}`} onPress={() => setSelectedImageIndex(index)}>
+                      <Image
+                        style={[
+                          styles.thumbnail,
+                          selectedImageIndex === index && styles.selectedThumbnail,
+                        ]}
+                        source={{ uri: image?.image_url || null }}
+                        resizeMode="cover"
+                      />
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+            </View>
+            <View style={styles.content}>
+              <Text style={styles.productTitle}>{product?.title}</Text>
+              <View style={styles.descriptionBlock}>
+                <Text style={styles.formLabel}>Description:</Text>
+                {/* <ScrollView style={styles.descriptionScroll} showsVerticalScrollIndicator={false}> */}
+                <RenderHtml
+                  contentWidth={width - 48}
+                  source={{ html: product?.description || '<p>No description available.</p>' }}
+                  tagsStyles={tagsStyles}
+                  baseStyle={styles.productDesc}
+                />
+                {/* </ScrollView> */}
+              </View>
+              <View style={styles.inputField}>
+                <Text style={styles.formLabel}>SKU:</Text>
+                <TextInput
+                  style={styles.textField}
+                  value={product?.sku === null || product?.sku === undefined ? '' : String(product?.sku)}
+                  onChangeText={(value) => handleProductFieldChange('sku', value)}
+                  placeholder="Enter SKU"
+                  placeholderTextColor={AppColors.grey2}
+                  autoCapitalize="characters"
+                  returnKeyType="done"
+                />
+              </View>
+              <View style={styles.inputField}>
+                <Text style={styles.formLabel}>Brand:</Text>
+                <TextInput
+                  style={styles.textField}
+                  value={product?.brand === null || product?.brand === undefined ? '' : String(product?.brand)}
+                  onChangeText={(value) => handleProductFieldChange('brand', value)}
+                  placeholder="Enter brand"
+                  placeholderTextColor={AppColors.grey2}
+                  autoCapitalize="words"
+                  returnKeyType="done"
+                />
+              </View>
+              <View style={styles.inputField}>
+                <Text style={styles.formLabel}>Price:</Text>
+                <TextInput
+                  style={styles.textField}
+                  value={product?.price === null || product?.price === undefined ? '' : String(product?.price)}
+                  onChangeText={(value) => handleProductFieldChange('price', value)}
+                  placeholder="Enter price"
+                  placeholderTextColor={AppColors.grey2}
+                  keyboardType="decimal-pad"
+                  returnKeyType="done"
+                />
+              </View>
+              <View style={styles.inputField}>
+                <Text style={styles.formLabel}>Sale Price:</Text>
+                <TextInput
+                  style={styles.textField}
+                  value={product?.sale_price === null || product?.sale_price === undefined ? '' : String(product?.sale_price)}
+                  onChangeText={(value) => handleProductFieldChange('sale_price', value)}
+                  placeholder="Enter sale price"
+                  placeholderTextColor={AppColors.grey2}
+                  keyboardType="decimal-pad"
+                  returnKeyType="done"
+                />
+              </View>
+              <View style={styles.inputField}>
+                <Text style={styles.formLabel}>Cost Price:</Text>
+                <TextInput
+                  style={styles.textField}
+                  value={product?.cost_price === null || product?.cost_price === undefined ? '' : String(product?.cost_price)}
+                  onChangeText={(value) => handleProductFieldChange('cost_price', value)}
+                  placeholder="Enter cost price"
+                  placeholderTextColor={AppColors.grey2}
+                  keyboardType="decimal-pad"
+                  returnKeyType="done"
+                />
+              </View>
+              <View style={styles.inputField}>
+                <Text style={styles.formLabel}>Quantity:</Text>
+                <QuantityPicker quantity={product?.quantity_in_stock} />
+              </View>
+              <View style={styles.inputField}>
+                <Text style={styles.formLabel}>Weight:</Text>
+                <QuantityPicker quantity={product?.weight} />
+              </View>
+              <View style={styles.inputField}>
+                <Text style={styles.formLabel}>Size</Text>
+                <ProductSizePicker size={product?.size} />
+              </View>
+              <View style={styles.inputField}>
+                <Text style={styles.formLabel}>Color</Text>
+                <InputField value={product?.color} />
+              </View>
+              <View style={styles.row}>
+                <TouchableOpacity
+                  style={styles.loginBtn}
+                  title="Add to Cart"
+                  onPress={() => { handleSubmit() }}
+                >
+                  <Text style={styles.loginBtnText}>Add to Cart</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.registerBtn}
+                  title="View Cart"
+                  onPress={() => { navigation.navigate('ViewCartScreen') }}
+                >
+                  <Text style={styles.registerBtnText}>View Cart</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.registerBtn}
+                  title="Edit Product"
+                  onPress={() => { navigation.navigate('EditProductScreen', { product }) }}>
+                  <Text style={styles.registerBtnText}>Edit Product</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </>
+  )
+}
 
-export default EditProductScreen;
+export default EditProductScreen
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: AppColors.white,
     flex: 1,
+    backgroundColor: AppColors.white,
   },
   navs: {
     flexDirection: 'row',
@@ -47,29 +250,158 @@ const styles = StyleSheet.create({
     paddingLeft: 24,
     paddingRight: 24,
   },
+  signOut: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  signOutText: {
+    marginLeft: 10,
+    marginRight: 4,
+    color: AppColors.blue,
+    fontSize: 14
+  },
+  circle: {
+    width: 30,
+    height: 30,
+    borderRadius: '50%',
+    backgroundColor: AppColors.blue,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   headingContainer: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 20
   },
   title: {
     color: AppColors.blue,
-    fontFamily: 'Montserrat',
     fontSize: 32,
-    marginTop: 32,
+    marginTop: 60,
   },
-  subHead: {
-    color: AppColors.primary,
-    fontFamily: 'Montserrat',
-    fontSize: 18,
-    marginTop: 8,
+  pinkLeaf: {
+    position: 'relative',
+    zIndex: -1,
+    top: -68,
+    right: -40
   },
   body: {
     paddingLeft: 24,
     paddingRight: 24,
-  },
-  placeholderText: {
-    color: AppColors.primary,
-    lineHeight: 22,
+    marginBottom: 24,
   },
   scrollView: {},
-});
+  scrollContent: {
+    paddingBottom: 120,
+  },
+  heroImageContainer: {
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  heroImage: {
+    width: 232,
+    height: 232,
+    borderRadius: 12,
+  },
+  heroImageThumbnails: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+  },
+  thumbnail: {
+    width: 56,
+    height: 56,
+    marginRight: 8,
+    borderRadius: 8,
+  },
+  selectedThumbnail: {
+    borderWidth: 2,
+    borderColor: AppColors.blue,
+  },
+  content: {
+    marginTop: 24,
+  },
+  productTitle: {
+    fontSize: 20,
+    color: AppColors.blue
+  },
+  descriptionBlock: {
+    marginTop: 16,
+    marginBottom: 8,
+    // height: 200,
+  },
+  descriptionScroll: {
+    flex: 1,
+    lineHeight: 24,
+  },
+  productDesc: {
+    lineHeight: 24,
+    color: '#333',
+  },
+  formLabel: {
+    marginBottom: 8,
+  },
+  inputField: {
+    marginBottom: 8,
+  },
+  textField: {
+    marginTop: 5,
+    borderWidth: 1,
+    borderColor: AppColors.textInputBorderColor,
+    backgroundColor: AppColors.grey,
+    paddingLeft: 12,
+    height: 48,
+    borderRadius: 8,
+    color: AppColors.blue,
+  },
+  row: {
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
+    height: 120
+  },
+  registerBtn: {
+    backgroundColor: AppColors.blue,
+    borderRadius: 40,
+    width: 248,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8
+  },
+  registerBtnText: {
+    fontSize: 16,
+    color: '#fff'
+  },
+  loginBtn: {
+    backgroundColor: 'white',
+    borderWidth: 1,
+    borderColor: AppColors.blue,
+    borderRadius: 40,
+    width: 248,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8
+  },
+  loginBtnText: {
+    color: AppColors.blue,
+    fontSize: 16
+  },
+})
+
+const tagsStyles = {
+  p: {
+    color: AppColors.primary,
+    lineHeight: 20,
+    marginBottom: 10,
+  },
+  h1: {
+    color: '#111111',
+    marginBottom: 15,
+  },
+  ul: {
+    marginBottom: 10,
+  },
+  li: {
+    color: AppColors.primary,
+    lineHeight: 20,
+  },
+};
