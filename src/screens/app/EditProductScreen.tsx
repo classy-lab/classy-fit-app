@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { StyleSheet, Text, View, ScrollView, Image, useWindowDimensions, TouchableOpacity, TextInput } from 'react-native'
+import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, TextInput } from 'react-native'
 import { useState, useEffect, useContext } from 'react'
 import { webServer, user, tokens, setTokens } from '../../config'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -10,16 +10,15 @@ import ProductSizePicker from '../../components/forms/ProductSizePicker'
 import QuantityPicker from '../../components/forms/QuantityPicker'
 import InputField from '../../components/forms/InputField'
 import { UserContext } from '../../context/UserContext'
-import RenderHtml from 'react-native-render-html';
 import App from '../../../App'
 
 const EditProductScreen = ({ navigation, route }) => {
-  const { width } = useWindowDimensions();
   const { user } = useContext(UserContext);
   const { tokens, setTokens } = useContext(UserContext);
   const { webServer } = useContext(UserContext);
   const [product, setProduct] = useState({});
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const getTextValue = (value) => String(value ?? '');
 
   const handleProductFieldChange = (field, value) => {
     setProduct((prev: any) => ({
@@ -92,6 +91,9 @@ const EditProductScreen = ({ navigation, route }) => {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
+          <View style={styles.headingContainer}>
+            <Text style={styles.title}>Edit Product</Text>
+          </View>
           <View style={styles.body}>
             <View>
               <View style={styles.heroImageContainer}>
@@ -119,23 +121,36 @@ const EditProductScreen = ({ navigation, route }) => {
               )}
             </View>
             <View style={styles.content}>
-              <Text style={styles.productTitle}>{product?.title}</Text>
+              <View style={styles.inputField}>
+                <Text style={styles.formLabel}>Title:</Text>
+                <TextInput
+                  style={styles.textField}
+                  value={getTextValue(product?.title)}
+                  onChangeText={(value) => handleProductFieldChange('title', value)}
+                  placeholder="Enter title"
+                  placeholderTextColor={AppColors.grey2}
+                  autoCapitalize="words"
+                  returnKeyType="done"
+                />
+              </View>
               <View style={styles.descriptionBlock}>
                 <Text style={styles.formLabel}>Description:</Text>
-                {/* <ScrollView style={styles.descriptionScroll} showsVerticalScrollIndicator={false}> */}
-                <RenderHtml
-                  contentWidth={width - 48}
-                  source={{ html: product?.description || '<p>No description available.</p>' }}
-                  tagsStyles={tagsStyles}
-                  baseStyle={styles.productDesc}
+                <TextInput
+                  style={styles.textAreaField}
+                  value={getTextValue(product?.description)}
+                  onChangeText={(value) => handleProductFieldChange('description', value)}
+                  placeholder="Enter description"
+                  placeholderTextColor={AppColors.grey2}
+                  multiline
+                  numberOfLines={6}
+                  textAlignVertical="top"
                 />
-                {/* </ScrollView> */}
               </View>
               <View style={styles.inputField}>
                 <Text style={styles.formLabel}>SKU:</Text>
                 <TextInput
                   style={styles.textField}
-                  value={product?.sku === null || product?.sku === undefined ? '' : String(product?.sku)}
+                  value={getTextValue(product?.sku)}
                   onChangeText={(value) => handleProductFieldChange('sku', value)}
                   placeholder="Enter SKU"
                   placeholderTextColor={AppColors.grey2}
@@ -147,7 +162,7 @@ const EditProductScreen = ({ navigation, route }) => {
                 <Text style={styles.formLabel}>Brand:</Text>
                 <TextInput
                   style={styles.textField}
-                  value={product?.brand === null || product?.brand === undefined ? '' : String(product?.brand)}
+                  value={getTextValue(product?.brand)}
                   onChangeText={(value) => handleProductFieldChange('brand', value)}
                   placeholder="Enter brand"
                   placeholderTextColor={AppColors.grey2}
@@ -159,7 +174,7 @@ const EditProductScreen = ({ navigation, route }) => {
                 <Text style={styles.formLabel}>Price:</Text>
                 <TextInput
                   style={styles.textField}
-                  value={product?.price === null || product?.price === undefined ? '' : String(product?.price)}
+                  value={getTextValue(product?.price)}
                   onChangeText={(value) => handleProductFieldChange('price', value)}
                   placeholder="Enter price"
                   placeholderTextColor={AppColors.grey2}
@@ -171,7 +186,7 @@ const EditProductScreen = ({ navigation, route }) => {
                 <Text style={styles.formLabel}>Sale Price:</Text>
                 <TextInput
                   style={styles.textField}
-                  value={product?.sale_price === null || product?.sale_price === undefined ? '' : String(product?.sale_price)}
+                  value={getTextValue(product?.sale_price)}
                   onChangeText={(value) => handleProductFieldChange('sale_price', value)}
                   placeholder="Enter sale price"
                   placeholderTextColor={AppColors.grey2}
@@ -183,7 +198,7 @@ const EditProductScreen = ({ navigation, route }) => {
                 <Text style={styles.formLabel}>Cost Price:</Text>
                 <TextInput
                   style={styles.textField}
-                  value={product?.cost_price === null || product?.cost_price === undefined ? '' : String(product?.cost_price)}
+                  value={getTextValue(product?.cost_price)}
                   onChangeText={(value) => handleProductFieldChange('cost_price', value)}
                   placeholder="Enter cost price"
                   placeholderTextColor={AppColors.grey2}
@@ -348,6 +363,18 @@ const styles = StyleSheet.create({
     backgroundColor: AppColors.grey,
     paddingLeft: 12,
     height: 48,
+    borderRadius: 8,
+    color: AppColors.blue,
+  },
+  textAreaField: {
+    marginTop: 5,
+    borderWidth: 1,
+    borderColor: AppColors.textInputBorderColor,
+    backgroundColor: AppColors.grey,
+    paddingLeft: 12,
+    paddingRight: 12,
+    paddingTop: 12,
+    minHeight: 120,
     borderRadius: 8,
     color: AppColors.blue,
   },
