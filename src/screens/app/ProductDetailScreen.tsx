@@ -79,6 +79,15 @@ const ProductDetailScreen = ({ navigation, route }) => {
   const sizeLabelMap = { S: 'Small', M: 'Medium', L: 'Large' };
   const normalizedSize = String(product?.size ?? '').trim().toUpperCase();
   const displaySize = sizeLabelMap[normalizedSize] || product?.size;
+  const normalizedUserRole = String(user?.role ?? '').trim().toLowerCase();
+  const isAdmin = normalizedUserRole === 'owner' || normalizedUserRole === 'admin';
+  const stockCount = Number(product?.quantity_in_stock ?? 0);
+  const stockStatus = stockCount <= 0 ? 'Out of Stock' : stockCount <= 5 ? 'Low Stock' : 'In Stock';
+  const stockStatusColor = stockCount <= 0 ? AppColors.red : stockCount <= 5 ? '#D97706' : '#15803D';
+  const numericPrice = Number(product?.price ?? 0);
+  const numericSalePrice = Number(product?.sale_price ?? 0);
+  const hasDiscount = numericSalePrice > 0 && numericPrice > numericSalePrice;
+  const youSaveAmount = hasDiscount ? (numericPrice - numericSalePrice).toFixed(2) : null;
 
   return (
     <>
@@ -86,6 +95,15 @@ const ProductDetailScreen = ({ navigation, route }) => {
         <View style={styles.navs}>
           <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => navigation.navigate('ProductsScreen')} />
           <View style={styles.headerActions}>
+            {isAdmin && (
+              <TouchableOpacity
+                style={styles.editIconButton}
+                onPress={() => { navigation.navigate('EditProductScreen', { product }) }}
+                activeOpacity={0.8}
+              >
+                <Feather name="edit-2" color={AppColors.blue} size={18} />
+              </TouchableOpacity>
+            )}
             <TouchableOpacity
               style={styles.quickAddButton}
               onPress={() => { handleSubmit(1) }}
@@ -191,20 +209,37 @@ const ProductDetailScreen = ({ navigation, route }) => {
               <View style={styles.inputField}>
                 <Text style={styles.formLabel}>Color: {product?.color}</Text>
               </View>
-              <View style={styles.row}>
-                <TouchableOpacity
-                  style={styles.loginBtn}
-                  title="Add to Cart"
-                  onPress={() => { handleSubmit(1) }}
-                >
-                  <Text style={styles.loginBtnText}>+ Add 1 Item to Cart</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.registerBtn}
-                  title="Edit Product"
-                  onPress={() => { navigation.navigate('EditProductScreen', { product }) }}>
-                  <Text style={styles.registerBtnText}>Edit Product</Text>
-                </TouchableOpacity>
+
+              <View style={styles.summaryCard}>
+                <View style={styles.summaryHeader}>
+                  <Text style={styles.summaryTitle}>Quick Info</Text>
+                  <Text style={[styles.stockStatusText, { color: stockStatusColor }]}>{stockStatus}</Text>
+                </View>
+                <View style={styles.summaryRow}>
+                  <Text style={styles.summaryLabel}>Price</Text>
+                  <Text style={styles.summaryValue}>{product?.price || '-'}</Text>
+                </View>
+                <View style={styles.summaryRow}>
+                  <Text style={styles.summaryLabel}>Today&apos;s Price</Text>
+                  <Text style={styles.summaryValue}>{product?.sale_price || product?.price || '-'}</Text>
+                </View>
+                {hasDiscount && (
+                  <View style={styles.summaryRow}>
+                    <Text style={styles.summaryLabel}>You Save</Text>
+                    <Text style={styles.summaryValue}>${youSaveAmount}</Text>
+                  </View>
+                )}
+                <View style={styles.summaryChips}>
+                  <View style={styles.summaryChip}>
+                    <Text style={styles.summaryChipText}>Brand: {product?.brand || '-'}</Text>
+                  </View>
+                  <View style={styles.summaryChip}>
+                    <Text style={styles.summaryChipText}>Size: {displaySize || '-'}</Text>
+                  </View>
+                  <View style={styles.summaryChip}>
+                    <Text style={styles.summaryChipText}>Color: {product?.color || '-'}</Text>
+                  </View>
+                </View>
               </View>
             </View>
           </View>
@@ -247,6 +282,16 @@ const styles = StyleSheet.create({
   quickAddButtonText: {
     color: AppColors.blue,
     fontSize: 14,
+  },
+  editIconButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: AppColors.textInputBorderColor,
+    backgroundColor: AppColors.grey,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   viewCartIconButton: {
     width: 36,
@@ -366,52 +411,62 @@ const styles = StyleSheet.create({
   inputField: {
     marginBottom: 8,
   },
-  addOneBtn: {
+  summaryCard: {
+    marginTop: 20,
     backgroundColor: AppColors.grey,
     borderWidth: 1,
     borderColor: AppColors.textInputBorderColor,
-    borderRadius: 8,
-    height: 44,
-    justifyContent: 'center',
-    alignItems: 'center',
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 24,
   },
-  addOneBtnText: {
-    color: AppColors.blue,
-    fontSize: 14,
-  },
-  row: {
+  summaryHeader: {
+    flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 24,
-    height: 120
-  },
-  registerBtn: {
-    backgroundColor: AppColors.blue,
-    borderRadius: 40,
-    width: 248,
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
     marginBottom: 8
   },
-  registerBtnText: {
-    fontSize: 16,
-    color: '#fff'
-  },
-  loginBtn: {
-    backgroundColor: 'white',
-    borderWidth: 1,
-    borderColor: AppColors.blue,
-    borderRadius: 40,
-    width: 248,
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 8
-  },
-  loginBtnText: {
+  summaryTitle: {
     color: AppColors.blue,
-    fontSize: 16
+    fontSize: 16,
+    fontFamily: 'Montserrat-Bold',
+  },
+  stockStatusText: {
+    fontSize: 13,
+    fontFamily: 'Montserrat-Bold',
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8
+  },
+  summaryLabel: {
+    color: AppColors.primary,
+    fontSize: 13,
+  },
+  summaryValue: {
+    color: AppColors.blue,
+    fontSize: 14,
+    fontFamily: 'Montserrat-Bold',
+  },
+  summaryChips: {
+    marginTop: 4,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  summaryChip: {
+    backgroundColor: AppColors.white,
+    borderWidth: 1,
+    borderColor: AppColors.textInputBorderColor,
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  summaryChipText: {
+    color: AppColors.primary,
+    fontSize: 12,
   },
 })
 
