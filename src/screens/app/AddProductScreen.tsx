@@ -140,11 +140,13 @@ const AddProductScreen = ({ navigation }) => {
                     />
                   </View>
                 ) : (
-                  <Image
-                    style={styles.heroImage}
-                    source={productImages[selectedImageIndex]?.source || productImages[0]?.source}
-                    resizeMode="cover"
-                  />
+                  <TouchableOpacity onPress={() => pickImage(selectedImageIndex)}>
+                    <Image
+                      style={styles.heroImage}
+                      source={productImages[selectedImageIndex]?.source || productImages[0]?.source}
+                      resizeMode="cover"
+                    />
+                  </TouchableOpacity>
                 )}
               </View>
               <View style={styles.heroImageActions}>
@@ -164,7 +166,7 @@ const AddProductScreen = ({ navigation }) => {
                 {productImages.map((image, index) => (
                   <TouchableOpacity
                     key={image.id}
-                    onPress={() => setSelectedImageIndex(index)}
+                    onPress={() => (image.isPlaceholder ? setSelectedImageIndex(index) : pickImage(index))}
                   >
                     {image.isPlaceholder ? (
                       <View
