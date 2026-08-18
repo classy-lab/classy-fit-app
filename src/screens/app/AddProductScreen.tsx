@@ -43,7 +43,7 @@ const AddProductScreen = ({ navigation }) => {
     }))
   }
 
-  const pickImage = async () => {
+  const pickImage = async (targetIndex = null) => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync()
 
     if (!permissionResult.granted) {
@@ -59,29 +59,35 @@ const AddProductScreen = ({ navigation }) => {
     })
 
     if (!result.canceled) {
-      let replacedIndex = -1
       const nextImage = {
         id: `picked-${Date.now()}`,
         source: { uri: result.assets[0].uri },
         isPlaceholder: false,
       }
 
+      if (typeof targetIndex === 'number') {
+        setProductImages((prev) => {
+          const next = [...prev]
+          next[targetIndex] = nextImage
+          return next
+        })
+        setSelectedImageIndex(targetIndex)
+        return
+      }
+
+      const placeholderIndex = productImages.findIndex((image) => image.isPlaceholder)
+
+      if (placeholderIndex === -1) {
+        Alert.alert('Maximum images reached', 'You can only add up to 5 product images.')
+        return
+      }
+
       setProductImages((prev) => {
         const next = [...prev]
-        replacedIndex = next.findIndex((image) => image.isPlaceholder)
-
-        if (replacedIndex === -1) {
-          Alert.alert('Maximum images reached', 'You can only add up to 5 product images.')
-          return prev
-        }
-
-        next[replacedIndex] = nextImage
+        next[placeholderIndex] = nextImage
         return next
       })
-
-      if (replacedIndex !== -1) {
-        setSelectedImageIndex(replacedIndex)
-      }
+      setSelectedImageIndex(placeholderIndex)
     }
   }
 
@@ -142,9 +148,17 @@ const AddProductScreen = ({ navigation }) => {
                 )}
               </View>
               <View style={styles.heroImageActions}>
-                <TouchableOpacity style={styles.addImageBtn} onPress={pickImage}>
+                <TouchableOpacity style={styles.addImageBtn} onPress={() => pickImage()}>
                   <Text style={styles.addImageBtnText}>Add Image</Text>
                 </TouchableOpacity>
+                {!productImages[selectedImageIndex]?.isPlaceholder && (
+                  <TouchableOpacity
+                    style={styles.replaceImageBtn}
+                    onPress={() => pickImage(selectedImageIndex)}
+                  >
+                    <Text style={styles.replaceImageBtnText}>Replace Image</Text>
+                  </TouchableOpacity>
+                )}
               </View>
               <View style={styles.heroImageThumbnails}>
                 {productImages.map((image, index) => (
@@ -459,6 +473,18 @@ const styles = StyleSheet.create({
   },
   addImageBtnText: {
     color: AppColors.white,
+    fontSize: 14,
+  },
+  replaceImageBtn: {
+    marginTop: 8,
+    borderRadius: 20,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderWidth: 1,
+    borderColor: AppColors.blue,
+  },
+  replaceImageBtnText: {
+    color: AppColors.blue,
     fontSize: 14,
   },
   selectedThumbnail: {
