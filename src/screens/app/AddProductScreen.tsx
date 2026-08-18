@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, TextInput } from 'react-native'
+import { Alert, Image, StyleSheet, Text, View, ScrollView, TouchableOpacity, TextInput } from 'react-native'
 import { useState, useContext, useRef } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
@@ -7,6 +7,15 @@ import { AppColors } from '../../styles/colors'
 import QuantityPicker from '../../components/forms/QuantityPicker'
 import { UserContext } from '../../context/UserContext'
 import { RichEditor, RichToolbar, actions } from 'react-native-pell-rich-editor'
+import * as ImagePicker from 'expo-image-picker'
+
+const placeholderImages = [
+  require('../../assets/images/products/boxingGloves.jpg'),
+  require('../../assets/images/products/boxingGloves2.jpg'),
+  require('../../assets/images/products/boxingGloves3.jpg'),
+  require('../../assets/images/products/boxingGloves4.jpg'),
+  require('../../assets/images/products/boxingGloves5.jpg'),
+]
 
 const AddProductScreen = ({ navigation }) => {
   const { user } = useContext(UserContext)
@@ -14,6 +23,14 @@ const AddProductScreen = ({ navigation }) => {
   const { webServer } = useContext(UserContext)
   const [product, setProduct] = useState({})
   const [descriptionHtml, setDescriptionHtml] = useState('')
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0)
+  const [productImages, setProductImages] = useState(
+    placeholderImages.map((source, index) => ({
+      id: `placeholder-${index}`,
+      source,
+      isPlaceholder: true,
+    }))
+  )
   const richText = useRef(null)
 
   const getTextValue = (value) => String(value ?? '')
@@ -23,6 +40,33 @@ const AddProductScreen = ({ navigation }) => {
       ...prev,
       [field]: value,
     }))
+  }
+
+  const pickImage = async () => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync()
+
+    if (!permissionResult.granted) {
+      Alert.alert('Permission required', 'Permission to access the media library is required.')
+      return
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    })
+
+    if (!result.canceled) {
+      const nextImage = {
+        id: `picked-${Date.now()}`,
+        source: { uri: result.assets[0].uri },
+        isPlaceholder: false,
+      }
+
+      setProductImages((prev) => [...prev, nextImage])
+      setSelectedImageIndex(productImages.length)
+    }
   }
 
   const handleSubmit = () => {
@@ -63,6 +107,37 @@ const AddProductScreen = ({ navigation }) => {
             <Text style={styles.title}>Add Product</Text>
           </View>
           <View style={styles.body}>
+            <View>
+              <View style={styles.heroImageContainer}>
+                <Image
+                  style={styles.heroImage}
+                  source={productImages[selectedImageIndex]?.source || productImages[0]?.source}
+                  resizeMode="cover"
+                />
+              </View>
+              <View style={styles.heroImageActions}>
+                <TouchableOpacity style={styles.addImageBtn} onPress={pickImage}>
+                  <Text style={styles.addImageBtnText}>Add Image</Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.heroImageThumbnails}>
+                {productImages.map((image, index) => (
+                  <TouchableOpacity
+                    key={image.id}
+                    onPress={() => setSelectedImageIndex(index)}
+                  >
+                    <Image
+                      style={[
+                        styles.thumbnail,
+                        selectedImageIndex === index && styles.selectedThumbnail,
+                      ]}
+                      source={image.source}
+                      resizeMode="cover"
+                    />
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
             <View style={styles.content}>
               <View style={styles.inputField}>
                 <Text style={styles.formLabel}>Title:</Text>
@@ -304,12 +379,28 @@ const styles = StyleSheet.create({
   heroImageThumbnails: {
     flexDirection: 'row',
     justifyContent: 'space-evenly',
+    flexWrap: 'wrap',
+    rowGap: 8,
   },
   thumbnail: {
     width: 56,
     height: 56,
     marginRight: 8,
     borderRadius: 8,
+  },
+  heroImageActions: {
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  addImageBtn: {
+    backgroundColor: AppColors.blue,
+    borderRadius: 20,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+  },
+  addImageBtnText: {
+    color: AppColors.white,
+    fontSize: 14,
   },
   selectedThumbnail: {
     borderWidth: 2,
@@ -409,4 +500,3 @@ const styles = StyleSheet.create({
     fontSize: 16
   },
 })
-
