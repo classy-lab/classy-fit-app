@@ -12,10 +12,7 @@ import * as ImagePicker from 'expo-image-picker'
 
 const placeholderImages = [
   'image-outline',
-  'image-multiple-outline',
-  'image-filter-center-focus-outline',
-  'image-plus-outline',
-  'image-frame',
+  'image-outline', 'image-outline', 'image-outline', 'image-outline',
 ]
 
 const AddProductScreen = ({ navigation }) => {
@@ -24,7 +21,6 @@ const AddProductScreen = ({ navigation }) => {
   const { webServer } = useContext(UserContext)
   const [product, setProduct] = useState({})
   const [descriptionHtml, setDescriptionHtml] = useState('')
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [productImages, setProductImages] = useState(
     placeholderImages.map((iconName, index) => ({
       id: `placeholder-${index}`,
@@ -43,7 +39,7 @@ const AddProductScreen = ({ navigation }) => {
     }))
   }
 
-  const pickImage = async (targetIndex = null) => {
+  const pickImage = async (targetIndex) => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync()
 
     if (!permissionResult.granted) {
@@ -65,29 +61,11 @@ const AddProductScreen = ({ navigation }) => {
         isPlaceholder: false,
       }
 
-      if (typeof targetIndex === 'number') {
-        setProductImages((prev) => {
-          const next = [...prev]
-          next[targetIndex] = nextImage
-          return next
-        })
-        setSelectedImageIndex(targetIndex)
-        return
-      }
-
-      const placeholderIndex = productImages.findIndex((image) => image.isPlaceholder)
-
-      if (placeholderIndex === -1) {
-        Alert.alert('Maximum images reached', 'You can only add up to 5 product images.')
-        return
-      }
-
       setProductImages((prev) => {
         const next = [...prev]
-        next[placeholderIndex] = nextImage
+        next[targetIndex] = nextImage
         return next
       })
-      setSelectedImageIndex(placeholderIndex)
     }
   }
 
@@ -140,13 +118,11 @@ const AddProductScreen = ({ navigation }) => {
                     />
                   </View>
                 ) : (
-                  <TouchableOpacity onPress={() => pickImage(selectedImageIndex)}>
-                    <Image
-                      style={styles.heroImage}
-                      source={productImages[0]?.source}
-                      resizeMode="cover"
-                    />
-                  </TouchableOpacity>
+                  <Image
+                    style={styles.heroImage}
+                    source={productImages[0]?.source}
+                    resizeMode="cover"
+                  />
                 )}
               </View>
               <View style={styles.heroImageThumbnails}>
@@ -160,7 +136,6 @@ const AddProductScreen = ({ navigation }) => {
                         style={[
                           styles.thumbnail,
                           styles.placeholderThumbnail,
-                          selectedImageIndex === index && styles.selectedThumbnail,
                         ]}
                       >
                         <MaterialCommunityIcons
@@ -171,10 +146,7 @@ const AddProductScreen = ({ navigation }) => {
                       </View>
                     ) : (
                       <Image
-                        style={[
-                          styles.thumbnail,
-                          selectedImageIndex === index && styles.selectedThumbnail,
-                        ]}
+                        style={styles.thumbnail}
                         source={image.source}
                         resizeMode="cover"
                       />
