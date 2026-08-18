@@ -153,14 +153,6 @@ const AddProductScreen = ({ navigation }) => {
                 <TouchableOpacity style={styles.addImageBtn} onPress={() => pickImage()}>
                   <Text style={styles.addImageBtnText}>Add Image</Text>
                 </TouchableOpacity>
-                {!productImages[selectedImageIndex]?.isPlaceholder && (
-                  <TouchableOpacity
-                    style={styles.replaceImageBtn}
-                    onPress={() => pickImage(selectedImageIndex)}
-                  >
-                    <Text style={styles.replaceImageBtnText}>Replace Image</Text>
-                  </TouchableOpacity>
-                )}
               </View>
               <View style={styles.heroImageThumbnails}>
                 {productImages.map((image, index) => (
@@ -475,18 +467,6 @@ const styles = StyleSheet.create({
   },
   addImageBtnText: {
     color: AppColors.white,
-    fontSize: 14,
-  },
-  replaceImageBtn: {
-    marginTop: 8,
-    borderRadius: 20,
-    paddingHorizontal: 18,
-    paddingVertical: 10,
-    borderWidth: 1,
-    borderColor: AppColors.blue,
-  },
-  replaceImageBtnText: {
-    color: AppColors.blue,
     fontSize: 14,
   },
   selectedThumbnail: {
