@@ -3,6 +3,7 @@ import { Alert, Image, StyleSheet, Text, View, ScrollView, TouchableOpacity, Tex
 import { useState, useContext, useRef } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { AppColors } from '../../styles/colors'
 import QuantityPicker from '../../components/forms/QuantityPicker'
 import { UserContext } from '../../context/UserContext'
@@ -10,11 +11,11 @@ import { RichEditor, RichToolbar, actions } from 'react-native-pell-rich-editor'
 import * as ImagePicker from 'expo-image-picker'
 
 const placeholderImages = [
-  require('../../assets/images/products/boxingGloves.jpg'),
-  require('../../assets/images/products/boxingGloves2.jpg'),
-  require('../../assets/images/products/boxingGloves3.jpg'),
-  require('../../assets/images/products/boxingGloves4.jpg'),
-  require('../../assets/images/products/boxingGloves5.jpg'),
+  'image-outline',
+  'image-multiple-outline',
+  'image-filter-center-focus-outline',
+  'image-plus-outline',
+  'image-frame',
 ]
 
 const AddProductScreen = ({ navigation }) => {
@@ -25,9 +26,9 @@ const AddProductScreen = ({ navigation }) => {
   const [descriptionHtml, setDescriptionHtml] = useState('')
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [productImages, setProductImages] = useState(
-    placeholderImages.map((source, index) => ({
+    placeholderImages.map((iconName, index) => ({
       id: `placeholder-${index}`,
-      source,
+      iconName,
       isPlaceholder: true,
     }))
   )
@@ -58,6 +59,7 @@ const AddProductScreen = ({ navigation }) => {
     })
 
     if (!result.canceled) {
+      const nextIndex = productImages.length
       const nextImage = {
         id: `picked-${Date.now()}`,
         source: { uri: result.assets[0].uri },
@@ -65,7 +67,7 @@ const AddProductScreen = ({ navigation }) => {
       }
 
       setProductImages((prev) => [...prev, nextImage])
-      setSelectedImageIndex(productImages.length)
+      setSelectedImageIndex(nextIndex)
     }
   }
 
@@ -109,11 +111,21 @@ const AddProductScreen = ({ navigation }) => {
           <View style={styles.body}>
             <View>
               <View style={styles.heroImageContainer}>
-                <Image
-                  style={styles.heroImage}
-                  source={productImages[selectedImageIndex]?.source || productImages[0]?.source}
-                  resizeMode="cover"
-                />
+                {productImages[selectedImageIndex]?.isPlaceholder ? (
+                  <View style={styles.placeholderHero}>
+                    <MaterialCommunityIcons
+                      name={productImages[selectedImageIndex]?.iconName || productImages[0]?.iconName}
+                      size={88}
+                      color={AppColors.blue}
+                    />
+                  </View>
+                ) : (
+                  <Image
+                    style={styles.heroImage}
+                    source={productImages[selectedImageIndex]?.source || productImages[0]?.source}
+                    resizeMode="cover"
+                  />
+                )}
               </View>
               <View style={styles.heroImageActions}>
                 <TouchableOpacity style={styles.addImageBtn} onPress={pickImage}>
@@ -126,14 +138,30 @@ const AddProductScreen = ({ navigation }) => {
                     key={image.id}
                     onPress={() => setSelectedImageIndex(index)}
                   >
-                    <Image
-                      style={[
-                        styles.thumbnail,
-                        selectedImageIndex === index && styles.selectedThumbnail,
-                      ]}
-                      source={image.source}
-                      resizeMode="cover"
-                    />
+                    {image.isPlaceholder ? (
+                      <View
+                        style={[
+                          styles.thumbnail,
+                          styles.placeholderThumbnail,
+                          selectedImageIndex === index && styles.selectedThumbnail,
+                        ]}
+                      >
+                        <MaterialCommunityIcons
+                          name={image.iconName}
+                          size={24}
+                          color={AppColors.blue}
+                        />
+                      </View>
+                    ) : (
+                      <Image
+                        style={[
+                          styles.thumbnail,
+                          selectedImageIndex === index && styles.selectedThumbnail,
+                        ]}
+                        source={image.source}
+                        resizeMode="cover"
+                      />
+                    )}
                   </TouchableOpacity>
                 ))}
               </View>
@@ -376,6 +404,16 @@ const styles = StyleSheet.create({
     height: 232,
     borderRadius: 12,
   },
+  placeholderHero: {
+    width: 232,
+    height: 232,
+    borderRadius: 12,
+    backgroundColor: AppColors.grey,
+    borderWidth: 1,
+    borderColor: AppColors.textInputBorderColor,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   heroImageThumbnails: {
     flexDirection: 'row',
     justifyContent: 'space-evenly',
@@ -387,6 +425,13 @@ const styles = StyleSheet.create({
     height: 56,
     marginRight: 8,
     borderRadius: 8,
+  },
+  placeholderThumbnail: {
+    backgroundColor: AppColors.grey,
+    borderWidth: 1,
+    borderColor: AppColors.textInputBorderColor,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   heroImageActions: {
     alignItems: 'center',
