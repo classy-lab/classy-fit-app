@@ -308,7 +308,7 @@ const AddProductScreen = ({ navigation }) => {
                   title="Add Product"
                   onPress={() => { handleSubmit() }}
                 >
-                  <Text style={styles.loginBtnText}>Add Product</Text>
+                  <Text style={styles.loginBtnText}>Create Product</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.registerBtn}
