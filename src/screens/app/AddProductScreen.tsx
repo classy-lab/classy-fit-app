@@ -59,15 +59,29 @@ const AddProductScreen = ({ navigation }) => {
     })
 
     if (!result.canceled) {
-      const nextIndex = productImages.length
+      let replacedIndex = -1
       const nextImage = {
         id: `picked-${Date.now()}`,
         source: { uri: result.assets[0].uri },
         isPlaceholder: false,
       }
 
-      setProductImages((prev) => [...prev, nextImage])
-      setSelectedImageIndex(nextIndex)
+      setProductImages((prev) => {
+        const next = [...prev]
+        replacedIndex = next.findIndex((image) => image.isPlaceholder)
+
+        if (replacedIndex === -1) {
+          Alert.alert('Maximum images reached', 'You can only add up to 5 product images.')
+          return prev
+        }
+
+        next[replacedIndex] = nextImage
+        return next
+      })
+
+      if (replacedIndex !== -1) {
+        setSelectedImageIndex(replacedIndex)
+      }
     }
   }
 
