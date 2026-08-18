@@ -149,11 +149,6 @@ const AddProductScreen = ({ navigation }) => {
                   </TouchableOpacity>
                 )}
               </View>
-              <View style={styles.heroImageActions}>
-                <TouchableOpacity style={styles.addImageBtn} onPress={() => pickImage()}>
-                  <Text style={styles.addImageBtnText}>Add Image</Text>
-                </TouchableOpacity>
-              </View>
               <View style={styles.heroImageThumbnails}>
                 {productImages.map((image, index) => (
                   <TouchableOpacity
@@ -454,20 +449,6 @@ const styles = StyleSheet.create({
     borderColor: AppColors.textInputBorderColor,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  heroImageActions: {
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  addImageBtn: {
-    backgroundColor: AppColors.blue,
-    borderRadius: 20,
-    paddingHorizontal: 18,
-    paddingVertical: 10,
-  },
-  addImageBtnText: {
-    color: AppColors.white,
-    fontSize: 14,
   },
   selectedThumbnail: {
     borderWidth: 2,
