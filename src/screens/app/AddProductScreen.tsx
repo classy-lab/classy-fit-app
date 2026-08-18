@@ -131,10 +131,10 @@ const AddProductScreen = ({ navigation }) => {
           <View style={styles.body}>
             <View>
               <View style={styles.heroImageContainer}>
-                {productImages[selectedImageIndex]?.isPlaceholder ? (
+                {productImages[0]?.isPlaceholder ? (
                   <View style={styles.placeholderHero}>
                     <MaterialCommunityIcons
-                      name={productImages[selectedImageIndex]?.iconName || productImages[0]?.iconName}
+                      name={productImages[0]?.iconName}
                       size={88}
                       color={AppColors.blue}
                     />
@@ -143,7 +143,7 @@ const AddProductScreen = ({ navigation }) => {
                   <TouchableOpacity onPress={() => pickImage(selectedImageIndex)}>
                     <Image
                       style={styles.heroImage}
-                      source={productImages[selectedImageIndex]?.source || productImages[0]?.source}
+                      source={productImages[0]?.source}
                       resizeMode="cover"
                     />
                   </TouchableOpacity>
@@ -153,7 +153,7 @@ const AddProductScreen = ({ navigation }) => {
                 {productImages.map((image, index) => (
                   <TouchableOpacity
                     key={image.id}
-                    onPress={() => (image.isPlaceholder ? setSelectedImageIndex(index) : pickImage(index))}
+                    onPress={() => pickImage(index)}
                   >
                     {image.isPlaceholder ? (
                       <View
