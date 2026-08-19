@@ -39,6 +39,43 @@ const EditProductScreen = ({ navigation, route }) => {
     // console.log('handleSubmit() pressed')
   }
 
+  const handleDeleteProduct = async () => {
+    const currentProductId = productIdentifier || route?.params?.product?.uid;
+    console.log('handleDeleteProduct() pressed for product id:', currentProductId)
+    // testing
+    if (!currentProductId) {
+      console.log('Delete product failed: missing product id');
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${webServer}/api/v1/gyms/${user.gym_id}/products/${currentProductId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: "Bearer " + tokens.access_token,
+          },
+        }
+      );
+
+      const rawBody = await response.text();
+      console.log(rawBody);
+
+      if (response.status === 200) {
+        console.log('Product deleted successfully');
+        navigation.navigate('ProductsScreen');
+      } else {
+        console.log('Delete product failed', {
+          status: response.status,
+          body: rawBody,
+        });
+      }
+    } catch (error) {
+      console.log('Delete product request failed:', error);
+    }
+  };
+
   useEffect(() => {
     const fetchProduct = async () => {
       try {                           // http://localhost:8080/classy-api/api/v1/gyms/1/products/5
@@ -303,7 +340,7 @@ const EditProductScreen = ({ navigation, route }) => {
                 <TouchableOpacity
                   style={styles.registerBtn}
                   title="Edit Product"
-                  onPress={() => { console.log('Call delete()') }}>
+                  onPress={() => { handleDeleteProduct() }}>
                   <Text style={styles.registerBtnText}>Delete Product</Text>
                 </TouchableOpacity>
               </View>
