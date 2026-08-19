@@ -71,9 +71,6 @@ const ProductsScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     const fetchProducts = async () => {
-      if (!user?.gym_id || !tokens?.access_token) {
-        return;
-      }
 
       try {
         const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/products`, {
@@ -82,10 +79,10 @@ const ProductsScreen = ({ navigation, route }) => {
           },
         });
 
-        const data = await response.json();
+        const obj = await response.json();
 
         if (response.status === 200) {
-          setProducts(data.data);
+          setProducts(obj.data);
         }
         else {
           console.log("Access token expired, requesting new one - useFocusEffect()");
@@ -97,8 +94,7 @@ const ProductsScreen = ({ navigation, route }) => {
             }),
           });
 
-          const json = await response.text();
-          const obj = JSON.parse(json);
+          const obj = await response.json();
 
           if (response.status === 200) {
             console.log("Got new access token and refresh token");
@@ -114,7 +110,7 @@ const ProductsScreen = ({ navigation, route }) => {
       }
     }
     fetchProducts();
-  }, [user?.gym_id, tokens?.access_token]);
+  }, [tokens?.access_token, tokens?.refresh_token]);
 
   return (
     <>

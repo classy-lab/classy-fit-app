@@ -82,10 +82,6 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
   useFocusEffect(
     useCallback(() => {
       const fetchStaffData = async () => {
-        if (!user?.gym_id || !tokens?.access_token) {
-          return;
-        }
-
         try {
           const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/staff`, {
             headers: {
@@ -93,8 +89,7 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
             },
           });
 
-          const json = await response.text();
-          const obj = JSON.parse(json);
+          const obj = await response.json();
 
           if (response.status === 200) {
             setOwners(obj.owners);
@@ -111,8 +106,7 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
               }),
             });
 
-            const json = await response.text();
-            const obj = JSON.parse(json);
+            const obj = await response.json();
 
             if (response.status == 200) {
               console.log("Got new access token and refresh token");
@@ -129,7 +123,7 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
       };
 
       fetchStaffData();
-    }, [user?.gym_id, tokens?.access_token, tokens?.refresh_token, webServer, setTokens])
+    }, [tokens?.access_token, tokens?.refresh_token])
   );
 
   return (

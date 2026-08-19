@@ -55,8 +55,7 @@ const ProductDetailScreen = ({ navigation, route }) => {
             }),
           });
 
-          const json = await response.text();
-          const obj = JSON.parse(json);
+          const obj = await response.json();
 
           if (response.status === 200) {
             console.log("Got new access token and refresh token");
@@ -72,7 +71,6 @@ const ProductDetailScreen = ({ navigation, route }) => {
       }
     }
     fetchProduct();
-    // console.log(product.images[0]?.image_url);
   }, [tokens?.access_token, tokens?.refresh_token]);
 
   const selectedImage = product?.images?.[selectedImageIndex]?.image_url || product?.images?.[0]?.image_url || null;

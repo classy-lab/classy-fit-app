@@ -102,8 +102,7 @@ const EditProductScreen = ({ navigation, route }) => {
             }),
           });
 
-          const json = await response.text();
-          const obj = JSON.parse(json);
+          const obj = await response.json();
 
           if (response.status === 200) {
             console.log("Got new access token and refresh token");
