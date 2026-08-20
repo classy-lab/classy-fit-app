@@ -63,14 +63,14 @@ const EditProductScreen = ({ navigation, route }) => {
         }
       );
 
-      const apiResponse = await response.json();
-      console.log("apiResponse: " + JSON.stringify(apiResponse));
+      const obj = await response.json();
+      console.log("apiResponse: " + JSON.stringify(obj));
 
       if (response.status === 200) {
         showMessage({
           message: "Success",
           description:
-            apiResponse.message || "Your action was confirmed successfully!",
+            obj.message || "Your action was confirmed successfully!",
           type: "success",
           icon: "success",
           duration: 3000,
@@ -81,7 +81,7 @@ const EditProductScreen = ({ navigation, route }) => {
       } else {
         showMessage({
           message: "Action Failed",
-          description: apiResponse.message || "Something went wrong.",
+          description: obj.message || "Something went wrong.",
           type: "danger", // Automatically styles background to red
           icon: "danger",
           autoHide: false,
