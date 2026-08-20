@@ -142,15 +142,15 @@ export const createContactSchema = yup.object().shape({
 });
 
 export const sexData = [
-  { key: "1", value: "Male", disabled: false },
-  { key: "2", value: "Female" },
-  { key: "3", value: "Other" },
+  { key: "1", value: "male", disabled: false },
+  { key: "2", value: "female" },
+  { key: "3", value: "other" },
 ];
 
 export const roleData = [
-  { key: "1", value: "Owner", disabled: true },
-  { key: "2", value: "Member" },
-  { key: "3", value: "Trainer" },
+  { key: "1", value: "owner", disabled: true },
+  { key: "2", value: "member" },
+  { key: "3", value: "trainer" },
 ];
 
 export const findRoleOption = (role?: string | null) => {
