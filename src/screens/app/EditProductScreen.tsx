@@ -56,8 +56,6 @@ const EditProductScreen = ({ navigation, route }) => {
   const [descriptionHtml, setDescriptionHtml] = useState('');
   const richText = useRef(null);
   const lastSyncedHtmlRef = useRef('');
-  const getTextValue = (value) => String(value ?? '');
-  const toPayloadValue = (value: string) => String(value ?? '').trim() || null;
   const {
     control,
     handleSubmit,
@@ -219,17 +217,17 @@ const EditProductScreen = ({ navigation, route }) => {
 
     try {
       const requestPayload = new FormData();
-      requestPayload.append('title', String(toPayloadValue(formData.title) ?? ''));
-      requestPayload.append('description', String(toPayloadValue(formData.description) ?? ''));
-      requestPayload.append('sku', String(toPayloadValue(formData.sku) ?? ''));
-      requestPayload.append('brand', String(toPayloadValue(formData.brand) ?? ''));
-      requestPayload.append('price', String(toPayloadValue(formData.price) ?? ''));
-      requestPayload.append('sale_price', String(toPayloadValue(formData.sale_price) ?? ''));
-      requestPayload.append('cost_price', String(toPayloadValue(formData.cost_price) ?? ''));
-      requestPayload.append('quantity_in_stock', String(toPayloadValue(formData.quantity_in_stock) ?? ''));
-      requestPayload.append('weight', String(toPayloadValue(formData.weight) ?? ''));
-      requestPayload.append('size', String(toPayloadValue(formData.size) ?? ''));
-      requestPayload.append('color', String(toPayloadValue(formData.color) ?? ''));
+      requestPayload.append('title', String(formData.title ?? '').trim());
+      requestPayload.append('description', String(formData.description ?? '').trim());
+      requestPayload.append('sku', String(formData.sku ?? '').trim());
+      requestPayload.append('brand', String(formData.brand ?? '').trim());
+      requestPayload.append('price', String(formData.price ?? '').trim());
+      requestPayload.append('sale_price', String(formData.sale_price ?? '').trim());
+      requestPayload.append('cost_price', String(formData.cost_price ?? '').trim());
+      requestPayload.append('quantity_in_stock', String(formData.quantity_in_stock ?? '').trim());
+      requestPayload.append('weight', String(formData.weight ?? '').trim());
+      requestPayload.append('size', String(formData.size ?? '').trim());
+      requestPayload.append('color', String(formData.color ?? '').trim());
 
       const existingImages = productImages
         .filter((image) => !image?.isPlaceholder && !image?.localAsset && image?.image_url)
@@ -273,7 +271,7 @@ const EditProductScreen = ({ navigation, route }) => {
 
       const rawResponse = await response.text();
       const obj = rawResponse ? JSON.parse(rawResponse) : {};
-      console.log("apiResponse: " + JSON.stringify(obj));
+      console.log("apiResponse: " + JSON.stringify(rawResponse));
 
       if (response.status === 200) {
         showMessage({
@@ -327,17 +325,17 @@ const EditProductScreen = ({ navigation, route }) => {
           setProduct(data.data);
           setProductImages(buildProductImageSlots(data?.data?.images || []));
           const formValues = {
-            title: getTextValue(data?.data?.title),
-            description: getTextValue(data?.data?.description),
-            sku: getTextValue(data?.data?.sku),
-            brand: getTextValue(data?.data?.brand),
-            price: getTextValue(data?.data?.price),
-            sale_price: getTextValue(data?.data?.sale_price),
-            cost_price: getTextValue(data?.data?.cost_price),
-            quantity_in_stock: getTextValue(data?.data?.quantity_in_stock),
-            weight: getTextValue(data?.data?.weight),
-            size: getTextValue(data?.data?.size),
-            color: getTextValue(data?.data?.color),
+            title: String(data?.data?.title ?? ''),
+            description: String(data?.data?.description ?? ''),
+            sku: String(data?.data?.sku ?? ''),
+            brand: String(data?.data?.brand ?? ''),
+            price: String(data?.data?.price ?? ''),
+            sale_price: String(data?.data?.sale_price ?? ''),
+            cost_price: String(data?.data?.cost_price ?? ''),
+            quantity_in_stock: String(data?.data?.quantity_in_stock ?? ''),
+            weight: String(data?.data?.weight ?? ''),
+            size: String(data?.data?.size ?? ''),
+            color: String(data?.data?.color ?? ''),
           };
           reset(formValues);
           setDescriptionHtml(formValues.description || '');
