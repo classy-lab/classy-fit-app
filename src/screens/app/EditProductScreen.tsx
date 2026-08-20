@@ -10,7 +10,7 @@ import { RichEditor, RichToolbar, actions } from 'react-native-pell-rich-editor'
 import { Controller, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
-import * as ImagePicker from 'expo-image-picker'
+import ImagePicker from 'react-native-image-crop-picker'
 import {
   showMessage,
   hideMessage,
@@ -115,54 +115,50 @@ const EditProductScreen = ({ navigation, route }) => {
   };
 
   const pickImage = async (targetIndex: number) => {
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permissionResult.granted) {
-      Alert.alert('Permission required', 'Permission to access the media library is required.');
-      return;
+    try {
+      const selectedAsset = await ImagePicker.openPicker({
+        cropping: true,
+        width: 380,
+        height: 380,
+        compressImageQuality: 0.7,
+        forceJpg: true,
+        mediaType: "photo",
+      });
+
+      const mimeType = String(selectedAsset?.mime || '').toLowerCase();
+      const fileName = String(selectedAsset?.filename || selectedAsset?.path || '').toLowerCase();
+      const fileSize = Number((selectedAsset as any)?.fileSize ?? (selectedAsset as any)?.size ?? 0);
+      const hasAllowedExtension =
+        fileName.endsWith('.jpg') || fileName.endsWith('.jpeg') || fileName.endsWith('.png');
+      const hasAllowedMimeType = mimeType === 'image/jpeg' || mimeType === 'image/png';
+
+      if (!hasAllowedMimeType && !hasAllowedExtension) {
+        Alert.alert('Unsupported Format', 'Please select a JPEG or PNG image.');
+        return;
+      }
+
+      if (fileSize > MAX_PRODUCT_IMAGE_BYTES) {
+        Alert.alert('Image Too Large', 'Please select an image that is 5 MB or less.');
+        return;
+      }
+
+      const nextImage = {
+        id: `picked-${Date.now()}-${targetIndex}`,
+        isPlaceholder: false,
+        source: { uri: selectedAsset.path },
+        image_url: selectedAsset.path,
+        localAsset: selectedAsset,
+      };
+
+      setProductImages((prev) => {
+        const next = [...prev];
+        next[targetIndex] = nextImage;
+        return next;
+      });
+      setSelectedImageIndex(targetIndex);
+    } catch (error) {
+      console.log('Image selection cancelled or failed:', error);
     }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      quality: 1,
-    });
-
-    if (result.canceled) {
-      return;
-    }
-
-    const selectedAsset = result.assets?.[0];
-    const mimeType = String(selectedAsset?.mimeType || '').toLowerCase();
-    const fileName = String(selectedAsset?.fileName || selectedAsset?.uri || '').toLowerCase();
-    const fileSize = Number(selectedAsset?.fileSize || 0);
-    const hasAllowedExtension =
-      fileName.endsWith('.jpg') || fileName.endsWith('.jpeg') || fileName.endsWith('.png');
-    const hasAllowedMimeType = mimeType === 'image/jpeg' || mimeType === 'image/png';
-
-    if (!hasAllowedMimeType && !hasAllowedExtension) {
-      Alert.alert('Unsupported Format', 'Please select a JPEG or PNG image.');
-      return;
-    }
-
-    if (fileSize > MAX_PRODUCT_IMAGE_BYTES) {
-      Alert.alert('Image Too Large', 'Please select an image that is 5 MB or less.');
-      return;
-    }
-
-    const nextImage = {
-      id: `picked-${Date.now()}-${targetIndex}`,
-      isPlaceholder: false,
-      source: { uri: selectedAsset.uri },
-      image_url: selectedAsset.uri,
-      localAsset: selectedAsset,
-    };
-
-    setProductImages((prev) => {
-      const next = [...prev];
-      next[targetIndex] = nextImage;
-      return next;
-    });
-    setSelectedImageIndex(targetIndex);
   };
 
   const handleDeleteProduct = async () => {
@@ -246,15 +242,15 @@ const EditProductScreen = ({ navigation, route }) => {
       requestPayload.append('images', JSON.stringify(existingImages));
 
       productImages
-        .filter((image) => !image?.isPlaceholder && image?.localAsset?.uri)
+        .filter((image) => !image?.isPlaceholder && image?.localAsset?.path)
         .forEach((image, index) => {
           const localAsset = image.localAsset;
-          const mimeType = localAsset?.mimeType || 'image/jpeg';
+          const mimeType = localAsset?.mime || 'image/jpeg';
           const extension = mimeType === 'image/png' ? 'png' : 'jpg';
-          const fileName = localAsset?.fileName || `product-image-${index}.${extension}`;
+          const fileName = localAsset?.filename || `product-image-${index}.${extension}`;
 
           requestPayload.append('new_images[]', {
-            uri: localAsset.uri,
+            uri: localAsset.path,
             type: mimeType,
             name: fileName,
           } as any);
@@ -437,19 +433,15 @@ const EditProductScreen = ({ navigation, route }) => {
                     />
                   </View>
                 )}
-                <TouchableOpacity
-                  style={styles.changeImageBtn}
-                  onPress={() => pickImage(selectedImageIndex)}
-                >
-                  <Text style={styles.changeImageBtnText}>Change Selected Image</Text>
-                </TouchableOpacity>
               </View>
               <View style={styles.heroImageThumbnails}>
                 {productImages.map((image, index) => (
                   <TouchableOpacity
                     key={`${image?.id || index}`}
-                    onPress={() => setSelectedImageIndex(index)}
-                    onLongPress={() => pickImage(index)}
+                    onPress={() => {
+                      setSelectedImageIndex(index);
+                      pickImage(index);
+                    }}
                   >
                     {image?.isPlaceholder ? (
                       <View
@@ -806,17 +798,6 @@ const styles = StyleSheet.create({
     width: 232,
     height: 232,
     borderRadius: 12,
-  },
-  changeImageBtn: {
-    marginTop: 12,
-    backgroundColor: AppColors.blue,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  changeImageBtnText: {
-    color: AppColors.white,
-    fontSize: 13,
   },
   heroImageThumbnails: {
     flexDirection: 'row',
