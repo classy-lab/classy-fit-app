@@ -211,6 +211,8 @@ const EditProductScreen = ({ navigation, route }) => {
   };
 
   const onSubmit = async (formData: EditProductFormValues) => {
+    console.log('onSubmit() called with formData:', formData);
+    return;
     const currentProductId = productIdentifier;
 
     if (!currentProductId) {
