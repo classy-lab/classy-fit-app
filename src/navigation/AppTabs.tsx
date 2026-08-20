@@ -7,7 +7,6 @@ import { AppColors } from '../styles/colors'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5'
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
-import { useNavigation } from '@react-navigation/native'
 
 import DashboardScreen from '../screens/app/DashboardScreen'
 import GymScreen from '../screens/app/GymScreen'
@@ -114,9 +113,14 @@ const screenOptions = {
   }
 }
 
-const AppTabs = () => {
-  const navigation = useNavigation()
+const createRootTabListener = (tabName, screenName) => ({ navigation }) => ({
+  tabPress: (e) => {
+    e.preventDefault();
+    navigation.navigate(tabName, { screen: screenName });
+  },
+});
 
+const AppTabs = () => {
   return (
     <Tab.Navigator screenOptions={screenOptions}>
       {/* Clicking this tab shows the HomeStack, with the tab bar still at the bottom */}
@@ -130,6 +134,7 @@ const AppTabs = () => {
             <Ionicons name="home" color={color} size={20} />
           ),
         }}
+        listeners={createRootTabListener('HomeTab', 'DashboardScreen')}
       />
       <Tab.Screen
         name="GymTab"
@@ -140,6 +145,7 @@ const AppTabs = () => {
             <FontAwesome5 name="dumbbell" size={19} color={color} />
           ),
         }}
+        listeners={createRootTabListener('GymTab', 'GymScreen')}
       />
       <Tab.Screen
         name="StaffTab"
@@ -151,6 +157,7 @@ const AppTabs = () => {
             // <FontAwesome5 name="user-friends" size={20} color={color} />
           ),
         }}
+        listeners={createRootTabListener('StaffTab', 'StaffScreen')}
       />
       <Tab.Screen
         name="ProductsTab"
@@ -159,14 +166,21 @@ const AppTabs = () => {
           title: "Products",
           tabBarIcon: ({ color, size }) => <Ionicons name="bag-handle" size={20} color={color} />
         }}
+        listeners={createRootTabListener('ProductsTab', 'ProductsScreen')}
       />
       <Tab.Screen
         name="ProfileScreen"
         component={ProfileScreen}
         options={{
           title: "Profile",
-          tabBarIcon: ({ color, size }) => <FontAwesome6 name="circle-user" size={20} color={color} onPress={() => { navigation.navigate('ProfileScreen') }} />
+          tabBarIcon: ({ color, size }) => <FontAwesome6 name="circle-user" size={20} color={color} />
         }}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            e.preventDefault();
+            navigation.navigate('ProfileScreen');
+          },
+        })}
       />
     </Tab.Navigator>
   )
