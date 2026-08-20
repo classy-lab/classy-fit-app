@@ -141,7 +141,7 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
             />
             <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: 10 }}>
               {/* move to separate component */}
-              <TouchableOpacity onPress={() => navigation.navigate('AddStaffScreen')} style={styles.signOut}>
+              <TouchableOpacity onPress={() => navigation.navigate('StaffTab', { screen: 'AddStaffScreen' })} style={styles.signOut}>
                 <Text style={styles.signOutText}>Add</Text>
                 <View style={styles.circle}>
                   <MaterialIcons name="add" color={AppColors.white} size={16} />
