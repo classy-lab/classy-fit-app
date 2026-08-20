@@ -162,6 +162,9 @@ const EditProductScreen = ({ navigation, route }) => {
             weight: toPayloadValue(formData.weight),
             size: toPayloadValue(formData.size),
             color: toPayloadValue(formData.color),
+            images: (product?.images || [])
+              .filter((image) => image?.image_url)
+              .map((image) => ({ image_url: image.image_url })),
           }),
         }
       );
