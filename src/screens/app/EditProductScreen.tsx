@@ -79,11 +79,6 @@ const EditProductScreen = ({ navigation, route }) => {
       color: '',
     },
   });
-  const productIdentifier =
-    route?.params?.product?.pid ||
-    route?.params?.product?.uid ||
-    product?.pid ||
-    product?.uid;
   const [productImages, setProductImages] = useState(
     Array.from({ length: PRODUCT_IMAGE_PLACEHOLDER_COUNT }, (_, index) => ({
       id: `placeholder-${index}`,
@@ -162,7 +157,7 @@ const EditProductScreen = ({ navigation, route }) => {
   };
 
   const handleDeleteProduct = async () => {
-    const currentProductId = productIdentifier || route?.params?.product?.uid;
+    const currentProductId = route?.params?.product?.uid;
     console.log('handleDeleteProduct() pressed for product id:', currentProductId)
     // testing
     if (!currentProductId) {
@@ -211,9 +206,7 @@ const EditProductScreen = ({ navigation, route }) => {
   };
 
   const onSubmit = async (formData: EditProductFormValues) => {
-    console.log('onSubmit() called with formData:', formData);
-    return;
-    const currentProductId = productIdentifier;
+    const currentProductId = route?.params?.product?.uid;
 
     if (!currentProductId) {
       showMessage({
@@ -243,20 +236,30 @@ const EditProductScreen = ({ navigation, route }) => {
         .map((image) => ({ image_url: image.image_url }));
       requestPayload.append('images', JSON.stringify(existingImages));
 
-      productImages
+      const newImages = productImages
         .filter((image) => !image?.isPlaceholder && image?.localAsset?.path)
-        .forEach((image, index) => {
+        .map((image, index) => {
           const localAsset = image.localAsset;
           const mimeType = localAsset?.mime || 'image/jpeg';
           const extension = mimeType === 'image/png' ? 'png' : 'jpg';
           const fileName = localAsset?.filename || `product-image-${index}.${extension}`;
 
-          requestPayload.append('new_images[]', {
+          return {
             uri: localAsset.path,
             type: mimeType,
             name: fileName,
-          } as any);
+          };
         });
+
+      newImages.forEach((imageFile) => {
+        requestPayload.append('new_images[]', imageFile as any);
+      });
+
+      console.log('Submitting product update images:', {
+        existingImageCount: existingImages.length,
+        newImageCount: newImages.length,
+        newImageNames: newImages.map((image) => image.name),
+      });
 
       const response = await fetch(
         `${webServer}/api/v1/gyms/${user.gym_id}/products/${currentProductId}`,
@@ -308,7 +311,7 @@ const EditProductScreen = ({ navigation, route }) => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {                           // http://localhost:8080/classy-api/api/v1/gyms/1/products/5
-        const currentProductId = productIdentifier;
+        const currentProductId = route?.params?.product?.uid;
         if (!currentProductId) {
           return;
         }
@@ -368,7 +371,7 @@ const EditProductScreen = ({ navigation, route }) => {
     }
     fetchProduct();
     // console.log(product.images[0]?.image_url);
-  }, [tokens?.access_token, tokens?.refresh_token, productIdentifier, reset]);
+  }, [tokens?.access_token, tokens?.refresh_token, route?.params?.product?.uid, reset]);
 
   useEffect(() => {
     if (!richText.current?.setContentHTML) {
@@ -403,7 +406,7 @@ const EditProductScreen = ({ navigation, route }) => {
                 product: {
                   ...(route?.params?.product || {}),
                   ...(product || {}),
-                  pid: productIdentifier,
+                  pid: route?.params?.product?.uid,
                 },
               });
             }}
