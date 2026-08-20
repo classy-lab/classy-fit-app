@@ -254,7 +254,6 @@ const EditProductScreen = ({ navigation, route }) => {
       newImages.forEach((imageFile) => {
         requestPayload.append('new_images[]', imageFile as any);
       });
-
       console.log('Submitting product update images:', {
         existingImageCount: existingImages.length,
         newImageCount: newImages.length,
@@ -264,7 +263,7 @@ const EditProductScreen = ({ navigation, route }) => {
       const response = await fetch(
         `${webServer}/api/v1/gyms/${user.gym_id}/products/${currentProductId}`,
         {
-          method: "PUT",
+          method: "POST",
           headers: {
             Authorization: "Bearer " + tokens.access_token,
           },
