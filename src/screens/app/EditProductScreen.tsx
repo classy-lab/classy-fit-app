@@ -1,14 +1,16 @@
 // @ts-nocheck
-import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, TextInput } from 'react-native'
+import { Alert, StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, TextInput } from 'react-native'
 import { useState, useEffect, useContext, useRef } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { AppColors } from '../../styles/colors'
 import { UserContext } from '../../context/UserContext'
 import { RichEditor, RichToolbar, actions } from 'react-native-pell-rich-editor'
 import { Controller, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
+import * as ImagePicker from 'expo-image-picker'
 import {
   showMessage,
   hideMessage,
@@ -41,6 +43,9 @@ type EditProductFormValues = {
   size: string;
   color: string;
 };
+
+const MAX_PRODUCT_IMAGE_BYTES = 5 * 1024 * 1024;
+const PRODUCT_IMAGE_PLACEHOLDER_COUNT = 5;
 
 const EditProductScreen = ({ navigation, route }) => {
   const { user } = useContext(UserContext);
@@ -79,6 +84,86 @@ const EditProductScreen = ({ navigation, route }) => {
     route?.params?.product?.uid ||
     product?.pid ||
     product?.uid;
+  const [productImages, setProductImages] = useState(
+    Array.from({ length: PRODUCT_IMAGE_PLACEHOLDER_COUNT }, (_, index) => ({
+      id: `placeholder-${index}`,
+      iconName: 'image-outline',
+      isPlaceholder: true,
+    }))
+  );
+
+  const buildProductImageSlots = (images = []) => {
+    const existingSlots = images.slice(0, PRODUCT_IMAGE_PLACEHOLDER_COUNT).map((image, index) => ({
+      id: `existing-${index}`,
+      isPlaceholder: false,
+      image_url: image?.image_url || '',
+      source: { uri: image?.image_url || '' },
+    }));
+    const remainingSlots = PRODUCT_IMAGE_PLACEHOLDER_COUNT - existingSlots.length;
+
+    if (remainingSlots <= 0) {
+      return existingSlots;
+    }
+
+    const placeholderSlots = Array.from({ length: remainingSlots }, (_, index) => ({
+      id: `placeholder-${existingSlots.length + index}`,
+      iconName: 'image-outline',
+      isPlaceholder: true,
+    }));
+
+    return [...existingSlots, ...placeholderSlots];
+  };
+
+  const pickImage = async (targetIndex: number) => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permissionResult.granted) {
+      Alert.alert('Permission required', 'Permission to access the media library is required.');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (result.canceled) {
+      return;
+    }
+
+    const selectedAsset = result.assets?.[0];
+    const mimeType = String(selectedAsset?.mimeType || '').toLowerCase();
+    const fileName = String(selectedAsset?.fileName || selectedAsset?.uri || '').toLowerCase();
+    const fileSize = Number(selectedAsset?.fileSize || 0);
+    const hasAllowedExtension =
+      fileName.endsWith('.jpg') || fileName.endsWith('.jpeg') || fileName.endsWith('.png');
+    const hasAllowedMimeType = mimeType === 'image/jpeg' || mimeType === 'image/png';
+
+    if (!hasAllowedMimeType && !hasAllowedExtension) {
+      Alert.alert('Unsupported Format', 'Please select a JPEG or PNG image.');
+      return;
+    }
+
+    if (fileSize > MAX_PRODUCT_IMAGE_BYTES) {
+      Alert.alert('Image Too Large', 'Please select an image that is 5 MB or less.');
+      return;
+    }
+
+    const nextImage = {
+      id: `picked-${Date.now()}-${targetIndex}`,
+      isPlaceholder: false,
+      source: { uri: selectedAsset.uri },
+      image_url: selectedAsset.uri,
+      localAsset: selectedAsset,
+    };
+
+    setProductImages((prev) => {
+      const next = [...prev];
+      next[targetIndex] = nextImage;
+      return next;
+    });
+    setSelectedImageIndex(targetIndex);
+  };
 
   const handleDeleteProduct = async () => {
     const currentProductId = productIdentifier || route?.params?.product?.uid;
@@ -142,30 +227,47 @@ const EditProductScreen = ({ navigation, route }) => {
     }
 
     try {
+      const requestPayload = new FormData();
+      requestPayload.append('title', String(toPayloadValue(formData.title) ?? ''));
+      requestPayload.append('description', String(toPayloadValue(formData.description) ?? ''));
+      requestPayload.append('sku', String(toPayloadValue(formData.sku) ?? ''));
+      requestPayload.append('brand', String(toPayloadValue(formData.brand) ?? ''));
+      requestPayload.append('price', String(toPayloadValue(formData.price) ?? ''));
+      requestPayload.append('sale_price', String(toPayloadValue(formData.sale_price) ?? ''));
+      requestPayload.append('cost_price', String(toPayloadValue(formData.cost_price) ?? ''));
+      requestPayload.append('quantity_in_stock', String(toPayloadValue(formData.quantity_in_stock) ?? ''));
+      requestPayload.append('weight', String(toPayloadValue(formData.weight) ?? ''));
+      requestPayload.append('size', String(toPayloadValue(formData.size) ?? ''));
+      requestPayload.append('color', String(toPayloadValue(formData.color) ?? ''));
+
+      const existingImages = productImages
+        .filter((image) => !image?.isPlaceholder && !image?.localAsset && image?.image_url)
+        .map((image) => ({ image_url: image.image_url }));
+      requestPayload.append('images', JSON.stringify(existingImages));
+
+      productImages
+        .filter((image) => !image?.isPlaceholder && image?.localAsset?.uri)
+        .forEach((image, index) => {
+          const localAsset = image.localAsset;
+          const mimeType = localAsset?.mimeType || 'image/jpeg';
+          const extension = mimeType === 'image/png' ? 'png' : 'jpg';
+          const fileName = localAsset?.fileName || `product-image-${index}.${extension}`;
+
+          requestPayload.append('new_images[]', {
+            uri: localAsset.uri,
+            type: mimeType,
+            name: fileName,
+          } as any);
+        });
+
       const response = await fetch(
         `${webServer}/api/v1/gyms/${user.gym_id}/products/${currentProductId}`,
         {
           method: "PUT",
           headers: {
-            "Content-Type": "application/json",
             Authorization: "Bearer " + tokens.access_token,
           },
-          body: JSON.stringify({
-            title: toPayloadValue(formData.title),
-            description: toPayloadValue(formData.description),
-            sku: toPayloadValue(formData.sku),
-            brand: toPayloadValue(formData.brand),
-            price: toPayloadValue(formData.price),
-            sale_price: toPayloadValue(formData.sale_price),
-            cost_price: toPayloadValue(formData.cost_price),
-            quantity_in_stock: toPayloadValue(formData.quantity_in_stock),
-            weight: toPayloadValue(formData.weight),
-            size: toPayloadValue(formData.size),
-            color: toPayloadValue(formData.color),
-            images: (product?.images || [])
-              .filter((image) => image?.image_url)
-              .map((image) => ({ image_url: image.image_url })),
-          }),
+          body: requestPayload,
         }
       );
 
@@ -223,6 +325,7 @@ const EditProductScreen = ({ navigation, route }) => {
 
         if (response.status === 200) {
           setProduct(data.data);
+          setProductImages(buildProductImageSlots(data?.data?.images || []));
           const formValues = {
             title: getTextValue(data?.data?.title),
             description: getTextValue(data?.data?.description),
@@ -282,7 +385,7 @@ const EditProductScreen = ({ navigation, route }) => {
     richText.current.setContentHTML(descriptionHtml || '');
   }, [descriptionHtml]);
 
-  const selectedImage = product?.images?.[selectedImageIndex]?.image_url || product?.images?.[0]?.image_url || null;
+  const selectedImage = productImages?.[selectedImageIndex]?.source?.uri || null;
 
   return (
     <>
@@ -319,28 +422,62 @@ const EditProductScreen = ({ navigation, route }) => {
           <View style={styles.body}>
             <View>
               <View style={styles.heroImageContainer}>
-                <Image
-                  style={styles.heroImage}
-                  source={{ uri: selectedImage }}
-                  resizeMode="cover"
-                />
+                {selectedImage ? (
+                  <Image
+                    style={styles.heroImage}
+                    source={{ uri: selectedImage }}
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <View style={styles.placeholderHero}>
+                    <MaterialCommunityIcons
+                      name="image-outline"
+                      size={88}
+                      color={AppColors.blue}
+                    />
+                  </View>
+                )}
+                <TouchableOpacity
+                  style={styles.changeImageBtn}
+                  onPress={() => pickImage(selectedImageIndex)}
+                >
+                  <Text style={styles.changeImageBtnText}>Change Selected Image</Text>
+                </TouchableOpacity>
               </View>
-              {product?.images?.length > 0 && (
-                <View style={styles.heroImageThumbnails}>
-                  {product.images.map((image, index) => (
-                    <TouchableOpacity key={`${image?.image_url || index}`} onPress={() => setSelectedImageIndex(index)}>
+              <View style={styles.heroImageThumbnails}>
+                {productImages.map((image, index) => (
+                  <TouchableOpacity
+                    key={`${image?.id || index}`}
+                    onPress={() => setSelectedImageIndex(index)}
+                    onLongPress={() => pickImage(index)}
+                  >
+                    {image?.isPlaceholder ? (
+                      <View
+                        style={[
+                          styles.thumbnail,
+                          styles.placeholderThumbnail,
+                          selectedImageIndex === index && styles.selectedThumbnail,
+                        ]}
+                      >
+                        <MaterialCommunityIcons
+                          name={image?.iconName || 'image-outline'}
+                          size={24}
+                          color={AppColors.blue}
+                        />
+                      </View>
+                    ) : (
                       <Image
                         style={[
                           styles.thumbnail,
                           selectedImageIndex === index && styles.selectedThumbnail,
                         ]}
-                        source={{ uri: image?.image_url || null }}
+                        source={{ uri: image?.source?.uri || null }}
                         resizeMode="cover"
                       />
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
+                    )}
+                  </TouchableOpacity>
+                ))}
+              </View>
             </View>
             <View style={styles.content}>
               <View style={styles.inputField}>
@@ -657,20 +794,46 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 16,
   },
+  placeholderHero: {
+    width: 232,
+    height: 232,
+    borderRadius: 12,
+    backgroundColor: AppColors.grey,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   heroImage: {
     width: 232,
     height: 232,
     borderRadius: 12,
   },
+  changeImageBtn: {
+    marginTop: 12,
+    backgroundColor: AppColors.blue,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  changeImageBtnText: {
+    color: AppColors.white,
+    fontSize: 13,
+  },
   heroImageThumbnails: {
     flexDirection: 'row',
     justifyContent: 'space-evenly',
+    flexWrap: 'wrap',
   },
   thumbnail: {
     width: 56,
     height: 56,
     marginRight: 8,
+    marginBottom: 8,
     borderRadius: 8,
+  },
+  placeholderThumbnail: {
+    backgroundColor: AppColors.grey,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   selectedThumbnail: {
     borderWidth: 2,
