@@ -1,19 +1,46 @@
 // @ts-nocheck
 import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, TextInput } from 'react-native'
 import { useState, useEffect, useContext, useRef } from 'react'
-import { webServer, user, tokens, setTokens } from '../../config'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
 import { AppColors } from '../../styles/colors'
-import { s } from 'react-native-size-matters'
-import QuantityPicker from '../../components/forms/QuantityPicker'
 import { UserContext } from '../../context/UserContext'
 import { RichEditor, RichToolbar, actions } from 'react-native-pell-rich-editor'
-import App from '../../../App'
-import FlashMessage, {
+import { Controller, useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+import * as yup from 'yup'
+import {
   showMessage,
   hideMessage,
 } from "react-native-flash-message";
+
+const editProductSchema = yup.object({
+  title: yup.string().trim().required('Title is required'),
+  description: yup.string().nullable(),
+  sku: yup.string().nullable(),
+  brand: yup.string().nullable(),
+  price: yup.string().nullable(),
+  sale_price: yup.string().nullable(),
+  cost_price: yup.string().nullable(),
+  quantity_in_stock: yup.string().nullable(),
+  weight: yup.string().nullable(),
+  size: yup.string().nullable(),
+  color: yup.string().nullable(),
+});
+
+type EditProductFormValues = {
+  title: string;
+  description: string;
+  sku: string;
+  brand: string;
+  price: string;
+  sale_price: string;
+  cost_price: string;
+  quantity_in_stock: string;
+  weight: string;
+  size: string;
+  color: string;
+};
 
 const EditProductScreen = ({ navigation, route }) => {
   const { user } = useContext(UserContext);
@@ -24,24 +51,36 @@ const EditProductScreen = ({ navigation, route }) => {
   const [descriptionHtml, setDescriptionHtml] = useState('');
   const richText = useRef(null);
   const getTextValue = (value) => String(value ?? '');
+  const toNullableValue = (value: string) => {
+    const normalizedValue = String(value ?? '').trim();
+    return normalizedValue === '' ? null : normalizedValue;
+  };
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<EditProductFormValues>({
+    resolver: yupResolver(editProductSchema),
+    defaultValues: {
+      title: '',
+      description: '',
+      sku: '',
+      brand: '',
+      price: '',
+      sale_price: '',
+      cost_price: '',
+      quantity_in_stock: '',
+      weight: '',
+      size: '',
+      color: '',
+    },
+  });
   const productIdentifier =
     route?.params?.product?.pid ||
     route?.params?.product?.uid ||
     product?.pid ||
     product?.uid;
-
-  const handleProductFieldChange = (field, value) => {
-    setProduct((prev: any) => ({
-      ...prev,
-      [field]: value,
-    }));
-  }
-
-  // console.log(route.params?.product?.uid);
-
-  const handleSubmit = () => {
-    // console.log('handleSubmit() pressed')
-  }
 
   const handleDeleteProduct = async () => {
     const currentProductId = productIdentifier || route?.params?.product?.uid;
@@ -92,10 +131,92 @@ const EditProductScreen = ({ navigation, route }) => {
     }
   };
 
+  const onSubmit = async (formData: EditProductFormValues) => {
+
+    console.log('onSubmit() called with formData:', formData);
+    return;
+
+    const currentProductId = productIdentifier || route?.params?.product?.uid;
+
+    if (!currentProductId) {
+      showMessage({
+        message: "Action Failed",
+        description: "Missing product id. Please reopen this product from the list.",
+        type: "danger",
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${webServer}/api/v1/gyms/${user.gym_id}/products/${currentProductId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + tokens.access_token,
+          },
+          body: JSON.stringify({
+            title: toNullableValue(formData.title),
+            description: toNullableValue(formData.description),
+            sku: toNullableValue(formData.sku),
+            brand: toNullableValue(formData.brand),
+            price: toNullableValue(formData.price),
+            sale_price: toNullableValue(formData.sale_price),
+            cost_price: toNullableValue(formData.cost_price),
+            quantity_in_stock: toNullableValue(formData.quantity_in_stock),
+            weight: toNullableValue(formData.weight),
+            size: toNullableValue(formData.size),
+            color: toNullableValue(formData.color),
+          }),
+        }
+      );
+
+      const rawResponse = await response.text();
+      const obj = rawResponse ? JSON.parse(rawResponse) : {};
+      console.log("apiResponse: " + JSON.stringify(obj));
+
+      if (response.status === 200) {
+        showMessage({
+          message: "Success",
+          description: obj.message || "Product updated successfully.",
+          type: "success",
+          icon: "success",
+          duration: 3000,
+          autoHide: true,
+          onPress: () => hideMessage(),
+        });
+        navigation.goBack();
+        return;
+      }
+
+      showMessage({
+        message: "Action Failed",
+        description: obj.message || "Something went wrong while updating this product.",
+        type: "danger",
+        icon: "danger",
+        autoHide: false,
+      });
+    } catch (error) {
+      console.log('Update product request failed:', error);
+      showMessage({
+        message: "Action Failed",
+        description: "Network error while updating product.",
+        type: "danger",
+        icon: "danger",
+      });
+    }
+  };
+
   useEffect(() => {
     const fetchProduct = async () => {
       try {                           // http://localhost:8080/classy-api/api/v1/gyms/1/products/5
-        const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/products/${route.params.product.uid}`, {
+        const currentProductId = productIdentifier || route?.params?.product?.uid;
+        if (!currentProductId) {
+          return;
+        }
+
+        const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/products/${currentProductId}`, {
           headers: {
             Authorization: "Bearer " + tokens.access_token,
           },
@@ -105,7 +226,21 @@ const EditProductScreen = ({ navigation, route }) => {
 
         if (response.status === 200) {
           setProduct(data.data);
-          setDescriptionHtml(getTextValue(data?.data?.description));
+          const nextDescription = getTextValue(data?.data?.description);
+          setDescriptionHtml(nextDescription);
+          reset({
+            title: getTextValue(data?.data?.title),
+            description: nextDescription,
+            sku: getTextValue(data?.data?.sku),
+            brand: getTextValue(data?.data?.brand),
+            price: getTextValue(data?.data?.price),
+            sale_price: getTextValue(data?.data?.sale_price),
+            cost_price: getTextValue(data?.data?.cost_price),
+            quantity_in_stock: getTextValue(data?.data?.quantity_in_stock),
+            weight: getTextValue(data?.data?.weight),
+            size: getTextValue(data?.data?.size),
+            color: getTextValue(data?.data?.color),
+          });
           setSelectedImageIndex(0);
         }
         else {
@@ -135,7 +270,13 @@ const EditProductScreen = ({ navigation, route }) => {
     }
     fetchProduct();
     // console.log(product.images[0]?.image_url);
-  }, [tokens?.access_token, tokens?.refresh_token]);
+  }, [tokens?.access_token, tokens?.refresh_token, productIdentifier, reset]);
+
+  useEffect(() => {
+    if (richText.current?.setContentHTML) {
+      richText.current.setContentHTML(descriptionHtml || '');
+    }
+  }, [descriptionHtml]);
 
   const selectedImage = product?.images?.[selectedImageIndex]?.image_url || product?.images?.[0]?.image_url || null;
 
@@ -200,15 +341,24 @@ const EditProductScreen = ({ navigation, route }) => {
             <View style={styles.content}>
               <View style={styles.inputField}>
                 <Text style={styles.formLabel}>Title:</Text>
-                <TextInput
-                  style={styles.textField}
-                  value={getTextValue(product?.title)}
-                  onChangeText={(value) => handleProductFieldChange('title', value)}
-                  placeholder="Enter title"
-                  placeholderTextColor={AppColors.grey2}
-                  autoCapitalize="words"
-                  returnKeyType="done"
+                <Controller
+                  control={control}
+                  name="title"
+                  render={({ field: { onChange, value } }) => (
+                    <TextInput
+                      style={styles.textField}
+                      value={value}
+                      onChangeText={onChange}
+                      placeholder="Enter title"
+                      placeholderTextColor={AppColors.grey2}
+                      autoCapitalize="words"
+                      returnKeyType="done"
+                    />
+                  )}
                 />
+                {errors?.title?.message ? (
+                  <Text style={styles.errorText}>{errors.title.message}</Text>
+                ) : null}
               </View>
               <View style={styles.descriptionBlock}>
                 <Text style={styles.formLabel}>Description:</Text>
@@ -232,123 +382,199 @@ const EditProductScreen = ({ navigation, route }) => {
                   ]}
                 />
                 <View style={styles.richEditorContainer}>
-                  <RichEditor
-                    ref={richText}
-                    useContainer={false}
-                    style={styles.richEditor}
-                    initialContentHTML={descriptionHtml}
-                    initialHeight={36}
-                    placeholder="Enter description"
-                    editorStyle={{
-                      backgroundColor: AppColors.grey,
-                      color: AppColors.blue,
-                      placeholderColor: AppColors.grey2,
-                      contentCSSText: 'font-size: 14px; line-height: 18px; min-height: 28px;'
-                    }}
-                    onChange={(value) => {
-                      setDescriptionHtml(value);
-                      handleProductFieldChange('description', value);
-                    }}
+                  <Controller
+                    control={control}
+                    name="description"
+                    render={({ field: { onChange } }) => (
+                      <RichEditor
+                        ref={richText}
+                        useContainer={false}
+                        style={styles.richEditor}
+                        initialContentHTML={descriptionHtml}
+                        initialHeight={36}
+                        placeholder="Enter description"
+                        editorStyle={{
+                          backgroundColor: AppColors.grey,
+                          color: AppColors.blue,
+                          placeholderColor: AppColors.grey2,
+                          contentCSSText: 'font-size: 14px; line-height: 18px; min-height: 28px;'
+                        }}
+                        onChange={(value) => {
+                          setDescriptionHtml(value);
+                          onChange(value);
+                        }}
+                      />
+                    )}
                   />
                 </View>
               </View>
               <View style={styles.inputField}>
                 <Text style={styles.formLabel}>SKU:</Text>
-                <TextInput
-                  style={styles.textField}
-                  value={getTextValue(product?.sku)}
-                  onChangeText={(value) => handleProductFieldChange('sku', value)}
-                  placeholder="Enter SKU"
-                  placeholderTextColor={AppColors.grey2}
-                  autoCapitalize="characters"
-                  returnKeyType="done"
+                <Controller
+                  control={control}
+                  name="sku"
+                  render={({ field: { onChange, value } }) => (
+                    <TextInput
+                      style={styles.textField}
+                      value={value}
+                      onChangeText={onChange}
+                      placeholder="Enter SKU"
+                      placeholderTextColor={AppColors.grey2}
+                      autoCapitalize="characters"
+                      returnKeyType="done"
+                    />
+                  )}
                 />
               </View>
               <View style={styles.inputField}>
                 <Text style={styles.formLabel}>Brand:</Text>
-                <TextInput
-                  style={styles.textField}
-                  value={getTextValue(product?.brand)}
-                  onChangeText={(value) => handleProductFieldChange('brand', value)}
-                  placeholder="Enter brand"
-                  placeholderTextColor={AppColors.grey2}
-                  autoCapitalize="words"
-                  returnKeyType="done"
+                <Controller
+                  control={control}
+                  name="brand"
+                  render={({ field: { onChange, value } }) => (
+                    <TextInput
+                      style={styles.textField}
+                      value={value}
+                      onChangeText={onChange}
+                      placeholder="Enter brand"
+                      placeholderTextColor={AppColors.grey2}
+                      autoCapitalize="words"
+                      returnKeyType="done"
+                    />
+                  )}
                 />
               </View>
               <View style={styles.inputField}>
                 <Text style={styles.formLabel}>Price:</Text>
-                <TextInput
-                  style={styles.textField}
-                  value={getTextValue(product?.price)}
-                  onChangeText={(value) => handleProductFieldChange('price', value)}
-                  placeholder="Enter price"
-                  placeholderTextColor={AppColors.grey2}
-                  keyboardType="decimal-pad"
-                  returnKeyType="done"
+                <Controller
+                  control={control}
+                  name="price"
+                  render={({ field: { onChange, value } }) => (
+                    <TextInput
+                      style={styles.textField}
+                      value={value}
+                      onChangeText={onChange}
+                      placeholder="Enter price"
+                      placeholderTextColor={AppColors.grey2}
+                      keyboardType="decimal-pad"
+                      returnKeyType="done"
+                    />
+                  )}
                 />
               </View>
               <View style={styles.inputField}>
                 <Text style={styles.formLabel}>Sale Price:</Text>
-                <TextInput
-                  style={styles.textField}
-                  value={getTextValue(product?.sale_price)}
-                  onChangeText={(value) => handleProductFieldChange('sale_price', value)}
-                  placeholder="Enter sale price"
-                  placeholderTextColor={AppColors.grey2}
-                  keyboardType="decimal-pad"
-                  returnKeyType="done"
+                <Controller
+                  control={control}
+                  name="sale_price"
+                  render={({ field: { onChange, value } }) => (
+                    <TextInput
+                      style={styles.textField}
+                      value={value}
+                      onChangeText={onChange}
+                      placeholder="Enter sale price"
+                      placeholderTextColor={AppColors.grey2}
+                      keyboardType="decimal-pad"
+                      returnKeyType="done"
+                    />
+                  )}
                 />
               </View>
               <View style={styles.inputField}>
                 <Text style={styles.formLabel}>Cost Price:</Text>
-                <TextInput
-                  style={styles.textField}
-                  value={getTextValue(product?.cost_price)}
-                  onChangeText={(value) => handleProductFieldChange('cost_price', value)}
-                  placeholder="Enter cost price"
-                  placeholderTextColor={AppColors.grey2}
-                  keyboardType="decimal-pad"
-                  returnKeyType="done"
+                <Controller
+                  control={control}
+                  name="cost_price"
+                  render={({ field: { onChange, value } }) => (
+                    <TextInput
+                      style={styles.textField}
+                      value={value}
+                      onChangeText={onChange}
+                      placeholder="Enter cost price"
+                      placeholderTextColor={AppColors.grey2}
+                      keyboardType="decimal-pad"
+                      returnKeyType="done"
+                    />
+                  )}
                 />
               </View>
               <View style={styles.inputField}>
                 <Text style={styles.formLabel}>Quantity:</Text>
-                <QuantityPicker quantity={product?.quantity_in_stock} />
+                <Controller
+                  control={control}
+                  name="quantity_in_stock"
+                  render={({ field: { onChange, value } }) => (
+                    <TextInput
+                      style={styles.textField}
+                      value={value}
+                      onChangeText={onChange}
+                      placeholder="Enter quantity"
+                      placeholderTextColor={AppColors.grey2}
+                      keyboardType="number-pad"
+                      returnKeyType="done"
+                    />
+                  )}
+                />
               </View>
               <View style={styles.inputField}>
                 <Text style={styles.formLabel}>Weight:</Text>
-                <QuantityPicker quantity={product?.weight} />
+                <Controller
+                  control={control}
+                  name="weight"
+                  render={({ field: { onChange, value } }) => (
+                    <TextInput
+                      style={styles.textField}
+                      value={value}
+                      onChangeText={onChange}
+                      placeholder="Enter weight"
+                      placeholderTextColor={AppColors.grey2}
+                      keyboardType="decimal-pad"
+                      returnKeyType="done"
+                    />
+                  )}
+                />
               </View>
               <View style={styles.inputField}>
                 <Text style={styles.formLabel}>Size</Text>
-                <TextInput
-                  style={styles.textField}
-                  value={getTextValue(product?.size)}
-                  onChangeText={(value) => handleProductFieldChange('size', value)}
-                  placeholder="Enter size"
-                  placeholderTextColor={AppColors.grey2}
-                  autoCapitalize="characters"
-                  returnKeyType="done"
+                <Controller
+                  control={control}
+                  name="size"
+                  render={({ field: { onChange, value } }) => (
+                    <TextInput
+                      style={styles.textField}
+                      value={value}
+                      onChangeText={onChange}
+                      placeholder="Enter size"
+                      placeholderTextColor={AppColors.grey2}
+                      autoCapitalize="characters"
+                      returnKeyType="done"
+                    />
+                  )}
                 />
               </View>
               <View style={styles.inputField}>
                 <Text style={styles.formLabel}>Color</Text>
-                <TextInput
-                  style={styles.textField}
-                  value={getTextValue(product?.color)}
-                  onChangeText={(value) => handleProductFieldChange('color', value)}
-                  placeholder="Enter color"
-                  placeholderTextColor={AppColors.grey2}
-                  autoCapitalize="words"
-                  returnKeyType="done"
+                <Controller
+                  control={control}
+                  name="color"
+                  render={({ field: { onChange, value } }) => (
+                    <TextInput
+                      style={styles.textField}
+                      value={value}
+                      onChangeText={onChange}
+                      placeholder="Enter color"
+                      placeholderTextColor={AppColors.grey2}
+                      autoCapitalize="words"
+                      returnKeyType="done"
+                    />
+                  )}
                 />
               </View>
               <View style={styles.row}>
                 <TouchableOpacity
                   style={styles.loginBtn}
                   title="Save Product"
-                  onPress={() => { handleSubmit() }}
+                  onPress={handleSubmit(onSubmit)}
                 >
                   <Text style={styles.loginBtnText}>Save Product</Text>
                 </TouchableOpacity>
@@ -470,6 +696,11 @@ const styles = StyleSheet.create({
   },
   inputField: {
     marginBottom: 8,
+  },
+  errorText: {
+    marginTop: 4,
+    color: AppColors.red,
+    fontSize: 12,
   },
   textField: {
     marginTop: 5,
