@@ -51,7 +51,6 @@ function HomeStackScreen() {
       <HomeStack.Screen name="SignoutScreen" component={SignoutScreen} />
       <HomeStack.Screen name="LoginScreen" component={LoginScreen} />
       <HomeStack.Screen name="AllEarnings" component={AllEarnings} />
-      <HomeStack.Screen name="AddStaffScreen" component={AddStaffScreen} />
       <HomeStack.Screen name="UpdateStaffScreen" component={UpdateStaffScreen} />
       <HomeStack.Screen name="UpdateMemberScreen" component={UpdateMemberScreen} />
     </HomeStack.Navigator>
@@ -71,6 +70,7 @@ function StaffStackScreen() {
   return (
     <StaffStack.Navigator screenOptions={screenOptions}>
       <StaffStack.Screen name="StaffScreen" component={StaffScreen} />
+      <StaffStack.Screen name="AddStaffScreen" component={AddStaffScreen} />
       <StaffStack.Screen name="AddContactScreen" component={AddContactScreen} />
       <StaffStack.Screen name="UpdateContactScreen" component={UpdateContactScreen} />
       <StaffStack.Screen name="UpdateStaffScreen" component={UpdateStaffScreen} />
