@@ -50,11 +50,9 @@ const EditProductScreen = ({ navigation, route }) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [descriptionHtml, setDescriptionHtml] = useState('');
   const richText = useRef(null);
+  const lastSyncedHtmlRef = useRef('');
   const getTextValue = (value) => String(value ?? '');
-  const toNullableValue = (value: string) => {
-    const normalizedValue = String(value ?? '').trim();
-    return normalizedValue === '' ? null : normalizedValue;
-  };
+  const toPayloadValue = (value: string) => String(value ?? '').trim() || null;
   const {
     control,
     handleSubmit,
@@ -132,11 +130,7 @@ const EditProductScreen = ({ navigation, route }) => {
   };
 
   const onSubmit = async (formData: EditProductFormValues) => {
-
-    console.log('onSubmit() called with formData:', formData);
-    return;
-
-    const currentProductId = productIdentifier || route?.params?.product?.uid;
+    const currentProductId = productIdentifier;
 
     if (!currentProductId) {
       showMessage({
@@ -157,17 +151,17 @@ const EditProductScreen = ({ navigation, route }) => {
             Authorization: "Bearer " + tokens.access_token,
           },
           body: JSON.stringify({
-            title: toNullableValue(formData.title),
-            description: toNullableValue(formData.description),
-            sku: toNullableValue(formData.sku),
-            brand: toNullableValue(formData.brand),
-            price: toNullableValue(formData.price),
-            sale_price: toNullableValue(formData.sale_price),
-            cost_price: toNullableValue(formData.cost_price),
-            quantity_in_stock: toNullableValue(formData.quantity_in_stock),
-            weight: toNullableValue(formData.weight),
-            size: toNullableValue(formData.size),
-            color: toNullableValue(formData.color),
+            title: toPayloadValue(formData.title),
+            description: toPayloadValue(formData.description),
+            sku: toPayloadValue(formData.sku),
+            brand: toPayloadValue(formData.brand),
+            price: toPayloadValue(formData.price),
+            sale_price: toPayloadValue(formData.sale_price),
+            cost_price: toPayloadValue(formData.cost_price),
+            quantity_in_stock: toPayloadValue(formData.quantity_in_stock),
+            weight: toPayloadValue(formData.weight),
+            size: toPayloadValue(formData.size),
+            color: toPayloadValue(formData.color),
           }),
         }
       );
@@ -211,7 +205,7 @@ const EditProductScreen = ({ navigation, route }) => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {                           // http://localhost:8080/classy-api/api/v1/gyms/1/products/5
-        const currentProductId = productIdentifier || route?.params?.product?.uid;
+        const currentProductId = productIdentifier;
         if (!currentProductId) {
           return;
         }
@@ -226,11 +220,9 @@ const EditProductScreen = ({ navigation, route }) => {
 
         if (response.status === 200) {
           setProduct(data.data);
-          const nextDescription = getTextValue(data?.data?.description);
-          setDescriptionHtml(nextDescription);
-          reset({
+          const formValues = {
             title: getTextValue(data?.data?.title),
-            description: nextDescription,
+            description: getTextValue(data?.data?.description),
             sku: getTextValue(data?.data?.sku),
             brand: getTextValue(data?.data?.brand),
             price: getTextValue(data?.data?.price),
@@ -240,7 +232,9 @@ const EditProductScreen = ({ navigation, route }) => {
             weight: getTextValue(data?.data?.weight),
             size: getTextValue(data?.data?.size),
             color: getTextValue(data?.data?.color),
-          });
+          };
+          reset(formValues);
+          setDescriptionHtml(formValues.description || '');
           setSelectedImageIndex(0);
         }
         else {
@@ -273,9 +267,16 @@ const EditProductScreen = ({ navigation, route }) => {
   }, [tokens?.access_token, tokens?.refresh_token, productIdentifier, reset]);
 
   useEffect(() => {
-    if (richText.current?.setContentHTML) {
-      richText.current.setContentHTML(descriptionHtml || '');
+    if (!richText.current?.setContentHTML) {
+      return;
     }
+
+    if (descriptionHtml === lastSyncedHtmlRef.current) {
+      return;
+    }
+
+    lastSyncedHtmlRef.current = descriptionHtml;
+    richText.current.setContentHTML(descriptionHtml || '');
   }, [descriptionHtml]);
 
   const selectedImage = product?.images?.[selectedImageIndex]?.image_url || product?.images?.[0]?.image_url || null;
@@ -400,6 +401,7 @@ const EditProductScreen = ({ navigation, route }) => {
                           contentCSSText: 'font-size: 14px; line-height: 18px; min-height: 28px;'
                         }}
                         onChange={(value) => {
+                          lastSyncedHtmlRef.current = value;
                           setDescriptionHtml(value);
                           onChange(value);
                         }}
