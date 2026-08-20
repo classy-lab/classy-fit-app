@@ -10,6 +10,10 @@ import QuantityPicker from '../../components/forms/QuantityPicker'
 import { UserContext } from '../../context/UserContext'
 import { RichEditor, RichToolbar, actions } from 'react-native-pell-rich-editor'
 import App from '../../../App'
+import FlashMessage, {
+  showMessage,
+  hideMessage,
+} from "react-native-flash-message";
 
 const EditProductScreen = ({ navigation, route }) => {
   const { user } = useContext(UserContext);
@@ -59,16 +63,28 @@ const EditProductScreen = ({ navigation, route }) => {
         }
       );
 
-      const rawBody = await response.text();
-      console.log(rawBody);
+      const apiResponse = await response.json();
+      console.log("apiResponse: " + JSON.stringify(apiResponse));
 
       if (response.status === 200) {
-        console.log('Product deleted successfully');
+        showMessage({
+          message: "Success",
+          description:
+            apiResponse.message || "Your action was confirmed successfully!",
+          type: "success",
+          icon: "success",
+          duration: 3000,
+          autoHide: true,
+          onPress: () => hideMessage(),
+        });
         navigation.navigate('ProductsScreen');
       } else {
-        console.log('Delete product failed', {
-          status: response.status,
-          body: rawBody,
+        showMessage({
+          message: "Action Failed",
+          description: apiResponse.message || "Something went wrong.",
+          type: "danger", // Automatically styles background to red
+          icon: "danger",
+          autoHide: false,
         });
       }
     } catch (error) {
