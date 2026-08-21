@@ -6,6 +6,24 @@ export const phoneRegExp =
 export const MIN_SUBMISSION_TIME_MS = 2000;
 export const MAX_PROFILE_PIC_BYTES = 5 * 1024 * 1024;
 
+const normalizePhoneValue = (value: unknown) => {
+  if (typeof value !== "string") {
+    return value;
+  }
+
+  const trimmedValue = value.trim();
+  if (trimmedValue === "") {
+    return "";
+  }
+
+  const digitsOnly = trimmedValue.replace(/\D+/g, "");
+  if (digitsOnly === "") {
+    return "";
+  }
+
+  return `+${digitsOnly}`;
+};
+
 const createProfilePicSchema = ({ required = false } = {}) =>
   yup
     .mixed()
@@ -65,17 +83,17 @@ export const schema = yup.object().shape({
   sex: yup.string(),
   phoneNumber: yup
     .string()
-    .matches(phoneRegExp, "Phone Number is not valid")
-    .transform((value) => (value === "" ? "" : value))
-    .min(10, 'Phone number must be at least 10 digits')
-    .max(15, 'Phone number must be no more than 15 digits')
-    .matches(/^\+?[1-9]\d{9,14}$/, 'Enter a valid phone number'),
+    .transform((value) => normalizePhoneValue(value))
+    .matches(/^\+[1-9]\d{7,14}$/, "Phone Number is not valid"),
   whatsappNumber: yup
     .string()
-    .matches(phoneRegExp, "WhatsApp Number number is not valid")
     .nullable()
     .notRequired()
-    .transform((value) => (value === "" ? null : value)),
+    .transform((value) => {
+      const normalizedValue = normalizePhoneValue(value);
+      return normalizedValue === "" ? null : normalizedValue;
+    })
+    .matches(/^\+[1-9]\d{7,14}$/, "WhatsApp Number number is not valid"),
   preferredContact: yup.string(),
   gymId: yup
     .string()
@@ -94,17 +112,17 @@ export const updateContactSchema = yup.object().shape({
   sex: yup.string(),
   phoneNumber: yup
     .string()
-    .matches(phoneRegExp, "Phone Number is not valid")
-    .transform((value) => (value === "" ? "" : value))
-    .min(10, 'Phone number must be at least 10 digits')
-    .max(15, 'Phone number must be no more than 15 digits')
-    .matches(/^\+?[1-9]\d{9,14}$/, 'Enter a valid phone number'),
+    .transform((value) => normalizePhoneValue(value))
+    .matches(/^\+[1-9]\d{7,14}$/, "Phone Number is not valid"),
   whatsappNumber: yup
     .string()
-    .matches(phoneRegExp, "WhatsApp Number number is not valid")
     .nullable()
     .notRequired()
-    .transform((value) => (value === "" ? null : value)),
+    .transform((value) => {
+      const normalizedValue = normalizePhoneValue(value);
+      return normalizedValue === "" ? null : normalizedValue;
+    })
+    .matches(/^\+[1-9]\d{7,14}$/, "WhatsApp Number number is not valid"),
   preferredContact: yup.string(),
   gymId: yup
     .string()
@@ -123,17 +141,17 @@ export const createContactSchema = yup.object().shape({
   sex: yup.string(),
   phoneNumber: yup
     .string()
-    .matches(phoneRegExp, "Phone Number is not valid")
-    .transform((value) => (value === "" ? "" : value))
-    .min(10, 'Phone number must be at least 10 digits')
-    .max(15, 'Phone number must be no more than 15 digits')
-    .matches(/^\+?[1-9]\d{9,14}$/, 'Enter a valid phone number'),
+    .transform((value) => normalizePhoneValue(value))
+    .matches(/^\+[1-9]\d{7,14}$/, "Phone Number is not valid"),
   whatsappNumber: yup
     .string()
-    .matches(phoneRegExp, "WhatsApp Number number is not valid")
     .nullable()
     .notRequired()
-    .transform((value) => (value === "" ? null : value)),
+    .transform((value) => {
+      const normalizedValue = normalizePhoneValue(value);
+      return normalizedValue === "" ? null : normalizedValue;
+    })
+    .matches(/^\+[1-9]\d{7,14}$/, "WhatsApp Number number is not valid"),
   preferredContact: yup.string(),
   gymId: yup
     .string()
