@@ -57,8 +57,7 @@ const normalizePreferredContact = (value: unknown) => {
 
   if (raw === "1") return "Phone";
   if (raw === "2") return "WhatsApp";
-  if (raw === "3") return "Email";
-
+  if (raw === "3") return "Email"
   return raw;
 };
 
