@@ -140,32 +140,32 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
         backgroundColor: "rgba(255,255,255,0.25)",
         justifyContent: "center",
         alignItems: "center",
-        marginRight: 14
+        marginRight: 16
       }}>
-        <MaterialCommunityIcons name={iconName} size={24} color="#fff" />
+        <MaterialCommunityIcons name={iconName} size={24} color={AppColors.white} />
       </View>
       <View style={{ flex: 1 }}>
-        <Text style={{ fontSize: 12, color: "rgba(255,255,255,0.75)", marginBottom: 4, fontWeight: "500" }}>{label}</Text>
-        <Text style={{ fontSize: 16, fontWeight: "700", color: "#fff" }}>{value || "Not provided"}</Text>
+        <Text style={{ fontSize: 14, color: AppColors.white, marginBottom: 4 }}>{label}</Text>
+        <Text style={{ fontSize: 14, color: AppColors.white }}>{value || "Not provided"}</Text>
       </View>
-      <MaterialCommunityIcons name="chevron-right" size={24} color="#fff" />
+      {/* <MaterialCommunityIcons name="chevron-right" size={24} color={AppColors.white} /> */}
     </TouchableOpacity>
   );
 
   const InfoField = ({ label, value }: { label: string; value: string }) => (
-    <View style={{ marginBottom: 14 }}>
-      <Text style={{ fontSize: 11, fontWeight: "600", color: "#888", marginBottom: 6 }}>
+    <View style={{ marginBottom: 16 }}>
+      <Text style={{ fontSize: 14, marginBottom: 8 }}>
         {label}
       </Text>
       <View style={{
-        backgroundColor: "#f5f7fa",
+        backgroundColor: AppColors.grey,
         paddingHorizontal: 14,
         paddingVertical: 12,
         borderRadius: 10,
         borderLeftWidth: 4,
-        borderLeftColor: "#6366F1",
+        borderLeftColor: AppColors.blue,
       }}>
-        <Text style={{ fontSize: 14, fontWeight: "500", color: AppColors.blue }}>
+        <Text style={{ fontSize: 14, color: AppColors.primary }}>
           {value || "—"}
         </Text>
       </View>
@@ -195,8 +195,8 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
           borderRadius: 50,
           overflow: "hidden",
           marginBottom: 16,
-          borderWidth: 4,
-          borderColor: "#6366F1",
+          borderWidth: 1,
+          borderColor: AppColors.blue,
         }}>
           {memberPictureUri ? (
             <Image source={{ uri: memberPictureUri }} style={{ width: "100%", height: "100%" }} resizeMode="cover" />
@@ -212,7 +212,7 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
       </View>
 
       {/* Quick Action Buttons */}
-      <Text style={{ fontSize: 14, marginBottom: 12 }}>
+      <Text style={{ fontSize: 14, marginBottom: 12, marginTop: 16 }}>
         Quick Contact
       </Text>
       {memberData?.phone && <ContactButton iconName="phone" label="Phone Call" value={memberData.phone} onPress={handlePhoneCall} bgColor={AppColors.blue} />}
@@ -220,23 +220,11 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
       {memberData?.email && <ContactButton iconName="email" label="Send Email" value={memberData.email} onPress={handleEmailPress} bgColor={AppColors.blue} />}
 
       {/* Divider */}
-      <View style={{ height: 1, backgroundColor: "#e2e8f0", marginVertical: 24 }} />
-
-      {/* Personal Information Section */}
-      <Text style={{ fontSize: 14, marginBottom: 12 }}>
-        Personal Information
-      </Text>
+      <View style={{ marginTop: 24 }} />
 
       <InfoField label="First Name" value={memberData?.fname} />
       <InfoField label="Last Name" value={memberData?.lname} />
       <InfoField label="Gender" value={memberData?.sex} />
-
-      {/* Contact Information Section */}
-      <View style={{ marginTop: 24 }} />
-      <Text style={{ fontSize: 13, fontWeight: "700", color: "#475569", marginBottom: 14 }}>
-        Contact Details
-      </Text>
-
       <InfoField label="Phone Number" value={memberData?.phone} />
       <InfoField label="WhatsApp" value={memberData?.whatsapp} />
       <InfoField label="E-mail" value={memberData?.email} />
