@@ -18,6 +18,7 @@ import {
 import { AppColors } from "../../styles/colors";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { SelectList } from "react-native-dropdown-select-list";
+import PhoneInput from "react-native-phone-number-input";
 import { UserContext } from "../../context/UserContext";
 import HoneypotField from "./input_fields/HoneypotField";
 import DateOfBirthField from "./input_fields/DateOfBirthField";
@@ -37,6 +38,21 @@ import FlashMessage, {
   showMessage,
   hideMessage,
 } from "react-native-flash-message";
+
+const normalizePhoneFieldForApi = (value: unknown) => {
+  const phone = String(value ?? "").trim();
+
+  if (phone === "") {
+    return "";
+  }
+
+  const digits = phone.replace(/\D+/g, "");
+  if (!/^[1-9]\d{7,14}$/.test(digits)) {
+    return null;
+  }
+
+  return `+${digits}`;
+};
 
 const RegisterForm = () => {
   const navigation = useNavigation();
@@ -177,6 +193,28 @@ const RegisterForm = () => {
       return;
     }
 
+    const normalizedPhone = normalizePhoneFieldForApi(data.phoneNumber);
+    if (normalizedPhone === null) {
+      showMessage({
+        message: "Action Failed",
+        description: "phone must be a valid US or international phone number.",
+        type: "danger",
+        icon: "danger",
+      });
+      return;
+    }
+
+    const normalizedWhatsapp = normalizePhoneFieldForApi(data.whatsappNumber);
+    if (normalizedWhatsapp === null) {
+      showMessage({
+        message: "Action Failed",
+        description: "whatsapp must be a valid US or international phone number.",
+        type: "danger",
+        icon: "danger",
+      });
+      return;
+    }
+
     formData.append("gym_id", data.gymId);
     formData.append("email", data.email);
     formData.append("password", data.password);
@@ -186,8 +224,8 @@ const RegisterForm = () => {
     formData.append("lname", data.lname);
     formData.append("date_of_birth", data.dateOfBirth);
     formData.append("sex", data.sex);
-    formData.append("phone", data.phoneNumber);
-    formData.append("whatsapp", data.whatsappNumber);
+    formData.append("phone", normalizedPhone);
+    formData.append("whatsapp", normalizedWhatsapp);
     formData.append("preferred_contact", data.preferredContact);
     formData.append("profilePic", {
       uri: data.profilePic?.path || data.profilePic?.uri,
@@ -478,15 +516,21 @@ const RegisterForm = () => {
           <Controller
             control={control}
             name="phoneNumber"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
-                style={styles.inputField}
-                onBlur={onBlur}
-                onChangeText={onChange}
+            render={({ field: { onChange, value } }) => (
+              <PhoneInput
+                defaultCode="US"
                 value={value}
-                keyboardType="default"
-                autoCapitalize="none"
-                placeholder="518-555-5555"
+                layout="first"
+                onChangeFormattedText={onChange}
+                containerStyle={styles.phoneInputContainer}
+                textContainerStyle={styles.phoneInputTextContainer}
+                textInputStyle={styles.phoneInputText}
+                codeTextStyle={styles.phoneInputCodeText}
+                countryPickerProps={{ withEmoji: false }}
+                textInputProps={{
+                  placeholder: "518-555-5555",
+                  autoCapitalize: "none",
+                }}
               />
             )}
           />
@@ -499,15 +543,21 @@ const RegisterForm = () => {
           <Controller
             control={control}
             name="whatsappNumber"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
-                style={styles.inputField}
-                onBlur={onBlur}
-                onChangeText={onChange}
+            render={({ field: { onChange, value } }) => (
+              <PhoneInput
+                defaultCode="US"
                 value={value}
-                keyboardType="default"
-                placeholder="518-555-5555"
-                autoCapitalize="none"
+                layout="first"
+                onChangeFormattedText={onChange}
+                containerStyle={styles.phoneInputContainer}
+                textContainerStyle={styles.phoneInputTextContainer}
+                textInputStyle={styles.phoneInputText}
+                codeTextStyle={styles.phoneInputCodeText}
+                countryPickerProps={{ withEmoji: false }}
+                textInputProps={{
+                  placeholder: "518-555-5555",
+                  autoCapitalize: "none",
+                }}
               />
             )}
           />
