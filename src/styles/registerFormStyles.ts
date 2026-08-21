@@ -28,6 +28,28 @@ export const styles = StyleSheet.create({
     width: "100%",
     height: 48,
   },
+  phoneFlagButton: {
+    width: 92,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  phoneDropdownRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    columnGap: 6,
+    justifyContent: "center",
+  },
+  phoneDropdownFlag: {
+    width: 28,
+    height: 21,
+    borderRadius: 2,
+  },
+  phoneDropdownArrow: {
+    color: AppColors.primary,
+    fontSize: 22,
+    lineHeight: 22,
+    marginTop: 1,
+  },
   phoneInputTextContainer: {
     borderTopRightRadius: 8,
     borderBottomRightRadius: 8,
