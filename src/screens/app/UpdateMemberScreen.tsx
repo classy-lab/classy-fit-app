@@ -91,7 +91,7 @@ const UpdateMemberScreen = ({ navigation }: { navigation: any }) => {
             <Text style={styles.title}>
               {memberData?.fname || member?.fname || "Member"} {memberData?.lname || member?.lname || ""}
             </Text>
-            <Text style={styles.subHead}>Update Member Information</Text>
+            {/* <Text style={styles.subHead}>Update Member Information</Text> */}
           </View>
         </View>
         <View style={styles.body}>
