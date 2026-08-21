@@ -231,8 +231,7 @@ const EditProductScreen = ({ navigation, route }) => {
 
       const existingImages = productImages
         .filter((image) => !image?.isPlaceholder && !image?.localAsset && image?.image_url)
-        .map((image) => ({ image_url: image.image_url }));
-      requestPayload.append('images', JSON.stringify(existingImages));
+        .map((image) => image.image_url);
 
       const newImages = productImages
         .filter((image) => !image?.isPlaceholder && image?.localAsset?.path)
@@ -249,8 +248,12 @@ const EditProductScreen = ({ navigation, route }) => {
           };
         });
 
+      existingImages.forEach((imageUrl) => {
+        requestPayload.append('images[]', imageUrl);
+      });
+
       newImages.forEach((imageFile) => {
-        requestPayload.append('new_images[]', imageFile as any);
+        requestPayload.append('images[]', imageFile as any);
       });
       console.log('Submitting product update images:', {
         existingImageCount: existingImages.length,
@@ -268,6 +271,10 @@ const EditProductScreen = ({ navigation, route }) => {
           body: requestPayload,
         }
       );
+
+      for (const [key, value] of (requestPayload as any)._parts ?? []) {
+        console.log("requestPayload", key, value);
+      }
 
       const rawResponse = await response.text();
       const obj = rawResponse ? JSON.parse(rawResponse) : {};
