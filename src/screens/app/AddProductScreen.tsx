@@ -5,60 +5,117 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { AppColors } from '../../styles/colors'
-import QuantityPicker from '../../components/forms/QuantityPicker'
 import { UserContext } from '../../context/UserContext'
 import { RichEditor, RichToolbar, actions } from 'react-native-pell-rich-editor'
-import * as ImagePicker from 'expo-image-picker'
+import ImagePicker from 'react-native-image-crop-picker'
+import { Controller, useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+import * as yup from 'yup'
+import {
+  showMessage,
+  hideMessage,
+} from "react-native-flash-message"
 
-const placeholderImages = [
-  'image-outline',
-  'image-outline', 'image-outline', 'image-outline', 'image-outline',
-]
+const MAX_PRODUCT_IMAGE_BYTES = 5 * 1024 * 1024
+const PRODUCT_IMAGE_PLACEHOLDER_COUNT = 5
+
+const addProductSchema = yup.object({
+  title: yup.string().trim().required('Title is required'),
+  description: yup.string().nullable(),
+  sku: yup.string().nullable(),
+  brand: yup.string().nullable(),
+  price: yup.string().nullable(),
+  sale_price: yup.string().nullable(),
+  cost_price: yup.string().nullable(),
+  quantity_in_stock: yup.string().nullable(),
+  weight: yup.string().nullable(),
+  size: yup.string().nullable(),
+  color: yup.string().nullable(),
+})
+
+type AddProductFormValues = {
+  title: string
+  description: string
+  sku: string
+  brand: string
+  price: string
+  sale_price: string
+  cost_price: string
+  quantity_in_stock: string
+  weight: string
+  size: string
+  color: string
+}
 
 const AddProductScreen = ({ navigation }) => {
   const { user } = useContext(UserContext)
   const { tokens, setTokens } = useContext(UserContext)
   const { webServer } = useContext(UserContext)
-  const [product, setProduct] = useState({})
   const [descriptionHtml, setDescriptionHtml] = useState('')
+  const richText = useRef(null)
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0)
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<AddProductFormValues>({
+    resolver: yupResolver(addProductSchema),
+    defaultValues: {
+      title: '',
+      description: '',
+      sku: '',
+      brand: '',
+      price: '',
+      sale_price: '',
+      cost_price: '',
+      quantity_in_stock: '',
+      weight: '',
+      size: '',
+      color: '',
+    },
+  })
   const [productImages, setProductImages] = useState(
-    placeholderImages.map((iconName, index) => ({
+    Array.from({ length: PRODUCT_IMAGE_PLACEHOLDER_COUNT }, (_, index) => ({
       id: `placeholder-${index}`,
-      iconName,
+      iconName: 'image-outline',
       isPlaceholder: true,
     }))
   )
-  const richText = useRef(null)
 
-  const getTextValue = (value) => String(value ?? '')
+  const pickImage = async (targetIndex: number) => {
+    try {
+      const selectedAsset = await ImagePicker.openPicker({
+        cropping: true,
+        width: 380,
+        height: 380,
+        compressImageQuality: 0.7,
+        forceJpg: true,
+        mediaType: "photo",
+      })
 
-  const handleProductFieldChange = (field, value) => {
-    setProduct((prev: any) => ({
-      ...prev,
-      [field]: value,
-    }))
-  }
+      const mimeType = String(selectedAsset?.mime || '').toLowerCase()
+      const fileName = String(selectedAsset?.filename || selectedAsset?.path || '').toLowerCase()
+      const fileSize = Number((selectedAsset as any)?.fileSize ?? (selectedAsset as any)?.size ?? 0)
+      const hasAllowedExtension =
+        fileName.endsWith('.jpg') || fileName.endsWith('.jpeg') || fileName.endsWith('.png')
+      const hasAllowedMimeType = mimeType === 'image/jpeg' || mimeType === 'image/png'
 
-  const pickImage = async (targetIndex) => {
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync()
+      if (!hasAllowedMimeType && !hasAllowedExtension) {
+        Alert.alert('Unsupported Format', 'Please select a JPEG or PNG image.')
+        return
+      }
 
-    if (!permissionResult.granted) {
-      Alert.alert('Permission required', 'Permission to access the media library is required.')
-      return
-    }
+      if (fileSize > MAX_PRODUCT_IMAGE_BYTES) {
+        Alert.alert('Image Too Large', 'Please select an image that is 5 MB or less.')
+        return
+      }
 
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    })
-
-    if (!result.canceled) {
       const nextImage = {
-        id: `picked-${Date.now()}`,
-        source: { uri: result.assets[0].uri },
+        id: `picked-${Date.now()}-${targetIndex}`,
         isPlaceholder: false,
+        source: { uri: selectedAsset.path },
+        image_url: selectedAsset.path,
+        localAsset: selectedAsset,
       }
 
       setProductImages((prev) => {
@@ -66,18 +123,107 @@ const AddProductScreen = ({ navigation }) => {
         next[targetIndex] = nextImage
         return next
       })
+      setSelectedImageIndex(targetIndex)
+    } catch (error) {
+      console.log('Image selection cancelled or failed:', error)
     }
   }
 
-  const handleSubmit = () => {
-    console.log('Add product submit', {
-      gym_id: user?.gym_id,
-      product,
-      descriptionHtml,
-      webServer,
-      tokens,
-      setTokens,
-    })
+  const onSubmit = async (formData: AddProductFormValues) => {
+    try {
+      const requestPayload = new FormData()
+      requestPayload.append('title', String(formData.title ?? '').trim())
+      requestPayload.append('description', String(descriptionHtml ?? '').trim())
+      requestPayload.append('sku', String(formData.sku ?? '').trim())
+      requestPayload.append('brand', String(formData.brand ?? '').trim())
+      
+      const price = String(formData.price ?? '').trim()
+      if (price) requestPayload.append('price', price)
+      
+      const salePrice = String(formData.sale_price ?? '').trim()
+      if (salePrice) requestPayload.append('sale_price', salePrice)
+      
+      const costPrice = String(formData.cost_price ?? '').trim()
+      if (costPrice) requestPayload.append('cost_price', costPrice)
+      
+      const quantityInStock = String(formData.quantity_in_stock ?? '').trim()
+      if (quantityInStock) requestPayload.append('quantity_in_stock', quantityInStock)
+      
+      const weight = String(formData.weight ?? '').trim()
+      if (weight) requestPayload.append('weight', weight)
+      
+      requestPayload.append('size', String(formData.size ?? '').trim())
+      requestPayload.append('color', String(formData.color ?? '').trim())
+
+      const newImages = productImages
+        .filter((image) => !image?.isPlaceholder && image?.localAsset?.path)
+        .map((image, index) => {
+          const localAsset = image.localAsset
+          const mimeType = localAsset?.mime || 'image/jpeg'
+          const extension = mimeType === 'image/png' ? 'png' : 'jpg'
+          const fileName = localAsset?.filename || `product-image-${index}.${extension}`
+
+          return {
+            uri: localAsset.path,
+            type: mimeType,
+            name: fileName,
+          }
+        })
+
+      newImages.forEach((imageFile) => {
+        requestPayload.append('images[]', imageFile as any)
+      })
+
+      console.log('Submitting new product with images:', {
+        imageCount: newImages.length,
+        imageNames: newImages.map((image) => image.name),
+      })
+
+      const response = await fetch(
+        `${webServer}/api/v1/gyms/${user.gym_id}/products`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: "Bearer " + tokens.access_token,
+          },
+          body: requestPayload,
+        }
+      )
+
+      const rawResponse = await response.text()
+      const obj = rawResponse ? JSON.parse(rawResponse) : {}
+      console.log("apiResponse: " + JSON.stringify(rawResponse))
+
+      if (response.status === 201 || response.status === 200) {
+        showMessage({
+          message: "Success",
+          description: obj.message || "Product created successfully.",
+          type: "success",
+          icon: "success",
+          duration: 3000,
+          autoHide: true,
+          onPress: () => hideMessage(),
+        })
+        navigation.navigate('ProductsScreen')
+        return
+      }
+
+      showMessage({
+        message: "Action Failed",
+        description: obj.message || "Something went wrong while creating this product.",
+        type: "danger",
+        icon: "danger",
+        autoHide: false,
+      })
+    } catch (error) {
+      console.log('Create product request failed:', error)
+      showMessage({
+        message: "Action Failed",
+        description: "Network error while creating product.",
+        type: "danger",
+        icon: "danger",
+      })
+    }
   }
 
   return (
@@ -158,14 +304,27 @@ const AddProductScreen = ({ navigation }) => {
             <View style={styles.content}>
               <View style={styles.inputField}>
                 <Text style={styles.formLabel}>Title:</Text>
-                <TextInput
-                  style={styles.textField}
-                  value={getTextValue(product?.title)}
-                  onChangeText={(value) => handleProductFieldChange('title', value)}
-                  placeholder="Enter title"
-                  placeholderTextColor={AppColors.grey2}
-                  autoCapitalize="words"
-                  returnKeyType="done"
+                <Controller
+                  control={control}
+                  name="title"
+                  render={({ field: { onChange, value } }) => (
+                    <>
+                      <TextInput
+                        style={styles.textField}
+                        value={value}
+                        onChangeText={onChange}
+                        placeholder="Enter title"
+                        placeholderTextColor={AppColors.grey2}
+                        autoCapitalize="words"
+                        returnKeyType="done"
+                      />
+                      {errors.title && (
+                        <Text style={{ color: 'red', fontSize: 12 }}>
+                          {errors.title.message}
+                        </Text>
+                      )}
+                    </>
+                  )}
                 />
               </View>
               <View style={styles.descriptionBlock}>
@@ -205,108 +364,177 @@ const AddProductScreen = ({ navigation }) => {
                     }}
                     onChange={(value) => {
                       setDescriptionHtml(value)
-                      handleProductFieldChange('description', value)
                     }}
                   />
                 </View>
               </View>
               <View style={styles.inputField}>
                 <Text style={styles.formLabel}>SKU:</Text>
-                <TextInput
-                  style={styles.textField}
-                  value={getTextValue(product?.sku)}
-                  onChangeText={(value) => handleProductFieldChange('sku', value)}
-                  placeholder="Enter SKU"
-                  placeholderTextColor={AppColors.grey2}
-                  autoCapitalize="characters"
-                  returnKeyType="done"
+                <Controller
+                  control={control}
+                  name="sku"
+                  render={({ field: { onChange, value } }) => (
+                    <TextInput
+                      style={styles.textField}
+                      value={value}
+                      onChangeText={onChange}
+                      placeholder="Enter SKU"
+                      placeholderTextColor={AppColors.grey2}
+                      autoCapitalize="characters"
+                      returnKeyType="done"
+                    />
+                  )}
                 />
               </View>
               <View style={styles.inputField}>
                 <Text style={styles.formLabel}>Brand:</Text>
-                <TextInput
-                  style={styles.textField}
-                  value={getTextValue(product?.brand)}
-                  onChangeText={(value) => handleProductFieldChange('brand', value)}
-                  placeholder="Enter brand"
-                  placeholderTextColor={AppColors.grey2}
-                  autoCapitalize="words"
-                  returnKeyType="done"
+                <Controller
+                  control={control}
+                  name="brand"
+                  render={({ field: { onChange, value } }) => (
+                    <TextInput
+                      style={styles.textField}
+                      value={value}
+                      onChangeText={onChange}
+                      placeholder="Enter brand"
+                      placeholderTextColor={AppColors.grey2}
+                      autoCapitalize="words"
+                      returnKeyType="done"
+                    />
+                  )}
                 />
               </View>
               <View style={styles.inputField}>
                 <Text style={styles.formLabel}>Price:</Text>
-                <TextInput
-                  style={styles.textField}
-                  value={getTextValue(product?.price)}
-                  onChangeText={(value) => handleProductFieldChange('price', value)}
-                  placeholder="Enter price"
-                  placeholderTextColor={AppColors.grey2}
-                  keyboardType="decimal-pad"
-                  returnKeyType="done"
+                <Controller
+                  control={control}
+                  name="price"
+                  render={({ field: { onChange, value } }) => (
+                    <TextInput
+                      style={styles.textField}
+                      value={value}
+                      onChangeText={onChange}
+                      placeholder="Enter price"
+                      placeholderTextColor={AppColors.grey2}
+                      keyboardType="decimal-pad"
+                      returnKeyType="done"
+                    />
+                  )}
                 />
               </View>
               <View style={styles.inputField}>
                 <Text style={styles.formLabel}>Sale Price:</Text>
-                <TextInput
-                  style={styles.textField}
-                  value={getTextValue(product?.sale_price)}
-                  onChangeText={(value) => handleProductFieldChange('sale_price', value)}
-                  placeholder="Enter sale price"
-                  placeholderTextColor={AppColors.grey2}
-                  keyboardType="decimal-pad"
-                  returnKeyType="done"
+                <Controller
+                  control={control}
+                  name="sale_price"
+                  render={({ field: { onChange, value } }) => (
+                    <TextInput
+                      style={styles.textField}
+                      value={value}
+                      onChangeText={onChange}
+                      placeholder="Enter sale price"
+                      placeholderTextColor={AppColors.grey2}
+                      keyboardType="decimal-pad"
+                      returnKeyType="done"
+                    />
+                  )}
                 />
               </View>
               <View style={styles.inputField}>
                 <Text style={styles.formLabel}>Cost Price:</Text>
-                <TextInput
-                  style={styles.textField}
-                  value={getTextValue(product?.cost_price)}
-                  onChangeText={(value) => handleProductFieldChange('cost_price', value)}
-                  placeholder="Enter cost price"
-                  placeholderTextColor={AppColors.grey2}
-                  keyboardType="decimal-pad"
-                  returnKeyType="done"
+                <Controller
+                  control={control}
+                  name="cost_price"
+                  render={({ field: { onChange, value } }) => (
+                    <TextInput
+                      style={styles.textField}
+                      value={value}
+                      onChangeText={onChange}
+                      placeholder="Enter cost price"
+                      placeholderTextColor={AppColors.grey2}
+                      keyboardType="decimal-pad"
+                      returnKeyType="done"
+                    />
+                  )}
                 />
               </View>
               <View style={styles.inputField}>
                 <Text style={styles.formLabel}>Quantity:</Text>
-                <QuantityPicker quantity={product?.quantity_in_stock} />
+                <Controller
+                  control={control}
+                  name="quantity_in_stock"
+                  render={({ field: { onChange, value } }) => (
+                    <TextInput
+                      style={styles.textField}
+                      value={value}
+                      onChangeText={onChange}
+                      placeholder="Enter quantity"
+                      placeholderTextColor={AppColors.grey2}
+                      keyboardType="decimal-pad"
+                      returnKeyType="done"
+                    />
+                  )}
+                />
               </View>
               <View style={styles.inputField}>
                 <Text style={styles.formLabel}>Weight:</Text>
-                <QuantityPicker quantity={product?.weight} />
+                <Controller
+                  control={control}
+                  name="weight"
+                  render={({ field: { onChange, value } }) => (
+                    <TextInput
+                      style={styles.textField}
+                      value={value}
+                      onChangeText={onChange}
+                      placeholder="Enter weight"
+                      placeholderTextColor={AppColors.grey2}
+                      keyboardType="decimal-pad"
+                      returnKeyType="done"
+                    />
+                  )}
+                />
               </View>
               <View style={styles.inputField}>
                 <Text style={styles.formLabel}>Size</Text>
-                <TextInput
-                  style={styles.textField}
-                  value={getTextValue(product?.size)}
-                  onChangeText={(value) => handleProductFieldChange('size', value)}
-                  placeholder="Enter size"
-                  placeholderTextColor={AppColors.grey2}
-                  autoCapitalize="characters"
-                  returnKeyType="done"
+                <Controller
+                  control={control}
+                  name="size"
+                  render={({ field: { onChange, value } }) => (
+                    <TextInput
+                      style={styles.textField}
+                      value={value}
+                      onChangeText={onChange}
+                      placeholder="Enter size"
+                      placeholderTextColor={AppColors.grey2}
+                      autoCapitalize="characters"
+                      returnKeyType="done"
+                    />
+                  )}
                 />
               </View>
               <View style={styles.inputField}>
                 <Text style={styles.formLabel}>Color</Text>
-                <TextInput
-                  style={styles.textField}
-                  value={getTextValue(product?.color)}
-                  onChangeText={(value) => handleProductFieldChange('color', value)}
-                  placeholder="Enter color"
-                  placeholderTextColor={AppColors.grey2}
-                  autoCapitalize="words"
-                  returnKeyType="done"
+                <Controller
+                  control={control}
+                  name="color"
+                  render={({ field: { onChange, value } }) => (
+                    <TextInput
+                      style={styles.textField}
+                      value={value}
+                      onChangeText={onChange}
+                      placeholder="Enter color"
+                      placeholderTextColor={AppColors.grey2}
+                      autoCapitalize="words"
+                      returnKeyType="done"
+                    />
+                  )}
                 />
               </View>
               <View style={styles.row}>
                 <TouchableOpacity
                   style={styles.loginBtn}
                   title="Add Product"
-                  onPress={() => { handleSubmit() }}
+                  onPress={handleSubmit(onSubmit)}
                 >
                   <Text style={styles.loginBtnText}>Create Product</Text>
                 </TouchableOpacity>
