@@ -136,22 +136,11 @@ const AddProductScreen = ({ navigation }) => {
       requestPayload.append('description', String(descriptionHtml ?? '').trim())
       requestPayload.append('sku', String(formData.sku ?? '').trim())
       requestPayload.append('brand', String(formData.brand ?? '').trim())
-      
-      const price = String(formData.price ?? '').trim()
-      if (price) requestPayload.append('price', price)
-      
-      const salePrice = String(formData.sale_price ?? '').trim()
-      if (salePrice) requestPayload.append('sale_price', salePrice)
-      
-      const costPrice = String(formData.cost_price ?? '').trim()
-      if (costPrice) requestPayload.append('cost_price', costPrice)
-      
-      const quantityInStock = String(formData.quantity_in_stock ?? '').trim()
-      if (quantityInStock) requestPayload.append('quantity_in_stock', quantityInStock)
-      
-      const weight = String(formData.weight ?? '').trim()
-      if (weight) requestPayload.append('weight', weight)
-      
+      requestPayload.append('price', String(formData.price ?? '').trim())
+      requestPayload.append('sale_price', String(formData.sale_price ?? '').trim())
+      requestPayload.append('cost_price', String(formData.cost_price ?? '').trim())
+      requestPayload.append('quantity_in_stock', String(formData.quantity_in_stock ?? '').trim())
+      requestPayload.append('weight', String(formData.weight ?? '').trim())
       requestPayload.append('size', String(formData.size ?? '').trim())
       requestPayload.append('color', String(formData.color ?? '').trim())
 
