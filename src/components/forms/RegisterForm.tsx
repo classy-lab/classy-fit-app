@@ -54,6 +54,9 @@ const normalizePhoneFieldForApi = (value: unknown) => {
   return `+${digits}`;
 };
 
+const getFlagIconUri = (countryCode: string) =>
+  `https://flagcdn.com/w40/${String(countryCode || "US").toLowerCase()}.png`;
+
 const RegisterForm = () => {
   const navigation = useNavigation();
   const route = useRoute();
@@ -135,6 +138,8 @@ const RegisterForm = () => {
 
   const [gyms, setGyms] = useState([]);
   const [role, setRole] = React.useState("");
+  const [phoneCountryCode, setPhoneCountryCode] = useState("US");
+  const [whatsappCountryCode, setWhatsappCountryCode] = useState("US");
 
   // This is the "onChange" logic for GymList
   const handleSelectionChange = (val) => {
@@ -518,17 +523,30 @@ const RegisterForm = () => {
             name="phoneNumber"
             render={({ field: { onChange, value } }) => (
               <PhoneInput
-                defaultCode="US"
+                defaultCode={phoneCountryCode}
                 value={value}
                 layout="first"
                 onChangeFormattedText={onChange}
+                onChangeCountry={(country) => setPhoneCountryCode(country.cca2)}
                 containerStyle={styles.phoneInputContainer}
                 textContainerStyle={styles.phoneInputTextContainer}
                 textInputStyle={styles.phoneInputText}
                 codeTextStyle={styles.phoneInputCodeText}
-                countryPickerProps={{ withEmoji: false }}
+                flagButtonStyle={styles.phoneFlagButton}
+                countryPickerButtonStyle={styles.phoneFlagButton}
+                renderDropdownImage={
+                  <View style={styles.phoneDropdownRow}>
+                    <Image
+                      source={{ uri: getFlagIconUri(phoneCountryCode) }}
+                      style={styles.phoneDropdownFlag}
+                      resizeMode="cover"
+                    />
+                    <Text style={styles.phoneDropdownArrow}>▾</Text>
+                  </View>
+                }
+                countryPickerProps={{ withEmoji: false, withFlag: true }}
                 textInputProps={{
-                  placeholder: "518-555-5555",
+                  placeholder: "e.g. +44 7700 900123",
                   autoCapitalize: "none",
                 }}
               />
@@ -545,17 +563,30 @@ const RegisterForm = () => {
             name="whatsappNumber"
             render={({ field: { onChange, value } }) => (
               <PhoneInput
-                defaultCode="US"
+                defaultCode={whatsappCountryCode}
                 value={value}
                 layout="first"
                 onChangeFormattedText={onChange}
+                onChangeCountry={(country) => setWhatsappCountryCode(country.cca2)}
                 containerStyle={styles.phoneInputContainer}
                 textContainerStyle={styles.phoneInputTextContainer}
                 textInputStyle={styles.phoneInputText}
                 codeTextStyle={styles.phoneInputCodeText}
-                countryPickerProps={{ withEmoji: false }}
+                flagButtonStyle={styles.phoneFlagButton}
+                countryPickerButtonStyle={styles.phoneFlagButton}
+                renderDropdownImage={
+                  <View style={styles.phoneDropdownRow}>
+                    <Image
+                      source={{ uri: getFlagIconUri(whatsappCountryCode) }}
+                      style={styles.phoneDropdownFlag}
+                      resizeMode="cover"
+                    />
+                    <Text style={styles.phoneDropdownArrow}>▾</Text>
+                  </View>
+                }
+                countryPickerProps={{ withEmoji: false, withFlag: true }}
                 textInputProps={{
-                  placeholder: "518-555-5555",
+                  placeholder: "e.g. +44 7700 900123",
                   autoCapitalize: "none",
                 }}
               />
