@@ -70,7 +70,7 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
           } else {
             // Simulator fallback
             Alert.alert("📱 Phone Call", `Would call: ${memberData.phone}`, [
-              { text: "OK", onPress: () => {} }
+              { text: "OK", onPress: () => { } }
             ]);
           }
         });
@@ -89,7 +89,7 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
             Linking.openURL(whatsappUrl);
           } else {
             Alert.alert("💬 WhatsApp", `Would open WhatsApp for: ${memberData.whatsapp}`, [
-              { text: "OK", onPress: () => {} }
+              { text: "OK", onPress: () => { } }
             ]);
           }
         });
@@ -106,7 +106,7 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
         Linking.openURL(mailUrl).catch(() => {
           // Fallback for simulator
           Alert.alert("✉ Send Email", `Open email client to send mail to: ${memberData.email}`, [
-            { text: "OK", onPress: () => {} }
+            { text: "OK", onPress: () => { } }
           ]);
         });
       } else {
@@ -116,7 +116,7 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
   };
 
   const ContactButton = ({ iconName, label, value, onPress, bgColor }: { iconName: string; label: string; value: string; onPress: () => void; bgColor: string }) => (
-    <TouchableOpacity 
+    <TouchableOpacity
       onPress={onPress}
       style={{
         marginBottom: 12,
@@ -133,10 +133,10 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
         elevation: 4,
       }}
     >
-      <View style={{ 
-        width: 48, 
-        height: 48, 
-        borderRadius: 24, 
+      <View style={{
+        width: 48,
+        height: 48,
+        borderRadius: 24,
         backgroundColor: "rgba(255,255,255,0.25)",
         justifyContent: "center",
         alignItems: "center",
@@ -154,7 +154,7 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
 
   const InfoField = ({ label, value }: { label: string; value: string }) => (
     <View style={{ marginBottom: 14 }}>
-      <Text style={{ fontSize: 11, fontWeight: "600", color: "#888", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5 }}>
+      <Text style={{ fontSize: 11, fontWeight: "600", color: "#888", marginBottom: 6 }}>
         {label}
       </Text>
       <View style={{
@@ -165,7 +165,7 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
         borderLeftWidth: 4,
         borderLeftColor: "#6366F1",
       }}>
-        <Text style={{ fontSize: 15, fontWeight: "500", color: "#1a1a1a" }}>
+        <Text style={{ fontSize: 14, fontWeight: "500", color: AppColors.blue }}>
           {value || "—"}
         </Text>
       </View>
@@ -175,7 +175,7 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
   const memberPictureUri = profilePicAPIImage || (memberData?.user_picture_url ? `${webServer}/api/${memberData.user_picture_url}` : "");
 
   return (
-    <ScrollView style={[styles.fieldset, { paddingHorizontal: 16, paddingVertical: 20, backgroundColor: "#f8fafc" }]}>
+    <ScrollView style={[styles.fieldset, { paddingHorizontal: 16, paddingVertical: 20, backgroundColor: "#ffffff" }]}>
       {/* Profile Card Header */}
       <View style={{
         marginBottom: 28,
@@ -204,15 +204,15 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
             <Image source={require("../../assets/images/avatars/profile-img.png")} style={{ width: "100%", height: "100%" }} resizeMode="cover" />
           )}
         </View>
-        <Text style={{ fontSize: 20, fontWeight: "800", color: "#1a1a1a", marginBottom: 6 }}>
+        {/* <Text style={{ fontSize: 20, marginBottom: 8 }}>
           {`${memberData?.fname || ""} ${memberData?.lname || ""}`.trim() || "Member"}
-        </Text>
+        </Text> */}
         <Text style={{ fontSize: 13, color: "#6b7280", marginBottom: 4 }}>{memberData?.sex ? `${memberData.sex.charAt(0).toUpperCase() + memberData.sex.slice(1)}` : "Sex not specified"}</Text>
         <Text style={{ fontSize: 12, color: "#9ca3af", fontStyle: "italic" }}>Member ID: {memberData?.uid}</Text>
       </View>
 
       {/* Quick Action Buttons */}
-      <Text style={{ fontSize: 13, fontWeight: "700", color: "#475569", marginBottom: 12, textTransform: "uppercase", letterSpacing: 0.5 }}>
+      <Text style={{ fontSize: 14, marginBottom: 12 }}>
         Quick Contact
       </Text>
       {memberData?.phone && <ContactButton iconName="phone" label="Phone Call" value={memberData.phone} onPress={handlePhoneCall} bgColor={AppColors.blue} />}
@@ -223,7 +223,7 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
       <View style={{ height: 1, backgroundColor: "#e2e8f0", marginVertical: 24 }} />
 
       {/* Personal Information Section */}
-      <Text style={{ fontSize: 13, fontWeight: "700", color: "#475569", marginBottom: 14, textTransform: "uppercase", letterSpacing: 0.5 }}>
+      <Text style={{ fontSize: 14, marginBottom: 12 }}>
         Personal Information
       </Text>
 
@@ -233,7 +233,7 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
 
       {/* Contact Information Section */}
       <View style={{ marginTop: 24 }} />
-      <Text style={{ fontSize: 13, fontWeight: "700", color: "#475569", marginBottom: 14, textTransform: "uppercase", letterSpacing: 0.5 }}>
+      <Text style={{ fontSize: 13, fontWeight: "700", color: "#475569", marginBottom: 14 }}>
         Contact Details
       </Text>
 
