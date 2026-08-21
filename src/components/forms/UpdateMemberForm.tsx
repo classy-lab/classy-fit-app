@@ -26,36 +26,6 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
     { key: "3", value: "Email" },
   ];
 
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     const fetchMemberData = async () => {
-  //       try {
-  //         const response = await fetch(`${webServer}/api/v1/gyms/${memberData.gym_id}/members/${memberData.uid}`, {
-  //           headers: {
-  //             Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-  //           },
-  //         });
-
-  //         const json = await response.text();
-  //         const obj = json ? JSON.parse(json) : {};
-  //         const payload = obj?.member || obj?.data || obj?.user || obj;
-
-  //         console.log(json);
-
-  //         if (response.status === 200 && payload) {
-  //           setDisplayData({ ...memberData, ...payload });
-  //           const picturePath = payload?.profilePic || payload?.user_picture_url || memberData.user_picture_url || memberData.profilePic;
-  //           setProfilePicAPIImage(picturePath ? `${webServer}/api/${picturePath}` : "");
-  //         }
-  //       } catch (error) {
-  //         console.log("Failed to fetch member data", error);
-  //       }
-  //     };
-
-  //     fetchMemberData();
-  //   }, [memberData.uid, memberData.gym_id, webServer])
-  // );
-
   const getPreferredContactLabel = (contactValue: string) => {
     return preferredContactOptions.find((item) => [item.key, item.value].some((option) => String(option ?? "").trim().toLowerCase() === String(contactValue).trim().toLowerCase()))?.value ?? String(contactValue);
   };
@@ -117,38 +87,49 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
 
   const ContactButton = ({ iconName, label, value, onPress, bgColor }: { iconName: string; label: string; value: string; onPress: () => void; bgColor: string }) => (
     <TouchableOpacity
+      activeOpacity={0.75}
       onPress={onPress}
       style={{
-        marginBottom: 12,
-        borderRadius: 14,
+        marginBottom: 14,
+        borderRadius: 16,
         overflow: "hidden",
         backgroundColor: bgColor,
-        padding: 14,
+        paddingHorizontal: 16,
+        paddingVertical: 16,
         flexDirection: "row",
         alignItems: "center",
         shadowColor: "#000",
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.15,
-        shadowRadius: 6,
-        elevation: 4,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+        elevation: 5,
       }}
     >
       <View style={{
-        width: 48,
-        height: 48,
-        borderRadius: 24,
-        backgroundColor: "rgba(255,255,255,0.25)",
+        width: 52,
+        height: 52,
+        borderRadius: 26,
+        backgroundColor: "rgba(255,255,255,0.3)",
         justifyContent: "center",
         alignItems: "center",
         marginRight: 16
       }}>
-        <MaterialCommunityIcons name={iconName} size={24} color={AppColors.white} />
+        <MaterialCommunityIcons name={iconName} size={26} color={AppColors.white} />
       </View>
       <View style={{ flex: 1 }}>
-        <Text style={{ fontSize: 14, color: AppColors.white, marginBottom: 4 }}>{label}</Text>
-        <Text style={{ fontSize: 14, color: AppColors.white }}>{value || "Not provided"}</Text>
+        <Text style={{ fontSize: 14, color: "rgba(255,255,255,0.75)", marginBottom: 5, fontWeight: "500" }}>{label}</Text>
+        <Text style={{ fontSize: 14, fontWeight: "700", color: "#fff" }}>{value || "Not provided"}</Text>
       </View>
-      {/* <MaterialCommunityIcons name="chevron-right" size={24} color={AppColors.white} /> */}
+      <View style={{
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        backgroundColor: "rgba(255,255,255,0.15)",
+        justifyContent: "center",
+        alignItems: "center",
+      }}>
+        <MaterialCommunityIcons name="chevron-right" size={20} color="#fff" />
+      </View>
     </TouchableOpacity>
   );
 
