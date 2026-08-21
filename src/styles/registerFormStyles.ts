@@ -19,6 +19,30 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: AppColors.grey,
   },
+  phoneInputContainer: {
+    marginTop: 5,
+    borderWidth: 1,
+    borderColor: AppColors.textInputBorderColor,
+    borderRadius: 8,
+    backgroundColor: AppColors.grey,
+    width: "100%",
+    height: 48,
+  },
+  phoneInputTextContainer: {
+    borderTopRightRadius: 8,
+    borderBottomRightRadius: 8,
+    backgroundColor: AppColors.grey,
+    paddingVertical: 0,
+  },
+  phoneInputText: {
+    fontSize: 14,
+    color: AppColors.primary,
+    paddingVertical: 0,
+  },
+  phoneInputCodeText: {
+    color: AppColors.primary,
+    fontSize: 14,
+  },
   inputButton: {
     marginTop: 5,
     borderWidth: 1,
