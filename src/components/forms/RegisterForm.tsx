@@ -140,6 +140,7 @@ const RegisterForm = () => {
   const [role, setRole] = React.useState("");
   const [phoneCountryCode, setPhoneCountryCode] = useState("US");
   const [whatsappCountryCode, setWhatsappCountryCode] = useState("US");
+  const defaultAvatar = Image.resolveAssetSource(localAvatarOptions[0].asset);
 
   // This is the "onChange" logic for GymList
   const handleSelectionChange = (val) => {
@@ -161,18 +162,26 @@ const RegisterForm = () => {
     resolver: yupResolver(schema),
     shouldFocusError: true, // Automatically moves focus and triggers internal scrolling layout
     defaultValues: {
-      profilePic: undefined,
-      email: "",
-      password: "",
-      confirmPassword: "",
+      profilePic: {
+        uri: defaultAvatar.uri,
+        path: defaultAvatar.uri,
+        mime: "image/png",
+        filename: localAvatarOptions[0].name,
+        type: "image/png",
+        isLocalAvatar: true,
+      },
+      email: "test.user1+reg@classyfit.dev",
+      password: "TestPass12345",
+      confirmPassword: "TestPass12345",
       role: normalizeRole("2"),
-      fname: "",
-      lname: "",
-      dateOfBirth: "",
-      sex: '',
-      phoneNumber: "",
-      whatsappNumber: "",
-      gymId: preselectedGymId,
+      fname: "Ava",
+      lname: "Thompson",
+      dateOfBirth: "1996-04-18",
+      sex: "female",
+      phoneNumber: "+15185551234",
+      whatsappNumber: "+15185557654",
+      preferredContact: "Phone",
+      gymId: preselectedGymId || "1",
     },
   });
 
@@ -526,7 +535,10 @@ const RegisterForm = () => {
                 defaultCode={phoneCountryCode}
                 value={value}
                 layout="first"
-                onChangeFormattedText={onChange}
+                onChangeFormattedText={(formattedValue) => {
+                  const normalizedValue = normalizePhoneFieldForApi(formattedValue);
+                  onChange(normalizedValue === null ? formattedValue : normalizedValue);
+                }}
                 onChangeCountry={(country) => setPhoneCountryCode(country.cca2)}
                 containerStyle={styles.phoneInputContainer}
                 textContainerStyle={styles.phoneInputTextContainer}
@@ -566,7 +578,10 @@ const RegisterForm = () => {
                 defaultCode={whatsappCountryCode}
                 value={value}
                 layout="first"
-                onChangeFormattedText={onChange}
+                onChangeFormattedText={(formattedValue) => {
+                  const normalizedValue = normalizePhoneFieldForApi(formattedValue);
+                  onChange(normalizedValue === null ? formattedValue : normalizedValue);
+                }}
                 onChangeCountry={(country) => setWhatsappCountryCode(country.cca2)}
                 containerStyle={styles.phoneInputContainer}
                 textContainerStyle={styles.phoneInputTextContainer}
