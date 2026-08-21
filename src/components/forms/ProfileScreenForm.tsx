@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { AppColors } from "../../styles/colors";
 import { SelectList } from "react-native-dropdown-select-list";
+import PhoneInput from "react-native-phone-number-input";
 import { UserContext } from "../../context/UserContext";
 import HoneypotField from "./input_fields/HoneypotField";
 import DateOfBirthField from "./input_fields/DateOfBirthField";
@@ -34,6 +35,42 @@ import FlashMessage, {
   hideMessage,
 } from "react-native-flash-message";
 
+const normalizePhoneFieldForApi = (value: unknown) => {
+  const phone = String(value ?? "").trim();
+  if (phone === "") {
+    return "";
+  }
+
+  const digits = phone.replace(/\D+/g, "");
+  if (!/^[1-9]\d{7,14}$/.test(digits)) {
+    return null;
+  }
+
+  return `+${digits}`;
+};
+
+const getFlagIconUri = (countryCode: string) =>
+  `https://flagcdn.com/w40/${String(countryCode || "US").toLowerCase()}.png`;
+
+const normalizePreferredContact = (value: unknown) => {
+  const raw = String(value ?? "").trim();
+
+  if (raw === "1") return "Phone";
+  if (raw === "2") return "WhatsApp";
+  if (raw === "3") return "Email";
+
+  return raw;
+};
+
+const normalizeSexValue = (value: unknown) => {
+  const raw = String(value ?? "").trim().toLowerCase();
+
+  if (raw === "1") return "male";
+  if (raw === "2") return "female";
+  if (raw === "3") return "other";
+
+  return raw;
+};
 
 // ============================================================================
 // COMPONENT
@@ -46,6 +83,10 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
   const { webServer } = useContext(UserContext);
   const { setIsLoggedIn } = useContext(UserContext);
   const [profilePicAPIImage, setProfilePicAPIImage] = useState<string>(""); // State to hold the selected image
+  const [phoneCountryCode, setPhoneCountryCode] = useState("US");
+  const [whatsappCountryCode, setWhatsappCountryCode] = useState("US");
+  const [phoneDefaultValue, setPhoneDefaultValue] = useState("");
+  const [whatsappDefaultValue, setWhatsappDefaultValue] = useState("");
 
   const selectImage = async (onChange: (value: any) => void) => {
     try {
@@ -103,8 +144,8 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
   const {
     control,
     handleSubmit,
-    setValue,
     watch,
+    setValue,
     reset,
     formState: { errors },
   } = useForm({
@@ -133,7 +174,7 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
   // Reset the timer if the user navigates back to this screen
   useEffect(() => {
     formLoadTime.current = Date.now();
-    const fetchUserData = async ({ tokens, webServer, user, setTokens }) => {
+    const fetchUserData = async () => {
       if (!user?.sub || !tokens?.access_token) {
         return;
       }
@@ -149,13 +190,51 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
         console.log("Fetched user data:", obj);
 
         if (response.status == 200) {
+          const payload = obj?.data ?? obj?.user ?? obj;
+          const profileFields =
+            payload?.profile_fields ?? payload?.profileFields ?? obj?.profile_fields ?? {};
+          const fetchedPhone = String(
+            profileFields?.phone ??
+            profileFields?.phone_number ??
+            payload?.phone ??
+            payload?.phone_number ??
+            "",
+          );
+          const fetchedWhatsapp = String(
+            profileFields?.whatsapp ??
+            profileFields?.whatsapp_number ??
+            payload?.whatsapp ??
+            payload?.whatsapp_number ??
+            "",
+          );
+          const fetchedSex = normalizeSexValue(
+            profileFields?.sex ?? user?.gender ?? "",
+          );
+          const fetchedPreferredContact = normalizePreferredContact(
+            profileFields?.preferred_contact ?? payload?.preferred_contact ?? user?.preferred_contact ?? "",
+          );
+          const profilePicturePath = profileFields?.user_picture_url;
+
           reset({
-            dateOfBirth: obj?.profile_fields?.date_of_birth,
-            phoneNumber: obj?.profile_fields?.phone,
-            whatsappNumber: obj?.profile_fields?.whatsapp,
-            profilePic: obj?.profile_fields?.user_picture_url ? { path: 'http://localhost:8080/classy-api/api/' + obj.profile_fields.user_picture_url } : {},
+            profilePic: profilePicturePath ? { path: `http://localhost:8080/classy-api/api/${profilePicturePath}` } : undefined,
+            email: user?.email ?? "",
+            password: "",
+            confirmPassword: "",
+            role: normalizeRole(user?.role),
+            fname: user?.given_name ?? "",
+            lname: user?.family_name ?? "",
+            dateOfBirth: profileFields?.date_of_birth ?? "",
+            sex: fetchedSex,
+            phoneNumber: fetchedPhone,
+            whatsappNumber: fetchedWhatsapp,
+            preferredContact: fetchedPreferredContact,
+            gymId: user?.gym_id ?? "",
           });
-          setProfilePicAPIImage(obj?.profile_fields?.user_picture_url ? 'http://localhost:8080/classy-api/api/' + obj.profile_fields.user_picture_url : '');
+          setPhoneDefaultValue(fetchedPhone);
+          setWhatsappDefaultValue(fetchedWhatsapp);
+          setValue("phoneNumber", fetchedPhone, { shouldDirty: false, shouldValidate: false });
+          setValue("whatsappNumber", fetchedWhatsapp, { shouldDirty: false, shouldValidate: false });
+          setProfilePicAPIImage(profilePicturePath ? `http://localhost:8080/classy-api/api/${profilePicturePath}` : "");
         } else {
           const refreshResponse = await fetch(`${webServer}/api/refresh.php`, {
             method: "POST",
@@ -180,8 +259,8 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
       }
     };
 
-    fetchUserData({ tokens, webServer, user, setTokens });
-  }, [reset]); // Always include reset in the dependency array
+    fetchUserData();
+  }, [reset, user?.sub, tokens?.access_token, tokens?.refresh_token, webServer]);
 
   const executeProfileDeletion = async ({ tokens, webServer, user, setTokens }) => {
     console.log("Profile deletion API initiated.");
@@ -305,13 +384,43 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
       return;
     }
 
+    const preferredContact = normalizePreferredContact(data.preferredContact);
+    const normalizedSex = normalizeSexValue(data.sex);
+
     // Set submitted values within app before sending to API. No need to retreive from API
     setUser({
       ...user,
       given_name: data.fname,
       family_name: data.lname,
-      preferred_contact: data.preferredContact,
+      gender: normalizedSex,
+      preferred_contact: preferredContact,
     });
+
+    const normalizedPhone = normalizePhoneFieldForApi(
+      data.phoneNumber ?? user?.phone ?? "",
+    );
+    if (normalizedPhone === null) {
+      showMessage({
+        message: "Action Failed",
+        description: "phone must be a valid US or international phone number.",
+        type: "danger",
+        icon: "danger",
+      });
+      return;
+    }
+
+    const normalizedWhatsapp = normalizePhoneFieldForApi(
+      data.whatsappNumber ?? user?.whatsapp ?? "",
+    );
+    if (normalizedWhatsapp === null) {
+      showMessage({
+        message: "Action Failed",
+        description: "whatsapp must be a valid US or international phone number.",
+        type: "danger",
+        icon: "danger",
+      });
+      return;
+    }
 
     formData.append("gym_id", data.gymId);
     formData.append("email", data.email);
@@ -321,10 +430,10 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
     formData.append("fname", data.fname);
     formData.append("lname", data.lname);
     formData.append("date_of_birth", data.dateOfBirth);
-    formData.append("sex", data.sex);
-    formData.append("phone", data.phoneNumber);
-    formData.append("whatsapp", data.whatsappNumber);
-    formData.append("preferred_contact", data.preferredContact);
+    formData.append("sex", normalizedSex);
+    formData.append("phone", normalizedPhone);
+    formData.append("whatsapp", normalizedWhatsapp);
+    formData.append("preferred_contact", preferredContact);
     formData.append("profilePic", {
       uri: data.profilePic?.path || data.profilePic?.uri,
       type: data.profilePic?.mime || data.profilePic?.type || "image/png",
@@ -646,16 +755,39 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
           <Controller
             control={control}
             name="phoneNumber"
-            render={({ field: { onChange, onBlur, value, ref } }) => (
-              <TextInput
-                ref={ref}
-                style={styles.inputField}
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-                keyboardType="default"
-                autoCapitalize="none"
-                placeholder="518-555-5555"
+            render={({ field: { onChange, value } }) => (
+              <PhoneInput
+                key={`phone-${phoneDefaultValue}`}
+                defaultCode="US"
+                defaultValue={phoneDefaultValue}
+                value={value ?? phoneDefaultValue}
+                layout="first"
+                onChangeFormattedText={(formattedValue) => {
+                  const normalizedValue = normalizePhoneFieldForApi(formattedValue);
+                  onChange(normalizedValue === null ? formattedValue : normalizedValue);
+                }}
+                onChangeCountry={(country) => setPhoneCountryCode(country.cca2)}
+                containerStyle={styles.phoneInputContainer}
+                textContainerStyle={styles.phoneInputTextContainer}
+                textInputStyle={styles.phoneInputText}
+                codeTextStyle={styles.phoneInputCodeText}
+                flagButtonStyle={styles.phoneFlagButton}
+                countryPickerButtonStyle={styles.phoneFlagButton}
+                renderDropdownImage={
+                  <View style={styles.phoneDropdownRow}>
+                    <Image
+                      source={{ uri: getFlagIconUri(phoneCountryCode) }}
+                      style={styles.phoneDropdownFlag}
+                      resizeMode="cover"
+                    />
+                    <Text style={styles.phoneDropdownArrow}>▾</Text>
+                  </View>
+                }
+                countryPickerProps={{ withEmoji: false, withFlag: true }}
+                textInputProps={{
+                  placeholder: "e.g. +44 7700 900123",
+                  autoCapitalize: "none",
+                }}
               />
             )}
           />
@@ -668,15 +800,39 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
           <Controller
             control={control}
             name="whatsappNumber"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
-                style={styles.inputField}
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-                keyboardType="default"
-                placeholder="518-555-5555"
-                autoCapitalize="none"
+            render={({ field: { onChange, value } }) => (
+              <PhoneInput
+                key={`whatsapp-${whatsappDefaultValue}`}
+                defaultCode="US"
+                defaultValue={whatsappDefaultValue}
+                value={value ?? whatsappDefaultValue}
+                layout="first"
+                onChangeFormattedText={(formattedValue) => {
+                  const normalizedValue = normalizePhoneFieldForApi(formattedValue);
+                  onChange(normalizedValue === null ? formattedValue : normalizedValue);
+                }}
+                onChangeCountry={(country) => setWhatsappCountryCode(country.cca2)}
+                containerStyle={styles.phoneInputContainer}
+                textContainerStyle={styles.phoneInputTextContainer}
+                textInputStyle={styles.phoneInputText}
+                codeTextStyle={styles.phoneInputCodeText}
+                flagButtonStyle={styles.phoneFlagButton}
+                countryPickerButtonStyle={styles.phoneFlagButton}
+                renderDropdownImage={
+                  <View style={styles.phoneDropdownRow}>
+                    <Image
+                      source={{ uri: getFlagIconUri(whatsappCountryCode) }}
+                      style={styles.phoneDropdownFlag}
+                      resizeMode="cover"
+                    />
+                    <Text style={styles.phoneDropdownArrow}>▾</Text>
+                  </View>
+                }
+                countryPickerProps={{ withEmoji: false, withFlag: true }}
+                textInputProps={{
+                  placeholder: "e.g. +44 7700 900123",
+                  autoCapitalize: "none",
+                }}
               />
             )}
           />
@@ -746,4 +902,3 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
 };
 
 export default ProfileScreenForm;
-
