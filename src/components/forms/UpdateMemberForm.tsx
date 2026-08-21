@@ -14,7 +14,6 @@ import { AppColors } from "../../styles/colors";
 const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberData: any }) => {
   const { webServer } = useContext(UserContext);
   const [profilePicAPIImage, setProfilePicAPIImage] = useState<string>("");
-  const [displayData, setDisplayData] = useState<any>(memberData);
 
   const preferredContactOptions = [
     { key: "1", value: "Phone" },
@@ -56,7 +55,7 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
     return preferredContactOptions.find((item) => [item.key, item.value].some((option) => String(option ?? "").trim().toLowerCase() === String(contactValue).trim().toLowerCase()))?.value ?? String(contactValue);
   };
 
-  const memberPictureUri = profilePicAPIImage || (displayData?.user_picture_url ? `${webServer}/api/${displayData.user_picture_url}` : "");
+  const memberPictureUri = profilePicAPIImage || (memberData?.user_picture_url ? `${webServer}/api/${memberData.user_picture_url}` : "");
 
   return (
     <ScrollView style={[styles.fieldset, { paddingHorizontal: 16 }]}>
@@ -74,43 +73,43 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
       {/* First Name */}
       <View style={{ marginBottom: 18 }}>
         <Text style={[styles.formLabel, { marginBottom: 8 }]}>First Name</Text>
-        <Text style={{ fontSize: 16, color: "#333" }}>{displayData?.fname || "-"}</Text>
+        <Text>{memberData?.fname || "-"}</Text>
       </View>
 
       {/* Last Name */}
       <View style={{ marginBottom: 18 }}>
         <Text style={[styles.formLabel, { marginBottom: 8 }]}>Last Name</Text>
-        <Text style={{ fontSize: 16, color: "#333" }}>{displayData?.lname || "-"}</Text>
+        <Text>{memberData?.lname || "-"}</Text>
       </View>
 
       {/* Phone Number */}
       <View style={{ marginBottom: 18 }}>
         <Text style={[styles.formLabel, { marginBottom: 8 }]}>Phone Number</Text>
-        <Text style={{ fontSize: 16, color: "#333" }}>{displayData?.phone || "-"}</Text>
+        <Text style={{ fontSize: 16, color: "#333" }}>{memberData?.phone || "-"}</Text>
       </View>
 
       {/* Sex */}
       <View style={{ marginBottom: 18 }}>
         <Text style={[styles.formLabel, { marginBottom: 8 }]}>Sex</Text>
-        <Text style={{ fontSize: 16, color: "#333" }}>{displayData?.sex || "-"}</Text>
+        <Text style={{ fontSize: 16, color: "#333" }}>{memberData?.sex || "-"}</Text>
       </View>
 
       {/* WhatsApp Number */}
       <View style={{ marginBottom: 18 }}>
         <Text style={[styles.formLabel, { marginBottom: 8 }]}>WhatsApp Number</Text>
-        <Text style={{ fontSize: 16, color: "#333" }}>{displayData?.whatsapp || "-"}</Text>
+        <Text style={{ fontSize: 16, color: "#333" }}>{memberData?.whatsapp || "-"}</Text>
       </View>
 
       {/* Email */}
       <View style={{ marginBottom: 18 }}>
         <Text style={[styles.formLabel, { marginBottom: 8 }]}>E-mail</Text>
-        <Text style={{ fontSize: 16, color: "#333" }}>{displayData?.email || "-"}</Text>
+        <Text>{memberData?.email || "-"}</Text>
       </View>
 
       {/* Preferred Contact */}
       <View style={{ marginBottom: 24 }}>
         <Text style={[styles.formLabel, { marginBottom: 8 }]}>Preferred Contact</Text>
-        <Text style={{ fontSize: 16, color: "#333" }}>{getPreferredContactLabel(displayData?.preferred_contact) || "-"}</Text>
+        <Text>{getPreferredContactLabel(memberData?.preferred_contact) || "-"}</Text>
       </View>
     </ScrollView>
   );
