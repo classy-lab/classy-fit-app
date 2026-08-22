@@ -193,8 +193,8 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
       </Text>
       <View style={{ flexDirection: "row", gap: 8, marginBottom: 24 }}>
         {memberData?.phone && <ContactButton iconName="phone" label="Call" value={memberData.phone} onPress={handlePhoneCall} bgColor={AppColors.blue} />}
-        {memberData?.whatsapp && <ContactButton iconName="whatsapp" label="WhatsApp" value={memberData.whatsapp} onPress={handleWhatsApp} bgColor="#25d366" />}
-        {memberData?.email && <ContactButton iconName="email" label="Email" value={memberData.email} onPress={handleEmailPress} bgColor="#6d5efc" />}
+        {memberData?.whatsapp && <ContactButton iconName="whatsapp" label="WhatsApp" value={memberData.whatsapp} onPress={handleWhatsApp} bgColor="#1FAE5B" />}
+        {memberData?.email && <ContactButton iconName="email" label="Email" value={memberData.email} onPress={handleEmailPress} bgColor={AppColors.blue} />}
       </View>
 
       {/* Divider */}
