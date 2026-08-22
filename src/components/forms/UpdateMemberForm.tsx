@@ -180,9 +180,9 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
             <Image source={require("../../assets/images/avatars/profile-img.png")} style={{ width: "100%", height: "100%" }} resizeMode="cover" />
           )}
         </View>
-        {/* <Text style={{ fontSize: 20, marginBottom: 8 }}>
+        <Text style={{ fontSize: 20, marginBottom: 8, color: AppColors.blue }}>
           {`${memberData?.fname || ""} ${memberData?.lname || ""}`.trim() || "Member"}
-        </Text> */}
+        </Text>
         <Text style={{ fontSize: 13, color: "#6b7280", marginBottom: 4 }}>{memberData?.sex ? `${memberData.sex.charAt(0).toUpperCase() + memberData.sex.slice(1)}` : "Sex not specified"}</Text>
         <Text style={{ fontSize: 12, color: "#9ca3af", fontStyle: "italic" }}>Member ID: {memberData?.uid}</Text>
       </View>
