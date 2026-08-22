@@ -10,7 +10,7 @@ import { AppColors } from "../../styles/colors";
 import { useRoute } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Feather from "@expo/vector-icons/Feather";
-import VectorImageSvg from "../../components/svg/VectorImageSvg";
+import HealthyLifestyleSvg from "../../components/svg/HealthyLifestyleSvg";
 import SignOut from "../../components/utils/SignOut";
 import UpdateMemberForm from "../../components/forms/UpdateMemberForm";
 import { UserContext } from '../../context/UserContext'
@@ -99,7 +99,7 @@ const UpdateMemberScreen = ({ navigation }: { navigation: any }) => {
           <UpdateMemberForm navigation={navigation} memberData={memberData} />
         </View>
         <View style={styles.imageContainer}>
-          <VectorImageSvg />
+          <HealthyLifestyleSvg />
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -146,6 +146,11 @@ const styles = StyleSheet.create({
   imageContainer: {
     marginBottom: 40,
     alignItems: "center",
+  },
+  svg: {
+    // width: 260,
+    // height: 180,
+    // opacity: 0.9,
   },
   scrollView: {},
 });
