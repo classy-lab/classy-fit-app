@@ -190,14 +190,7 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
       </View>
 
       {/* Quick Action Buttons */}
-      <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 12, marginTop: 16 }}>
-        <View style={{ flex: 1, height: 1, backgroundColor: "rgba(17, 24, 39, 0.08)" }} />
-        <Text style={{ fontSize: 10, fontWeight: "700", color: "#9ca3af", letterSpacing: 1.2, marginHorizontal: 10, textTransform: "uppercase" }}>
-          Contact
-        </Text>
-        <View style={{ flex: 1, height: 1, backgroundColor: "rgba(17, 24, 39, 0.08)" }} />
-      </View>
-      <View style={{ flexDirection: "row", gap: 8, marginBottom: 24 }}>
+      <View style={{ flexDirection: "row", gap: 8, marginTop: 8, marginBottom: 24 }}>
         {memberData?.phone && <ContactButton iconName="phone" label="Call" value={memberData.phone} onPress={handlePhoneCall} bgColor={AppColors.blue} />}
         {memberData?.whatsapp && <ContactButton iconName="whatsapp" label="WhatsApp" value={memberData.whatsapp} onPress={handleWhatsApp} bgColor="#25d366" />}
         {memberData?.email && <ContactButton iconName="email" label="Email" value={memberData.email} onPress={handleEmailPress} bgColor="#6d5efc" />}
