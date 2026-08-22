@@ -89,7 +89,8 @@ const UpdateMemberScreen = ({ navigation }: { navigation: any }) => {
         <View style={styles.headingContainer}>
           <View style={styles.contactInfo}>
             <Text style={styles.title}>
-              {memberData?.fname || member?.fname || "Member"} {memberData?.lname || member?.lname || ""}
+              {/* {memberData?.fname || member?.fname || "Member"} {memberData?.lname || member?.lname || ""} */}
+              Member Profile
             </Text>
             {/* <Text style={styles.subHead}>Update Member Information</Text> */}
           </View>
@@ -125,8 +126,8 @@ const styles = StyleSheet.create({
   title: {
     color: AppColors.blue,
     fontFamily: "Montserrat",
-    fontSize: 32,
-    marginTop: 32,
+    fontSize: 24,
+    marginTop: 16,
     textAlign: "center",
   },
   subHead: {
