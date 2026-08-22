@@ -115,12 +115,12 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
         alignItems: "center",
         marginRight: 8,
       }}>
-        <MaterialCommunityIcons name={iconName} size={18} color={AppColors.white} />
+        <MaterialCommunityIcons name={iconName} size={18} color={bgColor === "#dbeafe" ? AppColors.blue : AppColors.white} />
       </View>
       <Text style={{
         fontSize: 12,
         fontWeight: "700",
-        color: AppColors.white,
+        color: bgColor === "#dbeafe" ? AppColors.blue : AppColors.white,
         letterSpacing: 0.2,
       }}>
         {label}
@@ -192,9 +192,9 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
         Quick Contact
       </Text> */}
       <View style={{ flexDirection: "row", gap: 8, marginBottom: 24 }}>
-        {memberData?.phone && <ContactButton iconName="phone" label="Call" value={memberData.phone} onPress={handlePhoneCall} bgColor={AppColors.blue} />}
-        {memberData?.whatsapp && <ContactButton iconName="whatsapp" label="WhatsApp" value={memberData.whatsapp} onPress={handleWhatsApp} bgColor="#25d366" />}
         {memberData?.email && <ContactButton iconName="email" label="Email" value={memberData.email} onPress={handleEmailPress} bgColor={AppColors.blue} />}
+        {memberData?.phone && <ContactButton iconName="phone" label="Call" value={memberData.phone} onPress={handlePhoneCall} bgColor="#dbeafe" />}
+        {memberData?.whatsapp && <ContactButton iconName="whatsapp" label="WhatsApp" value={memberData.whatsapp} onPress={handleWhatsApp} bgColor="#25d366" />}
       </View>
 
       {/* Divider */}
