@@ -87,42 +87,40 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
 
   const ContactButton = ({ iconName, label, value, onPress, bgColor }: { iconName: string; label: string; value: string; onPress: () => void; bgColor: string }) => (
     <TouchableOpacity
-      activeOpacity={0.8}
+      activeOpacity={0.9}
       onPress={onPress}
       style={{
         flex: 1,
         minWidth: 0,
-        borderRadius: 999,
-        backgroundColor: "rgba(255,255,255,0.92)",
-        borderWidth: 1,
-        borderColor: "rgba(17, 24, 39, 0.08)",
+        borderRadius: 14,
+        backgroundColor: bgColor,
         paddingHorizontal: 12,
         paddingVertical: 10,
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.06,
-        shadowRadius: 6,
-        elevation: 1,
+        shadowColor: bgColor,
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.18,
+        shadowRadius: 10,
+        elevation: 3,
       }}
     >
       <View style={{
-        width: 26,
-        height: 26,
-        borderRadius: 13,
-        backgroundColor: bgColor,
+        width: 30,
+        height: 30,
+        borderRadius: 15,
+        backgroundColor: "rgba(255,255,255,0.18)",
         justifyContent: "center",
         alignItems: "center",
         marginRight: 8,
       }}>
-        <MaterialCommunityIcons name={iconName} size={14} color={AppColors.white} />
+        <MaterialCommunityIcons name={iconName} size={18} color={AppColors.white} />
       </View>
       <Text style={{
-        fontSize: 11,
+        fontSize: 12,
         fontWeight: "700",
-        color: "#1f2937",
+        color: AppColors.white,
         letterSpacing: 0.2,
       }}>
         {label}
@@ -190,13 +188,9 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
       </View>
 
       {/* Quick Action Buttons */}
-      <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 12, marginTop: 16 }}>
-        <View style={{ flex: 1, height: 1, backgroundColor: "rgba(17, 24, 39, 0.08)" }} />
-        <Text style={{ fontSize: 10, fontWeight: "700", color: "#9ca3af", letterSpacing: 1.2, marginHorizontal: 10, textTransform: "uppercase" }}>
-          Contact
-        </Text>
-        <View style={{ flex: 1, height: 1, backgroundColor: "rgba(17, 24, 39, 0.08)" }} />
-      </View>
+      <Text style={{ fontSize: 14, marginBottom: 12, marginTop: 16, fontWeight: "700", color: "#374151" }}>
+        Quick Contact
+      </Text>
       <View style={{ flexDirection: "row", gap: 8, marginBottom: 24 }}>
         {memberData?.phone && <ContactButton iconName="phone" label="Call" value={memberData.phone} onPress={handlePhoneCall} bgColor={AppColors.blue} />}
         {memberData?.whatsapp && <ContactButton iconName="whatsapp" label="WhatsApp" value={memberData.whatsapp} onPress={handleWhatsApp} bgColor="#25d366" />}
