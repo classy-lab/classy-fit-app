@@ -168,6 +168,20 @@ const AppTabs = () => {
         }}
         listeners={createRootTabListener('ProductsTab', 'ProductsScreen')}
       />
+      {/* <Tab.Screen
+        name="CartTab"
+        component={ViewCartScreen}
+        options={{
+          title: "Cart",
+          tabBarIcon: ({ color, size }) => <Ionicons name="cart-outline" size={20} color={color} />
+        }}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            e.preventDefault();
+            navigation.navigate('ProductsTab', { screen: 'ViewCartScreen' });
+          },
+        })}
+      /> */}
       <Tab.Screen
         name="ProfileScreen"
         component={ProfileScreen}
