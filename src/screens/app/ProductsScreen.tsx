@@ -11,6 +11,7 @@ import * as yup from 'yup'
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { UserContext } from '../../context/UserContext'
+import { useCart } from '../../context/CartContext'
 
 type Product = {
   title?: string;
@@ -22,6 +23,7 @@ const ProductsScreen = ({ navigation, route }) => {
   const { user } = useContext(UserContext);
   const { tokens, setTokens } = useContext(UserContext);
   const { webServer } = useContext(UserContext);
+  const { totalItemCount } = useCart();
   const [products, setProducts] = useState<Product[]>([]);
 
   // 1. Define the Yup validation schema
@@ -137,6 +139,11 @@ const ProductsScreen = ({ navigation, route }) => {
                 <Text style={styles.signOutText}>Cart</Text>
                 <View style={styles.circle}>
                   <Ionicons name="bag-outline" color={AppColors.white} size={16} />
+                  {totalItemCount > 0 && (
+                    <View style={styles.cartCountBadge}>
+                      <Text style={styles.cartCountBadgeText}>{totalItemCount}</Text>
+                    </View>
+                  )}
                 </View>
               </TouchableOpacity>
               <SignOut />
@@ -340,6 +347,25 @@ const styles = StyleSheet.create({
     backgroundColor: AppColors.blue,
     justifyContent: 'center',
     alignItems: 'center',
+    position: 'relative',
+  },
+  cartCountBadge: {
+    position: 'absolute',
+    right: -7,
+    top: -7,
+    minWidth: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: AppColors.white,
+    borderWidth: 1,
+    borderColor: AppColors.blue,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 2,
+  },
+  cartCountBadgeText: {
+    color: AppColors.blue,
+    fontSize: 10,
   },
   sectionHeading: {
     display: 'flex',
