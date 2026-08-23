@@ -6,6 +6,7 @@ import AppTabs from "./src/navigation/AppTabs"; // Contains Home/Dashboard/Setti
 import { useFonts } from "expo-font";
 import { setCustomText, setCustomTextInput } from "react-native-global-props";
 import { UserContext } from "./src/context/UserContext";
+import { CartProvider } from "./src/context/CartContext";
 import FlashMessage from "react-native-flash-message";
 
 // Apply Montserrat to Text components that do not set a font explicitly.
@@ -63,10 +64,12 @@ export default function App() {
         webServer,
       }}
     >
-      <NavigationContainer>
-        {isLoggedIn ? <AppTabs /> : <AuthStack />}
-      </NavigationContainer>
-      <FlashMessage position={"top"} />
+      <CartProvider>
+        <NavigationContainer>
+          {isLoggedIn ? <AppTabs /> : <AuthStack />}
+        </NavigationContainer>
+        <FlashMessage position={"top"} />
+      </CartProvider>
     </UserContext.Provider>
   );
 }
