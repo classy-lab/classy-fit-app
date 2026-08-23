@@ -10,7 +10,7 @@ const ViewCartScreen = () => {
   const navigation = useNavigation()
   const { items, totalCost, totalItemCount, updateQuantity, removeFromCart, clearCart } = useCart()
   const hasItems = items.length > 0
-  const currencyTotal = `$${totalCost.toFixed(2)} USD`
+  const currencyTotal = `$${totalCost.toFixed(2)}`
 
   return (
     <>
@@ -18,16 +18,26 @@ const ViewCartScreen = () => {
         <View style={styles.navs}>
           <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
         </View>
-        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-          <View style={styles.headingContainer}>
-            <Text style={styles.title}>Your Cart</Text>
+        <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+          <View style={styles.headerCard}>
+            <View style={styles.headingContainer}>
+              <Text style={styles.title}>Your Cart</Text>
+              <View style={styles.itemCountPill}>
+                <Text style={styles.itemCountPillText}>{totalItemCount} item{totalItemCount === 1 ? '' : 's'}</Text>
+              </View>
+            </View>
           </View>
           <View style={[styles.body]}>
             {!hasItems ? (
-              <Text style={styles.emptyText}>Your cart is empty.</Text>
+              <View style={styles.emptyStateCard}>
+                <Feather name="shopping-bag" size={28} color={AppColors.blue} />
+                <Text style={styles.emptyText}>Your cart is empty.</Text>
+                <TouchableOpacity style={styles.continueBtn} onPress={() => navigation.navigate('ProductsScreen')}>
+                  <Text style={styles.continueBtnText}>Continue Shopping</Text>
+                </TouchableOpacity>
+              </View>
             ) : (
               <>
-                <Text style={styles.itemCountText}>Items: {totalItemCount}</Text>
                 {items.map((item) => (
                   <View style={styles.cartRow} key={item.productId}>
                     {item.imageUrl ? (
@@ -36,7 +46,10 @@ const ViewCartScreen = () => {
                       <View style={styles.cartItemImagePlaceholder} />
                     )}
                     <View style={styles.cartItemMeta}>
-                      <Text style={styles.cartItemTitle} numberOfLines={1}>{item.title}</Text>
+                      <View style={styles.cartItemHeader}>
+                        <Text style={styles.cartItemTitle} numberOfLines={1}>{item.title}</Text>
+                        <Text style={styles.cartItemLineTotal}>${(item.unitPrice * item.quantity).toFixed(2)}</Text>
+                      </View>
                       <Text style={styles.cartItemSubtitle}>SKU: {item.sku}</Text>
                       <Text style={styles.cartItemSubtitle}>${item.unitPrice.toFixed(2)} each</Text>
                       <View style={styles.quantityControls}>
@@ -53,7 +66,7 @@ const ViewCartScreen = () => {
                         >
                           <Text style={styles.qtyBtnText}>+</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={() => removeFromCart(item.productId)}>
+                        <TouchableOpacity style={styles.removeBtn} onPress={() => removeFromCart(item.productId)}>
                           <Text style={styles.removeText}>Remove</Text>
                         </TouchableOpacity>
                       </View>
@@ -62,28 +75,31 @@ const ViewCartScreen = () => {
                 ))}
               </>
             )}
-            <Text style={styles.bodyText}>
-              {currencyTotal}
-            </Text>
-            {hasItems && (
-              <TouchableOpacity onPress={clearCart}>
-                <Text style={styles.clearCartText}>Clear Cart</Text>
-              </TouchableOpacity>
-            )}
-            <View style={styles.row}>
-              <TouchableOpacity
-                style={[styles.registerBtn, !hasItems && styles.disabledBtn]}
-                title="Proceed to Checkout"
-                disabled={!hasItems}
-                onPress={() => {
-                  navigation.navigate('ThankYouScreen')
-                  clearCart()
-                }}
-              >
-                <Text style={styles.registerBtnText}>Proceed to Checkout</Text>
-              </TouchableOpacity>
+            <View style={styles.summaryCard}>
+              <View style={styles.summaryRow}>
+                <Text style={styles.summaryLabel}>Total</Text>
+                <Text style={styles.summaryValue}>{currencyTotal} USD</Text>
+              </View>
+              {hasItems && (
+                <TouchableOpacity onPress={clearCart}>
+                  <Text style={styles.clearCartText}>Clear Cart</Text>
+                </TouchableOpacity>
+              )}
+              <View style={styles.row}>
+                <TouchableOpacity
+                  style={[styles.registerBtn, !hasItems && styles.disabledBtn]}
+                  title="Proceed to Checkout"
+                  disabled={!hasItems}
+                  onPress={() => {
+                    navigation.navigate('ThankYouScreen')
+                    clearCart()
+                  }}
+                >
+                  <Text style={styles.registerBtnText}>Proceed to Checkout</Text>
+                </TouchableOpacity>
+              </View>
+              <Image style={styles.paymentIcons} source={require('../../assets/images/products/payment-icons.png')} />
             </View>
-            <Image style={styles.paymentIcons} source={require('../../assets/images/products/payment-icons.png')} />
           </View>
         </ScrollView>
       </SafeAreaView>
@@ -104,37 +120,75 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingLeft: 24,
     paddingRight: 24,
+    paddingTop: 8,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 24,
+  },
+  headerCard: {
+    marginTop: 8,
+    marginBottom: 12,
   },
   headingContainer: {
     alignItems: 'center',
-    marginBottom: 20
+    justifyContent: 'center',
+    rowGap: 8,
   },
   title: {
+    color: AppColors.blue,
+    fontSize: 30,
+    marginTop: 16,
+  },
+  itemCountPill: {
+    backgroundColor: AppColors.grey,
+    borderColor: AppColors.textInputBorderColor,
+    borderWidth: 1,
+    borderRadius: 999,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+  },
+  itemCountPillText: {
     color: AppColors.primary,
-    fontSize: 32,
-    marginTop: 60,
+    fontSize: 13,
   },
   body: {
     paddingLeft: 24,
     paddingRight: 24,
-    // flex: 1,
+  },
+  emptyStateCard: {
+    backgroundColor: AppColors.grey,
+    borderWidth: 1,
+    borderColor: AppColors.textInputBorderColor,
+    borderRadius: 16,
+    alignItems: 'center',
+    paddingVertical: 24,
+    paddingHorizontal: 12,
+    marginBottom: 16,
   },
   bodyText: {
     color: AppColors.blue,
-    fontSize: 32,
-    marginTop: 8,
-    marginBottom: 8,
-    textAlign: 'center'
-  },
-  itemCountText: {
-    color: AppColors.primary,
-    marginBottom: 12,
+    fontSize: 28,
     textAlign: 'center',
   },
   emptyText: {
     color: AppColors.primary,
     textAlign: 'center',
-    marginBottom: 24,
+    marginTop: 10,
+    marginBottom: 14,
+  },
+  continueBtn: {
+    backgroundColor: AppColors.blue,
+    borderRadius: 24,
+    paddingHorizontal: 18,
+    height: 42,
+    justifyContent: 'center',
+  },
+  continueBtnText: {
+    color: AppColors.white,
+    fontSize: 14,
   },
   cartRow: {
     flexDirection: 'row',
@@ -142,28 +196,40 @@ const styles = StyleSheet.create({
     borderColor: AppColors.textInputBorderColor,
     backgroundColor: AppColors.grey,
     borderRadius: 12,
-    padding: 8,
-    marginBottom: 12,
+    padding: 10,
+    marginBottom: 10,
   },
   cartItemImage: {
-    width: 72,
-    height: 72,
-    borderRadius: 8,
+    width: 76,
+    height: 76,
+    borderRadius: 10,
     marginRight: 10,
   },
   cartItemImagePlaceholder: {
-    width: 72,
-    height: 72,
-    borderRadius: 8,
+    width: 76,
+    height: 76,
+    borderRadius: 10,
     marginRight: 10,
     backgroundColor: AppColors.textInputBorderColor,
   },
   cartItemMeta: {
     flex: 1,
   },
+  cartItemHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 2,
+    columnGap: 8,
+  },
   cartItemTitle: {
     color: AppColors.blue,
-    marginBottom: 2,
+    flexShrink: 1,
+  },
+  cartItemLineTotal: {
+    color: AppColors.blue,
+    fontSize: 13,
+    fontFamily: 'Montserrat-Bold',
   },
   cartItemSubtitle: {
     color: AppColors.primary,
@@ -171,36 +237,68 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   quantityControls: {
-    marginTop: 4,
+    marginTop: 6,
     flexDirection: 'row',
     alignItems: 'center',
-    columnGap: 10,
+    columnGap: 8,
   },
   qtyBtn: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
     borderWidth: 1,
     borderColor: AppColors.blue,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: AppColors.white,
   },
   qtyBtnText: {
     color: AppColors.blue,
-    fontSize: 14,
+    fontSize: 16,
   },
   qtyText: {
     color: AppColors.blue,
-    minWidth: 14,
+    minWidth: 20,
     textAlign: 'center',
+    fontFamily: 'Montserrat-Bold',
+  },
+  removeBtn: {
+    marginLeft: 'auto',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
   },
   removeText: {
     color: AppColors.red,
     fontSize: 12,
   },
+  summaryCard: {
+    marginTop: 10,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: AppColors.textInputBorderColor,
+    backgroundColor: AppColors.grey,
+    paddingHorizontal: 14,
+    paddingTop: 14,
+    paddingBottom: 18,
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  summaryLabel: {
+    color: AppColors.primary,
+    fontSize: 15,
+  },
+  summaryValue: {
+    color: AppColors.blue,
+    fontSize: 24,
+    fontFamily: 'Montserrat-Bold',
+  },
   row: {
     alignItems: 'center',
-    marginTop: 24,
+    marginTop: 8,
   },
   registerBtn: {
     backgroundColor: AppColors.blue,
@@ -212,7 +310,7 @@ const styles = StyleSheet.create({
   },
   registerBtnText: {
     fontSize: 16,
-    color: '#fff'
+    color: '#fff',
   },
   disabledBtn: {
     opacity: 0.5,
@@ -220,10 +318,11 @@ const styles = StyleSheet.create({
   clearCartText: {
     color: AppColors.red,
     textAlign: 'center',
-    marginBottom: 8,
+    marginTop: 6,
+    marginBottom: 4,
   },
   paymentIcons: {
-    marginTop: 24,
-    alignSelf: 'center'
-  }
+    marginTop: 20,
+    alignSelf: 'center',
+  },
 })
