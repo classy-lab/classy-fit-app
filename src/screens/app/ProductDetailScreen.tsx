@@ -1,7 +1,6 @@
 // @ts-nocheck
 import { StyleSheet, Text, View, ScrollView, Image, useWindowDimensions, TouchableOpacity } from 'react-native'
 import { useState, useEffect, useContext } from 'react'
-import { webServer, user, tokens, setTokens } from '../../config'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
 import Ionicons from '@expo/vector-icons/Ionicons'
@@ -10,22 +9,22 @@ import { s } from 'react-native-size-matters'
 import { UserContext } from '../../context/UserContext'
 import RenderHtml from 'react-native-render-html';
 import { showMessage } from 'react-native-flash-message'
-import App from '../../../App'
+import { useCart } from '../../context/CartContext'
 
 const ProductDetailScreen = ({ navigation, route }) => {
   const { width } = useWindowDimensions();
   const { user } = useContext(UserContext);
   const { tokens, setTokens } = useContext(UserContext);
   const { webServer } = useContext(UserContext);
+  const { addToCart, totalItemCount } = useCart();
   const [product, setProduct] = useState({});
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [cartCount, setCartCount] = useState(0);
 
   const handleSubmit = (quantity = 1) => {
-    setCartCount((prevCount) => prevCount + quantity);
+    const lineQuantity = addToCart(product, quantity);
     showMessage({
       message: 'Added to Cart',
-      description: `${quantity} item added to cart`,
+      description: `${lineQuantity} item${lineQuantity > 1 ? 's' : ''} in cart`,
       type: 'success',
     });
   }
@@ -116,9 +115,9 @@ const ProductDetailScreen = ({ navigation, route }) => {
               activeOpacity={0.8}
             >
               <Ionicons name="bag-outline" color={AppColors.blue} size={24} />
-              {cartCount > 0 && (
+              {totalItemCount > 0 && (
                 <View style={styles.cartBadge}>
-                  <Text style={styles.cartBadgeText}>{cartCount}</Text>
+                  <Text style={styles.cartBadgeText}>{totalItemCount}</Text>
                 </View>
               )}
             </TouchableOpacity>
