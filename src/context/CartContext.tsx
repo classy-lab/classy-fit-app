@@ -1,4 +1,3 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, {
   createContext,
   useContext,
@@ -9,7 +8,7 @@ import React, {
 import { UserContext } from "./UserContext";
 
 type ProductLike = {
-  pid?: number | string;
+  uid?: number | string;
   title?: string;
   price?: number | string;
   sale_price?: number | string;
@@ -41,6 +40,23 @@ type CartContextValue = {
 
 const CartContext = createContext<CartContextValue | null>(null);
 const CART_STORAGE_PREFIX = "classy_fit_cart_v1:";
+type StorageLike = {
+  getItem: (key: string) => Promise<string | null>;
+  setItem: (key: string, value: string) => Promise<void>;
+};
+
+let storage: StorageLike | null = null;
+try {
+  // Keep startup safe even if native module is not available in current runtime build.
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const module = require("@react-native-async-storage/async-storage");
+  const candidate = module?.default ?? module;
+  if (candidate?.getItem && candidate?.setItem) {
+    storage = candidate as StorageLike;
+  }
+} catch (error) {
+  storage = null;
+}
 
 const parseMoneyValue = (value: number | string | undefined): number => {
   if (typeof value === "number" && Number.isFinite(value)) {
@@ -60,7 +76,7 @@ const getTenantKey = (user: any): string => {
 };
 
 const getProductId = (product: ProductLike): string => {
-  return String(product?.pid ?? "");
+  return String(product?.uid ?? "").trim();
 };
 
 const buildCartItem = (product: ProductLike): CartItem => {
@@ -110,7 +126,7 @@ const normalizeStoredItems = (value: unknown): CartItem[] => {
         quantity,
         sku: String(typedItem.sku ?? "-"),
         imageUrl: String(typedItem.imageUrl ?? ""),
-      } satisfies CartItem;
+      } as CartItem;
     })
     .filter((item): item is CartItem => item !== null);
 };
@@ -128,9 +144,9 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
     const loadStoredCart = async () => {
       try {
-        const serializedItems = await AsyncStorage.getItem(
-          getStorageKey(tenantKey),
-        );
+        const serializedItems = storage
+          ? await storage.getItem(getStorageKey(tenantKey))
+          : null;
         if (isCancelled) return;
 
         if (!serializedItems) {
@@ -165,10 +181,11 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
     const persistCart = async () => {
       try {
-        await AsyncStorage.setItem(
-          getStorageKey(tenantKey),
-          JSON.stringify(items),
-        );
+        if (!storage) {
+          return;
+        }
+
+        await storage.setItem(getStorageKey(tenantKey), JSON.stringify(items));
       } catch (error) {
         console.log("Failed to persist cart to storage:", error);
       }
