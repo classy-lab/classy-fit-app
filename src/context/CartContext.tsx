@@ -40,7 +40,7 @@ type CartContextValue = {
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
-const CART_STORAGE_KEY = "classy_fit_cart_by_tenant_v1";
+const CART_STORAGE_PREFIX = "classy_fit_cart_v1:";
 
 const parseMoneyValue = (value: number | string | undefined): number => {
   if (typeof value === "number" && Number.isFinite(value)) {
@@ -81,90 +81,71 @@ const buildCartItem = (product: ProductLike): CartItem => {
   };
 };
 
-const toValidCartItem = (value: unknown): CartItem | null => {
-  if (!value || typeof value !== "object") {
-    return null;
+const getStorageKey = (tenantKey: string): string =>
+  `${CART_STORAGE_PREFIX}${tenantKey}`;
+
+const normalizeStoredItems = (value: unknown): CartItem[] => {
+  if (!Array.isArray(value)) {
+    return [];
   }
 
-  const item = value as Partial<CartItem>;
-  const productId = String(item.productId ?? "").trim();
-  const quantity = Number(item.quantity ?? 0);
-  const unitPrice = Number(item.unitPrice ?? 0);
-
-  if (!productId || !Number.isFinite(quantity) || quantity <= 0) {
-    return null;
-  }
-
-  return {
-    productId,
-    title: String(item.title ?? "Product"),
-    unitPrice: Number.isFinite(unitPrice) && unitPrice >= 0 ? unitPrice : 0,
-    quantity,
-    sku: String(item.sku ?? "-"),
-    imageUrl: String(item.imageUrl ?? ""),
-  };
-};
-
-const sanitizeCartByTenant = (
-  value: unknown,
-): Record<string, CartItem[]> => {
-  if (!value || typeof value !== "object") {
-    return {};
-  }
-
-  const rawMap = value as Record<string, unknown>;
-  return Object.entries(rawMap).reduce<Record<string, CartItem[]>>(
-    (acc, [key, items]) => {
-      if (!Array.isArray(items)) {
-        return acc;
+  return value
+    .map((item) => {
+      if (!item || typeof item !== "object") {
+        return null;
       }
 
-      const validItems = items
-        .map((item) => toValidCartItem(item))
-        .filter((item): item is CartItem => item !== null);
+      const typedItem = item as Partial<CartItem>;
+      const productId = String(typedItem.productId ?? "").trim();
+      const quantity = Number(typedItem.quantity ?? 0);
 
-      if (validItems.length > 0) {
-        acc[key] = validItems;
+      if (!productId || !Number.isFinite(quantity) || quantity <= 0) {
+        return null;
       }
 
-      return acc;
-    },
-    {},
-  );
+      return {
+        productId,
+        title: String(typedItem.title ?? "Product"),
+        unitPrice: parseMoneyValue(typedItem.unitPrice),
+        quantity,
+        sku: String(typedItem.sku ?? "-"),
+        imageUrl: String(typedItem.imageUrl ?? ""),
+      } satisfies CartItem;
+    })
+    .filter((item): item is CartItem => item !== null);
 };
 
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const { user } = useContext(UserContext);
-  const [cartByTenant, setCartByTenant] = useState<Record<string, CartItem[]>>(
-    {},
-  );
+  const [items, setItems] = useState<CartItem[]>([]);
   const [isHydrated, setIsHydrated] = useState(false);
 
   const tenantKey = getTenantKey(user);
-  const items = cartByTenant[tenantKey] ?? [];
 
   useEffect(() => {
-    let isMounted = true;
+    let isCancelled = false;
+    setIsHydrated(false);
 
     const loadStoredCart = async () => {
       try {
-        const serializedCart = await AsyncStorage.getItem(CART_STORAGE_KEY);
+        const serializedItems = await AsyncStorage.getItem(
+          getStorageKey(tenantKey),
+        );
+        if (isCancelled) return;
 
-        if (!isMounted) {
-          return;
+        if (!serializedItems) {
+          setItems([]);
+        } else {
+          const parsedItems = JSON.parse(serializedItems);
+          setItems(normalizeStoredItems(parsedItems));
         }
-
-        if (!serializedCart) {
-          setIsHydrated(true);
-          return;
-        }
-
-        const parsedCart = JSON.parse(serializedCart);
-        setCartByTenant(sanitizeCartByTenant(parsedCart));
       } catch (error) {
         console.log("Failed to load cart from storage:", error);
+        if (!isCancelled) {
+          setItems([]);
+        }
       } finally {
-        if (isMounted) {
+        if (!isCancelled) {
           setIsHydrated(true);
         }
       }
@@ -173,9 +154,9 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     loadStoredCart();
 
     return () => {
-      isMounted = false;
+      isCancelled = true;
     };
-  }, []);
+  }, [tenantKey]);
 
   useEffect(() => {
     if (!isHydrated) {
@@ -185,8 +166,8 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     const persistCart = async () => {
       try {
         await AsyncStorage.setItem(
-          CART_STORAGE_KEY,
-          JSON.stringify(cartByTenant),
+          getStorageKey(tenantKey),
+          JSON.stringify(items),
         );
       } catch (error) {
         console.log("Failed to persist cart to storage:", error);
@@ -194,7 +175,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     persistCart();
-  }, [cartByTenant, isHydrated]);
+  }, [isHydrated, items, tenantKey]);
 
   const addToCart = (product: ProductLike, quantity = 1): number => {
     const productId = getProductId(product);
@@ -207,15 +188,14 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     let updatedLineQuantity = normalizedQuantity;
-    setCartByTenant((prevState) => {
-      const tenantItems = prevState[tenantKey] ?? [];
-      const existingItem = tenantItems.find(
+    setItems((prevItems) => {
+      const existingItem = prevItems.find(
         (item) => item.productId === productId,
       );
 
       let updatedItems: CartItem[] = [];
       if (existingItem) {
-        updatedItems = tenantItems.map((item) => {
+        updatedItems = prevItems.map((item) => {
           if (item.productId !== productId) return item;
           const nextQuantity = item.quantity + normalizedQuantity;
           updatedLineQuantity = nextQuantity;
@@ -228,13 +208,10 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         const cartItem = buildCartItem(product);
         cartItem.quantity = normalizedQuantity;
         updatedLineQuantity = normalizedQuantity;
-        updatedItems = [...tenantItems, cartItem];
+        updatedItems = [...prevItems, cartItem];
       }
 
-      return {
-        ...prevState,
-        [tenantKey]: updatedItems,
-      };
+      return updatedItems;
     });
 
     return updatedLineQuantity;
@@ -246,9 +223,8 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       throw new Error("Quantity must be a valid number.");
     }
 
-    setCartByTenant((prevState) => {
-      const tenantItems = prevState[tenantKey] ?? [];
-      const nextItems = tenantItems
+    setItems((prevItems) => {
+      const nextItems = prevItems
         .map((item) =>
           item.productId === productId
             ? { ...item, quantity: Math.max(0, normalizedQuantity) }
@@ -256,28 +232,18 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         )
         .filter((item) => item.quantity > 0);
 
-      return {
-        ...prevState,
-        [tenantKey]: nextItems,
-      };
+      return nextItems;
     });
   };
 
   const removeFromCart = (productId: string) => {
-    setCartByTenant((prevState) => {
-      const tenantItems = prevState[tenantKey] ?? [];
-      return {
-        ...prevState,
-        [tenantKey]: tenantItems.filter((item) => item.productId !== productId),
-      };
-    });
+    setItems((prevItems) =>
+      prevItems.filter((item) => item.productId !== productId),
+    );
   };
 
   const clearCart = () => {
-    setCartByTenant((prevState) => ({
-      ...prevState,
-      [tenantKey]: [],
-    }));
+    setItems([]);
   };
 
   const totalItemCount = useMemo(
