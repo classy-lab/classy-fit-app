@@ -1,16 +1,211 @@
 // @ts-nocheck
+import { useContext, useState } from 'react'
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { AppColors } from '../../styles/colors'
 import { useNavigation } from '@react-navigation/native'
 import Feather from '@expo/vector-icons/Feather'
 import { useCart } from '../../context/CartContext'
+import { UserContext } from '../../context/UserContext'
+import { showMessage } from 'react-native-flash-message'
 
 const ViewCartScreen = () => {
   const navigation = useNavigation()
+  const { user } = useContext(UserContext)
+  const { tokens, setTokens } = useContext(UserContext)
+  const { webServer } = useContext(UserContext)
   const { items, totalCost, totalItemCount, updateQuantity, removeFromCart, clearCart } = useCart()
+  const [isSubmittingOrder, setIsSubmittingOrder] = useState(false)
   const hasItems = items.length > 0
   const currencyTotal = `$${totalCost.toFixed(2)}`
+  const canCheckout = hasItems && !isSubmittingOrder
+
+  const buildOrderNumber = () => {
+    const now = new Date()
+    const yyyy = now.getFullYear()
+    const mm = String(now.getMonth() + 1).padStart(2, '0')
+    const dd = String(now.getDate()).padStart(2, '0')
+    const hh = String(now.getHours()).padStart(2, '0')
+    const mi = String(now.getMinutes()).padStart(2, '0')
+    const ss = String(now.getSeconds()).padStart(2, '0')
+    const randomSuffix = Math.random().toString(36).slice(2, 8).toUpperCase()
+    return `ORD-${yyyy}${mm}${dd}-${hh}${mi}${ss}-${randomSuffix}`
+  }
+
+  const refreshAccessToken = async () => {
+    if (!tokens?.refresh_token) {
+      return null
+    }
+
+    const refreshResponse = await fetch(`${webServer}/api/refresh.php`, {
+      method: 'POST',
+      body: JSON.stringify({
+        token: tokens.refresh_token,
+      }),
+    })
+
+    if (refreshResponse.status !== 200) {
+      return null
+    }
+
+    const refreshObj = await refreshResponse.json()
+    if (!refreshObj?.access_token || !refreshObj?.refresh_token) {
+      return null
+    }
+
+    setTokens((prev: any) => ({
+      ...prev,
+      access_token: refreshObj.access_token,
+      refresh_token: refreshObj.refresh_token,
+    }))
+
+    return refreshObj.access_token
+  }
+
+  const buildCreateOrderPayload = () => {
+    const subtotalAmount = Number(totalCost.toFixed(2))
+    const orderNumber = buildOrderNumber()
+    const checkoutKey = `checkout_${orderNumber}_${Date.now()}`
+    const givenName = String(user?.given_name ?? '').trim()
+    const familyName = String(user?.family_name ?? '').trim()
+    const email = String(user?.email ?? '').trim().toLowerCase()
+    const firstName = givenName || 'Member'
+    const lastName = familyName || 'User'
+    const customerEmail = email || `user-${user?.sub ?? 'unknown'}@example.com`
+
+    const userUid = Number(user?.sub ?? 0)
+    const orderItems = items.map((item) => ({
+      product_uid: Number(item.productId),
+      product_title: item.title,
+      product_sku: item.sku,
+      product_brand: null,
+      quantity: Number(item.quantity),
+      unit_price: Number(item.unitPrice.toFixed(2)),
+      cost_price_snapshot: null,
+    }))
+
+    return {
+      user_uid: userUid,
+      order_number: orderNumber,
+      checkout_idempotency_key: checkoutKey,
+      currency_code: 'USD',
+      customer_first_name: firstName,
+      customer_last_name: lastName,
+      customer_email: customerEmail,
+      customer_phone: user?.phone ? String(user.phone) : null,
+      shipping_method_uid: null,
+      shipping_method_code: null,
+      shipping_method_name: null,
+      subtotal_amount: subtotalAmount,
+      discount_amount: 0,
+      tax_amount: 0,
+      shipping_amount: 0,
+      total_amount: subtotalAmount,
+      customer_notes: null,
+      items: orderItems,
+    }
+  }
+
+  const submitOrder = async () => {
+    if (!canCheckout) {
+      return
+    }
+
+    if (!user?.gym_id || !tokens?.access_token) {
+      showMessage({
+        message: 'Checkout unavailable',
+        description: 'Missing gym or login session. Please sign in again.',
+        type: 'danger',
+      })
+      return
+    }
+
+    setIsSubmittingOrder(true)
+
+    try {
+      const payload = buildCreateOrderPayload()
+      if (!Number.isFinite(payload.user_uid) || payload.user_uid <= 0) {
+        showMessage({
+          message: 'Checkout unavailable',
+          description: 'Invalid user id in session. Please sign in again.',
+          type: 'danger',
+        })
+        return
+      }
+
+      if (payload.items.some((item) => !Number.isFinite(item.product_uid) || item.product_uid <= 0)) {
+        showMessage({
+          message: 'Checkout unavailable',
+          description: 'One or more cart items have invalid product ids.',
+          type: 'danger',
+        })
+        return
+      }
+
+      const endpoint = `${webServer}/api/v1/gyms/${user.gym_id}/orders`
+
+      let accessToken = tokens.access_token
+      let response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(payload),
+      })
+
+      if (response.status === 401 || response.status === 400) {
+        const refreshedAccessToken = await refreshAccessToken()
+        if (refreshedAccessToken) {
+          accessToken = refreshedAccessToken
+          response = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${accessToken}`,
+            },
+            body: JSON.stringify(payload),
+          })
+        }
+      }
+
+      const text = await response.text()
+      let responseBody = {}
+      if (text) {
+        try {
+          responseBody = JSON.parse(text)
+        } catch (parseError) {
+          responseBody = { message: text }
+        }
+      }
+
+      if (response.status === 201) {
+        clearCart()
+        showMessage({
+          message: 'Order placed',
+          description: `Order #${payload.order_number} was created successfully.`,
+          type: 'success',
+        })
+        navigation.navigate('ThankYouScreen')
+        return
+      }
+
+      showMessage({
+        message: responseBody?.message || 'Checkout failed',
+        description: Array.isArray(responseBody?.errors) ? responseBody.errors.join('\n') : 'Please try again.',
+        type: 'danger',
+      })
+    } catch (error) {
+      console.log('Checkout failed:', error)
+      showMessage({
+        message: 'Checkout failed',
+        description: 'Unable to reach server. Please try again.',
+        type: 'danger',
+      })
+    } finally {
+      setIsSubmittingOrder(false)
+    }
+  }
 
   return (
     <>
@@ -87,15 +282,12 @@ const ViewCartScreen = () => {
               )}
               <View style={styles.row}>
                 <TouchableOpacity
-                  style={[styles.registerBtn, !hasItems && styles.disabledBtn]}
+                  style={[styles.registerBtn, !canCheckout && styles.disabledBtn]}
                   title="Proceed to Checkout"
-                  disabled={!hasItems}
-                  onPress={() => {
-                    navigation.navigate('ThankYouScreen')
-                    clearCart()
-                  }}
+                  disabled={!canCheckout}
+                  onPress={submitOrder}
                 >
-                  <Text style={styles.registerBtnText}>Proceed to Checkout</Text>
+                  <Text style={styles.registerBtnText}>{isSubmittingOrder ? 'Processing...' : 'Proceed to Checkout'}</Text>
                 </TouchableOpacity>
               </View>
               <Image style={styles.paymentIcons} source={require('../../assets/images/products/payment-icons.png')} />
