@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
+import { useContext } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AppColors } from "../../styles/colors";
 import { useFonts } from "expo-font";
@@ -13,9 +14,17 @@ import Feather from "@expo/vector-icons/Feather";
 import HealthyLifestyleSvg from "../../components/svg/HealthyLifestyleSvg";
 import PinkLeafSvg from "../../assets/svg/PinkLeafSvg";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { UserContext } from "../../context/UserContext";
 
 const ThankYouScreen = ({ navigation, route }) => {
+  const { isLoggedIn } = useContext(UserContext);
+
   const handleSubmit = () => {
+    if (isLoggedIn) {
+      navigation.navigate("ProductsScreen");
+      return;
+    }
+
     navigation.navigate("LoginScreen");
   };
 
@@ -64,7 +73,9 @@ const ThankYouScreen = ({ navigation, route }) => {
                 activeOpacity={0.7}
                 onPress={handleSubmit}
               >
-                <Text style={styles.loginBtnText}>Login</Text>
+                <Text style={styles.loginBtnText}>
+                  {isLoggedIn ? "Continue Shopping" : "Login"}
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
