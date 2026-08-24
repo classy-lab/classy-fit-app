@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
   loginBtn: {
     backgroundColor: AppColors.blue,
     borderRadius: 40,
-    width: 140,
+    width: 180,
     height: 50,
     justifyContent: "center",
     alignItems: "center",
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
   loginBtnText: {
     color: AppColors.white,
     fontSize: 16,
-    fontFamily: "Montserrat-Medium",
-    // fontWeight: "medium",
+    // fontFamily: "Montserrat-Medium",
+    textAlign: "center",
   },
 });
