@@ -1,32 +1,17 @@
 // @ts-nocheck
-import React, { useContext, useEffect } from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  ScrollView,
-  TouchableOpacity,
-} from "react-native";
+import React from "react";
+import { StyleSheet, Text, View, ScrollView } from "react-native";
 import { AppColors } from "../../styles/colors";
 import { useRoute } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Feather from "@expo/vector-icons/Feather";
-import VectorImageSvg from "../../components/svg/VectorImageSvg";
+import HealthyLifestyleSvg from "../../components/svg/HealthyLifestyleSvg";
 import SignOut from "../../components/utils/SignOut";
-import { UserContext } from "../../context/UserContext";
 import UpdateStaffForm from "../../components/forms/UpdateStaffForm";
 
 const UpdateStaffScreen = ({ navigation }: { navigation: any }) => {
   const route = useRoute<any>();
-  const { webServer, tokens, setTokens } = useContext(UserContext);
-
-  const staff = route?.params?.staff || {};
-
-  useEffect(() => {
-    if (!staff?.uid && !staff?.id && !staff?.user_id && !staff?.sub) {
-      console.log("No staff id available for update screen");
-    }
-  }, [staff]);
+  const staff = route?.params?.staff || route?.params?.trainer || {};
 
   return (
     <SafeAreaView style={styles.container}>
@@ -49,10 +34,10 @@ const UpdateStaffScreen = ({ navigation }: { navigation: any }) => {
           </View>
         </View>
         <View style={styles.body}>
-          <UpdateStaffForm navigation={navigation} staff={staff} />
+          <UpdateStaffForm navigation={navigation} staffData={staff} />
         </View>
         <View style={styles.imageContainer}>
-          <VectorImageSvg />
+          <HealthyLifestyleSvg />
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -79,8 +64,8 @@ const styles = StyleSheet.create({
   title: {
     color: AppColors.blue,
     fontFamily: "Montserrat",
-    fontSize: 32,
-    marginTop: 32,
+    fontSize: 24,
+    marginTop: 16,
     textAlign: "center",
   },
   subHead: {
