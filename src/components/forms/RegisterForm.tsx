@@ -247,10 +247,11 @@ const RegisterForm = () => {
       name: data.profilePic?.filename || data.profilePic?.name || "profile-photo.png",
     } as any);
 
-    console.log("FormData ready for fetch:", formData);
+    // console.log("FormData ready for fetch:", formData);
+    // console.log(data.gymId);
 
     const response = await fetch(
-      `${webServer}/api/register.php`,
+      `${webServer}/api/v1/gyms/${data.gymId}/users`,
       {
         method: "POST",
         body: formData,
@@ -259,8 +260,9 @@ const RegisterForm = () => {
 
     const apiResponse = await response.json();
     console.log("apiResponse: " + JSON.stringify(apiResponse));
+    console.log("response status: ", response.status);
 
-    if (response.status == 200) {
+    if (response.ok) {
       showMessage({
         message: "Success",
         description:
