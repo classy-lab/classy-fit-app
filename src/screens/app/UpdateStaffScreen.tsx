@@ -33,7 +33,7 @@ const UpdateStaffScreen = ({ navigation }: { navigation: any }) => {
           </View>
         </View>
         <View style={styles.body}>
-          <UpdateStaffForm navigation={navigation} staffData={staff} />
+          <UpdateStaffForm staffData={staff} />
         </View>
       </View>
     </SafeAreaView>
