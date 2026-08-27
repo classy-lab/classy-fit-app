@@ -1,17 +1,18 @@
 // @ts-nocheck
 import React from "react";
-import { StyleSheet, Text, View, ScrollView } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { AppColors } from "../../styles/colors";
 import { useRoute } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Feather from "@expo/vector-icons/Feather";
-import HealthyLifestyleSvg from "../../components/svg/HealthyLifestyleSvg";
 import SignOut from "../../components/utils/SignOut";
 import UpdateStaffForm from "../../components/forms/UpdateStaffForm";
 
 const UpdateStaffScreen = ({ navigation }: { navigation: any }) => {
   const route = useRoute<any>();
-  const staff = route?.params?.staff || route?.params?.trainer || {};
+  const routeParams = route?.params ?? {};
+  const staff = routeParams.staff ?? routeParams.trainer ?? {};
+  const staffName = [staff?.fname || "Staff", staff?.lname].filter(Boolean).join(" ");
 
   return (
     <SafeAreaView style={styles.container}>
@@ -24,22 +25,17 @@ const UpdateStaffScreen = ({ navigation }: { navigation: any }) => {
         />
         <SignOut />
       </View>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <View style={styles.content}>
         <View style={styles.headingContainer}>
           <View style={styles.contactInfo}>
-            <Text style={styles.title}>
-              {staff?.fname || "Staff"} {staff?.lname || ""}
-            </Text>
+            <Text style={styles.title}>{staffName}</Text>
             <Text style={styles.subHead}>Update Staff Info</Text>
           </View>
         </View>
         <View style={styles.body}>
           <UpdateStaffForm navigation={navigation} staffData={staff} />
         </View>
-        <View style={styles.imageContainer}>
-          <HealthyLifestyleSvg />
-        </View>
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 };
@@ -61,6 +57,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 4,
   },
+  contactInfo: {
+    alignItems: "center",
+  },
   title: {
     color: AppColors.blue,
     fontFamily: "Montserrat",
@@ -76,14 +75,9 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   body: {
-    paddingLeft: 24,
-    paddingRight: 24,
-    marginBottom: 8,
     flex: 1,
   },
-  imageContainer: {
-    marginBottom: 40,
-    alignItems: "center",
+  content: {
+    flex: 1,
   },
-  scrollView: {},
 });
