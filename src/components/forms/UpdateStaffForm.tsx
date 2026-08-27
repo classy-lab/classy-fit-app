@@ -1,6 +1,5 @@
 // @ts-nocheck
-import { useState, useContext, useCallback, useEffect } from "react";
-import { useFocusEffect } from "@react-navigation/native";
+import { useState, useContext, useEffect } from "react";
 import {
   View,
   Text,
@@ -17,18 +16,24 @@ import { styles } from "../../styles/registerFormStyles";
 import { AppColors } from "../../styles/colors";
 import HealthyLifestyleSvg from "../svg/HealthyLifestyleSvg";
 
-const UpdateStaffForm = ({ navigation, staffData }: { navigation: any; staffData: any }) => {
+const UpdateStaffForm = ({ staffData }: { staffData: any }) => {
   const { user } = useContext(UserContext);
   const { webServer, tokens } = useContext(UserContext);
-  const [profilePicAPIImage, setProfilePicAPIImage] = useState<string>("");
   const preferredContactOptions = [
     { key: "1", value: "Phone" },
     { key: "2", value: "WhatsApp" },
     { key: "3", value: "Email" },
   ];
-  const [fullStaffData, setFullStaffData] = useState(staffData || {});
+  const [staff, setStaff] = useState(staffData || {});
 
   useEffect(() => {
+    setStaff(staffData || {});
+  }, [staffData]);
+
+  useEffect(() => {
+    if (!staffData?.uid || !user?.gym_id || !webServer || !tokens?.access_token) {
+      return;
+    }
 
     const fetchStaffData = async () => {
       try {
@@ -39,48 +44,52 @@ const UpdateStaffForm = ({ navigation, staffData }: { navigation: any; staffData
         });
 
         const data = await response.json();
-        setFullStaffData(data.data);
+        const fetchedStaff = data?.data;
+        setStaff((prev: any) => ({
+          ...prev,
+          ...fetchedStaff,
+        }));
 
       } catch (error) {
         console.error("Error: ", error);
       }
     };
     fetchStaffData();
-  }, [staffData, tokens?.access_token, webServer]);
+  }, [staffData, tokens?.access_token]);
 
   const getPreferredContactLabel = (contactValue: string) => {
     return preferredContactOptions.find((item) => [item.key, item.value].some((option) => String(option ?? "").trim().toLowerCase() === String(contactValue).trim().toLowerCase()))?.value ?? String(contactValue);
   };
 
   const handlePhoneCall = () => {
-    if (fullStaffData?.phone) {
+    if (staff?.phone) {
       if (Platform.OS === "ios") {
         // In simulator, show alert. On real device, open phone app
-        Linking.canOpenURL(`tel:${fullStaffData.phone}`).then(supported => {
+        Linking.canOpenURL(`tel:${staff.phone}`).then(supported => {
           if (supported) {
-            Linking.openURL(`tel:${fullStaffData.phone}`);
+            Linking.openURL(`tel:${staff.phone}`);
           } else {
             // Simulator fallback
-            Alert.alert("📱 Phone Call", `Would call: ${fullStaffData.phone}`, [
+            Alert.alert("📱 Phone Call", `Would call: ${staff.phone}`, [
               { text: "OK", onPress: () => { } }
             ]);
           }
         });
       } else {
-        Linking.openURL(`tel:${fullStaffData.phone}`);
+        Linking.openURL(`tel:${staff.phone}`);
       }
     }
   };
 
   const handleWhatsApp = () => {
-    if (fullStaffData?.whatsapp) {
-      const whatsappUrl = `https://wa.me/${fullStaffData.whatsapp}`;
+    if (staff?.whatsapp) {
+      const whatsappUrl = `https://wa.me/${staff.whatsapp}`;
       if (Platform.OS === "ios") {
         Linking.canOpenURL(whatsappUrl).then(supported => {
           if (supported) {
             Linking.openURL(whatsappUrl);
           } else {
-            Alert.alert("💬 WhatsApp", `Would open WhatsApp for: ${fullStaffData.whatsapp}`, [
+            Alert.alert("💬 WhatsApp", `Would open WhatsApp for: ${staff.whatsapp}`, [
               { text: "OK", onPress: () => { } }
             ]);
           }
@@ -92,12 +101,12 @@ const UpdateStaffForm = ({ navigation, staffData }: { navigation: any; staffData
   };
 
   const handleEmailPress = () => {
-    if (fullStaffData?.email) {
-      const mailUrl = `mailto:${fullStaffData.email}`;
+    if (staff?.email) {
+      const mailUrl = `mailto:${staff.email}`;
       if (Platform.OS === "ios") {
         Linking.openURL(mailUrl).catch(() => {
           // Fallback for simulator
-          Alert.alert("✉ Send Email", `Open email client to send mail to: ${fullStaffData.email}`, [
+          Alert.alert("✉ Send Email", `Open email client to send mail to: ${staff.email}`, [
             { text: "OK", onPress: () => { } }
           ]);
         });
@@ -170,7 +179,7 @@ const UpdateStaffForm = ({ navigation, staffData }: { navigation: any; staffData
     </View>
   );
 
-  const memberPictureUri = profilePicAPIImage || (staffData?.user_picture_url ? `${webServer}/api/${staffData.user_picture_url}` : "");
+  const staffPictureUri = staff?.user_picture_url ? `${webServer}/api/${staff.user_picture_url}` : "";
 
   return (
     <ScrollView style={[styles.fieldset, { paddingHorizontal: 16, paddingVertical: 20, backgroundColor: "#ffffff" }]}>
@@ -196,17 +205,17 @@ const UpdateStaffForm = ({ navigation, staffData }: { navigation: any; staffData
           borderWidth: 1,
           borderColor: AppColors.blue,
         }}>
-          {memberPictureUri ? (
-            <Image source={{ uri: memberPictureUri }} style={{ width: "100%", height: "100%" }} resizeMode="cover" />
+          {staffPictureUri ? (
+            <Image source={{ uri: staffPictureUri }} style={{ width: "100%", height: "100%" }} resizeMode="cover" />
           ) : (
             <Image source={require("../../assets/images/avatars/profile-img.png")} style={{ width: "100%", height: "100%" }} resizeMode="cover" />
           )}
         </View>
         <Text style={{ fontSize: 20, marginBottom: 8, color: AppColors.blue }}>
-          {`${fullStaffData?.fname || ""} ${fullStaffData?.lname || ""}`.trim() || "Staff Name"}
+          {`${staff?.fname || ""} ${staff?.lname || ""}`.trim() || "Staff Name"}
         </Text>
-        <Text style={{ fontSize: 13, color: "#6b7280", marginBottom: 4 }}>{fullStaffData?.sex ? `${fullStaffData.sex.charAt(0).toUpperCase() + fullStaffData.sex.slice(1)}` : "Sex not specified"}</Text>
-        <Text style={{ fontSize: 12, color: "#9ca3af", fontStyle: "italic" }}>Staff ID: {fullStaffData?.uid}</Text>
+        <Text style={{ fontSize: 13, color: "#6b7280", marginBottom: 4 }}>{staff?.sex ? `${staff.sex.charAt(0).toUpperCase() + staff.sex.slice(1)}` : "Sex not specified"}</Text>
+        <Text style={{ fontSize: 12, color: "#9ca3af", fontStyle: "italic" }}>Staff ID: {staff?.uid}</Text>
       </View>
 
       {/* Quick Action Buttons */}
@@ -214,21 +223,21 @@ const UpdateStaffForm = ({ navigation, staffData }: { navigation: any; staffData
         Quick Contact
       </Text> */}
       <View style={{ flexDirection: "row", gap: 8, marginBottom: 24 }}>
-        {fullStaffData?.email && <ContactButton iconName="email" label="Email" value={fullStaffData.email} onPress={handleEmailPress} bgColor={AppColors.blue} />}
-        {fullStaffData?.phone && <ContactButton iconName="phone" label="Call" value={fullStaffData.phone} onPress={handlePhoneCall} bgColor="#dbeafe" />}
-        {fullStaffData?.whatsapp && <ContactButton iconName="whatsapp" label="WhatsApp" value={fullStaffData.whatsapp} onPress={handleWhatsApp} bgColor="#25d366" />}
+        {staff?.email && <ContactButton iconName="email" label="Email" value={staff.email} onPress={handleEmailPress} bgColor={AppColors.blue} />}
+        {staff?.phone && <ContactButton iconName="phone" label="Call" value={staff.phone} onPress={handlePhoneCall} bgColor="#dbeafe" />}
+        {staff?.whatsapp && <ContactButton iconName="whatsapp" label="WhatsApp" value={staff.whatsapp} onPress={handleWhatsApp} bgColor="#25d366" />}
       </View>
 
       {/* Divider */}
       <View style={{ marginTop: 24 }} />
 
-      <InfoField label="First Name" value={fullStaffData?.fname} />
-      <InfoField label="Last Name" value={fullStaffData?.lname} />
-      <InfoField label="Gender" value={fullStaffData?.sex ? `${fullStaffData.sex.charAt(0).toUpperCase() + fullStaffData.sex.slice(1)}` : "Sex not specified"} />
-      <InfoField label="Phone Number" value={fullStaffData?.phone} />
-      <InfoField label="WhatsApp" value={fullStaffData?.whatsapp} />
-      <InfoField label="E-mail" value={fullStaffData?.email} />
-      <InfoField label="Preferred Contact Method" value={getPreferredContactLabel(fullStaffData?.preferred_contact)} />
+      <InfoField label="First Name" value={staff?.fname} />
+      <InfoField label="Last Name" value={staff?.lname} />
+      <InfoField label="Gender" value={staff?.sex ? `${staff.sex.charAt(0).toUpperCase() + staff.sex.slice(1)}` : "Sex not specified"} />
+      <InfoField label="Phone Number" value={staff?.phone} />
+      <InfoField label="WhatsApp" value={staff?.whatsapp} />
+      <InfoField label="E-mail" value={staff?.email} />
+      <InfoField label="Preferred Contact Method" value={getPreferredContactLabel(staff?.preferred_contact)} />
 
       <View style={{ marginBottom: 40, alignItems: "center" }}>
         <HealthyLifestyleSvg />
