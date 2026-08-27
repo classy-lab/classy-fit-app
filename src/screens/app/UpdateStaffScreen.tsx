@@ -30,7 +30,7 @@ const UpdateStaffScreen = ({ navigation }: { navigation: any }) => {
             <Text style={styles.title}>
               {staff?.fname || "Staff"} {staff?.lname || ""}
             </Text>
-            <Text style={styles.subHead}>Update Staff Information</Text>
+            <Text style={styles.subHead}>Update Staff Info</Text>
           </View>
         </View>
         <View style={styles.body}>
