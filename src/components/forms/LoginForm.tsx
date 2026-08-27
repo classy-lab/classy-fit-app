@@ -65,7 +65,7 @@ const LoginForm = () => {
     resolver: yupResolver(schema),
     defaultValues: {
       email: "vishal@gmail.com",
-      password: "pppppppppppp",
+      password: "TestPass12345",
     },
   });
 
