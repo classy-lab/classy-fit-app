@@ -61,7 +61,7 @@ const UpdateStaffForm = ({ staffData }: { staffData: any }) => {
     return () => {
       isActive = false;
     };
-  }, [staffData, user?.gym_id, webServer, tokens?.access_token]);
+  }, [staffData, tokens?.access_token]);
 
   const getPreferredContactLabel = (contactValue: string) => {
     return preferredContactOptions.find((item) => [item.key, item.value].some((option) => String(option ?? "").trim().toLowerCase() === String(contactValue).trim().toLowerCase()))?.value ?? String(contactValue);
