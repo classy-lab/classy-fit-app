@@ -178,50 +178,32 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
       }
 
       try {
-        const response = await fetch(`${webServer}/api/v1/users/${user.sub}`, {
+        const response = await fetch(`${webServer}/api/v1/gyms/${user?.gym_id}/users/${user?.sub}`, {
           headers: {
             Authorization: "Bearer " + tokens.access_token,
           },
         });
         const json = await response.text();
         const obj = json ? JSON.parse(json) : {};
-        console.log("Fetched user data:", obj);
+        console.log("Fetched user data:", obj.data);
 
         if (response.status == 200) {
-          const payload = obj?.data ?? obj?.user ?? obj;
-          const profileFields =
-            payload?.profile_fields ?? payload?.profileFields ?? obj?.profile_fields ?? {};
-          const fetchedPhone = String(
-            profileFields?.phone ??
-            profileFields?.phone_number ??
-            payload?.phone ??
-            payload?.phone_number ??
-            "",
-          );
-          const fetchedWhatsapp = String(
-            profileFields?.whatsapp ??
-            profileFields?.whatsapp_number ??
-            payload?.whatsapp ??
-            payload?.whatsapp_number ??
-            "",
-          );
-          const fetchedSex = normalizeSexValue(
-            profileFields?.sex ?? user?.gender ?? "",
-          );
-          const fetchedPreferredContact = normalizePreferredContact(
-            profileFields?.preferred_contact ?? payload?.preferred_contact ?? user?.preferred_contact ?? "",
-          );
-          const profilePicturePath = profileFields?.user_picture_url;
+          const payload = obj?.data;
+          const fetchedPhone = String(payload?.phone);
+          const fetchedWhatsapp = String(payload?.whatsapp);
+          const fetchedSex = normalizeSexValue(payload?.sex);
+          const fetchedPreferredContact = normalizePreferredContact(payload?.preferred_contact);
+          const profilePicturePath = payload?.user_picture_url;
 
           reset({
-            profilePic: profilePicturePath ? { path: `http://localhost:8080/classy-api/api/${profilePicturePath}` } : undefined,
+            profilePic: profilePicturePath ? { path: `${webServer}/api/${profilePicturePath}` } : undefined,
             email: user?.email ?? "",
             password: "",
             confirmPassword: "",
             role: normalizeRole(user?.role),
             fname: user?.given_name ?? "",
             lname: user?.family_name ?? "",
-            dateOfBirth: profileFields?.date_of_birth ?? "",
+            dateOfBirth: payload?.date_of_birth ?? "",
             sex: fetchedSex,
             phoneNumber: fetchedPhone,
             whatsappNumber: fetchedWhatsapp,
@@ -232,7 +214,7 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
           setWhatsappDefaultValue(fetchedWhatsapp);
           setValue("phoneNumber", fetchedPhone, { shouldDirty: false, shouldValidate: false });
           setValue("whatsappNumber", fetchedWhatsapp, { shouldDirty: false, shouldValidate: false });
-          setProfilePicAPIImage(profilePicturePath ? `http://localhost:8080/classy-api/api/${profilePicturePath}` : "");
+          setProfilePicAPIImage(profilePicturePath ? `${webServer}/api/${profilePicturePath}` : "");
         } else {
           const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
             method: "POST",
@@ -451,7 +433,6 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
     const obj = JSON.parse(json);
 
     console.log("response status: ", response.status);
-    // console.log(obj);
 
     if (response.ok) {
       showMessage({
