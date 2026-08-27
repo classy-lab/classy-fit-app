@@ -451,7 +451,6 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
     const obj = JSON.parse(json);
 
     console.log("response status: ", response.status);
-    // console.log(obj);
 
     if (response.ok) {
       showMessage({
