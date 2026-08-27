@@ -12,7 +12,10 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { useCallback, useContext, useState } from 'react'
 import { UserContext } from '../../context/UserContext'
 
+const defaultProfileImage = require("../../assets/images/avatars/profile-img.png");
+
 type StaffMember = {
+  uid?: string | number;
   user_picture_url?: string;
   fname?: string;
   lname?: string;
@@ -28,6 +31,7 @@ const MembersScreen = ({ navigation }: { navigation: any }) => {
   const { webServer } = useContext(UserContext);
   const [members, setMembers] = useState<Record<string, StaffMember>>(() => cachedMembers ?? {});
   const [imageCacheKey, setImageCacheKey] = useState(Date.now());
+  const [failedImageKeys, setFailedImageKeys] = useState<Record<string, boolean>>({});
   const membersList = Object.values(members);
 
   // 1. Define the Yup validation schema
@@ -58,9 +62,14 @@ const MembersScreen = ({ navigation }: { navigation: any }) => {
   }
 
   const getImageUri = (path?: string) => {
-    if (!path) return '';
-    const queryJoiner = path.includes('?') ? '&' : '?';
-    return `${webServer}/api/${path}${queryJoiner}v=${imageCacheKey}`;
+    const trimmedPath = path?.trim();
+    if (!trimmedPath || !webServer || failedImageKeys[trimmedPath]) return '';
+
+    const uri = /^https?:\/\//i.test(trimmedPath)
+      ? trimmedPath
+      : `${webServer}/api/${trimmedPath.replace(/^\/?(api\/)?/, '')}`;
+
+    return `${encodeURI(uri)}${uri.includes('?') ? '&' : '?'}v=${imageCacheKey}`;
   };
 
   const searchQuery = (watch('search') || '').trim().toLowerCase();
@@ -119,6 +128,7 @@ const MembersScreen = ({ navigation }: { navigation: any }) => {
           if (response.status === 200) {
             cachedMembers = obj.members;
             setMembers(obj.members);
+            // setFailedImageKeys({});
             setImageCacheKey(Date.now());
           }
           else {
@@ -229,13 +239,26 @@ const MembersScreen = ({ navigation }: { navigation: any }) => {
                   ) :
                     (
                       filteredMembers.map((member, index) => {
+                        const memberImageUri = getImageUri(member.user_picture_url);
                         return (
                           <TouchableOpacity key={index} onPress={() => navigation.navigate('UpdateMemberScreen', { member })}>
                             <View style={styles.box}>
-                              {
-                                member.user_picture_url ? (
-                                  <Image style={styles.image} source={{ uri: getImageUri(member.user_picture_url) }} />
-                                ) : null}
+                              <Image
+                                style={styles.image}
+                                source={memberImageUri ? { uri: memberImageUri } : defaultProfileImage}
+                                onError={() => {
+                                  const imagePath = member.user_picture_url?.trim();
+                                  if (!imagePath) {
+                                    return;
+                                  }
+
+                                  setFailedImageKeys((prev) => (
+                                    prev[imagePath]
+                                      ? prev
+                                      : { ...prev, [imagePath]: true }
+                                  ));
+                                }}
+                              />
                               <Text style={styles.personName}>{getDisplayName(member)}</Text>
                             </View>
                           </TouchableOpacity>
