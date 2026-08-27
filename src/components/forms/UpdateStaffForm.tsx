@@ -17,6 +17,7 @@ import { styles } from "../../styles/registerFormStyles";
 import { AppColors } from "../../styles/colors";
 
 const UpdateStaffForm = ({ navigation, staffData }: { navigation: any; staffData: any }) => {
+  const { user } = useContext(UserContext);
   const { webServer, tokens } = useContext(UserContext);
   const [profilePicAPIImage, setProfilePicAPIImage] = useState<string>("");
   const preferredContactOptions = [
@@ -24,31 +25,25 @@ const UpdateStaffForm = ({ navigation, staffData }: { navigation: any; staffData
     { key: "2", value: "WhatsApp" },
     { key: "3", value: "Email" },
   ];
+  const [fullStaffData, setFullStaffData] = useState(staffData || {});
 
   useEffect(() => {
-    console.log(staffData.uid);
 
     const fetchStaffData = async () => {
-      if (!staffData?.uid || !tokens?.access_token || !webServer) {
-        console.warn("Missing staff uid, access token, or API base URL for staff fetch.");
-        return;
-      }
-
       try {
-        const response = await fetch(`${webServer}/api/v1/users/${staffData.uid}`, {
+        const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/users/${staffData.uid}`, {
           headers: {
             Authorization: "Bearer " + tokens.access_token,
           },
         });
 
         const data = await response.json();
-        console.log("Fetched Staff Data:", data);
+        setFullStaffData(data.data);
 
       } catch (error) {
         console.error("Error: ", error);
       }
     };
-
     fetchStaffData();
   }, [staffData, tokens?.access_token, webServer]);
 
@@ -57,34 +52,34 @@ const UpdateStaffForm = ({ navigation, staffData }: { navigation: any; staffData
   };
 
   const handlePhoneCall = () => {
-    if (staffData?.phone) {
+    if (fullStaffData?.phone) {
       if (Platform.OS === "ios") {
         // In simulator, show alert. On real device, open phone app
-        Linking.canOpenURL(`tel:${staffData.phone}`).then(supported => {
+        Linking.canOpenURL(`tel:${fullStaffData.phone}`).then(supported => {
           if (supported) {
-            Linking.openURL(`tel:${staffData.phone}`);
+            Linking.openURL(`tel:${fullStaffData.phone}`);
           } else {
             // Simulator fallback
-            Alert.alert("📱 Phone Call", `Would call: ${staffData.phone}`, [
+            Alert.alert("📱 Phone Call", `Would call: ${fullStaffData.phone}`, [
               { text: "OK", onPress: () => { } }
             ]);
           }
         });
       } else {
-        Linking.openURL(`tel:${staffData.phone}`);
+        Linking.openURL(`tel:${fullStaffData.phone}`);
       }
     }
   };
 
   const handleWhatsApp = () => {
-    if (staffData?.whatsapp) {
-      const whatsappUrl = `https://wa.me/${staffData.whatsapp}`;
+    if (fullStaffData?.whatsapp) {
+      const whatsappUrl = `https://wa.me/${fullStaffData.whatsapp}`;
       if (Platform.OS === "ios") {
         Linking.canOpenURL(whatsappUrl).then(supported => {
           if (supported) {
             Linking.openURL(whatsappUrl);
           } else {
-            Alert.alert("💬 WhatsApp", `Would open WhatsApp for: ${staffData.whatsapp}`, [
+            Alert.alert("💬 WhatsApp", `Would open WhatsApp for: ${fullStaffData.whatsapp}`, [
               { text: "OK", onPress: () => { } }
             ]);
           }
@@ -96,12 +91,12 @@ const UpdateStaffForm = ({ navigation, staffData }: { navigation: any; staffData
   };
 
   const handleEmailPress = () => {
-    if (staffData?.email) {
-      const mailUrl = `mailto:${staffData.email}`;
+    if (fullStaffData?.email) {
+      const mailUrl = `mailto:${fullStaffData.email}`;
       if (Platform.OS === "ios") {
         Linking.openURL(mailUrl).catch(() => {
           // Fallback for simulator
-          Alert.alert("✉ Send Email", `Open email client to send mail to: ${staffData.email}`, [
+          Alert.alert("✉ Send Email", `Open email client to send mail to: ${fullStaffData.email}`, [
             { text: "OK", onPress: () => { } }
           ]);
         });
@@ -218,21 +213,21 @@ const UpdateStaffForm = ({ navigation, staffData }: { navigation: any; staffData
         Quick Contact
       </Text> */}
       <View style={{ flexDirection: "row", gap: 8, marginBottom: 24 }}>
-        {staffData?.email && <ContactButton iconName="email" label="Email" value={staffData.email} onPress={handleEmailPress} bgColor={AppColors.blue} />}
-        {staffData?.phone && <ContactButton iconName="phone" label="Call" value={staffData.phone} onPress={handlePhoneCall} bgColor="#dbeafe" />}
-        {staffData?.whatsapp && <ContactButton iconName="whatsapp" label="WhatsApp" value={staffData.whatsapp} onPress={handleWhatsApp} bgColor="#25d366" />}
+        {fullStaffData?.email && <ContactButton iconName="email" label="Email" value={fullStaffData.email} onPress={handleEmailPress} bgColor={AppColors.blue} />}
+        {fullStaffData?.phone && <ContactButton iconName="phone" label="Call" value={fullStaffData.phone} onPress={handlePhoneCall} bgColor="#dbeafe" />}
+        {fullStaffData?.whatsapp && <ContactButton iconName="whatsapp" label="WhatsApp" value={fullStaffData.whatsapp} onPress={handleWhatsApp} bgColor="#25d366" />}
       </View>
 
       {/* Divider */}
       <View style={{ marginTop: 24 }} />
 
-      <InfoField label="First Name" value={staffData?.fname} />
-      <InfoField label="Last Name" value={staffData?.lname} />
-      <InfoField label="Gender" value={staffData?.sex} />
-      <InfoField label="Phone Number" value={staffData?.phone} />
-      <InfoField label="WhatsApp" value={staffData?.whatsapp} />
-      <InfoField label="E-mail" value={staffData?.email} />
-      <InfoField label="Preferred Contact Method" value={getPreferredContactLabel(staffData?.preferred_contact)} />
+      <InfoField label="First Name" value={fullStaffData?.fname} />
+      <InfoField label="Last Name" value={fullStaffData?.lname} />
+      <InfoField label="Gender" value={fullStaffData?.sex} />
+      <InfoField label="Phone Number" value={fullStaffData?.phone} />
+      <InfoField label="WhatsApp" value={fullStaffData?.whatsapp} />
+      <InfoField label="E-mail" value={fullStaffData?.email} />
+      <InfoField label="Preferred Contact Method" value={getPreferredContactLabel(fullStaffData?.preferred_contact)} />
 
       <View style={{ height: 20 }} />
     </ScrollView>
