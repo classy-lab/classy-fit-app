@@ -246,7 +246,7 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
           body: obj || rawBody,
         });
 
-        const refreshResponse = await fetch(`${webServer}/api/refresh.php`, {
+        const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
           method: "POST",
           body: JSON.stringify({
             token: tokens.refresh_token,

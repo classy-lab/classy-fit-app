@@ -94,7 +94,7 @@ const LoginForm = () => {
       // If successful, navigate to the Login page or another desired screen
 
       const response = await fetch(
-        `${webServer}/api/login.php`,
+        `${webServer}/api/v1/login`,
         {
           method: "POST",
           body: JSON.stringify({
@@ -109,8 +109,9 @@ const LoginForm = () => {
       const obj = JSON.parse(json);
       console.log("access_token: ", obj.access_token);
       console.log("refresh_token: ", obj.refresh_token);
+      console.log("response status: ", response.status);
 
-      if (response.status == 200) {
+      if (response.status === 200) {
         setTokens(obj); // store access_token, refresh_token in app memory
         const payload = obj.access_token?.split(".");
         const userPayload = JSON.parse(atob(payload[1]));

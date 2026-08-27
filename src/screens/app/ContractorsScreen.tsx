@@ -114,7 +114,7 @@ const ContractorsScreen = ({ navigation }: { navigation: any }) => {
           else {
             console.log("Access token expired, requesting new one - useFocusEffect()");
 
-            const response = await fetch(`${webServer}/api/refresh.php`, {
+            const response = await fetch(`${webServer}/api/v1/refresh`, {
               method: "POST",
               body: JSON.stringify({
                 token: tokens.refresh_token,

@@ -153,7 +153,7 @@ const AddStaffForm = ({ navigation }: { navigation: any }) => {
       } else {
         console.log("Access token expired, requesting new one");
 
-        const response = await fetch(`${webServer}/api/refresh.php`, {
+        const response = await fetch(`${webServer}/api/v1/refresh`, {
           method: "POST",
           body: JSON.stringify({
             token: tokens.refresh_token,
@@ -180,7 +180,7 @@ const AddStaffForm = ({ navigation }: { navigation: any }) => {
     console.log("Profile deletion API initiated.");
 
     const response = await fetch(
-      `${webServer}/api/delete-profile.php`,
+      `${webServer}/api/v1/delete-profile`,
       {
         method: "DELETE",
         headers: {
@@ -211,7 +211,7 @@ const AddStaffForm = ({ navigation }: { navigation: any }) => {
     else {
       console.log("Access token expired, requesting new one - executeProfileDeletion()");
 
-      const response = await fetch(`${webServer}/api/refresh.php`, {
+      const response = await fetch(`${webServer}/api/v1/refresh`, {
         method: "POST",
         body: JSON.stringify({
           token: tokens.refresh_token,

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useContext } from "react";
-import { Alert, Button } from "react-native";
+import { Alert } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import ImagePicker from "react-native-image-crop-picker";
@@ -86,7 +86,6 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
   const [whatsappCountryCode, setWhatsappCountryCode] = useState("US");
   const [phoneDefaultValue, setPhoneDefaultValue] = useState("");
   const [whatsappDefaultValue, setWhatsappDefaultValue] = useState("");
-
   const selectImage = async (onChange: (value: any) => void) => {
     try {
       const profilePic = await ImagePicker.openPicker({
@@ -235,7 +234,7 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
           setValue("whatsappNumber", fetchedWhatsapp, { shouldDirty: false, shouldValidate: false });
           setProfilePicAPIImage(profilePicturePath ? `http://localhost:8080/classy-api/api/${profilePicturePath}` : "");
         } else {
-          const refreshResponse = await fetch(`${webServer}/api/refresh.php`, {
+          const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
             method: "POST",
             body: JSON.stringify({
               token: tokens.refresh_token,
@@ -265,7 +264,7 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
     console.log("Profile deletion API initiated.");
 
     const response = await fetch(
-      `${webServer}/api/delete-profile.php`,
+      `${webServer}/api/v1/gyms/${user?.gym_id}/users/${user?.sub}`,
       {
         method: "DELETE",
         headers: {
@@ -296,7 +295,7 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
     else {
       console.log("Access token expired, requesting new one - executeProfileDeletion()");
 
-      const response = await fetch(`${webServer}/api/refresh.php`, {
+      const response = await fetch(`${webServer}/api/v1/refresh`, {
         method: "POST",
         body: JSON.stringify({
           token: tokens.refresh_token,
@@ -364,12 +363,10 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
   };
 
   // 3. Define the submit handler
-  const updateUser = async (data: any) => {
+  const updateUser = async (data: any, userUid?: string | number) => {
     console.log('data: ' + JSON.stringify(data));
     const totalTimeElapsed = Date.now() - formLoadTime.current;
     const formData = new FormData();
-
-    console.log(data);
 
     // 1. Honeypot check
     if (website.trim() !== "") {
@@ -438,12 +435,9 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
       type: data.profilePic?.mime || data.profilePic?.type || "image/png",
       name: data.profilePic?.filename || data.profilePic?.name || "profile-photo.png",
     } as any);
-    formData.append('profileUpdate', 'true');
-
-    console.log("FormData ready for fetch:", JSON.stringify(formData));
 
     const response = await fetch(
-      `${webServer}/api/register.php`,
+      `${webServer}/api/v1/gyms/${data.gymId}/users/${user.sub}`,
       {
         method: "POST",
         headers: {
@@ -455,9 +449,11 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
 
     const json = await response.text();
     const obj = JSON.parse(json);
-    console.log(obj);
 
-    if (response.status == 200) {
+    console.log("response status: ", response.status);
+    // console.log(obj);
+
+    if (response.ok) {
       showMessage({
         message: obj?.message,
         type: "success",
@@ -467,7 +463,7 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
     } else {
       console.log("Access token expired, requesting new one - updateUser()");
 
-      const response = await fetch(`${webServer}/api/refresh.php`, {
+      const response = await fetch(`${webServer}/api/v1/refresh`, {
         method: "POST",
         body: JSON.stringify({
           token: tokens.refresh_token,
@@ -876,7 +872,7 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
         <View style={globalStyles.loginBtnContainer}>
           <TouchableOpacity
             style={globalStyles.registerBtn}
-            onPress={handleSubmit(updateUser)}
+            onPress={handleSubmit((data) => updateUser(data, user?.uid))}
           >
             <Text style={globalStyles.registerBtnText}>Save Profile</Text>
           </TouchableOpacity>
