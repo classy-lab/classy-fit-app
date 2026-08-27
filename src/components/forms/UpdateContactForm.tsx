@@ -154,13 +154,13 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
             const pictureUri = picturePath ? `${webServer}/api/${picturePath}` : "";
             const existingProfilePic = pictureUri
               ? {
-                  path: pictureUri,
-                  uri: pictureUri,
-                  filename: picturePath.split("/").pop() || "profilePic.png",
-                  mime: "image/jpeg",
-                  type: "image/jpeg",
-                  isExistingImage: true,
-                }
+                path: pictureUri,
+                uri: pictureUri,
+                filename: picturePath.split("/").pop() || "profilePic.png",
+                mime: "image/jpeg",
+                type: "image/jpeg",
+                isExistingImage: true,
+              }
               : undefined;
 
             reset({
@@ -179,7 +179,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
 
             setProfilePicAPIImage(pictureUri);
           } else {
-            const refreshResponse = await fetch(`${webServer}/api/refresh.php`, {
+            const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
               method: "POST",
               body: JSON.stringify({
                 token: tokens.refresh_token,
@@ -235,7 +235,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
     else {
       console.log("Access token expired, requesting new one");
 
-      const response = await fetch(`${webServer}/api/refresh.php`, {
+      const response = await fetch(`${webServer}/api/v1/refresh`, {
         method: "POST",
         body: JSON.stringify({
           token: tokens.refresh_token,
@@ -356,7 +356,7 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
           body: obj || rawBody,
         });
 
-        const refreshResponse = await fetch(`${webServer}/api/refresh.php`, {
+        const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
           method: "POST",
           body: JSON.stringify({
             token: tokens.refresh_token,
