@@ -17,7 +17,7 @@ import { styles } from "../../styles/registerFormStyles";
 import { AppColors } from "../../styles/colors";
 
 const UpdateStaffForm = ({ navigation, staffData }: { navigation: any; staffData: any }) => {
-  const { webServer } = useContext(UserContext);
+  const { webServer, tokens } = useContext(UserContext);
   const [profilePicAPIImage, setProfilePicAPIImage] = useState<string>("");
   const preferredContactOptions = [
     { key: "1", value: "Phone" },
@@ -29,6 +29,11 @@ const UpdateStaffForm = ({ navigation, staffData }: { navigation: any; staffData
     console.log(staffData.uid);
 
     const fetchStaffData = async () => {
+      if (!staffData?.uid || !tokens?.access_token || !webServer) {
+        console.warn("Missing staff uid, access token, or API base URL for staff fetch.");
+        return;
+      }
+
       try {
         const response = await fetch(`${webServer}/api/v1/users/${staffData.uid}`, {
           headers: {
@@ -45,7 +50,7 @@ const UpdateStaffForm = ({ navigation, staffData }: { navigation: any; staffData
     };
 
     fetchStaffData();
-  }, [staffData]);
+  }, [staffData, tokens?.access_token, webServer]);
 
   const getPreferredContactLabel = (contactValue: string) => {
     return preferredContactOptions.find((item) => [item.key, item.value].some((option) => String(option ?? "").trim().toLowerCase() === String(contactValue).trim().toLowerCase()))?.value ?? String(contactValue);
