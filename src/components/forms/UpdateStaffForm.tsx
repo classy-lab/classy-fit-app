@@ -15,6 +15,7 @@ import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityI
 import { UserContext } from "../../context/UserContext";
 import { styles } from "../../styles/registerFormStyles";
 import { AppColors } from "../../styles/colors";
+import HealthyLifestyleSvg from "../svg/HealthyLifestyleSvg";
 
 const UpdateStaffForm = ({ navigation, staffData }: { navigation: any; staffData: any }) => {
   const { user } = useContext(UserContext);
@@ -202,10 +203,10 @@ const UpdateStaffForm = ({ navigation, staffData }: { navigation: any; staffData
           )}
         </View>
         <Text style={{ fontSize: 20, marginBottom: 8, color: AppColors.blue }}>
-          {`${staffData?.fname || ""} ${staffData?.lname || ""}`.trim() || "Staff Name"}
+          {`${fullStaffData?.fname || ""} ${fullStaffData?.lname || ""}`.trim() || "Staff Name"}
         </Text>
-        <Text style={{ fontSize: 13, color: "#6b7280", marginBottom: 4 }}>{staffData?.sex ? `${staffData.sex.charAt(0).toUpperCase() + staffData.sex.slice(1)}` : "Sex not specified"}</Text>
-        <Text style={{ fontSize: 12, color: "#9ca3af", fontStyle: "italic" }}>Staff ID: {staffData?.uid}</Text>
+        <Text style={{ fontSize: 13, color: "#6b7280", marginBottom: 4 }}>{fullStaffData?.sex ? `${fullStaffData.sex.charAt(0).toUpperCase() + fullStaffData.sex.slice(1)}` : "Sex not specified"}</Text>
+        <Text style={{ fontSize: 12, color: "#9ca3af", fontStyle: "italic" }}>Staff ID: {fullStaffData?.uid}</Text>
       </View>
 
       {/* Quick Action Buttons */}
@@ -223,13 +224,15 @@ const UpdateStaffForm = ({ navigation, staffData }: { navigation: any; staffData
 
       <InfoField label="First Name" value={fullStaffData?.fname} />
       <InfoField label="Last Name" value={fullStaffData?.lname} />
-      <InfoField label="Gender" value={fullStaffData?.sex} />
+      <InfoField label="Gender" value={fullStaffData?.sex ? `${fullStaffData.sex.charAt(0).toUpperCase() + fullStaffData.sex.slice(1)}` : "Sex not specified"} />
       <InfoField label="Phone Number" value={fullStaffData?.phone} />
       <InfoField label="WhatsApp" value={fullStaffData?.whatsapp} />
       <InfoField label="E-mail" value={fullStaffData?.email} />
       <InfoField label="Preferred Contact Method" value={getPreferredContactLabel(fullStaffData?.preferred_contact)} />
 
-      <View style={{ height: 20 }} />
+      <View style={{ marginBottom: 40, alignItems: "center" }}>
+        <HealthyLifestyleSvg />
+      </View>
     </ScrollView>
   );
 };
