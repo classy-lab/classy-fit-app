@@ -14,7 +14,7 @@ const SignOut = () => {
         <TouchableOpacity onPress={async () => {
             // make an api call to logout.php sending it refresh_token and check for 200 response code from api server
             try {
-                const response = await fetch(`${webServer}/api/logout.php`, {
+                const response = await fetch(`${webServer}/api/v1/logout`, {
                     method: 'POST',
                     body: JSON.stringify({
                         token: tokens?.refresh_token,
