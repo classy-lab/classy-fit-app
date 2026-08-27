@@ -28,12 +28,11 @@ const UpdateStaffForm = ({ staffData }: { staffData: any }) => {
 
   useEffect(() => {
     setStaff(staffData || {});
-  }, [staffData]);
 
-  useEffect(() => {
     if (!staffData?.uid || !user?.gym_id || !webServer || !tokens?.access_token) {
       return;
     }
+    let isActive = true;
 
     const fetchStaffData = async () => {
       try {
@@ -45,17 +44,24 @@ const UpdateStaffForm = ({ staffData }: { staffData: any }) => {
 
         const data = await response.json();
         const fetchedStaff = data?.data;
-        setStaff((prev: any) => ({
-          ...prev,
-          ...fetchedStaff,
-        }));
+        if (isActive) {
+          setStaff((prev: any) => ({
+            ...prev,
+            ...fetchedStaff,
+          }));
+        }
 
       } catch (error) {
         console.error("Error: ", error);
       }
     };
+
     fetchStaffData();
-  }, [staffData, tokens?.access_token]);
+
+    return () => {
+      isActive = false;
+    };
+  }, [staffData, user?.gym_id, webServer, tokens?.access_token]);
 
   const getPreferredContactLabel = (contactValue: string) => {
     return preferredContactOptions.find((item) => [item.key, item.value].some((option) => String(option ?? "").trim().toLowerCase() === String(contactValue).trim().toLowerCase()))?.value ?? String(contactValue);
