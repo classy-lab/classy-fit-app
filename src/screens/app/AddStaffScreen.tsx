@@ -142,7 +142,7 @@ const AddStaffScreen = () => {
       email: "",
       password: "",
       confirmPassword: "",
-      role: normalizeRole("2"),
+      role: normalizeRole("3"),
       fname: "",
       lname: "",
       dateOfBirth: "",
@@ -372,36 +372,43 @@ const AddStaffScreen = () => {
                   name="role"
                   render={({ field: { onChange, onBlur, value, ref } }) => {
                     const selectedRole =
-                      findRoleOption(value) || findRoleOption("2");
+                      findRoleOption(value) || findRoleOption("3");
 
                     return (
-                      <SelectList
-                        ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
-                        setSelected={(selectedValue) =>
-                          onChange(normalizeRole(selectedValue))
-                        }
-                        data={roleData}
-                        save="value"
-                        placeholder="Select Category"
-                        defaultOption={
-                          selectedRole
-                            ? { key: selectedRole.key, value: selectedRole.value }
-                            : undefined
-                        }
-                        boxStyles={{
-                          borderColor: AppColors.grey,
-                          borderWidth: 1,
-                          paddingHorizontal: 8,
-                        }}
-                        dropdownStyles={{
-                          borderColor: AppColors.grey2,
-                          borderWidth: 1,
-                          marginTop: 8,
-                          backgroundColor: "white",
-                        }}
-                      // If you need to force the value from the parent (e.g., reset)
-                      // defaultOption={data.find(item => item.value === value)}
-                      />
+                      <View
+                        pointerEvents="none"
+                        accessible
+                        accessibilityState={{ disabled: true }}
+                        style={styles.disabledField}
+                      >
+                        <SelectList
+                          ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
+                          setSelected={(selectedValue) =>
+                            onChange(normalizeRole(selectedValue))
+                          }
+                          data={roleData}
+                          save="value"
+                          placeholder="Select Category"
+                          defaultOption={
+                            selectedRole
+                              ? { key: selectedRole.key, value: selectedRole.value }
+                              : undefined
+                          }
+                          boxStyles={{
+                            borderColor: AppColors.grey,
+                            borderWidth: 1,
+                            paddingHorizontal: 8,
+                          }}
+                          dropdownStyles={{
+                            borderColor: AppColors.grey2,
+                            borderWidth: 1,
+                            marginTop: 8,
+                            backgroundColor: "white",
+                          }}
+                        // If you need to force the value from the parent (e.g., reset)
+                        // defaultOption={data.find(item => item.value === value)}
+                        />
+                      </View>
                     );
                   }}
                 />
