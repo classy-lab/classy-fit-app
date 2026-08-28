@@ -1,43 +1,105 @@
-# React Native App
+# Classy Fit
 
-This repository contains code for a React Native app. It is an app that provides income for Gyms and is fun for members to use. The app contains features for authenticated gym owners, trainers and members which include membership renewals, product sales, group class registrations, private training registrations, gym earnings per category for week, month and year. It shows business expenses, can list gym equipment, shows manufacturer and repair technician contacts, and provides member notifications. For anonymous users, this app provides basic gym information such as about, contact, gym hours, login and registration screens. This app provides a clean UI that is fun to use while aiming to provide a complete solution for gym owners to run and maintain their gym businesses.
+Classy Fit is a React Native application for gym owners, trainers, and members. It supports gym operations such as memberships, products, classes, private training, earnings, expenses, equipment, contacts, and notifications, along with public gym information and authentication flows.
 
-## Getting Started
+## Technology
 
-Instructions on how to get the project up and running on a local machine for development and testing purposes.
+- React Native `0.81.5`
+- Expo `54`
+- React `19`
+- TypeScript
+- React Navigation
+- React Hook Form and Yup
 
-### Prerequisites
+## Prerequisites
 
-List any prerequisites, libraries, operating system versions, or tools needed before installation.
+- Node.js and npm
+- For iOS: macOS, Xcode, and CocoaPods
+- For Android: Android Studio and an Android emulator or device
+- Access to the Classy Fit API configured for the development environment
 
-*   List item example: `npm install npm@latest -g`
-*   List item example: Node.js (v14+)
+## Installation
 
-### Installation
+1. Clone the repository:
 
-Step-by-step instructions on how to install and set up your project.
+   ```bash
+   git clone https://github.com/classy-lab/classy-fit-app.git
+   cd classy-fit-app
+   ```
 
-1.  Clone the repository:
-    ```bash
-    git clone https://github.com
-    ```
-2.  Navigate to the project directory:
-    ```bash
-    cd your_repo_name
-    ```
-3.  Install dependencies:
-    ```bash
-    npm install
-    # or
-    yarn install
-    ```
+2. Install dependencies:
 
-## Usage
+   ```bash
+   npm install
+   ```
 
-Provide examples of how to use your project. Use code blocks to make it easy to copy and paste commands or snippets.
+   The `postinstall` script applies the required local patch for `react-native-date-picker`.
 
-```python
-import your_library
+3. Configure the API connection using the project’s existing `UserContext` configuration before running the app.
 
-# returns 'example output'
-result = your_library.some_function('input')
+## Running the app
+
+Start the Expo development server:
+
+```bash
+npm start
+```
+
+Run the web version:
+
+```bash
+npm run web
+```
+
+Run on Android:
+
+```bash
+npm run android
+```
+
+Run on the configured iOS simulator:
+
+```bash
+npm run ios
+```
+
+## Project structure
+
+```text
+src/
+├── components/     Reusable UI components and form controls
+├── context/        Shared application and authentication state
+├── navigation/     Authentication, tab, and stack navigators
+├── screens/        Authentication and application screens
+└── styles/         Shared colors and styles
+assets/             Images, icons, and SVG assets
+ios/                iOS native project
+android/            Android native project
+```
+
+## Navigation
+
+- `AuthStack` contains login, registration, and public screens.
+- `AppTabs` contains the authenticated Home, Gym, Staff, and Products tabs.
+- Feature-specific screens are registered in their corresponding stack navigator.
+
+## Development notes
+
+- Keep API requests authenticated with the access token from `UserContext`.
+- Reuse shared form schemas and components where possible.
+- Do not commit credentials, tokens, or environment-specific secrets.
+
+## Troubleshooting
+
+- If native dependencies are out of sync, reinstall JavaScript dependencies and run CocoaPods for iOS:
+
+  ```bash
+  npm install
+  cd ios && pod install && cd ..
+  ```
+
+- If the Metro bundler has stale state, restart it with:
+
+  ```bash
+  npx expo start --clear
+  ```
