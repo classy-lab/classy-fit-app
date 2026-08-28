@@ -77,8 +77,6 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: AppColors.white,
     flex: 1,
-    // justifyContent: 'flex-end',
-    // borderWidth: 1, borderColor: 'red',
     alignItems: "center",
     width: "100%",
     paddingLeft: 24,
@@ -107,7 +105,6 @@ const styles = StyleSheet.create({
     right: -40,
   },
   body: {
-    // borderWidth: 1, bordeerColor: 'red',
     flex: 1,
   },
   bodyText: {
@@ -150,12 +147,11 @@ const styles = StyleSheet.create({
   },
   selectedGym: {
     marginTop: s(8),
-    fontFamily: "Montserrat",
+    fontFamily: "Montserrat-Bold",
     fontSize: s(14),
     color: AppColors.blue,
   },
   scrollView: {
-    // borderWidth: 1, borderColor: 'red',
     flex: 1,
   },
 });
