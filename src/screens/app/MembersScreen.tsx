@@ -350,7 +350,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     columnGap: 16,
-    rowGap: 26 + 16,
+    rowGap: 42,
     justifyContent: 'space-evenly',
   },
   box: { width: 96, height: 96, },

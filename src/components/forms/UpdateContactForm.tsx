@@ -258,19 +258,19 @@ const UpdateContactForm = ({ navigation, contact }: { navigation: any; contact: 
 
   const handleDeletePress = () => {
     Alert.alert(
-      "Delete Profile", // Dialog Title
-      "Are you absolutely sure? This action is permanent and your account cannot be recovered.", // Dialog Description
+      "Delete Contact", // Dialog Title
+      "Are you sure?", // Dialog Description
       [
+        {
+          text: "Yes",
+          onPress: () => executeProfileDeletion({ tokens, webServer, contact, setTokens }),
+          style: "destructive", // Colors the font red on iOS platforms
+        },
         {
           text: "Cancel",
           onPress: () => console.log("Deletion cancelled"),
           style: "cancel", // Stylizes text as a neutral cancel action
-        },
-        {
-          text: "Delete My Account",
-          onPress: () => executeProfileDeletion({ tokens, webServer, contact, setTokens }),
-          style: "destructive", // Colors the font red on iOS platforms
-        },
+        }
       ],
       { cancelable: true }, // Allows Android users to dismiss by clicking background
     );
