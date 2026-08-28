@@ -80,7 +80,7 @@ export const schema = yup.object().shape({
       "Date must be in YYYY-MM-DD format",
     )
     .required("Date of birth is required"),
-  sex: yup.string(),
+  sex: yup.string().required("Sex is required"),
   phoneNumber: yup
     .string()
     .transform((value) => normalizePhoneValue(value))
@@ -94,7 +94,7 @@ export const schema = yup.object().shape({
       return normalizedValue === "" ? null : normalizedValue;
     })
     .matches(/^\+[1-9]\d{7,14}$/, "WhatsApp Number number is not valid"),
-  preferredContact: yup.string(),
+  preferredContact: yup.string().required("Preferred contact is required"),
   gymId: yup
     .string()
     .required("Gym location is required")
