@@ -30,6 +30,7 @@ import AddContactScreen from '../screens/app/AddContactScreen'
 import UpdateContactScreen from '../screens/app/UpdateContactScreen'
 import UpdateStaffScreen from '../screens/app/UpdateStaffScreen'
 import UpdateMemberScreen from '../screens/app/UpdateMemberScreen'
+import AddMemberScreen from '../screens/app/AddMemberScreen'
 
 const Tab = createBottomTabNavigator()
 const HomeStack = createStackNavigator()
@@ -39,7 +40,9 @@ const GymStack = createStackNavigator()
 
 function HomeStackScreen() {
   return (
-    <HomeStack.Navigator screenOptions={screenOptions}>
+    <HomeStack.Navigator
+      screenOptions={{ ...screenOptions, animationEnabled: false }}
+    >
       <HomeStack.Screen name="DashboardScreen" component={DashboardScreen} />
       <HomeStack.Screen name="EarningsScreen" component={EarningsScreen} />
       <HomeStack.Screen name="GymScreen" component={GymScreen} />
@@ -52,6 +55,7 @@ function HomeStackScreen() {
       <HomeStack.Screen name="AllEarnings" component={AllEarnings} />
       <HomeStack.Screen name="UpdateStaffScreen" component={UpdateStaffScreen} />
       <HomeStack.Screen name="UpdateMemberScreen" component={UpdateMemberScreen} />
+      <HomeStack.Screen name="AddMemberScreen" component={AddMemberScreen} />
     </HomeStack.Navigator>
   );
 }
