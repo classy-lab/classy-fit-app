@@ -47,7 +47,7 @@ const AddStaffScreen = () => {
   const navigation = useNavigation();
   const [website, setWebsite] = useState("");
   const { webServer } = useContext(UserContext);
-  const { user, setUser } = useContext(UserContext);
+  const { user, tokens, setUser } = useContext(UserContext);
 
   const selectImage = async (onChange: (value: any) => void) => {
     try {
@@ -149,9 +149,15 @@ const AddStaffScreen = () => {
       sex: '',
       phoneNumber: "",
       whatsappNumber: "",
-      gymId: "",
+      gymId: user?.gym_id ?? "",
     },
   });
+
+  useEffect(() => {
+    if (user?.gym_id) {
+      setValue("gymId", user.gym_id);
+    }
+  }, [setValue, user?.gym_id]);
 
   // Watch profilePic to display it
   const profilePicValue = watch("profilePic");
@@ -193,12 +199,15 @@ const AddStaffScreen = () => {
       name: data.profilePic?.filename || data.profilePic?.name || "profile-photo.png",
     } as any);
 
-    console.log("FormData ready for fetch:", formData);
+    // console.log("FormData ready for fetch:", formData);
 
     const response = await fetch(
-      `${webServer}/api/register.php`,
+      `${webServer}/api/v1/gyms/${user?.gym_id}/users`,
       {
         method: "POST",
+        headers: {
+          Authorization: "Bearer " + tokens.access_token,
+        },
         body: formData,
       },
     );
@@ -206,7 +215,7 @@ const AddStaffScreen = () => {
     const apiResponse = await response.json();
     console.log("apiResponse: " + JSON.stringify(apiResponse));
 
-    if (response.status == 200) {
+    if (response.status === 200 || response.status === 201) {
       showMessage({
         message: "Success",
         description:
@@ -573,15 +582,23 @@ const AddStaffScreen = () => {
               </View>
               <View style={styles.field}>
                 <Text style={styles.formLabel}>Gym Location / Fitness Center</Text>
-                <Controller
-                  control={control}
-                  name="gymId"
-                  render={({ field: { onChange, onBlur, value, ref } }) => (
-                    <GymList
-                      ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
-                      onSelectValue={onChange} />
-                  )}
-                />
+                <View
+                  pointerEvents="none"
+                  accessible
+                  accessibilityState={{ disabled: true }}
+                  style={styles.disabledField}
+                >
+                  <Controller
+                    control={control}
+                    name="gymId"
+                    render={({ field: { onChange, onBlur, value, ref } }) => (
+                      <GymList
+                        ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
+                        initialValue={user?.gym_id}
+                        onSelectValue={onChange} />
+                    )}
+                  />
+                </View>
                 {errors.gymId && (
                   <Text style={styles.errorText}>{errors.gymId.message}</Text>
                 )}
@@ -691,6 +708,9 @@ const styles = StyleSheet.create({
   },
   inputButtonPlaceholder: {
     color: AppColors.grey3,
+  },
+  disabledField: {
+    opacity: 0.6,
   },
   errorText: {
     color: AppColors.red,
