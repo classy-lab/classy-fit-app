@@ -1,14 +1,77 @@
 // @ts-nocheck
-import { ScrollView, View, TouchableOpacity, Text, StyleSheet } from 'react-native'
-import Treadmill from '../../assets/svg/Treadmill'
-import Elliptical from '../../assets/svg/Elliptical'
-import Dumbbell from '../../assets/svg/Dumbbell'
+import { View, TouchableOpacity, Text, Image, StyleSheet, ScrollView } from 'react-native'
+import Feather from '@expo/vector-icons/Feather'
 import { gymScreenStyles } from '../../styles/gymScreenStyles'
-import { useNavigation } from '@react-navigation/native'
+import { useFocusEffect, useNavigation } from '@react-navigation/native'
+import { useCallback, useContext, useState } from 'react'
 import { AppColors } from '../../styles/colors'
+import { UserContext } from '../../context/UserContext'
 
 const GymScreenScrollViewTwo = () => {
   const navigation = useNavigation<any>()
+  const { user, tokens, setTokens, webServer } = useContext(UserContext);
+  const [equipment, setEquipment] = useState([]);
+
+  useFocusEffect(
+    useCallback(() => {
+      const fetchEquipment = async () => {
+        try {
+          const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/equipment`, {
+            headers: {
+              Authorization: "Bearer " + tokens.access_token,
+            },
+          });
+
+          const obj = await response.json();
+
+          if (response.status === 200) {
+            setEquipment(obj.data ?? []);
+          }
+          else {
+            console.log("Access token expired, requesting new one - useFocusEffect()");
+
+            const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
+              method: "POST",
+              body: JSON.stringify({
+                token: tokens.refresh_token,
+              }),
+            });
+
+            const refreshObj = await refreshResponse.json();
+
+            if (refreshResponse.status === 200) {
+              console.log("Got new access token and refresh token");
+              setTokens((prev: any) => ({
+                ...prev,
+                access_token: refreshObj.access_token,
+                refresh_token: refreshObj.refresh_token,
+              }));
+            }
+          }
+        } catch (error) {
+          console.log('Failed to fetch equipment:', error);
+        }
+      };
+
+      fetchEquipment();
+    }, [tokens?.access_token, tokens?.refresh_token])
+  );
+
+  const getPrimaryImageUrl = (item) => {
+    if (!Array.isArray(item.images) || item.images.length === 0) return null;
+    const primary = item.images.find((image) => image?.is_primary);
+    return (primary || item.images[0])?.image_url ?? null;
+  };
+
+  const getShortTitle = (title, maxChars = 14) => {
+    const trimmedTitle = String(title ?? 'Untitled').trim();
+    return trimmedTitle.length > maxChars ? `${trimmedTitle.slice(0, maxChars)}...` : trimmedTitle;
+  };
+
+  const handleEquipmentPress = (item) => {
+    // EquipmentDetailScreen exists and is registered in GymStack.
+    navigation.navigate('GymTab', { screen: 'EquipmentDetailScreen', params: { equipmentId: item.uid, equipment: item } });
+  };
 
   return (
     <>
@@ -18,44 +81,35 @@ const GymScreenScrollViewTwo = () => {
           <Text style={styles.viewAllText}>View All</Text>
         </TouchableOpacity>
       </View>
-      <ScrollView
-        style={gymScreenStyles.greySquares}
-        horizontal={true}
-        showsHorizontalScrollIndicator={false}
-      >
-        <View style={gymScreenStyles.greySquareContainer}>
-          <TouchableOpacity style={gymScreenStyles.greySquare} onPress={() => navigation.navigate('GymTab', { screen: 'TreadmillEquipmentScreen' })}>
-            <View style={gymScreenStyles.whiteSquare}>
-              <Treadmill />
-            </View>
-          </TouchableOpacity>
-          <Text style={gymScreenStyles.cardText}>Treadmill</Text>
-        </View>
-        <View style={gymScreenStyles.greySquareContainer}>
-          <TouchableOpacity style={gymScreenStyles.greySquare} onPress={() => navigation.navigate('GymTab', { screen: 'TreadmillEquipmentScreen' })}>
-            <View style={gymScreenStyles.whiteSquare}>
-              <Elliptical />
-            </View>
-          </TouchableOpacity>
-          <Text style={gymScreenStyles.cardText}>Elliptical</Text>
-        </View>
-        <View style={gymScreenStyles.greySquareContainer}>
-          <TouchableOpacity style={gymScreenStyles.greySquare} onPress={() => navigation.navigate('GymTab', { screen: 'TreadmillEquipmentScreen' })}>
-            <View style={gymScreenStyles.whiteSquare}>
-              <Dumbbell />
-            </View>
-          </TouchableOpacity>
-          <Text style={gymScreenStyles.cardText}>Dumbbells</Text>
-        </View>
-        <View style={gymScreenStyles.greySquareContainer}>
-          <TouchableOpacity style={gymScreenStyles.greySquare} onPress={() => navigation.navigate('GymTab', { screen: 'TreadmillEquipmentScreen' })}>
-            <View style={gymScreenStyles.whiteSquare}>
-              <Dumbbell />
-            </View>
-          </TouchableOpacity>
-          <Text style={gymScreenStyles.cardText}>Smith {'\n'} Machine</Text>
-        </View>
-      </ScrollView>
+      <View style={gymScreenStyles.greySquares}>
+        {equipment.length === 0 ? (
+          <Text style={styles.noResultsText}>No equipment found for this gym</Text>
+        ) : (
+          <ScrollView
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+          >
+            {equipment.map((item, index) => {
+              const imageUrl = getPrimaryImageUrl(item);
+
+              return (
+                <View key={item.uid ?? index} style={gymScreenStyles.greySquareContainer}>
+                  <TouchableOpacity style={gymScreenStyles.greySquare} onPress={() => handleEquipmentPress(item)}>
+                    <View style={gymScreenStyles.whiteSquare}>
+                      {imageUrl ? (
+                        <Image style={styles.equipmentImage} source={{ uri: imageUrl }} />
+                      ) : (
+                        <Feather name="box" color={AppColors.grey2} size={28} />
+                      )}
+                    </View>
+                  </TouchableOpacity>
+                  <Text style={gymScreenStyles.cardText} numberOfLines={1} ellipsizeMode="tail">{getShortTitle(item.title)}</Text>
+                </View>
+              );
+            })}
+          </ScrollView>
+        )}
+      </View>
     </>
   )
 }
@@ -76,5 +130,14 @@ const styles = StyleSheet.create({
     color: AppColors.blue,
     fontSize: 14,
     marginBottom: 16,
+  },
+  equipmentImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 16,
+  },
+  noResultsText: {
+    color: AppColors.primary,
+    fontSize: 14,
   },
 })
