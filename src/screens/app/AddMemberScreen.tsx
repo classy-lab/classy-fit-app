@@ -1,278 +1,649 @@
 // @ts-nocheck
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, TextInput, Image, Keyboard, TouchableWithoutFeedback } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { AppColors } from '../../styles/colors'
-import { Feather, MaterialIcons } from '@expo/vector-icons'
-import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
-import SignOut from '../../components/utils/SignOut'
-import { useFocusEffect } from '@react-navigation/native'
-import * as yup from 'yup'
-import { useForm, Controller } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup'
-import { useCallback, useContext, useState } from 'react'
-import { UserContext } from '../../context/UserContext'
+import React, { useState, useEffect, useRef, useContext } from "react";
+import * as yup from "yup";
+import { useForm, Controller } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import ImagePicker from "react-native-image-crop-picker";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  TextInput,
+  Alert,
+  Linking,
+  Platform,
+  Image,
+  Button,
+  ScrollView
+} from "react-native";
+import { AppColors } from "../../styles/colors";
+import { useNavigation } from "@react-navigation/native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Feather from "@expo/vector-icons/Feather";
+import VectorImageSvg from "../../components/svg/VectorImageSvg";
+import { SelectList } from "react-native-dropdown-select-list";
+import { UserContext } from "../../context/UserContext";
+import HoneypotField from "../../../src/components/forms/input_fields/HoneypotField";
+import DateOfBirthField from "../../../src/components/forms/input_fields/DateOfBirthField";
+import GymList from "../../../src/components/GymList";
+import SignOut from "../../components/utils/SignOut";
+import {
+  findRoleOption,
+  localAvatarOptions,
+  MAX_PROFILE_PIC_BYTES,
+  MIN_SUBMISSION_TIME_MS,
+  normalizeRole,
+  roleData,
+  schema,
+  sexData,
+} from "../../../src/components/forms/ProfileScreenForm.constants";
+import FlashMessage, {
+  showMessage,
+  hideMessage,
+} from "react-native-flash-message";
+import { StyleSheet } from 'react-native'
 
-const defaultProfileImage = require("../../assets/images/avatars/profile-img.png");
-
-type StaffMember = {
-  uid?: string | number;
-  user_picture_url?: string;
-  fname?: string;
-  lname?: string;
-};
-
-const AddMemberScreen = ({ navigation }: { navigation: any }) => {
-  const { user } = useContext(UserContext);
-  const { tokens, setTokens } = useContext(UserContext);
+const AddMemberScreen = () => {
+  const navigation = useNavigation();
+  const [website, setWebsite] = useState("");
   const { webServer } = useContext(UserContext);
-  const [members, setMembers] = useState<Record<string, StaffMember>>({});
-  const [imageCacheKey, setImageCacheKey] = useState(Date.now());
-  const [failedImageKeys, setFailedImageKeys] = useState<Record<string, boolean>>({});
-  const membersList = Object.values(members);
+  const { user, tokens, setUser } = useContext(UserContext);
 
-  // 1. Define the Yup validation schema
-  const schema = yup.object().shape({
-    search: yup.string().matches(
-      /^[a-zA-Z0-9 .,]+$/,
-      'Search can only contain letters, numbers, spaces, full stops, and commas'
-    )
-  })
+  const selectImage = async (onChange: (value: any) => void) => {
+    try {
+      const profilePic = await ImagePicker.openPicker({
+        cropping: true,
+        width: 380,
+        height: 380,
+        compressImageQuality: 0.7,
+        forceJpg: true,
+        mediaType: "photo",
+      });
+
+      const filename = (profilePic.filename || profilePic.path || "").toLowerCase();
+      const isAllowedFormat = filename.endsWith(".jpg") || filename.endsWith(".jpeg") || filename.endsWith(".png");
+      const fileSize = (profilePic as any).fileSize ?? (profilePic as any).size;
+
+      if (!isAllowedFormat) {
+        Alert.alert("Unsupported Format", "Please select a JPEG or PNG image.");
+        return;
+      }
+
+      if (fileSize && fileSize > MAX_PROFILE_PIC_BYTES) {
+        Alert.alert("Image Too Large", "Please select an image that is 5 MB or less.");
+        return;
+      }
+
+      onChange({
+        ...profilePic,
+        path: profilePic.path,
+        mime: profilePic.mime,
+        filename: profilePic.filename || "gallery-photo.png",
+        fileSize,
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const selectLocalAvatar = (avatar: any, onChange: (value: any) => void) => {
+    const resolved = Image.resolveAssetSource(avatar.asset);
+    onChange({
+      uri: resolved.uri,
+      path: resolved.uri,
+      mime: "image/png",
+      filename: avatar.name,
+      type: "image/png",
+      isLocalAvatar: true,
+    });
+  };
+
+  // Use a ref to store the load time without triggering re-renders
+  const formLoadTime = useRef(Date.now());
+
+  // Reset the timer if the user navigates back to this screen
+  useEffect(() => {
+    formLoadTime.current = Date.now();
+  }, []);
+
+  const [sex, setSelected] = useState(""); // sex state lives here
+
+  const [PreferredContact, setPreferredContact] = React.useState("");
+  const preferredContactData = [
+    { key: "1", value: "Phone", disabled: false },
+    { key: "2", value: "WhatsApp" },
+    { key: "3", value: "Email" },
+  ];
+
+  const [gyms, setGyms] = useState([]);
+  const [role, setRole] = React.useState("");
+
+  // This is the "onChange" logic for GymList
+  const handleSelectionChange = (val) => {
+    setGyms(val);
+  };
+
+  const handleLinkPress = () => {
+    Linking.openURL("https://cleancodeusa.com/about.html");
+  };
 
   // 2. Initialize useForm with the Yup resolver
-  const { control, watch, handleSubmit, formState: { errors } } = useForm({
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm({
     resolver: yupResolver(schema),
+    shouldFocusError: true, // Automatically moves focus and triggers internal scrolling layout
     defaultValues: {
-      search: '',
+      profilePic: undefined,
+      email: "",
+      password: "",
+      confirmPassword: "",
+      role: normalizeRole("2"),
+      fname: "",
+      lname: "",
+      dateOfBirth: "",
+      sex: '',
+      phoneNumber: "",
+      whatsappNumber: "",
+      gymId: user?.gym_id ?? "",
     },
-  })
+  });
+
+  useEffect(() => {
+    if (user?.gym_id) {
+      setValue("gymId", user.gym_id);
+    }
+  }, [setValue, user?.gym_id]);
+
+  // Watch profilePic to display it
+  const profilePicValue = watch("profilePic");
 
   // 3. Define the submit handler
-  const onSubmit = (data: { search: string }) => {
-    // This function only runs if validation passes
-    try {
-      console.log('Search value:', data.search);
-      Keyboard.dismiss();
-    } catch (error) {
-      console.error('Search submit failed:', error);
+  const registerUser = async (data: any) => {
+    const totalTimeElapsed = Date.now() - formLoadTime.current;
+    const formData = new FormData();
+
+    console.log(data);
+
+    // 1. Honeypot check
+    if (website.trim() !== "") {
+      console.log("Submission failed", "Bot behavior detected.");
+      return;
     }
-  }
 
-  const getImageUri = (path?: string) => {
-    const trimmedPath = path?.trim();
-    if (!trimmedPath || !webServer || failedImageKeys[trimmedPath]) return '';
+    // 2. Timestamp check
+    if (totalTimeElapsed < MIN_SUBMISSION_TIME_MS) {
+      console.log("Submission failed", "Form submitted too quickly.");
+      return;
+    }
 
-    const uri = /^https?:\/\//i.test(trimmedPath)
-      ? trimmedPath
-      : `${webServer}/api/${trimmedPath.replace(/^\/?(api\/)?/, '')}`;
+    formData.append("gym_id", data.gymId);
+    formData.append("email", data.email);
+    formData.append("password", data.password);
+    formData.append("data.confirmPassword", data.confirmPassword);
+    formData.append("role", normalizeRole(data.role));
+    formData.append("fname", data.fname);
+    formData.append("lname", data.lname);
+    formData.append("date_of_birth", data.dateOfBirth);
+    formData.append("sex", data.sex);
+    formData.append("phone", data.phoneNumber);
+    formData.append("whatsapp", data.whatsappNumber);
+    formData.append("preferred_contact", data.preferredContact);
+    formData.append("profilePic", {
+      uri: data.profilePic?.path || data.profilePic?.uri,
+      type: data.profilePic?.mime || data.profilePic?.type || "image/png",
+      name: data.profilePic?.filename || data.profilePic?.name || "profile-photo.png",
+    } as any);
 
-    return `${encodeURI(uri)}${uri.includes('?') ? '&' : '?'}v=${imageCacheKey}`;
+    // console.log("FormData ready for fetch:", formData);
+
+    const response = await fetch(
+      `${webServer}/api/v1/gyms/${user?.gym_id}/users`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer " + tokens.access_token,
+        },
+        body: formData,
+      },
+    );
+
+    const apiResponse = await response.json();
+    console.log("apiResponse: " + JSON.stringify(apiResponse));
+
+    if (response.status === 200 || response.status === 201) {
+      showMessage({
+        message: "Success",
+        description:
+          apiResponse.message || "Your action was confirmed successfully!",
+        type: "success",
+        icon: "success",
+        duration: 3000,
+        // autoHide: false,
+        onPress: () => hideMessage(),
+      });
+    } else {
+      showMessage({
+        message: "Action Failed",
+        description: apiResponse.message || "Something went wrong.",
+        type: "danger", // Automatically styles background to red
+        icon: "danger",
+        autoHide: false,
+      });
+    }
   };
-
-  const searchQuery = (watch('search') || '').trim().toLowerCase();
-
-  const matchesSearch = (staff: StaffMember) => {
-    if (!searchQuery) return true; // If search query is empty, include all members
-
-    const firstName = staff.fname?.toLowerCase() || '';
-    const lastName = staff.lname?.toLowerCase() || '';
-    const fullName = `${firstName} ${lastName}`.trim();
-    const initialsName = `${firstName} ${lastName ? `${lastName[0]}.` : ''}`.trim();
-
-    return firstName.includes(searchQuery) ||
-      lastName.includes(searchQuery) ||
-      fullName.includes(searchQuery) ||
-      initialsName.includes(searchQuery);
-  };
-
-  const filteredMembers = membersList.filter(matchesSearch);
-
-  const getDisplayName = (member: StaffMember) => {
-    const fullName = `${member.fname ?? ''} ${member.lname ? member.lname[0] + '.' : ''}`.trim();
-    return fullName.length > 11 ? `${fullName.slice(0, 11)}` : fullName;
-  };
-
-  useFocusEffect(
-    useCallback(() => {
-      let isActive = true;
-
-      const fetchStaffData = async () => {
-        if (!user?.gym_id || !tokens?.access_token) {
-          if (isActive) {
-            setMembers({});
-          }
-          return;
-        }
-
-        try {
-          console.log("Fetching members data from server at ", new Date().toLocaleTimeString());
-
-          const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/members`, {
-            headers: {
-              Authorization: "Bearer " + tokens.access_token,
-            },
-          });
-
-          const json = await response.text();
-          const obj = JSON.parse(json);
-
-          if (response.status === 200) {
-            if (isActive) {
-              setMembers(obj.members);
-              setImageCacheKey(Date.now());
-            }
-          }
-          else {
-            console.log("Access token expired, requesting new one - useFocusEffect()");
-
-            const response = await fetch(`${webServer}/api/v1/refresh`, {
-              method: "POST",
-              body: JSON.stringify({
-                token: tokens.refresh_token,
-              }),
-            });
-
-            const json = await response.text();
-            const obj = JSON.parse(json);
-
-            if (response.status === 200) {
-              console.log("Got new access token and refresh token");
-              setTokens((prev: any) => ({
-                ...prev,
-                access_token: obj.access_token,
-                refresh_token: obj.refresh_token,
-              }));
-            }
-          }
-        } catch (error) {
-          console.log('Failed to fetch staff data', error);
-        }
-      };
-
-      fetchStaffData();
-
-      return () => {
-        isActive = false;
-      };
-    }, [user?.gym_id, tokens?.access_token, tokens?.refresh_token, webServer, setTokens])
-  );
 
   return (
     <>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <SafeAreaView style={styles.container}>
-          <View style={styles.navs}>
-            <Feather
-              name="arrow-left"
-              color={AppColors.blue}
-              size={36}
-              onPress={() => {
-                navigation.goBack();
-              }}
-            />
-            <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: 10 }}>
-              {/* move to separate component */}
-
-              <TouchableOpacity onPress={() => navigation.navigate('StaffTab', { screen: 'AddStaffScreen' })} style={styles.signOut}>
-                <Text style={styles.signOutText}>Add</Text>
-                <View style={styles.circle}>
-                  <MaterialIcons name="add" color={AppColors.white} size={16} />
-                </View>
-              </TouchableOpacity>
-
-              <SignOut />
-            </View>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.navs}>
+          <Feather
+            name="arrow-left"
+            color={AppColors.blue}
+            size={36}
+            onPress={() => {
+              navigation.goBack();
+            }}
+          />
+          <SignOut />
+        </View>
+        <ScrollView
+          style={styles.scrollView}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.headingContainer}>
+            <Text style={styles.title}>
+              Add User
+            </Text>
           </View>
-          <ScrollView style={styles.scrollView}
-            showsVerticalScrollIndicator={false}
-          >
-            <View style={styles.headingContainer}>
-              <Text style={styles.title}>Members</Text>
-              <PinkLeafSvg style={styles.pinkLeaf} />
-            </View>
-            <View style={styles.body}>
+          <View style={styles.body}>
 
-              <View style={styles.fieldset}>
-                <View style={styles.field}>
+            <View style={styles.fieldset}>
+              <View style={styles.field}>
+                <Controller
+                  control={control}
+                  name="profilePic"
+                  render={({ field: { onChange, value } }) => {
+                    const selectedProfilePicUri = (value as any)?.path || (value as any)?.uri || "";
+
+                    return (
+                      <View style={styles.imageContainer}>
+                        <Text style={styles.formLabel}>Profile Photo</Text>
+                        <TouchableOpacity onPress={() => selectImage(onChange)} style={styles.imagePickerButton}>
+                          {selectedProfilePicUri ? (
+                            <Image source={{ uri: selectedProfilePicUri }} style={styles.avatar} resizeMode="cover" />
+                          ) : (
+                            <Image source={require("../../assets/images/avatars/profile-img.png")} style={styles.avatar} resizeMode="cover" />
+                          )}
+                        </TouchableOpacity>
+                        <Text style={styles.helperText}>Choose a photo from your gallery or pick one of the local avatars below.</Text>
+                        <View style={styles.avatarGrid}>
+                          {localAvatarOptions.map((avatar) => (
+                            <TouchableOpacity
+                              key={avatar.key}
+                              onPress={() => selectLocalAvatar(avatar, onChange)}
+                              style={styles.avatarOption}
+                            >
+                              <Image source={avatar.asset} style={styles.avatarOptionImage} resizeMode="cover" />
+                            </TouchableOpacity>
+                          ))}
+                        </View>
+                      </View>
+                    );
+                  }}
+                />
+                {errors.profilePic && (
+                  <Text style={styles.errorText}>{errors.profilePic.message}</Text>
+                )}
+              </View>
+              <View style={styles.field}>
+                <Text style={styles.formLabel}>E-mail</Text>
+                <Controller
+                  control={control}
+                  name="email"
+                  render={({ field: { onChange, onBlur, value, ref } }) => (
+                    <TextInput
+                      ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
+                      style={styles.inputField}
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                    />
+                  )}
+                />
+                {errors.email && (
+                  <Text style={styles.errorText}>{errors.email.message}</Text>
+                )}
+              </View>
+              <View style={styles.field}>
+                <Text style={styles.formLabel}>Password</Text>
+                <Controller
+                  control={control}
+                  name="password"
+                  render={({ field: { onChange, onBlur, value, ref } }) => (
+                    <TextInput
+                      ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
+                      style={styles.inputField}
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                      keyboardType="default"
+                      secureTextEntry
+                    />
+                  )}
+                />
+                {errors.password && (
+                  <Text style={styles.errorText}>{errors.password.message}</Text>
+                )}
+              </View>
+              <View style={styles.field}>
+                <Text style={styles.formLabel}>Confirm Password</Text>
+                <Controller
+                  control={control}
+                  name="confirmPassword"
+                  render={({ field: { onChange, onBlur, value, ref } }) => (
+                    <TextInput
+                      ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
+                      style={styles.inputField}
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                      keyboardType="default"
+                      secureTextEntry
+                    />
+                  )}
+                />
+                {errors.confirmPassword && (
+                  <Text style={styles.errorText}>
+                    {errors.confirmPassword.message}
+                  </Text>
+                )}
+              </View>
+              <View style={styles.field}>
+                <Text style={styles.formLabel}>Role</Text>
+                <Controller
+                  control={control}
+                  name="role"
+                  render={({ field: { onChange, onBlur, value, ref } }) => {
+                    const selectedRole =
+                      findRoleOption(value) || findRoleOption("2");
+
+                    return (
+                      <View
+                        pointerEvents="none"
+                        accessible
+                        accessibilityState={{ disabled: true }}
+                        style={styles.disabledField}
+                      >
+                        <SelectList
+                          ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
+                          setSelected={(selectedValue) =>
+                            onChange(normalizeRole(selectedValue))
+                          }
+                          data={roleData}
+                          save="value"
+                          placeholder="Select Category"
+                          defaultOption={
+                            selectedRole
+                              ? { key: selectedRole.key, value: selectedRole.value }
+                              : undefined
+                          }
+                          boxStyles={{
+                            borderColor: AppColors.grey,
+                            borderWidth: 1,
+                            paddingHorizontal: 8,
+                          }}
+                          dropdownStyles={{
+                            borderColor: AppColors.grey2,
+                            borderWidth: 1,
+                            marginTop: 8,
+                            backgroundColor: "white",
+                          }}
+                        // If you need to force the value from the parent (e.g., reset)
+                        // defaultOption={data.find(item => item.value === value)}
+                        />
+                      </View>
+                    );
+                  }}
+                />
+                {errors.role && (
+                  <Text style={styles.errorText}>{errors.role.message}</Text>
+                )}
+              </View>
+              <View style={styles.field}>
+                <Text style={styles.formLabel}>First Name</Text>
+                <Controller
+                  control={control}
+                  name="fname"
+                  render={({ field: { onChange, onBlur, value, ref } }) => (
+                    <TextInput
+                      ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
+                      style={styles.inputField}
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                      keyboardType="default"
+                      autoCapitalize="none"
+                    />
+                  )}
+                />
+                {errors.fname && (
+                  <Text style={styles.errorText}>{errors.fname.message}</Text>
+                )}
+              </View>
+              <View style={styles.field}>
+                <Text style={styles.formLabel}>Last Name</Text>
+                <Controller
+                  control={control}
+                  name="lname"
+                  render={({ field: { onChange, onBlur, value, ref } }) => (
+                    <TextInput
+                      ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
+                      style={styles.inputField}
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                      keyboardType="default"
+                      autoCapitalize="none"
+                    />
+                  )}
+                />
+                {errors.lname && (
+                  <Text style={styles.errorText}>{errors.lname.message}</Text>
+                )}
+              </View>
+              {/* 3. Include the honeypot trap in your form */}
+              <HoneypotField value={website} onChangeText={setWebsite} />
+              <View style={styles.field}>
+                <Text style={styles.formLabel}>Date of Birth</Text>
+                <Controller
+                  control={control}
+                  name="dateOfBirth"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <DateOfBirthField
+                      value={value}
+                      onChange={onChange}
+                      onBlur={onBlur}
+                    />
+                  )}
+                />
+                {errors.dateOfBirth && (
+                  <Text style={styles.errorText}>{errors.dateOfBirth.message}</Text>
+                )}
+              </View>
+              <View style={styles.field}>
+                <Text style={styles.formLabel}>Sex</Text>
+                <Controller
+                  name="sex"
+                  control={control}
+                  render={({ field: { onChange, onBlur, value, ref } }) => (
+                    <SelectList
+                      ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
+                      setSelected={(val) => onChange(val)} // Send selection to hook-form
+                      data={sexData}
+                      save="value"
+                      placeholder="Select Category"
+                      boxStyles={{
+                        borderColor: AppColors.grey,
+                        borderWidth: 1,
+                        paddingHorizontal: 8,
+                      }}
+                      dropdownStyles={{
+                        borderColor: AppColors.grey2,
+                        borderWidth: 1,
+                        marginTop: 8,
+                        backgroundColor: "white",
+                      }}
+                    // If you need to force the value from the parent (e.g., reset)
+                    // defaultOption={data.find(item => item.value === value)}
+                    />
+                  )}
+                />
+                {errors.sex && (
+                  <Text style={styles.errorText}>{errors.sex.message}</Text>
+                )}
+              </View>
+              <View style={styles.field}>
+                <Text style={styles.formLabel}>Phone Number</Text>
+                <Controller
+                  control={control}
+                  name="phoneNumber"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                      style={styles.inputField}
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                      keyboardType="default"
+                      autoCapitalize="none"
+                      placeholder="518-555-5555"
+                    />
+                  )}
+                />
+                {errors.phoneNumber && (
+                  <Text style={styles.errorText}>{errors.phoneNumber.message}</Text>
+                )}
+              </View>
+              <View style={styles.field}>
+                <Text style={styles.formLabel}>WhatsApp Number</Text>
+                <Controller
+                  control={control}
+                  name="whatsappNumber"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                      style={styles.inputField}
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                      keyboardType="default"
+                      placeholder="518-555-5555"
+                      autoCapitalize="none"
+                    />
+                  )}
+                />
+                {errors.whatsappNumber && (
+                  <Text style={styles.errorText}>
+                    {errors.whatsappNumber.message}
+                  </Text>
+                )}
+              </View>
+              <View style={styles.field}>
+                <Text style={styles.formLabel}>Preferred Contact</Text>
+                <Controller
+                  control={control}
+                  name="preferredContact"
+                  render={({ field: { onChange, onBlur, value, ref } }) => (
+                    <SelectList
+                      ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
+                      setSelected={(val) => onChange(val)} // Send selection to hook-form
+                      data={preferredContactData}
+                      save="value"
+                      placeholder="Select Category"
+                      boxStyles={{
+                        borderColor: AppColors.grey,
+                        borderWidth: 1,
+                        paddingHorizontal: 8,
+                      }}
+                      dropdownStyles={{
+                        borderColor: AppColors.grey2,
+                        borderWidth: 1,
+                        marginTop: 8,
+                        backgroundColor: "white",
+                      }}
+                    // If you need to force the value from the parent (e.g., reset)
+                    // defaultOption={data.find(item => item.value === value)}
+                    />
+                  )}
+                />
+                {errors.preferredContact && (
+                  <Text style={styles.errorText}>
+                    {errors.preferredContact.message}
+                  </Text>
+                )}
+              </View>
+              <View style={styles.field}>
+                <Text style={styles.formLabel}>Gym Location / Fitness Center</Text>
+                <View
+                  pointerEvents="none"
+                  accessible
+                  accessibilityState={{ disabled: true }}
+                  style={styles.disabledField}
+                >
                   <Controller
                     control={control}
-                    name="search"
-                    render={({ field: { onChange, onBlur, value } }) => (
-                      <TextInput
-                        onBlur={() => {
-                          onBlur();
-                          console.log('Search value on blur:', value);
-                          handleSubmit(onSubmit)();
-                        }}
-                        onSubmitEditing={() => {
-                          Keyboard.dismiss();
-                        }}
-                        onChangeText={onChange}
-                        value={value}
-                        placeholder="Search"
-                        style={styles.inputField}
-                        keyboardType="default"
-                        returnKeyType="done"
-                        autoCapitalize="none"
-                        placeholderTextColor={AppColors.blue}
-                      />
+                    name="gymId"
+                    render={({ field: { onChange, onBlur, value, ref } }) => (
+                      <GymList
+                        ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
+                        initialValue={user?.gym_id}
+                        onSelectValue={onChange} />
                     )}
                   />
                 </View>
-                {/* Render other form inputs and their corresponding error messages */}
-                {errors.search && <Text style={styles.errorText}>{errors.search.message}</Text>}
+                {errors.gymId && (
+                  <Text style={styles.errorText}>{errors.gymId.message}</Text>
+                )}
               </View>
-
-              <View style={styles.section}>
-                <View style={styles.sectionHeading}>
-                  <Text style={styles.sectionTitle}>Members</Text>
-                  <Text style={styles.countText}>Count: {filteredMembers.length}</Text>
-                </View>
-                <View style={styles.boxes}>
-                  {filteredMembers.length === 0 ? (
-                    <Text style={styles.noResultsText}>No results found</Text>
-                  ) :
-                    (
-                      filteredMembers.map((member, index) => {
-                        const memberImageUri = getImageUri(member.user_picture_url);
-                        return (
-                          <TouchableOpacity key={index} onPress={() => navigation.navigate('UpdateMemberScreen', { member })}>
-                            <View style={styles.box}>
-                              <Image
-                                style={styles.image}
-                                source={memberImageUri ? { uri: memberImageUri } : defaultProfileImage}
-                                onError={() => {
-                                  const imagePath = member.user_picture_url?.trim();
-                                  if (!imagePath) {
-                                    return;
-                                  }
-
-                                  setFailedImageKeys((prev) => (
-                                    prev[imagePath]
-                                      ? prev
-                                      : { ...prev, [imagePath]: true }
-                                  ));
-                                }}
-                              />
-                              <Text style={styles.personName}>{getDisplayName(member)}</Text>
-                            </View>
-                          </TouchableOpacity>
-                        )
-                      })
-                    )
-                  }
-                </View>
-
+              <Text style={styles.agreement}>
+                By using Classy Fit, you agree and consent to our:{" "}
+                <Text style={styles.linkText} onPress={handleLinkPress}>
+                  Terms of Service -{" "}
+                  <Text style={styles.linkText} onPress={handleLinkPress}>
+                    Cookie Policy -{" "}
+                  </Text>
+                  <Text style={styles.linkText} onPress={handleLinkPress}>
+                    Privacy Policy
+                  </Text>
+                </Text>
+              </Text>
+              <View style={styles.loginBtnContainer}>
+                <TouchableOpacity
+                  style={styles.loginBtn}
+                  title="loginSubmit"
+                  onPress={handleSubmit(registerUser)}
+                >
+                  <Text style={styles.loginBtnText}>Create Account</Text>
+                </TouchableOpacity>
               </View>
-
             </View>
-          </ScrollView>
-        </SafeAreaView>
-      </TouchableWithoutFeedback>
-    </>
-  )
-}
 
-export default AddMemberScreen
+          </View>
+          <View style={styles.imageContainer}>
+            <VectorImageSvg />
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </>
+  );
+};
+
+export default AddMemberScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -282,108 +653,138 @@ const styles = StyleSheet.create({
     paddingRight: 24,
   },
   navs: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   headingContainer: {
-    alignItems: 'center',
-    marginBottom: 20
+    alignItems: "center",
   },
   title: {
     color: AppColors.blue,
+    fontFamily: "Montserrat",
     fontSize: 32,
-    marginTop: 20,
-    marginBottom: 40,
+    marginTop: 40,
+    // marginBottom: 40,
     width: 320,
     textAlign: "center",
   },
   pinkLeaf: {
-    position: "absolute",
+    position: "relative",
     zIndex: -1,
-    right: 96,
+    top: -68,
+    right: -40,
   },
   body: {
     flex: 1,
   },
   bodyText: {
     fontSize: 16,
+    fontFamily: "Montserrat",
     lineHeight: 24,
     color: AppColors.primary,
   },
-  signOut: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  fieldset: {
+    marginBottom: 32,
   },
-  signOutText: {
-    marginLeft: 10,
-    marginRight: 4,
-    color: AppColors.blue,
-    fontSize: 14
+  formLabel: {
+    fontSize: 12,
+    marginTop: 16,
+    marginBottom: 4,
+  },
+  inputField: {
+    marginTop: 5,
+    borderWidth: 1,
+    paddingLeft: 8,
+    borderColor: AppColors.textInputBorderColor,
+    height: 48,
+    borderRadius: 8,
+    backgroundColor: AppColors.grey,
+  },
+  inputButton: {
+    marginTop: 5,
+    borderWidth: 1,
+    paddingHorizontal: 8,
+    borderColor: AppColors.textInputBorderColor,
+    height: 48,
+    borderRadius: 8,
+    backgroundColor: AppColors.grey,
+    justifyContent: "center",
+  },
+  inputButtonText: {
+    color: AppColors.primary,
+  },
+  inputButtonPlaceholder: {
+    color: AppColors.grey3,
+  },
+  disabledField: {
+    opacity: 0.6,
   },
   errorText: {
     color: AppColors.red,
-    // marginTop: 8
   },
-  fieldset: {},
-  field: {
-    flexGrow: 1
+  imageContainer: {
+    alignItems: "center",
+    marginBottom: 20
   },
-  inputField: {
-    borderWidth: 1,
-    borderColor: AppColors.textInputBorderColor,
-    backgroundColor: AppColors.grey,
-    paddingLeft: 22,
-    height: 48,
-    borderRadius: 8,
-    color: AppColors.blue,
-    fontFamily: "Montserrat",
-    fontSize: 16,
+  imagePickerButton: {
+    // marginTop: 4,
   },
-  section: {
-    marginTop: 24,
-    marginBottom: 32
-  },
-  sectionTitle: {
-    fontSize: 24,
-  },
-  boxes: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    columnGap: 16,
-    rowGap: 42,
-    justifyContent: 'space-evenly',
-  },
-  box: { width: 96, height: 96, },
-  image: {
-    marginTop: 16,
+  avatar: {
     width: 96,
     height: 96,
-    borderRadius: 16
+    borderRadius: 20,
+    borderColor: AppColors.grey2,
   },
-  personName: {
-    marginTop: 10,
-    textAlign: 'center'
+  helperText: {
+    fontSize: 12,
+    color: AppColors.grey2,
+    textAlign: "center",
+    marginTop: 8,
+    marginBottom: 8,
   },
-  noResultsText: {
-    marginTop: 12,
-    color: AppColors.primary,
+  avatarGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    gap: 8,
+  },
+  avatarOption: {
+    margin: 1,
+  },
+  avatarOptionImage: {
+    width: 48,
+    height: 48,
+    // borderRadius: 28,
+    // borderWidth: 1,
+    borderColor: AppColors.grey2,
+  },
+  loginBtnContainer: {
+    alignItems: "center",
+    marginTop: 16,
+  },
+  loginBtn: {
+    backgroundColor: AppColors.blue,
+    borderRadius: 40,
+    width: 250,
+    height: 50,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loginBtnText: {
+    color: AppColors.white,
     fontSize: 14,
   },
-  circle: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: AppColors.blue,
-    justifyContent: 'center',
-    alignItems: 'center',
+  selectList: {
+    marginBottom: 80,
   },
-  sectionHeading: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  agreement: {
+    fontSize: 12,
+    marginTop: 20,
+    lineHeight: 24,
   },
-  countText: {
-    color: AppColors.blue
+  linkText: {
+    fontSize: 12,
+    color: AppColors.blue,
   },
-})
+  field: {},
+});
