@@ -13,7 +13,7 @@ const GymScreenScrollViewTwo = () => {
   return (
     <>
       <View style={styles.sectionHeading}>
-        <Text style={gymScreenStyles.sectionTitle}>Equipment</Text>
+        <Text style={[gymScreenStyles.sectionTitle, styles.sectionTitle]}>Equipment</Text>
         <TouchableOpacity onPress={() => navigation.navigate('GymTab', { screen: 'GymEquipmentScreen' })}>
           <Text style={styles.viewAllText}>View All</Text>
         </TouchableOpacity>
@@ -68,8 +68,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  sectionTitle: {
+    width: 'auto',
+    flexShrink: 1,
+  },
   viewAllText: {
     color: AppColors.blue,
     fontSize: 14,
+    marginBottom: 16,
   },
 })
