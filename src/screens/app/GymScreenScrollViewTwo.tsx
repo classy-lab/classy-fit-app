@@ -1,17 +1,23 @@
 // @ts-nocheck
-import { ScrollView, View, TouchableOpacity, Text } from 'react-native'
+import { ScrollView, View, TouchableOpacity, Text, StyleSheet } from 'react-native'
 import Treadmill from '../../assets/svg/Treadmill'
 import Elliptical from '../../assets/svg/Elliptical'
 import Dumbbell from '../../assets/svg/Dumbbell'
 import { gymScreenStyles } from '../../styles/gymScreenStyles'
 import { useNavigation } from '@react-navigation/native'
+import { AppColors } from '../../styles/colors'
 
 const GymScreenScrollViewTwo = () => {
   const navigation = useNavigation<any>()
 
   return (
     <>
-      <Text style={gymScreenStyles.sectionTitle}>Equipment</Text>
+      <View style={styles.sectionHeading}>
+        <Text style={gymScreenStyles.sectionTitle}>Equipment</Text>
+        <TouchableOpacity onPress={() => navigation.navigate('GymTab', { screen: 'GymEquipmentScreen' })}>
+          <Text style={styles.viewAllText}>View All</Text>
+        </TouchableOpacity>
+      </View>
       <ScrollView
         style={gymScreenStyles.greySquares}
         horizontal={true}
@@ -55,3 +61,15 @@ const GymScreenScrollViewTwo = () => {
 }
 
 export default GymScreenScrollViewTwo
+
+const styles = StyleSheet.create({
+  sectionHeading: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  viewAllText: {
+    color: AppColors.blue,
+    fontSize: 14,
+  },
+})
