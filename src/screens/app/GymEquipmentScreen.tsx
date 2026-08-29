@@ -9,17 +9,22 @@ import { useFocusEffect } from '@react-navigation/native'
 import { useCallback, useContext, useState } from 'react'
 import { UserContext } from '../../context/UserContext'
 
+type EquipmentImage = {
+  image_url?: string;
+  is_primary?: boolean | number;
+};
+
 type Equipment = {
-  eid?: string | number;
+  uid?: string | number;
   title?: string;
-  primaryImageURL?: string;
+  images?: EquipmentImage[];
   brand?: string;
   model?: string;
-  category?: string;
+  equipment_category_name?: string;
   quantity?: string | number;
   location?: string;
   status?: string;
-  condition?: string;
+  equipment_condition?: string;
 };
 
 const GymEquipmentScreen = ({ navigation }: { navigation: any }) => {
@@ -84,13 +89,19 @@ const GymEquipmentScreen = ({ navigation }: { navigation: any }) => {
     }, [tokens?.access_token, tokens?.refresh_token])
   );
 
+  const getPrimaryImageUrl = (item: Equipment) => {
+    if (!Array.isArray(item.images) || item.images.length === 0) return null;
+    const primary = item.images.find((image) => image?.is_primary);
+    return (primary || item.images[0])?.image_url ?? null;
+  };
+
   const handleEquipmentPress = (item: Equipment) => {
     // EquipmentDetailScreen has not been built yet. Guard the navigation so this
     // handler is ready to use as soon as that screen/route is registered.
     const availableRoutes = navigation.getState?.()?.routeNames ?? [];
 
     if (availableRoutes.includes('EquipmentDetailScreen')) {
-      navigation.navigate('EquipmentDetailScreen', { equipment: item });
+      navigation.navigate('EquipmentDetailScreen', { equipmentId: item.uid, equipment: item });
     } else {
       console.log('EquipmentDetailScreen route is not registered yet. Tapped equipment:', item);
     }
@@ -133,10 +144,10 @@ const GymEquipmentScreen = ({ navigation }: { navigation: any }) => {
               ) : (
                 <View style={styles.cards}>
                   {equipment.map((item, index) => (
-                    <TouchableOpacity key={item.eid ?? index} onPress={() => handleEquipmentPress(item)}>
+                    <TouchableOpacity key={item.uid ?? index} onPress={() => handleEquipmentPress(item)}>
                       <View style={styles.card}>
-                        {item.primaryImageURL ? (
-                          <Image style={styles.image} source={{ uri: item.primaryImageURL }} />
+                        {getPrimaryImageUrl(item) ? (
+                          <Image style={styles.image} source={{ uri: getPrimaryImageUrl(item) }} />
                         ) : (
                           <View style={styles.imagePlaceholder}>
                             <Feather name="image" color={AppColors.grey2} size={28} />
@@ -149,7 +160,7 @@ const GymEquipmentScreen = ({ navigation }: { navigation: any }) => {
                           </Text>
                           <View style={styles.detailRow}>
                             <Text style={styles.detailLabel}>Category:</Text>
-                            <Text style={styles.detailValue}>{item.category ?? '—'}</Text>
+                            <Text style={styles.detailValue}>{item.equipment_category_name ?? '—'}</Text>
                           </View>
                           <View style={styles.detailRow}>
                             <Text style={styles.detailLabel}>Quantity:</Text>
@@ -161,7 +172,7 @@ const GymEquipmentScreen = ({ navigation }: { navigation: any }) => {
                           </View>
                           <View style={styles.detailRow}>
                             <Text style={styles.detailLabel}>Condition:</Text>
-                            <Text style={styles.detailValue}>{item.condition ?? '—'}</Text>
+                            <Text style={styles.detailValue}>{item.equipment_condition ?? '—'}</Text>
                           </View>
                           <View style={styles.statusBadge}>
                             <Text style={styles.statusBadgeText}>{item.status ?? 'Unknown'}</Text>
