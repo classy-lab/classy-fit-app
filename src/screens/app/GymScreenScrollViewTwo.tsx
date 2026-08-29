@@ -1,6 +1,6 @@
 // @ts-nocheck
-import { View, TouchableOpacity, Text, Image, StyleSheet, ScrollView } from 'react-native'
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
+import { View, TouchableOpacity, Text, StyleSheet, ScrollView } from 'react-native'
+import Ionicons from '@expo/vector-icons/Ionicons'
 import { gymScreenStyles } from '../../styles/gymScreenStyles'
 import { useFocusEffect, useNavigation } from '@react-navigation/native'
 import { useCallback, useContext, useState } from 'react'
@@ -57,12 +57,6 @@ const GymScreenScrollViewTwo = () => {
     }, [tokens?.access_token, tokens?.refresh_token])
   );
 
-  const getPrimaryImageUrl = (item) => {
-    const images = Array.isArray(item.images) ? item.images : [];
-    const primary = images.find((image) => image?.is_primary) ?? images[0];
-    return primary?.image_url?.trim() || null;
-  };
-
   const getShortTitle = (title, maxChars = 14) => {
     const trimmedTitle = String(title ?? 'Untitled').trim();
     return trimmedTitle.length > maxChars ? `${trimmedTitle.slice(0, maxChars)}...` : trimmedTitle;
@@ -90,17 +84,11 @@ const GymScreenScrollViewTwo = () => {
             showsHorizontalScrollIndicator={false}
           >
             {equipment.map((item, index) => {
-              const imageUrl = getPrimaryImageUrl(item);
-
               return (
                 <View key={item.uid ?? index} style={gymScreenStyles.greySquareContainer}>
                   <TouchableOpacity style={gymScreenStyles.greySquare} onPress={() => handleEquipmentPress(item)}>
                     <View style={gymScreenStyles.whiteSquare}>
-                      {imageUrl ? (
-                        <Image style={styles.equipmentImage} source={{ uri: imageUrl }} />
-                      ) : (
-                        <MaterialCommunityIcons name="dumbbell" color={AppColors.grey2} size={28} />
-                      )}
+                      <Ionicons name="barbell-outline" color={AppColors.blue} size={28} />
                     </View>
                   </TouchableOpacity>
                   <Text style={gymScreenStyles.cardText} numberOfLines={1} ellipsizeMode="tail">{getShortTitle(item.title)}</Text>
@@ -130,11 +118,6 @@ const styles = StyleSheet.create({
     color: AppColors.blue,
     fontSize: 14,
     marginBottom: 16,
-  },
-  equipmentImage: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 16,
   },
   noResultsText: {
     color: AppColors.primary,
