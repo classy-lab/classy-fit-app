@@ -58,9 +58,9 @@ const GymScreenScrollViewTwo = () => {
   );
 
   const getPrimaryImageUrl = (item) => {
-    if (!Array.isArray(item.images) || item.images.length === 0) return null;
-    const primary = item.images.find((image) => image?.is_primary);
-    return (primary || item.images[0])?.image_url ?? null;
+    const images = Array.isArray(item.images) ? item.images : [];
+    const primary = images.find((image) => image?.is_primary) ?? images[0];
+    return primary?.image_url ?? null;
   };
 
   const getShortTitle = (title, maxChars = 14) => {
