@@ -24,6 +24,8 @@ import EditProductScreen from '../screens/app/EditProductScreen'
 import ViewCartScreen from '../screens/app/ViewCartScreen'
 import ThankYouScreen from '../screens/app/ThankYouScreen'
 import TreadmillEquipmentScreen from '../screens/app/TreadmillEquipmentScreen'
+import GymEquipmentScreen from '../screens/app/GymEquipmentScreen'
+import EquipmentDetailScreen from '../screens/app/EquipmentDetailScreen'
 import AllEarnings from '../screens/app/AllEarnings'
 import AddStaffScreen from '../screens/app/AddStaffScreen'
 import AddContactScreen from '../screens/app/AddContactScreen'
@@ -64,6 +66,8 @@ function GymStackScreen() {
   return (
     <GymStack.Navigator screenOptions={screenOptions}>
       <GymStack.Screen name="GymScreen" component={GymScreen} />
+      <GymStack.Screen name="GymEquipmentScreen" component={GymEquipmentScreen} />
+      <GymStack.Screen name="EquipmentDetailScreen" component={EquipmentDetailScreen} />
       <GymStack.Screen name="TreadmillEquipmentScreen" component={TreadmillEquipmentScreen} />
     </GymStack.Navigator>
   )
