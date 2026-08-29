@@ -10,7 +10,7 @@ const EquipmentDetailScreen = ({ navigation, route }) => {
   const { user } = useContext(UserContext);
   const { tokens, setTokens } = useContext(UserContext);
   const { webServer } = useContext(UserContext);
-  const equipmentId = route?.params?.equipment?.eid ?? route?.params?.equipmentId;
+  const equipmentId = route?.params?.equipmentId ?? route?.params?.equipment?.uid;
   const [equipment, setEquipment] = useState(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -100,7 +100,7 @@ const EquipmentDetailScreen = ({ navigation, route }) => {
   const selectedImage = orderedImages[selectedImageIndex]?.image_url || orderedImages[0]?.image_url || null;
 
   const detailRows = [
-    { label: 'Category', value: equipment?.category },
+    { label: 'Category', value: equipment?.equipment_category_name },
     { label: 'Brand', value: equipment?.brand },
     { label: 'Model', value: equipment?.model },
     { label: 'Quantity', value: equipment?.quantity },
@@ -112,8 +112,8 @@ const EquipmentDetailScreen = ({ navigation, route }) => {
     { label: 'Purchase Price', value: equipment?.purchase_price },
     { label: 'Warranty Expiration', value: equipment?.warranty_expiration_date },
     { label: 'Status', value: equipment?.status },
-    { label: 'Condition', value: equipment?.condition },
-    { label: 'Maintenance Interval', value: equipment?.maintenance_interval },
+    { label: 'Condition', value: equipment?.equipment_condition },
+    { label: 'Maintenance Interval', value: equipment?.maintenance_interval_days ? `${equipment.maintenance_interval_days} days` : null },
   ].filter((row) => row.value !== null && row.value !== undefined && row.value !== '');
 
   return (
