@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { View, TouchableOpacity, Text, Image, StyleSheet, ScrollView } from 'react-native'
-import Feather from '@expo/vector-icons/Feather'
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { gymScreenStyles } from '../../styles/gymScreenStyles'
 import { useFocusEffect, useNavigation } from '@react-navigation/native'
 import { useCallback, useContext, useState } from 'react'
@@ -60,7 +60,7 @@ const GymScreenScrollViewTwo = () => {
   const getPrimaryImageUrl = (item) => {
     const images = Array.isArray(item.images) ? item.images : [];
     const primary = images.find((image) => image?.is_primary) ?? images[0];
-    return primary?.image_url ?? null;
+    return primary?.image_url?.trim() || null;
   };
 
   const getShortTitle = (title, maxChars = 14) => {
@@ -99,7 +99,7 @@ const GymScreenScrollViewTwo = () => {
                       {imageUrl ? (
                         <Image style={styles.equipmentImage} source={{ uri: imageUrl }} />
                       ) : (
-                        <Feather name="box" color={AppColors.grey2} size={28} />
+                        <MaterialCommunityIcons name="dumbbell" color={AppColors.grey2} size={28} />
                       )}
                     </View>
                   </TouchableOpacity>
