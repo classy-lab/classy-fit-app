@@ -90,9 +90,9 @@ const GymEquipmentScreen = ({ navigation }: { navigation: any }) => {
   );
 
   const getPrimaryImageUrl = (item: Equipment) => {
-    if (!Array.isArray(item.images) || item.images.length === 0) return null;
-    const primary = item.images.find((image) => image?.is_primary);
-    return (primary || item.images[0])?.image_url ?? null;
+    const images = item.images ?? [];
+    const primary = images.find((image) => image?.is_primary) ?? images[0];
+    return primary?.image_url ?? null;
   };
 
   const handleEquipmentPress = (item: Equipment) => {
@@ -143,44 +143,44 @@ const GymEquipmentScreen = ({ navigation }: { navigation: any }) => {
                 <Text style={styles.noResultsText}>No equipment found for this gym</Text>
               ) : (
                 <View style={styles.cards}>
-                  {equipment.map((item, index) => (
-                    <TouchableOpacity key={item.uid ?? index} onPress={() => handleEquipmentPress(item)}>
-                      <View style={styles.card}>
-                        {getPrimaryImageUrl(item) ? (
-                          <Image style={styles.image} source={{ uri: getPrimaryImageUrl(item) }} />
-                        ) : (
-                          <View style={styles.imagePlaceholder}>
-                            <Feather name="image" color={AppColors.grey2} size={28} />
-                          </View>
-                        )}
-                        <View style={styles.cardContent}>
-                          <Text style={styles.equipmentTitle} numberOfLines={1} ellipsizeMode="tail">{item.title ?? 'Untitled Equipment'}</Text>
-                          <Text style={styles.equipmentSubtitle} numberOfLines={1} ellipsizeMode="tail">
-                            {[item.brand, item.model].filter(Boolean).join(' • ')}
-                          </Text>
-                          <View style={styles.detailRow}>
-                            <Text style={styles.detailLabel}>Category:</Text>
-                            <Text style={styles.detailValue}>{item.equipment_category_name ?? '—'}</Text>
-                          </View>
-                          <View style={styles.detailRow}>
-                            <Text style={styles.detailLabel}>Quantity:</Text>
-                            <Text style={styles.detailValue}>{item.quantity ?? '—'}</Text>
-                          </View>
-                          <View style={styles.detailRow}>
-                            <Text style={styles.detailLabel}>Location:</Text>
-                            <Text style={styles.detailValue}>{item.location ?? '—'}</Text>
-                          </View>
-                          <View style={styles.detailRow}>
-                            <Text style={styles.detailLabel}>Condition:</Text>
-                            <Text style={styles.detailValue}>{item.equipment_condition ?? '—'}</Text>
-                          </View>
-                          <View style={styles.statusBadge}>
-                            <Text style={styles.statusBadgeText}>{item.status ?? 'Unknown'}</Text>
+                  {equipment.map((item, index) => {
+                    const imageUrl = getPrimaryImageUrl(item);
+                    const detailRows = [
+                      { label: 'Category', value: item.equipment_category_name },
+                      { label: 'Quantity', value: item.quantity },
+                      { label: 'Location', value: item.location },
+                      { label: 'Condition', value: item.equipment_condition },
+                    ];
+
+                    return (
+                      <TouchableOpacity key={item.uid ?? index} onPress={() => handleEquipmentPress(item)}>
+                        <View style={styles.card}>
+                          {imageUrl ? (
+                            <Image style={styles.image} source={{ uri: imageUrl }} />
+                          ) : (
+                            <View style={styles.imagePlaceholder}>
+                              <Feather name="image" color={AppColors.grey2} size={28} />
+                            </View>
+                          )}
+                          <View style={styles.cardContent}>
+                            <Text style={styles.equipmentTitle} numberOfLines={1} ellipsizeMode="tail">{item.title ?? 'Untitled Equipment'}</Text>
+                            <Text style={styles.equipmentSubtitle} numberOfLines={1} ellipsizeMode="tail">
+                              {[item.brand, item.model].filter(Boolean).join(' • ')}
+                            </Text>
+                            {detailRows.map((row) => (
+                              <View key={row.label} style={styles.detailRow}>
+                                <Text style={styles.detailLabel}>{row.label}:</Text>
+                                <Text style={styles.detailValue}>{row.value ?? '—'}</Text>
+                              </View>
+                            ))}
+                            <View style={styles.statusBadge}>
+                              <Text style={styles.statusBadgeText}>{item.status ?? 'Unknown'}</Text>
+                            </View>
                           </View>
                         </View>
-                      </View>
-                    </TouchableOpacity>
-                  ))}
+                      </TouchableOpacity>
+                    );
+                  })}
                 </View>
               )}
             </View>
