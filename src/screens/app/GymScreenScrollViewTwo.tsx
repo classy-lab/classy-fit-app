@@ -70,10 +70,15 @@ const GymScreenScrollViewTwo = () => {
   return (
     <>
       <View style={styles.sectionHeading}>
-        <Text style={[gymScreenStyles.sectionTitle, styles.sectionTitle]}>Equipment</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('GymTab', { screen: 'GymEquipmentScreen' })}>
-          <Text style={styles.viewAllText}>View All</Text>
-        </TouchableOpacity>
+        <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', columnGap: 12, justifyContent: 'flex-end' }}>
+          <Text style={[gymScreenStyles.sectionTitle, styles.sectionTitle]}>Equipment</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('GymTab', { screen: 'GymEquipmentScreen' })}>
+            <Text style={styles.viewAllText}>View All</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('GymTab', { screen: 'AddEquipmentScreen' })}>
+            <Text style={styles.viewAllText}>Add Equipment</Text>
+          </TouchableOpacity>
+        </View>
       </View>
       <View style={gymScreenStyles.greySquares}>
         {equipment.length === 0 ? (
