@@ -156,7 +156,7 @@ const GymEquipmentScreen = ({ navigation }: { navigation: any }) => {
                       <TouchableOpacity key={item.uid ?? index} onPress={() => handleEquipmentPress(item)}>
                         <View style={styles.card}>
                           {imageUrl ? (
-                            <Image style={styles.image} source={{ uri: imageUrl }} />
+                            <Image style={styles.image} source={{ uri: `${webServer}` + '/api/' + imageUrl }} />
                           ) : (
                             <View style={styles.imagePlaceholder}>
                               <Feather name="image" color={AppColors.grey2} size={28} />
