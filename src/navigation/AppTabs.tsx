@@ -33,6 +33,7 @@ import UpdateContactScreen from '../screens/app/UpdateContactScreen'
 import UpdateStaffScreen from '../screens/app/UpdateStaffScreen'
 import UpdateMemberScreen from '../screens/app/UpdateMemberScreen'
 import AddMemberScreen from '../screens/app/AddMemberScreen'
+import AddEquipmentScreen from '../screens/app/AddEquipmentScreen'
 
 const Tab = createBottomTabNavigator()
 const HomeStack = createStackNavigator()
@@ -69,6 +70,7 @@ function GymStackScreen() {
       <GymStack.Screen name="GymEquipmentScreen" component={GymEquipmentScreen} />
       <GymStack.Screen name="EquipmentDetailScreen" component={EquipmentDetailScreen} />
       <GymStack.Screen name="TreadmillEquipmentScreen" component={TreadmillEquipmentScreen} />
+      <GymStack.Screen name="AddEquipmentScreen" component={AddEquipmentScreen} />
     </GymStack.Navigator>
   )
 }
