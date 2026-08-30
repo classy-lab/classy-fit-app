@@ -51,34 +51,65 @@ const nullableNonNegativeNumber = (label: string) =>
 const addEquipmentSchema = yup.object({
   equipment_category_uid: nullablePositiveNumber('Category UID'),
   title: yup.string().trim().required('Title is required'),
-  description: yup.string().nullable(),
-  brand: yup.string().nullable(),
-  model: yup.string().nullable(),
+  description: yup
+    .string()
+    .trim()
+    .required("Description is required")
+    .test(
+      "not-empty-html",
+      "Description is required",
+      (value) => {
+        if (!value) return false;
+
+        // Strip HTML tags and &nbsp; so an empty RichEditor
+        // value such as <p><br></p> does not pass validation.
+        const plainText = value
+          .replace(/<[^>]*>/g, "")
+          .replace(/&nbsp;/g, " ")
+          .trim();
+
+        return plainText.length > 0;
+      }
+    ),
+  brand: yup.string().trim().required("Brand is required").nullable(),
+  model: yup.string().trim()
+    .required("Model is required").nullable(),
   serial_number: yup.string().nullable(),
   asset_tag: yup.string().nullable(),
   quantity: yup
     .string()
-    .required('Quantity is required')
-    .test('positive-integer', 'Quantity must be at least 1', (value) => {
-      const numberValue = Number(value)
-      return Number.isInteger(numberValue) && numberValue >= 1
-    }),
+    .required("Quantity is required")
+    .test(
+      "positive-integer",
+      "Quantity must be at least 1",
+      (value) => {
+        if (!value) return false;
+        const quantity = Number(value);
+        return Number.isInteger(quantity) && quantity >= 1;
+      }
+    ),
   color: yup.string().nullable(),
-  location: yup.string().nullable(),
+  location: yup
+    .string()
+    .trim()
+    .required("Location is required"),
   purchase_date: yup.string().nullable(),
   purchase_price: nullableNonNegativeNumber('Purchase price'),
   warranty_expiration_date: yup.string().nullable(),
   status: yup
     .string()
-    .required('Status is required')
-    .oneOf(STATUS_VALUES, 'Invalid equipment status'),
+    .oneOf(
+      ["active", "maintenance", "out_of_service", "retired"],
+      "Invalid status"
+    )
+    .required("Status is required"),
   equipment_condition: yup
     .string()
-    .nullable()
-    .test('valid-condition', 'Invalid equipment condition', (value) => {
-      if (value == null || String(value).trim() === '') return true
-      return CONDITION_VALUES.includes(String(value).trim().toLowerCase())
-    }),
+    .oneOf(
+      ["excellent", "good", "fair", "poor"],
+      "Invalid equipment condition"
+    )
+    .required("Condition is required"),
   maintenance_interval_days: nullablePositiveNumber('Maintenance interval'),
   notes: yup.string().nullable(),
 })
