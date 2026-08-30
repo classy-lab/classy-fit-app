@@ -154,7 +154,7 @@ const EquipmentDetailScreen = ({ navigation, route }) => {
                   {selectedImage ? (
                     <Image
                       style={styles.heroImage}
-                      source={{ uri: selectedImage }}
+                      source={{ uri: `${webServer}` + '/api/' + selectedImage }}
                       resizeMode="cover"
                     />
                   ) : (
@@ -172,7 +172,7 @@ const EquipmentDetailScreen = ({ navigation, route }) => {
                             styles.thumbnail,
                             selectedImageIndex === index && styles.selectedThumbnail,
                           ]}
-                          source={{ uri: image?.image_url || null }}
+                          source={{ uri: `${webServer}` + '/api/' + image?.image_url || null }}
                           resizeMode="cover"
                         />
                       </TouchableOpacity>
