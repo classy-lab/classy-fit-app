@@ -33,50 +33,50 @@ const ProductDetailScreen = ({ navigation, route }) => {
 
   useFocusEffect(
     useCallback(() => {
-    const fetchProduct = async () => {
-      try {                           // http://localhost:8080/classy-api/api/v1/gyms/1/products/5
-        if (!productId) {
-          return;
-        }
+      const fetchProduct = async () => {
+        try {                           // http://localhost:8080/classy-api/api/v1/gyms/1/products/5
+          if (!productId) {
+            return;
+          }
 
-        const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/products/${productId}`, {
-          headers: {
-            Authorization: "Bearer " + tokens.access_token,
-          },
-        });
-
-        const data = await response.json();
-
-        if (response.status === 200) {
-          setProduct(data.data);
-          setSelectedImageIndex(0);
-        }
-        else {
-          console.log("Access token expired, requesting new one - useFocusEffect()");
-
-          const response = await fetch(`${webServer}/api/v1/refresh`, {
-            method: "POST",
-            body: JSON.stringify({
-              token: tokens.refresh_token,
-            }),
+          const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/products/${productId}`, {
+            headers: {
+              Authorization: "Bearer " + tokens.access_token,
+            },
           });
 
-          const obj = await response.json();
+          const data = await response.json();
 
           if (response.status === 200) {
-            console.log("Got new access token and refresh token");
-            setTokens((prev: any) => ({
-              ...prev,
-              access_token: obj.access_token,
-              refresh_token: obj.refresh_token,
-            }));
+            setProduct(data.data);
+            setSelectedImageIndex(0);
           }
+          else {
+            console.log("Access token expired, requesting new one - useFocusEffect()");
+
+            const response = await fetch(`${webServer}/api/v1/refresh`, {
+              method: "POST",
+              body: JSON.stringify({
+                token: tokens.refresh_token,
+              }),
+            });
+
+            const obj = await response.json();
+
+            if (response.status === 200) {
+              console.log("Got new access token and refresh token");
+              setTokens((prev: any) => ({
+                ...prev,
+                access_token: obj.access_token,
+                refresh_token: obj.refresh_token,
+              }));
+            }
+          }
+        } catch (error) {
+          console.log('ProductDetailScreen product error: ', error);
         }
-      } catch (error) {
-        console.log('ProductDetailScreen product error: ', error);
       }
-    }
-    fetchProduct();
+      fetchProduct();
     }, [tokens?.access_token, tokens?.refresh_token, productId, user?.gym_id, webServer, setTokens])
   );
 
@@ -380,13 +380,13 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   heroImage: {
-    width: 232,
-    height: 232,
-    borderRadius: 12,
+    width: 296,
+    height: 296,
+    borderRadius: 16,
   },
   heroImageThumbnails: {
     flexDirection: 'row',
-    justifyContent: 'space-evenly',
+    justifyContent: 'center',
   },
   thumbnail: {
     width: 56,
