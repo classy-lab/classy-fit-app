@@ -309,6 +309,7 @@ const EquipmentEditScreen = ({ navigation, route }) => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [imageError, setImageError] = useState('')
   const [isDeleting, setIsDeleting] = useState(false)
+  const [equipment, setEquipment] = useState(routeEquipment)
   const richText = useRef(null)
   const lastSyncedHtmlRef = useRef('')
 
@@ -398,6 +399,7 @@ const EquipmentEditScreen = ({ navigation, route }) => {
 
     reset(formValues)
     setDescriptionHtml(formValues.description)
+    setEquipment(payload)
     setEquipmentImages(buildImageSlots(payload?.images || [], webServer))
     setSelectedImageIndex(0)
     setImageError('')
