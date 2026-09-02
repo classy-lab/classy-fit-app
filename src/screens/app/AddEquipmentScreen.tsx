@@ -30,6 +30,12 @@ const EQUIPMENT_IMAGE_PLACEHOLDER_COUNT = 5
 const STATUS_VALUES = ['active', 'maintenance', 'out_of_service', 'retired']
 const CONDITION_VALUES = ['excellent', 'good', 'fair', 'poor']
 
+const CATEGORY_OPTIONS = [
+  { key: '1', value: 'Cardio' },
+  { key: '2', value: 'Strength' },
+  { key: '3', value: 'Free Weights' },
+]
+
 const toTitleCase = (value: string) =>
   value
     .split('_')
@@ -63,7 +69,10 @@ const nullableNonNegativeNumber = (label: string) =>
     })
 
 const addEquipmentSchema = yup.object({
-  equipment_category_uid: nullablePositiveNumber('Category UID'),
+  equipment_category_uid: yup
+    .string()
+    .oneOf(['1', '2', '3'], 'Category is required')
+    .required('Category is required'),
   title: yup.string().trim().required('Title is required'),
   description: yup
     .string()
@@ -653,11 +662,11 @@ const AddEquipmentScreen = ({ navigation }) => {
               )}
             </View>
 
-            {renderTextField(
+            {renderSelectField(
               'equipment_category_uid',
-              'Category UID:',
-              'Enter category UID',
-              { keyboardType: 'number-pad', autoCapitalize: 'none' }
+              'Category:',
+              'Select category',
+              CATEGORY_OPTIONS
             )}
             {renderTextField('brand', 'Brand:', 'Enter brand', { autoCapitalize: 'words' })}
             {renderTextField('model', 'Model:', 'Enter model', { autoCapitalize: 'characters' })}
