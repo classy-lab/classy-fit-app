@@ -1,5 +1,6 @@
 // @ts-nocheck
 import {
+  Alert,
   ActivityIndicator,
   Image,
   ScrollView,
@@ -18,12 +19,14 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { SelectList } from 'react-native-dropdown-select-list'
 import { RichEditor, RichToolbar, actions } from 'react-native-pell-rich-editor'
+import ImagePicker from 'react-native-image-crop-picker'
 import { hideMessage, showMessage } from 'react-native-flash-message'
 import { AppColors } from '../../styles/colors'
 import { UserContext } from '../../context/UserContext'
 import DateOfBirthField from '../../components/forms/input_fields/DateOfBirthField'
 
 const EQUIPMENT_IMAGE_PLACEHOLDER_COUNT = 5
+const MAX_EQUIPMENT_IMAGE_BYTES = 10 * 1024 * 1024
 
 const CATEGORY_OPTIONS = [
   { key: '1', value: 'Cardio' },
@@ -262,6 +265,29 @@ const buildRequestPayload = (formData: EditEquipmentFormValues) =>
     ])
   )
 
+const buildEquipmentFormData = (
+  formData: EditEquipmentFormValues,
+  existingImages: Array<string>,
+  newImages: Array<any>
+) => {
+  const requestPayload = new FormData()
+  const fields = buildRequestPayload(formData)
+
+  Object.entries(fields).forEach(([key, value]) => {
+    requestPayload.append(key, String(value ?? ''))
+  })
+
+  existingImages.forEach((imageUrl) => {
+    requestPayload.append('image_urls[]', imageUrl)
+  })
+
+  newImages.forEach((imageFile) => {
+    requestPayload.append('new_images[]', imageFile as any)
+  })
+
+  return requestPayload
+}
+
 const parseResponseJson = async (response: Response) => {
   const rawResponse = await response.text()
   return rawResponse ? JSON.parse(rawResponse) : {}
@@ -299,6 +325,59 @@ const EquipmentEditScreen = ({ navigation, route }) => {
   })
 
   const [equipmentImages, setEquipmentImages] = useState(emptyImageSlots)
+
+  const pickImage = async (targetIndex: number) => {
+    try {
+      const selectedAsset = await ImagePicker.openPicker({
+        cropping: true,
+        width: 1200,
+        height: 1200,
+        compressImageQuality: 0.8,
+        mediaType: 'photo',
+      })
+
+      const mimeType = String(selectedAsset?.mime || '').toLowerCase()
+      const fileName = String(selectedAsset?.filename || selectedAsset?.path || '').toLowerCase()
+      const fileSize = Number(
+        (selectedAsset as any)?.fileSize ?? (selectedAsset as any)?.size ?? 0
+      )
+      const hasAllowedExtension =
+        fileName.endsWith('.jpg') ||
+        fileName.endsWith('.jpeg') ||
+        fileName.endsWith('.png') ||
+        fileName.endsWith('.webp')
+      const hasAllowedMimeType =
+        mimeType === 'image/jpeg' ||
+        mimeType === 'image/png' ||
+        mimeType === 'image/webp'
+
+      if (!hasAllowedMimeType && !hasAllowedExtension) {
+        Alert.alert('Unsupported Format', 'Please select a JPEG, PNG, or WebP image.')
+        return
+      }
+
+      if (fileSize > MAX_EQUIPMENT_IMAGE_BYTES) {
+        Alert.alert('Image Too Large', 'Please select an image that is 10 MB or less.')
+        return
+      }
+
+      setEquipmentImages((prev) => {
+        const next = [...prev]
+        next[targetIndex] = {
+          id: `picked-${Date.now()}-${targetIndex}`,
+          isPlaceholder: false,
+          source: { uri: selectedAsset.path },
+          image_url: selectedAsset.path,
+          localAsset: selectedAsset,
+        }
+        return next
+      })
+      setImageError('')
+      setSelectedImageIndex(targetIndex)
+    } catch (error) {
+      console.log('Equipment image selection cancelled or failed:', error)
+    }
+  }
 
   const hydrateForm = (payload: any) => {
     const formValues = equipmentToFormValues(payload)
@@ -385,9 +464,28 @@ const EquipmentEditScreen = ({ navigation, route }) => {
   const onSubmit = async (formData: EditEquipmentFormValues) => {
     if (isSubmitting) return
 
-    const existingImageCount = equipmentImages.filter((image) => !image?.isPlaceholder && image?.image_url).length
+    const existingImages = equipmentImages
+      .filter((image) => !image?.isPlaceholder && !image?.localAsset && image?.image_url)
+      .map((image) => image.image_url)
+    const existingImageCount = existingImages.length
+    const newImages = equipmentImages
+      .filter((image) => !image?.isPlaceholder && image?.localAsset?.path)
+      .map((image, index) => {
+        const localAsset = image.localAsset
+        const mimeType = localAsset?.mime || 'image/jpeg'
 
-    if (existingImageCount < 1) {
+        let extension = 'jpg'
+        if (mimeType === 'image/png') extension = 'png'
+        if (mimeType === 'image/webp') extension = 'webp'
+
+        return {
+          uri: localAsset.path,
+          type: mimeType,
+          name: localAsset?.filename || `equipment-image-${index + 1}.${extension}`,
+        }
+      })
+
+    if (existingImageCount + newImages.length < 1) {
       setImageError('At least one image is required')
       return
     }
@@ -396,17 +494,22 @@ const EquipmentEditScreen = ({ navigation, route }) => {
       setIsSubmitting(true)
       setImageError('')
 
-      const requestPayload = buildRequestPayload(formData)
+      const hasNewImages = newImages.length > 0
+      const requestPayload = hasNewImages
+        ? buildEquipmentFormData(formData, existingImages, newImages)
+        : buildRequestPayload(formData)
 
       const response = await fetch(
         `${webServer}/api/v1/gyms/${user.gym_id}/equipment/${equipmentId}`,
         {
-          method: 'PUT',
-          headers: {
-            Authorization: 'Bearer ' + tokens.access_token,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(requestPayload),
+          method: hasNewImages ? 'POST' : 'PUT',
+          headers: hasNewImages
+            ? { Authorization: 'Bearer ' + tokens.access_token }
+            : {
+                Authorization: 'Bearer ' + tokens.access_token,
+                'Content-Type': 'application/json',
+              },
+          body: hasNewImages ? requestPayload : JSON.stringify(requestPayload),
         }
       )
 
@@ -415,7 +518,7 @@ const EquipmentEditScreen = ({ navigation, route }) => {
       if (response.status === 200) {
         const updatedEquipment = obj?.data || {
           ...(routeEquipment || {}),
-          ...requestPayload,
+          ...buildRequestPayload(formData),
         }
 
         showMessage({
@@ -544,188 +647,194 @@ const EquipmentEditScreen = ({ navigation, route }) => {
   const selectedImage = equipmentImages?.[selectedImageIndex]
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.navs}>
-        <Feather
-          name="arrow-left"
-          color={AppColors.blue}
-          size={36}
-          onPress={() => {
-            if (navigation.canGoBack()) {
-              navigation.goBack()
-            }
-          }}
-        />
-      </View>
+    <>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.navs}>
+          <Feather
+            name="arrow-left"
+            color={AppColors.blue}
+            size={36}
+            onPress={() => {
+              if (navigation.canGoBack()) {
+                navigation.goBack()
+              }
+            }}
+          />
+        </View>
 
-      {isLoading ? (
-        <ActivityIndicator size="large" color={AppColors.blue} style={styles.loadingIndicator} />
-      ) : (
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={styles.headingContainer}>
-            <Text style={styles.title}>Edit Equipment</Text>
-          </View>
+        {isLoading ? (
+          <ActivityIndicator size="large" color={AppColors.blue} style={styles.loadingIndicator} />
+        ) : (
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.headingContainer}>
+              <Text style={styles.title}>Edit Equipment</Text>
+            </View>
 
-          <View style={styles.body}>
-            <View>
-              <View style={styles.heroImageContainer}>
-                {selectedImage && !selectedImage?.isPlaceholder ? (
-                  <Image
-                    style={styles.heroImage}
-                    source={{ uri: selectedImage?.source?.uri }}
-                    resizeMode="cover"
-                  />
-                ) : (
-                  <View style={styles.placeholderHero}>
-                    <MaterialCommunityIcons
-                      name="image-outline"
-                      size={88}
-                      color={AppColors.blue}
+            <View style={styles.body}>
+              <View>
+                <View style={styles.heroImageContainer}>
+                  {selectedImage && !selectedImage?.isPlaceholder ? (
+                    <Image
+                      style={styles.heroImage}
+                      source={{ uri: selectedImage?.source?.uri }}
+                      resizeMode="cover"
                     />
-                  </View>
-                )}
+                  ) : (
+                    <View style={styles.placeholderHero}>
+                      <MaterialCommunityIcons
+                        name="image-outline"
+                        size={88}
+                        color={AppColors.blue}
+                      />
+                    </View>
+                  )}
+                </View>
+
+                <View style={styles.heroImageThumbnails}>
+                  {equipmentImages.map((image, index) => (
+                    <View key={image.id} style={styles.thumbnailWrapper}>
+                      <TouchableOpacity
+                        onPress={() => {
+                          setSelectedImageIndex(index)
+                          pickImage(index)
+                        }}
+                      >
+                        {image.isPlaceholder ? (
+                          <View
+                            style={[
+                              styles.thumbnail,
+                              styles.placeholderThumbnail,
+                              selectedImageIndex === index && styles.selectedThumbnail,
+                            ]}
+                          >
+                            <MaterialCommunityIcons
+                              name={image.iconName || 'image-outline'}
+                              size={24}
+                              color={AppColors.blue}
+                            />
+                          </View>
+                        ) : (
+                          <Image
+                            style={[
+                              styles.thumbnail,
+                              selectedImageIndex === index && styles.selectedThumbnail,
+                            ]}
+                            source={image.source}
+                            resizeMode="cover"
+                          />
+                        )}
+                      </TouchableOpacity>
+                    </View>
+                  ))}
+                </View>
+                <Text style={styles.imageHelpText}>
+                  Up to 5 JPEG, PNG, or WebP images. Maximum 10 MB each.
+                </Text>
+                <Text style={styles.imageHelpText}>
+                  Existing images are preserved. New images fill empty slots.
+                </Text>
+                {imageError ? <Text style={styles.imageErrorText}>{imageError}</Text> : null}
               </View>
 
-              <View style={styles.heroImageThumbnails}>
-                {equipmentImages.map((image, index) => (
-                  <View key={image.id} style={styles.thumbnailWrapper}>
-                    <TouchableOpacity onPress={() => setSelectedImageIndex(index)}>
-                      {image.isPlaceholder ? (
-                        <View
-                          style={[
-                            styles.thumbnail,
-                            styles.placeholderThumbnail,
-                            selectedImageIndex === index && styles.selectedThumbnail,
-                          ]}
-                        >
-                          <MaterialCommunityIcons
-                            name={image.iconName || 'image-outline'}
-                            size={24}
-                            color={AppColors.blue}
-                          />
-                        </View>
-                      ) : (
-                        <Image
-                          style={[
-                            styles.thumbnail,
-                            selectedImageIndex === index && styles.selectedThumbnail,
-                          ]}
-                          source={image.source}
-                          resizeMode="cover"
+              <View style={styles.content}>
+                {renderTextField(...TEXT_FIELDS[0])}
+
+                <View style={styles.descriptionBlock}>
+                  <Text style={styles.formLabel}>Description:</Text>
+                  <RichToolbar
+                    editor={richText}
+                    style={styles.richToolbar}
+                    iconTint={AppColors.blue}
+                    selectedIconTint={AppColors.white}
+                    selectedButtonStyle={styles.richToolbarSelectedButton}
+                    actions={RICH_EDITOR_ACTIONS}
+                  />
+                  <View style={styles.richEditorContainer}>
+                    <Controller
+                      control={control}
+                      name="description"
+                      render={({ field: { onChange } }) => (
+                        <RichEditor
+                          ref={richText}
+                          useContainer={false}
+                          style={styles.richEditor}
+                          initialContentHTML={descriptionHtml}
+                          initialHeight={36}
+                          placeholder="Enter description"
+                          editorStyle={{
+                            backgroundColor: AppColors.grey,
+                            color: AppColors.blue,
+                            placeholderColor: AppColors.grey2,
+                            contentCSSText: 'font-size: 14px; line-height: 18px; min-height: 28px;',
+                          }}
+                          onChange={(value) => {
+                            lastSyncedHtmlRef.current = value
+                            setDescriptionHtml(value)
+                            onChange(value)
+                          }}
                         />
                       )}
-                    </TouchableOpacity>
+                    />
                   </View>
-                ))}
-              </View>
-              <Text style={styles.imageHelpText}>
-                Up to 5 JPEG, PNG, or WebP images. Maximum 10 MB each.
-              </Text>
-              {/* TODO: Enable image replacement/removal after the equipment API supports it. */}
-              <Text style={styles.imageHelpText}>
-                Existing images are preserved. Image replacement/removal is not supported by the current equipment API.
-              </Text>
-              {imageError ? <Text style={styles.imageErrorText}>{imageError}</Text> : null}
-            </View>
-
-            <View style={styles.content}>
-              {renderTextField(...TEXT_FIELDS[0])}
-
-              <View style={styles.descriptionBlock}>
-                <Text style={styles.formLabel}>Description:</Text>
-                <RichToolbar
-                  editor={richText}
-                  style={styles.richToolbar}
-                  iconTint={AppColors.blue}
-                  selectedIconTint={AppColors.white}
-                  selectedButtonStyle={styles.richToolbarSelectedButton}
-                  actions={RICH_EDITOR_ACTIONS}
-                />
-                <View style={styles.richEditorContainer}>
-                  <Controller
-                    control={control}
-                    name="description"
-                    render={({ field: { onChange } }) => (
-                      <RichEditor
-                        ref={richText}
-                        useContainer={false}
-                        style={styles.richEditor}
-                        initialContentHTML={descriptionHtml}
-                        initialHeight={36}
-                        placeholder="Enter description"
-                        editorStyle={{
-                          backgroundColor: AppColors.grey,
-                          color: AppColors.blue,
-                          placeholderColor: AppColors.grey2,
-                          contentCSSText: 'font-size: 14px; line-height: 18px; min-height: 28px;',
-                        }}
-                        onChange={(value) => {
-                          lastSyncedHtmlRef.current = value
-                          setDescriptionHtml(value)
-                          onChange(value)
-                        }}
-                      />
-                    )}
-                  />
+                  {errors?.description?.message ? (
+                    <Text style={styles.errorText}>{String(errors.description.message)}</Text>
+                  ) : null}
                 </View>
-                {errors?.description?.message ? (
-                  <Text style={styles.errorText}>{String(errors.description.message)}</Text>
-                ) : null}
-              </View>
 
-              {renderSelectField(
-                'equipment_category_uid',
-                'Category:',
-                'Select category',
-                CATEGORY_OPTIONS
-              )}
-              {TEXT_FIELDS.slice(1, 8).map(([name, label, placeholder, options]) =>
-                renderTextField(name, label, placeholder, options)
-              )}
-              {renderDateField(...DATE_FIELDS.purchase_date)}
-              {renderTextField(...TEXT_FIELDS[8])}
-              {renderDateField(...DATE_FIELDS.warranty_expiration_date)}
-              {renderSelectField('status', 'Status:', 'Select status', STATUS_OPTIONS)}
-              {renderSelectField(
-                'equipment_condition',
-                'Condition:',
-                'Select condition',
-                CONDITION_OPTIONS
-              )}
-              {TEXT_FIELDS.slice(9).map((field) => renderTextField(...field))}
+                {renderSelectField(
+                  'equipment_category_uid',
+                  'Category:',
+                  'Select category',
+                  CATEGORY_OPTIONS
+                )}
+                {TEXT_FIELDS.slice(1, 8).map(([name, label, placeholder, options]) =>
+                  renderTextField(name, label, placeholder, options)
+                )}
+                {renderDateField(...DATE_FIELDS.purchase_date)}
+                {renderTextField(...TEXT_FIELDS[8])}
+                {renderDateField(...DATE_FIELDS.warranty_expiration_date)}
+                {renderSelectField('status', 'Status:', 'Select status', STATUS_OPTIONS)}
+                {renderSelectField(
+                  'equipment_condition',
+                  'Condition:',
+                  'Select condition',
+                  CONDITION_OPTIONS
+                )}
+                {TEXT_FIELDS.slice(9).map((field) => renderTextField(...field))}
 
-              <View style={styles.row}>
-                <TouchableOpacity
-                  style={[styles.primaryBtn, isSubmitting && styles.disabledBtn]}
-                  onPress={handleSubmit(onSubmit)}
-                  disabled={isSubmitting}
-                >
-                  <Text style={styles.primaryBtnText}>
-                    {isSubmitting ? 'Saving...' : 'Save Changes'}
-                  </Text>
-                </TouchableOpacity>
+                <View style={styles.row}>
+                  <TouchableOpacity
+                    style={[styles.primaryBtn, isSubmitting && styles.disabledBtn]}
+                    onPress={handleSubmit(onSubmit)}
+                    disabled={isSubmitting}
+                  >
+                    <Text style={styles.primaryBtnText}>
+                      {isSubmitting ? 'Saving...' : 'Save Changes'}
+                    </Text>
+                  </TouchableOpacity>
 
-                <TouchableOpacity
-                  style={styles.secondaryBtn}
-                  onPress={() => {
-                    if (navigation.canGoBack()) {
-                      navigation.goBack()
-                    }
-                  }}
-                  disabled={isSubmitting}
-                >
-                  <Text style={styles.secondaryBtnText}>Cancel</Text>
-                </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.secondaryBtn}
+                    onPress={() => {
+                      if (navigation.canGoBack()) {
+                        navigation.goBack()
+                      }
+                    }}
+                    disabled={isSubmitting}
+                  >
+                    <Text style={styles.secondaryBtnText}>Cancel</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
-          </View>
-        </ScrollView>
-      )}
-    </SafeAreaView>
+          </ScrollView>
+        )}
+      </SafeAreaView>
+    </>
   )
 }
 
