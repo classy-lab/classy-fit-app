@@ -201,6 +201,19 @@ const AddProductScreen = ({ navigation }) => {
     }
   }
 
+  const removeImage = (targetIndex: number) => {
+    setProductImages((prev) => {
+      const next = [...prev]
+      next[targetIndex] = {
+        id: `placeholder-${targetIndex}`,
+        iconName: 'image-outline',
+        isPlaceholder: true,
+      }
+      return next
+    })
+    setSelectedImageIndex((current) => (current === targetIndex ? 0 : current))
+  }
+
   const onSubmit = async (formData: AddProductFormValues) => {
     try {
       const newImages = productImages
@@ -342,31 +355,44 @@ const AddProductScreen = ({ navigation }) => {
               </View>
               <View style={styles.heroImageThumbnails}>
                 {productImages.map((image, index) => (
-                  <TouchableOpacity
+                  <View
                     key={image.id}
-                    onPress={() => pickImage(index)}
+                    style={styles.thumbnailWrapper}
                   >
-                    {image.isPlaceholder ? (
-                      <View
-                        style={[
-                          styles.thumbnail,
-                          styles.placeholderThumbnail,
-                        ]}
-                      >
-                        <MaterialCommunityIcons
-                          name={image.iconName}
-                          size={24}
-                          color={AppColors.blue}
+                    <TouchableOpacity
+                      onPress={() => pickImage(index)}
+                    >
+                      {image.isPlaceholder ? (
+                        <View
+                          style={[
+                            styles.thumbnail,
+                            styles.placeholderThumbnail,
+                          ]}
+                        >
+                          <MaterialCommunityIcons
+                            name={image.iconName}
+                            size={24}
+                            color={AppColors.blue}
+                          />
+                        </View>
+                      ) : (
+                        <Image
+                          style={styles.thumbnail}
+                          source={image.source}
+                          resizeMode="cover"
                         />
-                      </View>
-                    ) : (
-                      <Image
-                        style={styles.thumbnail}
-                        source={image.source}
-                        resizeMode="cover"
-                      />
+                      )}
+                    </TouchableOpacity>
+                    {!image.isPlaceholder && (
+                      <TouchableOpacity
+                        style={styles.removeImageBtn}
+                        onPress={() => removeImage(index)}
+                        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                      >
+                        <MaterialCommunityIcons name="close" size={14} color="#fff" />
+                      </TouchableOpacity>
                     )}
-                  </TouchableOpacity>
+                  </View>
                 ))}
               </View>
               {imageError ? (
@@ -783,6 +809,20 @@ const styles = StyleSheet.create({
   selectedThumbnail: {
     borderWidth: 2,
     borderColor: AppColors.blue,
+  },
+  thumbnailWrapper: {
+    position: 'relative',
+  },
+  removeImageBtn: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: AppColors.blue,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   imageErrorText: {
     color: AppColors.red,
