@@ -8,46 +8,27 @@ import { useFocusEffect } from '@react-navigation/native'
 import { AppColors } from '../../styles/colors'
 import { UserContext } from '../../context/UserContext'
 
-const EQUIPMENT_IMAGE_PLACEHOLDER_COUNT = 5
-
-const emptyImageSlots = () =>
-  Array.from({ length: EQUIPMENT_IMAGE_PLACEHOLDER_COUNT }, (_, index) => ({
-    id: `placeholder-${index}`,
-    iconName: 'image-outline',
-    isPlaceholder: true,
-  }))
-
 const resolveEquipmentImageUri = (webServer, imageUrl) => {
   const normalized = String(imageUrl ?? '').trim();
-
   if (!normalized) return null;
   if (/^https?:\/\//i.test(normalized) || normalized.startsWith('file://')) {
     return normalized;
   }
-
   return `${webServer}/api/${normalized.replace(/^\/?(api\/)?/, '')}`;
 };
 
-const buildEquipmentImageSlots = (images = [], webServer) => {
-  const sortedImages = [...images].sort((a, b) => {
-    const orderA = Number(a?.sort_order ?? 999);
-    const orderB = Number(b?.sort_order ?? 999);
-    return orderA - orderB;
-  });
-
-  const existingSlots = sortedImages
-    .slice(0, EQUIPMENT_IMAGE_PLACEHOLDER_COUNT)
-    .map((image, index) => ({
-      id: `existing-${image?.uid || index}`,
-      isPlaceholder: false,
-      image_url: image?.image_url || '',
-      source: { uri: resolveEquipmentImageUri(webServer, image?.image_url) },
-    }));
-
-  return [
-    ...existingSlots,
-    ...emptyImageSlots().slice(existingSlots.length),
-  ];
+const buildImageSlots = (images = [], webServer) => {
+  const sorted = [...images].sort((a, b) => Number(a?.sort_order ?? 999) - Number(b?.sort_order ?? 999));
+  const slots = sorted.slice(0, 5).map((img, i) => ({
+    id: `existing-${img?.uid || i}`,
+    isPlaceholder: false,
+    source: { uri: resolveEquipmentImageUri(webServer, img?.image_url) },
+  }));
+  
+  for (let i = slots.length; i < 5; i++) {
+    slots.push({ id: `placeholder-${i}`, isPlaceholder: true });
+  }
+  return slots;
 };
 
 const EquipmentDetailScreen = ({ navigation, route }) => {
@@ -139,10 +120,10 @@ const EquipmentDetailScreen = ({ navigation, route }) => {
   };
 
   const images = Array.isArray(equipment?.images) ? equipment.images : [];
-  const imageSlots = buildEquipmentImageSlots(images, webServer);
+  const imageSlots = buildImageSlots(images, webServer);
   const selectedImage = resolveEquipmentImageUri(
     webServer,
-    imageSlots[selectedImageIndex]?.image_url || imageSlots[0]?.image_url
+    imageSlots[selectedImageIndex]?.source?.uri || imageSlots[0]?.source?.uri
   );
 
   const detailRows = [
