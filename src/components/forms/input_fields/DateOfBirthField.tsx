@@ -7,6 +7,10 @@ type DateOfBirthFieldProps = {
   value?: string;
   onChange: (value: string) => void;
   onBlur?: () => void;
+  placeholder?: string;
+  title?: string;
+  maximumDate?: Date | null;
+  minimumDate?: Date;
 };
 
 const EMPTY_LABEL = "Select date of birth";
@@ -51,13 +55,21 @@ const getFallbackDate = () => {
   return fallbackDate;
 };
 
-const DateOfBirthField = ({ value, onChange, onBlur }: DateOfBirthFieldProps) => {
+const DateOfBirthField = ({
+  value,
+  onChange,
+  onBlur,
+  placeholder = EMPTY_LABEL,
+  title = "Select date of birth",
+  maximumDate = new Date(),
+  minimumDate = MINIMUM_DATE,
+}: DateOfBirthFieldProps) => {
   const [open, setOpen] = useState(false);
   const selectedDate = parseDateValue(value);
   const pickerDate = selectedDate ?? getFallbackDate();
   const displayValue = selectedDate
     ? DISPLAY_DATE_FORMATTER.format(selectedDate)
-    : EMPTY_LABEL;
+    : placeholder;
 
   const closePicker = () => {
     setOpen(false);
@@ -80,9 +92,9 @@ const DateOfBirthField = ({ value, onChange, onBlur }: DateOfBirthFieldProps) =>
         mode="date"
         open={open}
         date={pickerDate}
-        maximumDate={new Date()}
-        minimumDate={MINIMUM_DATE}
-        title="Select date of birth"
+        maximumDate={maximumDate === null ? undefined : maximumDate}
+        minimumDate={minimumDate}
+        title={title}
         confirmText="Confirm"
         cancelText="Cancel"
         onConfirm={(selectedDate) => {
