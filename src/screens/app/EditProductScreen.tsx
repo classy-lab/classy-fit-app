@@ -54,6 +54,7 @@ const EditProductScreen = ({ navigation, route }) => {
   const [product, setProduct] = useState({});
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [descriptionHtml, setDescriptionHtml] = useState('');
+  const [imageError, setImageError] = useState('');
   const richText = useRef(null);
   const lastSyncedHtmlRef = useRef('');
   const {
@@ -148,6 +149,7 @@ const EditProductScreen = ({ navigation, route }) => {
         next[targetIndex] = nextImage;
         return next;
       });
+      setImageError('');
       setSelectedImageIndex(targetIndex);
     } catch (error) {
       console.log('Image selection cancelled or failed:', error);
@@ -248,6 +250,13 @@ const EditProductScreen = ({ navigation, route }) => {
           };
         });
 
+      if (existingImages.length + newImages.length < 1) {
+        setImageError('At least one image is required');
+        return;
+      }
+
+      setImageError('');
+
       existingImages.forEach((imageUrl) => {
         requestPayload.append('image_urls[]', imageUrl);
       });
@@ -331,6 +340,7 @@ const EditProductScreen = ({ navigation, route }) => {
         if (response.status === 200) {
           setProduct(data.data);
           setProductImages(buildProductImageSlots(data?.data?.images || []));
+          setImageError('');
           const formValues = {
             title: String(data?.data?.title ?? ''),
             description: String(data?.data?.description ?? ''),
@@ -446,7 +456,7 @@ const EditProductScreen = ({ navigation, route }) => {
               <View style={styles.heroImageThumbnails}>
                 {productImages.map((image, index) => (
                   <TouchableOpacity
-                    key={`${image?.id || index}`}
+                    key={`product-image-slot-${index}-${image?.id || image?.image_url || 'empty'}`}
                     onPress={() => {
                       setSelectedImageIndex(index);
                       pickImage(index);
@@ -479,6 +489,10 @@ const EditProductScreen = ({ navigation, route }) => {
                   </TouchableOpacity>
                 ))}
               </View>
+              <Text style={styles.imageHelpText}>Upload up to 5 JPEG or PNG images. Maximum 5 MB each.</Text>
+              {imageError ? (
+                <Text style={styles.imageErrorText}>{imageError}</Text>
+              ) : null}
             </View>
             <View style={styles.content}>
               <View style={styles.inputField}>
@@ -828,6 +842,18 @@ const styles = StyleSheet.create({
   selectedThumbnail: {
     borderWidth: 2,
     borderColor: AppColors.blue,
+  },
+  imageHelpText: {
+    marginTop: 10,
+    color: AppColors.grey2,
+    fontSize: 12,
+    textAlign: 'center',
+  },
+  imageErrorText: {
+    marginTop: 6,
+    color: AppColors.red,
+    fontSize: 12,
+    textAlign: 'center',
   },
   content: {
     marginTop: 24,
