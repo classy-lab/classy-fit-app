@@ -214,6 +214,14 @@ const buildImageSlots = (images = [], webServer: string) => {
   return slots
 }
 
+const emptyImageSlots = () => {
+  const slots = []
+  for (let i = 0; i < 5; i++) {
+    slots.push({ id: `placeholder-${i}`, iconName: 'image-outline', isPlaceholder: true })
+  }
+  return slots
+}
+
 const optionForValue = (options, value) =>
   options.find((option) => option.key === String(value ?? ''))
 
@@ -314,7 +322,7 @@ const EquipmentEditScreen = ({ navigation, route }) => {
     defaultValues: DEFAULT_FORM_VALUES,
   })
 
-  const [equipmentImages, setEquipmentImages] = useState(emptyImageSlots)
+  const [equipmentImages, setEquipmentImages] = useState(emptyImageSlots())
 
   const pickImage = async (targetIndex: number) => {
     try {
@@ -500,22 +508,26 @@ const EquipmentEditScreen = ({ navigation, route }) => {
       setIsSubmitting(true)
       setImageError('')
 
+      const originalImageCount = (equipment?.images || []).length
       const hasNewImages = newImages.length > 0
-      const requestPayload = hasNewImages
+      const imagesWereRemoved = existingImageCount < originalImageCount
+      const imagesChanged = hasNewImages || imagesWereRemoved
+
+      const requestPayload = imagesChanged
         ? buildEquipmentFormData(formData, existingImages, newImages)
         : buildRequestPayload(formData)
 
       const response = await fetch(
         `${webServer}/api/v1/gyms/${user.gym_id}/equipment/${equipmentId}`,
         {
-          method: hasNewImages ? 'POST' : 'PUT',
-          headers: hasNewImages
+          method: imagesChanged ? 'POST' : 'PUT',
+          headers: imagesChanged
             ? { Authorization: 'Bearer ' + tokens.access_token }
             : {
                 Authorization: 'Bearer ' + tokens.access_token,
                 'Content-Type': 'application/json',
               },
-          body: hasNewImages ? requestPayload : JSON.stringify(requestPayload),
+          body: imagesChanged ? requestPayload : JSON.stringify(requestPayload),
         }
       )
 
