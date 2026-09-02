@@ -82,12 +82,10 @@ const EquipmentDetailScreen = ({ navigation, route }) => {
   }, [tokens?.access_token, tokens?.refresh_token, equipmentId]);
 
   const handleEditPress = () => {
-    // EquipmentEditScreen has not been built yet. Guard the navigation so this
-    // handler is ready to use as soon as that screen/route is registered.
     const availableRoutes = navigation.getState?.()?.routeNames ?? [];
 
     if (availableRoutes.includes('EquipmentEditScreen')) {
-      navigation.navigate('EquipmentEditScreen', { equipment });
+      navigation.navigate('EquipmentEditScreen', { equipmentId, equipment });
     } else {
       console.log('EquipmentEditScreen route is not registered yet. Equipment:', equipment);
     }
