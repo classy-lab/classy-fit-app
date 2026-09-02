@@ -92,7 +92,12 @@ const GymEquipmentScreen = ({ navigation }: { navigation: any }) => {
   const getPrimaryImageUrl = (item: Equipment) => {
     const images = item.images ?? [];
     const primary = images.find((image) => image?.is_primary) ?? images[0];
-    return primary?.image_url ?? null;
+    const normalized = String(primary?.image_url ?? '').trim();
+
+    if (!normalized) return null;
+    if (/^https?:\/\//i.test(normalized)) return normalized;
+
+    return `${webServer}/api/${normalized.replace(/^\/?(api\/)?/, '')}`;
   };
 
   const handleEquipmentPress = (item: Equipment) => {
@@ -156,7 +161,7 @@ const GymEquipmentScreen = ({ navigation }: { navigation: any }) => {
                       <TouchableOpacity key={item.uid ?? index} onPress={() => handleEquipmentPress(item)}>
                         <View style={styles.card}>
                           {imageUrl ? (
-                            <Image style={styles.image} source={{ uri: `${webServer}` + '/api/' + imageUrl }} />
+                            <Image style={styles.image} source={{ uri: imageUrl }} />
                           ) : (
                             <View style={styles.imagePlaceholder}>
                               <Feather name="image" color={AppColors.grey2} size={28} />
