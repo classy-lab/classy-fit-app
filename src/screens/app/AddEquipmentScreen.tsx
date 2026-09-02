@@ -591,7 +591,7 @@ const AddEquipmentScreen = ({ navigation }) => {
 
                   {!image.isPlaceholder ? (
                     <TouchableOpacity
-                      style={styles.removeImageButton}
+                      style={styles.removeImageBtn}
                       onPress={() => removeImage(index)}
                     >
                       <Feather name="x" size={12} color={AppColors.white} />
@@ -823,7 +823,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: AppColors.blue,
   },
-  removeImageButton: {
+  removeImageBtn: {
     position: 'absolute',
     top: -5,
     right: 2,
