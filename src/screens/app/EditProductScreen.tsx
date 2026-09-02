@@ -249,11 +249,11 @@ const EditProductScreen = ({ navigation, route }) => {
         });
 
       existingImages.forEach((imageUrl) => {
-        requestPayload.append('images[]', imageUrl);
+        requestPayload.append('image_urls[]', imageUrl);
       });
 
       newImages.forEach((imageFile) => {
-        requestPayload.append('images[]', imageFile as any);
+        requestPayload.append('new_images[]', imageFile as any);
       });
       console.log('Submitting product update images:', {
         existingImageCount: existingImages.length,
