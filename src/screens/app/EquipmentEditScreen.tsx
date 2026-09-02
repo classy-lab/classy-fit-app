@@ -25,7 +25,6 @@ import { AppColors } from '../../styles/colors'
 import { UserContext } from '../../context/UserContext'
 import DateOfBirthField from '../../components/forms/input_fields/DateOfBirthField'
 
-const EQUIPMENT_IMAGE_PLACEHOLDER_COUNT = 5
 const MAX_EQUIPMENT_IMAGE_BYTES = 10 * 1024 * 1024
 
 const CATEGORY_OPTIONS = [
@@ -193,12 +192,27 @@ const RICH_EDITOR_ACTIONS = [
   actions.redo,
 ]
 
-const emptyImageSlots = () =>
-  Array.from({ length: EQUIPMENT_IMAGE_PLACEHOLDER_COUNT }, (_, index) => ({
-    id: `placeholder-${index}`,
-    iconName: 'image-outline',
-    isPlaceholder: true,
+const resolveEquipmentImageUri = (webServer: string, imageUrl?: string) => {
+  const normalized = String(imageUrl ?? '').trim()
+  if (!normalized) return ''
+  if (/^https?:\/\//i.test(normalized) || normalized.startsWith('file://')) return normalized
+  return `${webServer}/api/${normalized.replace(/^\/?(api\/)?/, '')}`
+}
+
+const buildImageSlots = (images = [], webServer: string) => {
+  const sorted = [...images].sort((a, b) => Number(a?.sort_order ?? 999) - Number(b?.sort_order ?? 999))
+  const slots = sorted.slice(0, 5).map((img, i) => ({
+    id: `existing-${img?.uid || i}`,
+    isPlaceholder: false,
+    image_url: img?.image_url || '',
+    source: { uri: resolveEquipmentImageUri(webServer, img?.image_url) },
   }))
+
+  for (let i = slots.length; i < 5; i++) {
+    slots.push({ id: `placeholder-${i}`, iconName: 'image-outline', isPlaceholder: true })
+  }
+  return slots
+}
 
 const optionForValue = (options, value) =>
   options.find((option) => option.key === String(value ?? ''))
@@ -206,40 +220,6 @@ const optionForValue = (options, value) =>
 const normalizeDateValue = (value: any) => {
   const normalized = String(value ?? '').trim()
   return normalized.length >= 10 ? normalized.slice(0, 10) : normalized
-}
-
-const resolveEquipmentImageUri = (webServer: string, imageUrl?: string) => {
-  const normalized = String(imageUrl ?? '').trim()
-
-  if (!normalized) return ''
-  if (/^https?:\/\//i.test(normalized) || normalized.startsWith('file://')) {
-    return normalized
-  }
-
-  return `${webServer}/api/${normalized.replace(/^\/?(api\/)?/, '')}`
-}
-
-const buildEquipmentImageSlots = (images = [], webServer: string) => {
-  const sortedImages = [...images].sort((a, b) => {
-    const orderA = Number(a?.sort_order ?? 999)
-    const orderB = Number(b?.sort_order ?? 999)
-    return orderA - orderB
-  })
-
-  const existingSlots = sortedImages
-    .slice(0, EQUIPMENT_IMAGE_PLACEHOLDER_COUNT)
-    .map((image, index) => ({
-      id: `existing-${image?.uid || index}`,
-      isPlaceholder: false,
-      image_url: image?.image_url || '',
-      source: { uri: resolveEquipmentImageUri(webServer, image?.image_url) },
-      // Note: sort_order is used only for sorting, not for display positioning
-    }))
-
-  return [
-    ...existingSlots,
-    ...emptyImageSlots().slice(existingSlots.length),
-  ]
 }
 
 const equipmentToFormValues = (equipment: any): EditEquipmentFormValues => ({
@@ -410,7 +390,7 @@ const EquipmentEditScreen = ({ navigation, route }) => {
 
     reset(formValues)
     setDescriptionHtml(formValues.description)
-    setEquipmentImages(buildEquipmentImageSlots(payload?.images || [], webServer))
+    setEquipmentImages(buildImageSlots(payload?.images || [], webServer))
     setSelectedImageIndex(0)
     setImageError('')
   }
