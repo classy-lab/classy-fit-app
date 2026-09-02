@@ -1,9 +1,10 @@
 // @ts-nocheck
 import { StyleSheet, Text, View, ScrollView, Image, useWindowDimensions, TouchableOpacity } from 'react-native'
-import { useState, useEffect, useContext } from 'react'
+import { useState, useCallback, useContext } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
 import Ionicons from '@expo/vector-icons/Ionicons'
+import { useFocusEffect } from '@react-navigation/native'
 import { AppColors } from '../../styles/colors'
 import { s } from 'react-native-size-matters'
 import { UserContext } from '../../context/UserContext'
@@ -19,6 +20,7 @@ const ProductDetailScreen = ({ navigation, route }) => {
   const { addToCart, totalItemCount } = useCart();
   const [product, setProduct] = useState({});
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const productId = route?.params?.product?.pid ?? route?.params?.product?.uid ?? route?.params?.productId;
 
   const handleSubmit = (quantity = 1) => {
     const lineQuantity = addToCart(product, quantity);
@@ -29,10 +31,15 @@ const ProductDetailScreen = ({ navigation, route }) => {
     });
   }
 
-  useEffect(() => {
+  useFocusEffect(
+    useCallback(() => {
     const fetchProduct = async () => {
       try {                           // http://localhost:8080/classy-api/api/v1/gyms/1/products/5
-        const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/products/${route.params.product.pid}`, {
+        if (!productId) {
+          return;
+        }
+
+        const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/products/${productId}`, {
           headers: {
             Authorization: "Bearer " + tokens.access_token,
           },
@@ -70,7 +77,8 @@ const ProductDetailScreen = ({ navigation, route }) => {
       }
     }
     fetchProduct();
-  }, [tokens?.access_token, tokens?.refresh_token]);
+    }, [tokens?.access_token, tokens?.refresh_token, productId, user?.gym_id, webServer, setTokens])
+  );
 
   const selectedImage = product?.images?.[selectedImageIndex]?.image_url || product?.images?.[0]?.image_url || null;
   const sizeLabelMap = { S: 'Small', M: 'Medium', L: 'Large' };
