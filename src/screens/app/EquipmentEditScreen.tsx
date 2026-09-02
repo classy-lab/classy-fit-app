@@ -277,6 +277,8 @@ const buildEquipmentFormData = (
     requestPayload.append(key, String(value ?? ''))
   })
 
+  requestPayload.append('image_update', '1')
+
   existingImages.forEach((imageUrl) => {
     requestPayload.append('image_urls[]', imageUrl)
   })
@@ -330,9 +332,10 @@ const EquipmentEditScreen = ({ navigation, route }) => {
     try {
       const selectedAsset = await ImagePicker.openPicker({
         cropping: true,
-        width: 1200,
-        height: 1200,
-        compressImageQuality: 0.8,
+        width: 380,
+        height: 380,
+        compressImageQuality: 0.7,
+        forceJpg: true,
         mediaType: 'photo',
       })
 
@@ -361,15 +364,17 @@ const EquipmentEditScreen = ({ navigation, route }) => {
         return
       }
 
+      const nextImage = {
+        id: `picked-${Date.now()}-${targetIndex}`,
+        isPlaceholder: false,
+        source: { uri: selectedAsset.path },
+        image_url: selectedAsset.path,
+        localAsset: selectedAsset,
+      }
+
       setEquipmentImages((prev) => {
         const next = [...prev]
-        next[targetIndex] = {
-          id: `picked-${Date.now()}-${targetIndex}`,
-          isPlaceholder: false,
-          source: { uri: selectedAsset.path },
-          image_url: selectedAsset.path,
-          localAsset: selectedAsset,
-        }
+        next[targetIndex] = nextImage
         return next
       })
       setImageError('')
