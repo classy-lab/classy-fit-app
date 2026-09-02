@@ -220,13 +220,20 @@ const resolveEquipmentImageUri = (webServer: string, imageUrl?: string) => {
 }
 
 const buildEquipmentImageSlots = (images = [], webServer: string) => {
-  const existingSlots = images
+  const sortedImages = [...images].sort((a, b) => {
+    const orderA = Number(a?.sort_order ?? 999)
+    const orderB = Number(b?.sort_order ?? 999)
+    return orderA - orderB
+  })
+
+  const existingSlots = sortedImages
     .slice(0, EQUIPMENT_IMAGE_PLACEHOLDER_COUNT)
     .map((image, index) => ({
       id: `existing-${image?.uid || index}`,
       isPlaceholder: false,
       image_url: image?.image_url || '',
       source: { uri: resolveEquipmentImageUri(webServer, image?.image_url) },
+      // Note: sort_order is used only for sorting, not for display positioning
     }))
 
   return [
@@ -313,6 +320,7 @@ const EquipmentEditScreen = ({ navigation, route }) => {
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [imageError, setImageError] = useState('')
+  const [isDeleting, setIsDeleting] = useState(false)
   const richText = useRef(null)
   const lastSyncedHtmlRef = useRef('')
 
@@ -382,6 +390,19 @@ const EquipmentEditScreen = ({ navigation, route }) => {
     } catch (error) {
       console.log('Equipment image selection cancelled or failed:', error)
     }
+  }
+
+  const removeImage = (targetIndex: number) => {
+    setEquipmentImages((prev) => {
+      const next = [...prev]
+      next[targetIndex] = {
+        id: `placeholder-${targetIndex}`,
+        iconName: 'image-outline',
+        isPlaceholder: true,
+      }
+      return next
+    })
+    setSelectedImageIndex((current) => (current === targetIndex ? 0 : current))
   }
 
   const hydrateForm = (payload: any) => {
@@ -547,15 +568,61 @@ const EquipmentEditScreen = ({ navigation, route }) => {
         return
       }
 
-      showErrorMessage(
-        obj?.message || `Something went wrong while updating equipment (${response.status}).`,
-        false
-      )
+      const errorDetails = Array.isArray(obj?.errors) ? obj.errors.join('\n') : ''
+      const errorMsg = errorDetails || obj?.message || `Something went wrong while updating equipment (${response.status}).`
+      console.log('Equipment update error response:', obj)
+      console.log('Detailed validation errors:', obj?.errors)
+      showErrorMessage(errorMsg, false)
     } catch (error) {
       console.log('Update equipment request failed:', error)
       showErrorMessage('Network error while updating equipment.')
     } finally {
       setIsSubmitting(false)
+    }
+  }
+
+  const handleDeleteEquipment = async () => {
+    if (isDeleting || !equipmentId) return
+
+    try {
+      setIsDeleting(true)
+
+      const response = await fetch(
+        `${webServer}/api/v1/gyms/${user.gym_id}/equipment/${equipmentId}`,
+        {
+          method: 'DELETE',
+          headers: {
+            Authorization: 'Bearer ' + tokens.access_token,
+          },
+        }
+      )
+
+      const obj = await parseResponseJson(response)
+
+      if (response.status === 200) {
+        showMessage({
+          message: 'Success',
+          description: obj?.message || 'Equipment deleted successfully.',
+          type: 'success',
+          icon: 'success',
+          duration: 3000,
+          autoHide: true,
+          onPress: () => hideMessage(),
+        })
+
+        navigation.navigate('GymEquipmentScreen')
+        return
+      }
+
+      showErrorMessage(
+        obj?.message || `Something went wrong while deleting equipment (${response.status}).`,
+        false
+      )
+    } catch (error) {
+      console.log('Delete equipment request failed:', error)
+      showErrorMessage('Network error while deleting equipment.')
+    } finally {
+      setIsDeleting(false)
     }
   }
 
@@ -733,6 +800,15 @@ const EquipmentEditScreen = ({ navigation, route }) => {
                           />
                         )}
                       </TouchableOpacity>
+                      {!image.isPlaceholder && (
+                        <TouchableOpacity
+                          style={styles.removeImageBtn}
+                          onPress={() => removeImage(index)}
+                          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                        >
+                          <MaterialCommunityIcons name="close" size={14} color="#fff" />
+                        </TouchableOpacity>
+                      )}
                     </View>
                   ))}
                 </View>
@@ -823,15 +899,22 @@ const EquipmentEditScreen = ({ navigation, route }) => {
                   </TouchableOpacity>
 
                   <TouchableOpacity
-                    style={styles.secondaryBtn}
+                    style={[styles.secondaryBtn, isDeleting && styles.disabledBtn]}
                     onPress={() => {
-                      if (navigation.canGoBack()) {
-                        navigation.goBack()
-                      }
+                      Alert.alert(
+                        'Delete Equipment',
+                        'Are you sure you want to delete this equipment? This cannot be undone.',
+                        [
+                          { text: 'Cancel', style: 'cancel' },
+                          { text: 'Delete', style: 'destructive', onPress: handleDeleteEquipment },
+                        ]
+                      )
                     }}
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || isDeleting}
                   >
-                    <Text style={styles.secondaryBtnText}>Cancel</Text>
+                    <Text style={styles.secondaryBtnText}>
+                      {isDeleting ? 'Deleting...' : 'Delete Equipment'}
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -904,6 +987,17 @@ const styles = StyleSheet.create({
   },
   thumbnailWrapper: {
     position: 'relative',
+  },
+  removeImageBtn: {
+    position: 'absolute',
+    top: -6,
+    right: 2,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: AppColors.blue,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   thumbnail: {
     width: 56,
