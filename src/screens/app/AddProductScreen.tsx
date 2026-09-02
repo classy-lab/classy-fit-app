@@ -18,19 +18,87 @@ import {
 
 const MAX_PRODUCT_IMAGE_BYTES = 5 * 1024 * 1024
 const PRODUCT_IMAGE_PLACEHOLDER_COUNT = 5
+const MAX_DECIMAL_10_2 = 99999999.99
+
+const optionalText = (label: string, maxLength: number) =>
+  yup
+    .string()
+    .trim()
+    .max(maxLength, `${label} must be ${maxLength} characters or less`)
+    .nullable()
+
+const requiredMoney = (label: string) =>
+  yup
+    .string()
+    .trim()
+    .required(`${label} is required`)
+    .test('decimal', `${label} must be a valid amount`, (value) => {
+      if (!value) return false
+      return /^\d+(\.\d{1,2})?$/.test(value)
+    })
+    .test('decimal-range', `${label} must be between 0 and ${MAX_DECIMAL_10_2}`, (value) => {
+      if (!value || !/^\d+(\.\d{1,2})?$/.test(value)) return true
+      const amount = Number(value)
+      return Number.isFinite(amount) && amount >= 0 && amount <= MAX_DECIMAL_10_2
+    })
+
+const optionalMoney = (label: string) =>
+  yup
+    .string()
+    .trim()
+    .nullable()
+    .test('decimal', `${label} must be a valid amount`, (value) => {
+      if (value == null || value === '') return true
+      return /^\d+(\.\d{1,2})?$/.test(value)
+    })
+    .test('decimal-range', `${label} must be between 0 and ${MAX_DECIMAL_10_2}`, (value) => {
+      if (value == null || value === '' || !/^\d+(\.\d{1,2})?$/.test(value)) return true
+      const amount = Number(value)
+      return Number.isFinite(amount) && amount >= 0 && amount <= MAX_DECIMAL_10_2
+    })
+
+const requiredUnsignedInteger = (label: string) =>
+  yup
+    .string()
+    .trim()
+    .required(`${label} is required`)
+    .test('integer', `${label} must be a whole number`, (value) => /^\d+$/.test(String(value ?? '')))
+    .test('int-range', `${label} must be between 0 and 4294967295`, (value) => {
+      if (!/^\d+$/.test(String(value ?? ''))) return true
+      const integerValue = Number(value)
+      return Number.isInteger(integerValue) && integerValue >= 0 && integerValue <= 4294967295
+    })
 
 const addProductSchema = yup.object({
-  title: yup.string().trim().required('Title is required'),
-  description: yup.string().nullable(),
-  sku: yup.string().nullable(),
-  brand: yup.string().nullable(),
-  price: yup.string().nullable(),
-  sale_price: yup.string().nullable(),
-  cost_price: yup.string().nullable(),
-  quantity_in_stock: yup.string().nullable(),
-  weight: yup.string().nullable(),
-  size: yup.string().nullable(),
-  color: yup.string().nullable(),
+  title: yup
+    .string()
+    .trim()
+    .required('Title is required')
+    .max(255, 'Title must be 255 characters or less'),
+  description: yup
+    .string()
+    .trim()
+    .required('Description is required')
+    .test('not-empty-html', 'Description is required', (value) => {
+      if (!value) return false
+
+      const plainText = value
+        .replace(/<[^>]*>/g, '')
+        .replace(/&nbsp;/g, ' ')
+        .trim()
+
+      return plainText.length > 0
+    }),
+  sku: optionalText('SKU', 100),
+  brand: optionalText('Brand', 100),
+  price: requiredMoney('Price'),
+  sale_price: optionalMoney('Sale price'),
+  cost_price: optionalMoney('Cost price'),
+  quantity_in_stock: requiredUnsignedInteger('Quantity'),
+  reorder_level: requiredUnsignedInteger('Reorder level'),
+  weight: requiredMoney('Weight'),
+  size: optionalText('Size', 50),
+  color: optionalText('Color', 50),
 })
 
 type AddProductFormValues = {
@@ -42,6 +110,7 @@ type AddProductFormValues = {
   sale_price: string
   cost_price: string
   quantity_in_stock: string
+  reorder_level: string
   weight: string
   size: string
   color: string
@@ -54,6 +123,7 @@ const AddProductScreen = ({ navigation }) => {
   const [descriptionHtml, setDescriptionHtml] = useState('')
   const richText = useRef(null)
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
+  const [imageError, setImageError] = useState('')
   const {
     control,
     handleSubmit,
@@ -69,6 +139,7 @@ const AddProductScreen = ({ navigation }) => {
       sale_price: '',
       cost_price: '',
       quantity_in_stock: '',
+      reorder_level: '',
       weight: '',
       size: '',
       color: '',
@@ -123,6 +194,7 @@ const AddProductScreen = ({ navigation }) => {
         next[targetIndex] = nextImage
         return next
       })
+      setImageError('')
       setSelectedImageIndex(targetIndex)
     } catch (error) {
       console.log('Image selection cancelled or failed:', error)
@@ -131,19 +203,6 @@ const AddProductScreen = ({ navigation }) => {
 
   const onSubmit = async (formData: AddProductFormValues) => {
     try {
-      const requestPayload = new FormData()
-      requestPayload.append('title', String(formData.title ?? '').trim())
-      requestPayload.append('description', String(descriptionHtml ?? '').trim())
-      requestPayload.append('sku', String(formData.sku ?? '').trim())
-      requestPayload.append('brand', String(formData.brand ?? '').trim())
-      requestPayload.append('price', String(formData.price ?? '').trim())
-      requestPayload.append('sale_price', String(formData.sale_price ?? '').trim())
-      requestPayload.append('cost_price', String(formData.cost_price ?? '').trim())
-      requestPayload.append('quantity_in_stock', String(formData.quantity_in_stock ?? '').trim())
-      requestPayload.append('weight', String(formData.weight ?? '').trim())
-      requestPayload.append('size', String(formData.size ?? '').trim())
-      requestPayload.append('color', String(formData.color ?? '').trim())
-
       const newImages = productImages
         .filter((image) => !image?.isPlaceholder && image?.localAsset?.path)
         .map((image, index) => {
@@ -158,6 +217,27 @@ const AddProductScreen = ({ navigation }) => {
             name: fileName,
           }
         })
+
+      if (newImages.length < 1) {
+        setImageError('At least one image is required')
+        return
+      }
+
+      setImageError('')
+
+      const requestPayload = new FormData()
+      requestPayload.append('title', String(formData.title ?? '').trim())
+      requestPayload.append('description', String(descriptionHtml ?? '').trim())
+      requestPayload.append('sku', String(formData.sku ?? '').trim())
+      requestPayload.append('brand', String(formData.brand ?? '').trim())
+      requestPayload.append('price', String(formData.price ?? '').trim())
+      requestPayload.append('sale_price', String(formData.sale_price ?? '').trim())
+      requestPayload.append('cost_price', String(formData.cost_price ?? '').trim())
+      requestPayload.append('quantity_in_stock', String(formData.quantity_in_stock ?? '').trim())
+      requestPayload.append('reorder_level', String(formData.reorder_level ?? '').trim())
+      requestPayload.append('weight', String(formData.weight ?? '').trim())
+      requestPayload.append('size', String(formData.size ?? '').trim())
+      requestPayload.append('color', String(formData.color ?? '').trim())
 
       newImages.forEach((imageFile) => {
         requestPayload.append('images[]', imageFile as any)
@@ -289,6 +369,9 @@ const AddProductScreen = ({ navigation }) => {
                   </TouchableOpacity>
                 ))}
               </View>
+              {imageError ? (
+                <Text style={styles.imageErrorText}>{imageError}</Text>
+              ) : null}
             </View>
             <View style={styles.content}>
               <View style={styles.inputField}>
@@ -338,24 +421,34 @@ const AddProductScreen = ({ navigation }) => {
                   ]}
                 />
                 <View style={styles.richEditorContainer}>
-                  <RichEditor
-                    ref={richText}
-                    useContainer={false}
-                    style={styles.richEditor}
-                    initialContentHTML={descriptionHtml}
-                    initialHeight={36}
-                    placeholder="Enter description"
-                    editorStyle={{
-                      backgroundColor: AppColors.grey,
-                      color: AppColors.blue,
-                      placeholderColor: AppColors.grey2,
-                      contentCSSText: 'font-size: 14px; line-height: 18px; min-height: 28px;'
-                    }}
-                    onChange={(value) => {
-                      setDescriptionHtml(value)
-                    }}
+                  <Controller
+                    control={control}
+                    name="description"
+                    render={({ field: { onChange } }) => (
+                      <RichEditor
+                        ref={richText}
+                        useContainer={false}
+                        style={styles.richEditor}
+                        initialContentHTML={descriptionHtml}
+                        initialHeight={36}
+                        placeholder="Enter description"
+                        editorStyle={{
+                          backgroundColor: AppColors.grey,
+                          color: AppColors.blue,
+                          placeholderColor: AppColors.grey2,
+                          contentCSSText: 'font-size: 14px; line-height: 18px; min-height: 28px;'
+                        }}
+                        onChange={(value) => {
+                          setDescriptionHtml(value)
+                          onChange(value)
+                        }}
+                      />
+                    )}
                   />
                 </View>
+                {errors.description && (
+                  <Text style={styles.errorText}>{errors.description.message}</Text>
+                )}
               </View>
               <View style={styles.inputField}>
                 <Text style={styles.formLabel}>SKU:</Text>
@@ -374,6 +467,9 @@ const AddProductScreen = ({ navigation }) => {
                     />
                   )}
                 />
+                {errors.sku && (
+                  <Text style={styles.errorText}>{errors.sku.message}</Text>
+                )}
               </View>
               <View style={styles.inputField}>
                 <Text style={styles.formLabel}>Brand:</Text>
@@ -392,6 +488,9 @@ const AddProductScreen = ({ navigation }) => {
                     />
                   )}
                 />
+                {errors.brand && (
+                  <Text style={styles.errorText}>{errors.brand.message}</Text>
+                )}
               </View>
               <View style={styles.inputField}>
                 <Text style={styles.formLabel}>Price:</Text>
@@ -410,6 +509,9 @@ const AddProductScreen = ({ navigation }) => {
                     />
                   )}
                 />
+                {errors.price && (
+                  <Text style={styles.errorText}>{errors.price.message}</Text>
+                )}
               </View>
               <View style={styles.inputField}>
                 <Text style={styles.formLabel}>Sale Price:</Text>
@@ -428,6 +530,9 @@ const AddProductScreen = ({ navigation }) => {
                     />
                   )}
                 />
+                {errors.sale_price && (
+                  <Text style={styles.errorText}>{errors.sale_price.message}</Text>
+                )}
               </View>
               <View style={styles.inputField}>
                 <Text style={styles.formLabel}>Cost Price:</Text>
@@ -446,6 +551,9 @@ const AddProductScreen = ({ navigation }) => {
                     />
                   )}
                 />
+                {errors.cost_price && (
+                  <Text style={styles.errorText}>{errors.cost_price.message}</Text>
+                )}
               </View>
               <View style={styles.inputField}>
                 <Text style={styles.formLabel}>Quantity:</Text>
@@ -459,11 +567,35 @@ const AddProductScreen = ({ navigation }) => {
                       onChangeText={onChange}
                       placeholder="Enter quantity"
                       placeholderTextColor={AppColors.grey2}
-                      keyboardType="decimal-pad"
+                      keyboardType="number-pad"
                       returnKeyType="done"
                     />
                   )}
                 />
+                {errors.quantity_in_stock && (
+                  <Text style={styles.errorText}>{errors.quantity_in_stock.message}</Text>
+                )}
+              </View>
+              <View style={styles.inputField}>
+                <Text style={styles.formLabel}>Reorder Level:</Text>
+                <Controller
+                  control={control}
+                  name="reorder_level"
+                  render={({ field: { onChange, value } }) => (
+                    <TextInput
+                      style={styles.textField}
+                      value={value}
+                      onChangeText={onChange}
+                      placeholder="Enter reorder level"
+                      placeholderTextColor={AppColors.grey2}
+                      keyboardType="number-pad"
+                      returnKeyType="done"
+                    />
+                  )}
+                />
+                {errors.reorder_level && (
+                  <Text style={styles.errorText}>{errors.reorder_level.message}</Text>
+                )}
               </View>
               <View style={styles.inputField}>
                 <Text style={styles.formLabel}>Weight:</Text>
@@ -482,6 +614,9 @@ const AddProductScreen = ({ navigation }) => {
                     />
                   )}
                 />
+                {errors.weight && (
+                  <Text style={styles.errorText}>{errors.weight.message}</Text>
+                )}
               </View>
               <View style={styles.inputField}>
                 <Text style={styles.formLabel}>Size</Text>
@@ -500,6 +635,9 @@ const AddProductScreen = ({ navigation }) => {
                     />
                   )}
                 />
+                {errors.size && (
+                  <Text style={styles.errorText}>{errors.size.message}</Text>
+                )}
               </View>
               <View style={styles.inputField}>
                 <Text style={styles.formLabel}>Color</Text>
@@ -518,6 +656,9 @@ const AddProductScreen = ({ navigation }) => {
                     />
                   )}
                 />
+                {errors.color && (
+                  <Text style={styles.errorText}>{errors.color.message}</Text>
+                )}
               </View>
               <View style={styles.row}>
                 <TouchableOpacity
@@ -643,6 +784,12 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: AppColors.blue,
   },
+  imageErrorText: {
+    color: AppColors.red,
+    fontSize: 12,
+    marginTop: 8,
+    textAlign: 'center',
+  },
   content: {
     marginTop: 24,
   },
@@ -677,6 +824,11 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 8,
     color: AppColors.blue,
+  },
+  errorText: {
+    color: AppColors.red,
+    fontSize: 12,
+    marginTop: 4,
   },
   richEditorContainer: {
     height: 400,
