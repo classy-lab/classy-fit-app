@@ -134,6 +134,62 @@ type EditEquipmentFormValues = {
   notes: string
 }
 
+const DEFAULT_FORM_VALUES: EditEquipmentFormValues = {
+  equipment_category_uid: '',
+  title: '',
+  description: '',
+  brand: '',
+  model: '',
+  serial_number: '',
+  asset_tag: '',
+  quantity: '1',
+  color: '',
+  location: '',
+  purchase_date: '',
+  purchase_price: '',
+  warranty_expiration_date: '',
+  status: 'active',
+  equipment_condition: '',
+  maintenance_interval_days: '',
+  notes: '',
+}
+
+const TEXT_FIELDS = [
+  ['title', 'Title:', 'Enter equipment title', { autoCapitalize: 'words' }],
+  ['brand', 'Brand:', 'Enter brand', { autoCapitalize: 'words' }],
+  ['model', 'Model:', 'Enter model', { autoCapitalize: 'characters' }],
+  ['serial_number', 'Serial Number:', 'Enter serial number', { autoCapitalize: 'characters' }],
+  ['asset_tag', 'Asset Tag:', 'Enter asset tag', { autoCapitalize: 'characters' }],
+  ['quantity', 'Quantity:', 'Enter quantity', { keyboardType: 'number-pad', autoCapitalize: 'none' }],
+  ['color', 'Color:', 'Enter color', { autoCapitalize: 'words' }],
+  ['location', 'Location:', 'Enter gym location', { autoCapitalize: 'words' }],
+  ['purchase_price', 'Purchase Price:', 'Enter purchase price', { keyboardType: 'decimal-pad', autoCapitalize: 'none' }],
+  ['maintenance_interval_days', 'Maintenance Interval (Days):', 'Example: 90', { keyboardType: 'number-pad', autoCapitalize: 'none' }],
+  ['notes', 'Notes:', 'Enter notes'],
+]
+
+const DATE_FIELDS = {
+  purchase_date: ['purchase_date', 'Purchase Date:', 'Select purchase date', new Date()],
+  warranty_expiration_date: [
+    'warranty_expiration_date',
+    'Warranty Expiration Date:',
+    'Select warranty expiration date',
+    null,
+  ],
+}
+
+const RICH_EDITOR_ACTIONS = [
+  actions.setBold,
+  actions.setItalic,
+  actions.setUnderline,
+  actions.setStrikethrough,
+  actions.insertBulletsList,
+  actions.insertOrderedList,
+  actions.insertLink,
+  actions.undo,
+  actions.redo,
+]
+
 const emptyImageSlots = () =>
   Array.from({ length: EQUIPMENT_IMAGE_PLACEHOLDER_COUNT }, (_, index) => ({
     id: `placeholder-${index}`,
@@ -160,11 +216,70 @@ const resolveEquipmentImageUri = (webServer: string, imageUrl?: string) => {
   return `${webServer}/api/${normalized.replace(/^\/?(api\/)?/, '')}`
 }
 
+const buildEquipmentImageSlots = (images = [], webServer: string) => {
+  const existingSlots = images
+    .slice(0, EQUIPMENT_IMAGE_PLACEHOLDER_COUNT)
+    .map((image, index) => ({
+      id: `existing-${image?.uid || index}`,
+      isPlaceholder: false,
+      image_url: image?.image_url || '',
+      source: { uri: resolveEquipmentImageUri(webServer, image?.image_url) },
+    }))
+
+  return [
+    ...existingSlots,
+    ...emptyImageSlots().slice(existingSlots.length),
+  ]
+}
+
+const equipmentToFormValues = (equipment: any): EditEquipmentFormValues => ({
+  ...DEFAULT_FORM_VALUES,
+  equipment_category_uid: String(equipment?.equipment_category_uid ?? ''),
+  title: String(equipment?.title ?? ''),
+  description: String(equipment?.description ?? ''),
+  brand: String(equipment?.brand ?? ''),
+  model: String(equipment?.model ?? ''),
+  serial_number: String(equipment?.serial_number ?? ''),
+  asset_tag: String(equipment?.asset_tag ?? ''),
+  quantity: String(equipment?.quantity ?? '1'),
+  color: String(equipment?.color ?? ''),
+  location: String(equipment?.location ?? ''),
+  purchase_date: normalizeDateValue(equipment?.purchase_date),
+  purchase_price: equipment?.purchase_price == null ? '' : String(equipment.purchase_price),
+  warranty_expiration_date: normalizeDateValue(equipment?.warranty_expiration_date),
+  status: String(equipment?.status ?? 'active'),
+  equipment_condition: String(equipment?.equipment_condition ?? ''),
+  maintenance_interval_days:
+    equipment?.maintenance_interval_days == null ? '' : String(equipment.maintenance_interval_days),
+  notes: String(equipment?.notes ?? ''),
+})
+
+const buildRequestPayload = (formData: EditEquipmentFormValues) =>
+  Object.fromEntries(
+    Object.entries(formData).map(([key, value]) => [
+      key,
+      String(value ?? '').trim(),
+    ])
+  )
+
+const parseResponseJson = async (response: Response) => {
+  const rawResponse = await response.text()
+  return rawResponse ? JSON.parse(rawResponse) : {}
+}
+
+const showErrorMessage = (description: string, autoHide = true) =>
+  showMessage({
+    message: 'Action Failed',
+    description,
+    type: 'danger',
+    icon: 'danger',
+    autoHide,
+  })
+
 const EquipmentEditScreen = ({ navigation, route }) => {
   const { user, tokens, setTokens, webServer } = useContext(UserContext)
   const routeEquipment = route?.params?.equipment || {}
   const equipmentId = route?.params?.equipmentId ?? routeEquipment?.uid
-  const [equipment, setEquipment] = useState(routeEquipment || {})
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [descriptionHtml, setDescriptionHtml] = useState('')
   const [isLoading, setIsLoading] = useState(true)
@@ -177,89 +292,20 @@ const EquipmentEditScreen = ({ navigation, route }) => {
     control,
     handleSubmit,
     reset,
-    setValue,
     formState: { errors },
   } = useForm<EditEquipmentFormValues>({
     resolver: yupResolver(editEquipmentSchema),
-    defaultValues: {
-      equipment_category_uid: '',
-      title: '',
-      description: '',
-      brand: '',
-      model: '',
-      serial_number: '',
-      asset_tag: '',
-      quantity: '1',
-      color: '',
-      location: '',
-      purchase_date: '',
-      purchase_price: '',
-      warranty_expiration_date: '',
-      status: 'active',
-      equipment_condition: '',
-      maintenance_interval_days: '',
-      notes: '',
-    },
+    defaultValues: DEFAULT_FORM_VALUES,
   })
 
   const [equipmentImages, setEquipmentImages] = useState(emptyImageSlots)
 
-  const buildEquipmentImageSlots = (images = []) => {
-    const existingSlots = images
-      .slice(0, EQUIPMENT_IMAGE_PLACEHOLDER_COUNT)
-      .map((image, index) => ({
-        id: `existing-${image?.uid || index}`,
-        isPlaceholder: false,
-        image_url: image?.image_url || '',
-        source: { uri: resolveEquipmentImageUri(webServer, image?.image_url) },
-      }))
-
-    const remainingSlots = EQUIPMENT_IMAGE_PLACEHOLDER_COUNT - existingSlots.length
-
-    if (remainingSlots <= 0) {
-      return existingSlots
-    }
-
-    return [
-      ...existingSlots,
-      ...Array.from({ length: remainingSlots }, (_, index) => ({
-        id: `placeholder-${existingSlots.length + index}`,
-        iconName: 'image-outline',
-        isPlaceholder: true,
-      })),
-    ]
-  }
-
   const hydrateForm = (payload: any) => {
-    const formValues = {
-      equipment_category_uid: String(payload?.equipment_category_uid ?? ''),
-      title: String(payload?.title ?? ''),
-      description: String(payload?.description ?? ''),
-      brand: String(payload?.brand ?? ''),
-      model: String(payload?.model ?? ''),
-      serial_number: String(payload?.serial_number ?? ''),
-      asset_tag: String(payload?.asset_tag ?? ''),
-      quantity: String(payload?.quantity ?? '1'),
-      color: String(payload?.color ?? ''),
-      location: String(payload?.location ?? ''),
-      purchase_date: normalizeDateValue(payload?.purchase_date),
-      purchase_price:
-        payload?.purchase_price === null || payload?.purchase_price === undefined
-          ? ''
-          : String(payload.purchase_price),
-      warranty_expiration_date: normalizeDateValue(payload?.warranty_expiration_date),
-      status: String(payload?.status ?? 'active'),
-      equipment_condition: String(payload?.equipment_condition ?? ''),
-      maintenance_interval_days:
-        payload?.maintenance_interval_days === null || payload?.maintenance_interval_days === undefined
-          ? ''
-          : String(payload.maintenance_interval_days),
-      notes: String(payload?.notes ?? ''),
-    }
+    const formValues = equipmentToFormValues(payload)
 
     reset(formValues)
     setDescriptionHtml(formValues.description)
-    setEquipmentImages(buildEquipmentImageSlots(payload?.images || []))
+    setEquipmentImages(buildEquipmentImageSlots(payload?.images || [], webServer))
     setSelectedImageIndex(0)
     setImageError('')
   }
@@ -268,12 +314,7 @@ const EquipmentEditScreen = ({ navigation, route }) => {
     const fetchEquipment = async () => {
       if (!equipmentId) {
         setIsLoading(false)
-        showMessage({
-          message: 'Action Failed',
-          description: 'Missing equipment id. Please reopen this equipment from the list.',
-          type: 'danger',
-          icon: 'danger',
-        })
+        showErrorMessage('Missing equipment id. Please reopen this equipment from the list.')
         return
       }
 
@@ -289,12 +330,10 @@ const EquipmentEditScreen = ({ navigation, route }) => {
           }
         )
 
-        const rawResponse = await response.text()
-        const obj = rawResponse ? JSON.parse(rawResponse) : {}
+        const obj = await parseResponseJson(response)
 
         if (response.status === 200) {
           const payload = obj?.data || {}
-          setEquipment(payload)
           hydrateForm(payload)
           return
         }
@@ -318,21 +357,10 @@ const EquipmentEditScreen = ({ navigation, route }) => {
           }
         }
 
-        showMessage({
-          message: 'Action Failed',
-          description: obj?.message || 'Unable to load equipment. Please try again.',
-          type: 'danger',
-          icon: 'danger',
-          autoHide: false,
-        })
+        showErrorMessage(obj?.message || 'Unable to load equipment. Please try again.', false)
       } catch (error) {
         console.log('EquipmentEditScreen equipment error: ', error)
-        showMessage({
-          message: 'Action Failed',
-          description: 'Unable to load equipment. Please check your connection and try again.',
-          type: 'danger',
-          icon: 'danger',
-        })
+        showErrorMessage('Unable to load equipment. Please check your connection and try again.')
       } finally {
         setIsLoading(false)
       }
@@ -368,25 +396,7 @@ const EquipmentEditScreen = ({ navigation, route }) => {
       setIsSubmitting(true)
       setImageError('')
 
-      const requestPayload = {
-        equipment_category_uid: String(formData.equipment_category_uid ?? '').trim(),
-        title: String(formData.title ?? '').trim(),
-        description: String(formData.description ?? '').trim(),
-        brand: String(formData.brand ?? '').trim(),
-        model: String(formData.model ?? '').trim(),
-        serial_number: String(formData.serial_number ?? '').trim(),
-        asset_tag: String(formData.asset_tag ?? '').trim(),
-        quantity: String(formData.quantity ?? '1').trim(),
-        color: String(formData.color ?? '').trim(),
-        location: String(formData.location ?? '').trim(),
-        purchase_date: String(formData.purchase_date ?? '').trim(),
-        purchase_price: String(formData.purchase_price ?? '').trim(),
-        warranty_expiration_date: String(formData.warranty_expiration_date ?? '').trim(),
-        status: String(formData.status ?? 'active').trim().toLowerCase(),
-        equipment_condition: String(formData.equipment_condition ?? '').trim().toLowerCase(),
-        maintenance_interval_days: String(formData.maintenance_interval_days ?? '').trim(),
-        notes: String(formData.notes ?? '').trim(),
-      }
+      const requestPayload = buildRequestPayload(formData)
 
       const response = await fetch(
         `${webServer}/api/v1/gyms/${user.gym_id}/equipment/${equipmentId}`,
@@ -400,12 +410,11 @@ const EquipmentEditScreen = ({ navigation, route }) => {
         }
       )
 
-      const rawResponse = await response.text()
-      const obj = rawResponse ? JSON.parse(rawResponse) : {}
+      const obj = await parseResponseJson(response)
 
       if (response.status === 200) {
         const updatedEquipment = obj?.data || {
-          ...(equipment || {}),
+          ...(routeEquipment || {}),
           ...requestPayload,
         }
 
@@ -430,22 +439,13 @@ const EquipmentEditScreen = ({ navigation, route }) => {
         return
       }
 
-      showMessage({
-        message: 'Action Failed',
-        description:
-          obj?.message || `Something went wrong while updating equipment (${response.status}).`,
-        type: 'danger',
-        icon: 'danger',
-        autoHide: false,
-      })
+      showErrorMessage(
+        obj?.message || `Something went wrong while updating equipment (${response.status}).`,
+        false
+      )
     } catch (error) {
       console.log('Update equipment request failed:', error)
-      showMessage({
-        message: 'Action Failed',
-        description: 'Network error while updating equipment.',
-        type: 'danger',
-        icon: 'danger',
-      })
+      showErrorMessage('Network error while updating equipment.')
     } finally {
       setIsSubmitting(false)
     }
@@ -517,7 +517,7 @@ const EquipmentEditScreen = ({ navigation, route }) => {
     name: keyof EditEquipmentFormValues,
     label: string,
     placeholder: string,
-    maximumDate?: Date
+    maximumDate?: Date | null
   ) => (
     <View style={styles.inputField}>
       <Text style={styles.formLabel}>{label}</Text>
@@ -633,9 +633,7 @@ const EquipmentEditScreen = ({ navigation, route }) => {
             </View>
 
             <View style={styles.content}>
-              {renderTextField('title', 'Title:', 'Enter equipment title', {
-                autoCapitalize: 'words',
-              })}
+              {renderTextField(...TEXT_FIELDS[0])}
 
               <View style={styles.descriptionBlock}>
                 <Text style={styles.formLabel}>Description:</Text>
@@ -645,17 +643,7 @@ const EquipmentEditScreen = ({ navigation, route }) => {
                   iconTint={AppColors.blue}
                   selectedIconTint={AppColors.white}
                   selectedButtonStyle={styles.richToolbarSelectedButton}
-                  actions={[
-                    actions.setBold,
-                    actions.setItalic,
-                    actions.setUnderline,
-                    actions.setStrikethrough,
-                    actions.insertBulletsList,
-                    actions.insertOrderedList,
-                    actions.insertLink,
-                    actions.undo,
-                    actions.redo,
-                  ]}
+                  actions={RICH_EDITOR_ACTIONS}
                 />
                 <View style={styles.richEditorContainer}>
                   <Controller
@@ -678,7 +666,6 @@ const EquipmentEditScreen = ({ navigation, route }) => {
                         onChange={(value) => {
                           lastSyncedHtmlRef.current = value
                           setDescriptionHtml(value)
-                          setValue('description', value, { shouldValidate: true })
                           onChange(value)
                         }}
                       />
@@ -696,33 +683,12 @@ const EquipmentEditScreen = ({ navigation, route }) => {
                 'Select category',
                 CATEGORY_OPTIONS
               )}
-              {renderTextField('brand', 'Brand:', 'Enter brand', { autoCapitalize: 'words' })}
-              {renderTextField('model', 'Model:', 'Enter model', { autoCapitalize: 'characters' })}
-              {renderTextField('serial_number', 'Serial Number:', 'Enter serial number', {
-                autoCapitalize: 'characters',
-              })}
-              {renderTextField('asset_tag', 'Asset Tag:', 'Enter asset tag', {
-                autoCapitalize: 'characters',
-              })}
-              {renderTextField('quantity', 'Quantity:', 'Enter quantity', {
-                keyboardType: 'number-pad',
-                autoCapitalize: 'none',
-              })}
-              {renderTextField('color', 'Color:', 'Enter color', { autoCapitalize: 'words' })}
-              {renderTextField('location', 'Location:', 'Enter gym location', {
-                autoCapitalize: 'words',
-              })}
-              {renderDateField('purchase_date', 'Purchase Date:', 'Select purchase date', new Date())}
-              {renderTextField('purchase_price', 'Purchase Price:', 'Enter purchase price', {
-                keyboardType: 'decimal-pad',
-                autoCapitalize: 'none',
-              })}
-              {renderDateField(
-                'warranty_expiration_date',
-                'Warranty Expiration Date:',
-                'Select warranty expiration date',
-                null
+              {TEXT_FIELDS.slice(1, 8).map(([name, label, placeholder, options]) =>
+                renderTextField(name, label, placeholder, options)
               )}
+              {renderDateField(...DATE_FIELDS.purchase_date)}
+              {renderTextField(...TEXT_FIELDS[8])}
+              {renderDateField(...DATE_FIELDS.warranty_expiration_date)}
               {renderSelectField('status', 'Status:', 'Select status', STATUS_OPTIONS)}
               {renderSelectField(
                 'equipment_condition',
@@ -730,13 +696,7 @@ const EquipmentEditScreen = ({ navigation, route }) => {
                 'Select condition',
                 CONDITION_OPTIONS
               )}
-              {renderTextField(
-                'maintenance_interval_days',
-                'Maintenance Interval (Days):',
-                'Example: 90',
-                { keyboardType: 'number-pad', autoCapitalize: 'none' }
-              )}
-              {renderTextField('notes', 'Notes:', 'Enter notes')}
+              {TEXT_FIELDS.slice(9).map((field) => renderTextField(...field))}
 
               <View style={styles.row}>
                 <TouchableOpacity
