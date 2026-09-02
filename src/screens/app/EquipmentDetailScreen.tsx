@@ -6,6 +6,17 @@ import Feather from '@expo/vector-icons/Feather'
 import { AppColors } from '../../styles/colors'
 import { UserContext } from '../../context/UserContext'
 
+const resolveEquipmentImageUri = (webServer, imageUrl) => {
+  const normalized = String(imageUrl ?? '').trim();
+
+  if (!normalized) return null;
+  if (/^https?:\/\//i.test(normalized) || normalized.startsWith('file://')) {
+    return normalized;
+  }
+
+  return `${webServer}/api/${normalized.replace(/^\/?(api\/)?/, '')}`;
+};
+
 const EquipmentDetailScreen = ({ navigation, route }) => {
   const { user } = useContext(UserContext);
   const { tokens, setTokens } = useContext(UserContext);
@@ -95,7 +106,10 @@ const EquipmentDetailScreen = ({ navigation, route }) => {
   const orderedImages = images.length > 0
     ? [...images].sort((a, b) => (b?.is_primary ? 1 : 0) - (a?.is_primary ? 1 : 0))
     : [];
-  const selectedImage = orderedImages[selectedImageIndex]?.image_url || orderedImages[0]?.image_url || null;
+  const selectedImage = resolveEquipmentImageUri(
+    webServer,
+    orderedImages[selectedImageIndex]?.image_url || orderedImages[0]?.image_url
+  );
 
   const detailRows = [
     { label: 'Category', value: equipment?.equipment_category_name },
@@ -152,7 +166,7 @@ const EquipmentDetailScreen = ({ navigation, route }) => {
                   {selectedImage ? (
                     <Image
                       style={styles.heroImage}
-                      source={{ uri: `${webServer}` + '/api/' + selectedImage }}
+                      source={{ uri: selectedImage }}
                       resizeMode="cover"
                     />
                   ) : (
@@ -164,13 +178,13 @@ const EquipmentDetailScreen = ({ navigation, route }) => {
                 {orderedImages.length > 1 && (
                   <View style={styles.heroImageThumbnails}>
                     {orderedImages.map((image, index) => (
-                      <TouchableOpacity key={`${image?.image_url || index}`} onPress={() => setSelectedImageIndex(index)}>
+                      <TouchableOpacity key={`equipment-image-${image?.uid ?? index}`} onPress={() => setSelectedImageIndex(index)}>
                         <Image
                           style={[
                             styles.thumbnail,
                             selectedImageIndex === index && styles.selectedThumbnail,
                           ]}
-                          source={{ uri: `${webServer}` + '/api/' + image?.image_url || null }}
+                          source={{ uri: resolveEquipmentImageUri(webServer, image?.image_url) }}
                           resizeMode="cover"
                         />
                       </TouchableOpacity>
