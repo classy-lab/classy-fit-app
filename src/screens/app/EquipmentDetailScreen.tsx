@@ -1,10 +1,21 @@
 // @ts-nocheck
 import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, ActivityIndicator } from 'react-native'
-import { useState, useEffect, useContext } from 'react'
+import { useState, useCallback, useContext } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
+import { useFocusEffect } from '@react-navigation/native'
 import { AppColors } from '../../styles/colors'
 import { UserContext } from '../../context/UserContext'
+
+const EQUIPMENT_IMAGE_PLACEHOLDER_COUNT = 5
+
+const emptyImageSlots = () =>
+  Array.from({ length: EQUIPMENT_IMAGE_PLACEHOLDER_COUNT }, (_, index) => ({
+    id: `placeholder-${index}`,
+    iconName: 'image-outline',
+    isPlaceholder: true,
+  }))
 
 const resolveEquipmentImageUri = (webServer, imageUrl) => {
   const normalized = String(imageUrl ?? '').trim();
@@ -15,6 +26,28 @@ const resolveEquipmentImageUri = (webServer, imageUrl) => {
   }
 
   return `${webServer}/api/${normalized.replace(/^\/?(api\/)?/, '')}`;
+};
+
+const buildEquipmentImageSlots = (images = [], webServer) => {
+  const sortedImages = [...images].sort((a, b) => {
+    const orderA = Number(a?.sort_order ?? 999);
+    const orderB = Number(b?.sort_order ?? 999);
+    return orderA - orderB;
+  });
+
+  const existingSlots = sortedImages
+    .slice(0, EQUIPMENT_IMAGE_PLACEHOLDER_COUNT)
+    .map((image, index) => ({
+      id: `existing-${image?.uid || index}`,
+      isPlaceholder: false,
+      image_url: image?.image_url || '',
+      source: { uri: resolveEquipmentImageUri(webServer, image?.image_url) },
+    }));
+
+  return [
+    ...existingSlots,
+    ...emptyImageSlots().slice(existingSlots.length),
+  ];
 };
 
 const EquipmentDetailScreen = ({ navigation, route }) => {
@@ -28,13 +61,20 @@ const EquipmentDetailScreen = ({ navigation, route }) => {
   const [error, setError] = useState('');
   const [notFound, setNotFound] = useState(false);
 
-  useEffect(() => {
+  useFocusEffect(
+    useCallback(() => {
     const fetchEquipment = async () => {
       setIsLoading(true);
       setError('');
       setNotFound(false);
 
       try {
+        if (!equipmentId) {
+          setIsLoading(false);
+          setNotFound(true);
+          return;
+        }
+
         const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/equipment/${equipmentId}`, {
           headers: {
             Authorization: "Bearer " + tokens.access_token,
@@ -53,7 +93,7 @@ const EquipmentDetailScreen = ({ navigation, route }) => {
           setSelectedImageIndex(0);
         }
         else {
-          console.log("Access token expired, requesting new one - useEffect()");
+          console.log("Access token expired, requesting new one - useFocusEffect()");
 
           const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
             method: "POST",
@@ -84,13 +124,9 @@ const EquipmentDetailScreen = ({ navigation, route }) => {
       }
     };
 
-    if (equipmentId) {
-      fetchEquipment();
-    } else {
-      setIsLoading(false);
-      setNotFound(true);
-    }
-  }, [tokens?.access_token, tokens?.refresh_token, equipmentId]);
+    fetchEquipment();
+    }, [tokens?.access_token, tokens?.refresh_token, equipmentId, user?.gym_id, webServer, setTokens])
+  );
 
   const handleEditPress = () => {
     const availableRoutes = navigation.getState?.()?.routeNames ?? [];
@@ -103,12 +139,10 @@ const EquipmentDetailScreen = ({ navigation, route }) => {
   };
 
   const images = Array.isArray(equipment?.images) ? equipment.images : [];
-  const orderedImages = images.length > 0
-    ? [...images].sort((a, b) => (b?.is_primary ? 1 : 0) - (a?.is_primary ? 1 : 0))
-    : [];
+  const imageSlots = buildEquipmentImageSlots(images, webServer);
   const selectedImage = resolveEquipmentImageUri(
     webServer,
-    orderedImages[selectedImageIndex]?.image_url || orderedImages[0]?.image_url
+    imageSlots[selectedImageIndex]?.image_url || imageSlots[0]?.image_url
   );
 
   const detailRows = [
@@ -175,18 +209,34 @@ const EquipmentDetailScreen = ({ navigation, route }) => {
                     </View>
                   )}
                 </View>
-                {orderedImages.length > 1 && (
+                {imageSlots.length > 1 && (
                   <View style={styles.heroImageThumbnails}>
-                    {orderedImages.map((image, index) => (
-                      <TouchableOpacity key={`equipment-image-${image?.uid ?? index}`} onPress={() => setSelectedImageIndex(index)}>
-                        <Image
-                          style={[
-                            styles.thumbnail,
-                            selectedImageIndex === index && styles.selectedThumbnail,
-                          ]}
-                          source={{ uri: resolveEquipmentImageUri(webServer, image?.image_url) }}
-                          resizeMode="cover"
-                        />
+                    {imageSlots.map((image, index) => (
+                      <TouchableOpacity key={image.id} onPress={() => setSelectedImageIndex(index)}>
+                        {image.isPlaceholder ? (
+                          <View
+                            style={[
+                              styles.thumbnail,
+                              styles.placeholderThumbnail,
+                              selectedImageIndex === index && styles.selectedThumbnail,
+                            ]}
+                          >
+                            <MaterialCommunityIcons
+                              name={image.iconName || 'image-outline'}
+                              size={24}
+                              color={AppColors.blue}
+                            />
+                          </View>
+                        ) : (
+                          <Image
+                            style={[
+                              styles.thumbnail,
+                              selectedImageIndex === index && styles.selectedThumbnail,
+                            ]}
+                            source={{ uri: image.source?.uri }}
+                            resizeMode="cover"
+                          />
+                        )}
                       </TouchableOpacity>
                     ))}
                   </View>
@@ -306,6 +356,13 @@ const styles = StyleSheet.create({
     height: 56,
     marginRight: 8,
     borderRadius: 8,
+  },
+  placeholderThumbnail: {
+    backgroundColor: AppColors.grey,
+    borderWidth: 1,
+    borderColor: AppColors.textInputBorderColor,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   selectedThumbnail: {
     borderWidth: 2,
