@@ -18,15 +18,29 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import ImagePicker from 'react-native-image-crop-picker'
 import { RichEditor, RichToolbar, actions } from 'react-native-pell-rich-editor'
+import { SelectList } from 'react-native-dropdown-select-list'
 import { hideMessage, showMessage } from 'react-native-flash-message'
 import { AppColors } from '../../styles/colors'
 import { UserContext } from '../../context/UserContext'
+import DateOfBirthField from '../../components/forms/input_fields/DateOfBirthField'
 
 const MAX_EQUIPMENT_IMAGE_BYTES = 10 * 1024 * 1024
 const EQUIPMENT_IMAGE_PLACEHOLDER_COUNT = 5
 
 const STATUS_VALUES = ['active', 'maintenance', 'out_of_service', 'retired']
 const CONDITION_VALUES = ['excellent', 'good', 'fair', 'poor']
+
+const toTitleCase = (value: string) =>
+  value
+    .split('_')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
+
+const STATUS_OPTIONS = STATUS_VALUES.map((value) => ({ key: value, value: toTitleCase(value) }))
+const CONDITION_OPTIONS = CONDITION_VALUES.map((value) => ({ key: value, value: toTitleCase(value) }))
+
+const optionForValue = (options: Array<{ key: string; value: string }>, value: any) =>
+  options.find((option) => option.key === String(value ?? ''))
 
 const nullablePositiveNumber = (label: string) =>
   yup
@@ -139,6 +153,7 @@ const AddEquipmentScreen = ({ navigation }) => {
   const [descriptionHtml, setDescriptionHtml] = useState('')
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [imageError, setImageError] = useState('')
   const richText = useRef(null)
 
   const {
@@ -229,6 +244,7 @@ const AddEquipmentScreen = ({ navigation }) => {
         next[targetIndex] = nextImage
         return next
       })
+      setImageError('')
       setSelectedImageIndex(targetIndex)
     } catch (error) {
       console.log('Equipment image selection cancelled or failed:', error)
@@ -258,11 +274,37 @@ const AddEquipmentScreen = ({ navigation }) => {
     }
   }
 
+  const collectNewImages = () =>
+    equipmentImages
+      .filter((image) => !image?.isPlaceholder && image?.localAsset?.path)
+      .map((image, index) => {
+        const localAsset = image.localAsset
+        const mimeType = localAsset?.mime || 'image/jpeg'
+
+        let extension = 'jpg'
+        if (mimeType === 'image/png') extension = 'png'
+        if (mimeType === 'image/webp') extension = 'webp'
+
+        return {
+          uri: localAsset.path,
+          type: mimeType,
+          name: localAsset?.filename || `equipment-image-${index + 1}.${extension}`,
+        }
+      })
+
   const onSubmit = async (formData: AddEquipmentFormValues) => {
     if (isSubmitting) return
 
+    const newImages = collectNewImages()
+
+    if (newImages.length < 1) {
+      setImageError('At least one image is required')
+      return
+    }
+
     try {
       setIsSubmitting(true)
+      setImageError('')
 
       const requestPayload = new FormData()
 
@@ -296,26 +338,6 @@ const AddEquipmentScreen = ({ navigation }) => {
         formData.maintenance_interval_days
       )
       appendNullableField(requestPayload, 'notes', formData.notes)
-
-      const newImages = equipmentImages
-        .filter((image) => !image?.isPlaceholder && image?.localAsset?.path)
-        .map((image, index) => {
-          const localAsset = image.localAsset
-          const mimeType = localAsset?.mime || 'image/jpeg'
-
-          let extension = 'jpg'
-          if (mimeType === 'image/png') extension = 'png'
-          if (mimeType === 'image/webp') extension = 'webp'
-
-          const fileName =
-            localAsset?.filename || `equipment-image-${index + 1}.${extension}`
-
-          return {
-            uri: localAsset.path,
-            type: mimeType,
-            name: fileName,
-          }
-        })
 
       newImages.forEach((imageFile) => {
         requestPayload.append('images[]', imageFile as any)
@@ -419,6 +441,66 @@ const AddEquipmentScreen = ({ navigation }) => {
     </View>
   )
 
+  const renderDateField = (
+    name: keyof AddEquipmentFormValues,
+    label: string,
+    placeholder: string,
+    maximumDate?: Date | null
+  ) => (
+    <View style={styles.inputField}>
+      <Text style={styles.formLabel}>{label}</Text>
+      <Controller
+        control={control}
+        name={name}
+        render={({ field: { onChange, onBlur, value } }) => (
+          <DateOfBirthField
+            value={value}
+            onChange={onChange}
+            onBlur={onBlur}
+            placeholder={placeholder}
+            title={label.replace(':', '')}
+            maximumDate={maximumDate}
+          />
+        )}
+      />
+      {errors?.[name]?.message ? (
+        <Text style={styles.errorText}>{String(errors[name]?.message)}</Text>
+      ) : null}
+    </View>
+  )
+
+  const renderSelectField = (
+    name: keyof AddEquipmentFormValues,
+    label: string,
+    placeholder: string,
+    data: Array<{ key: string; value: string }>
+  ) => (
+    <View style={styles.inputField}>
+      <Text style={styles.formLabel}>{label}</Text>
+      <Controller
+        control={control}
+        name={name}
+        render={({ field: { onChange, value } }) => (
+          <SelectList
+            setSelected={onChange}
+            data={data}
+            save="key"
+            placeholder={placeholder}
+            defaultOption={optionForValue(data, value)}
+            search={false}
+            boxStyles={styles.selectBox}
+            dropdownStyles={styles.selectDropdown}
+            inputStyles={styles.selectInput}
+            dropdownTextStyles={styles.selectDropdownText}
+          />
+        )}
+      />
+      {errors?.[name]?.message ? (
+        <Text style={styles.errorText}>{String(errors[name]?.message)}</Text>
+      ) : null}
+    </View>
+  )
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.navs}>
@@ -510,6 +592,9 @@ const AddEquipmentScreen = ({ navigation }) => {
               ))}
             </View>
             <Text style={styles.imageHelpText}>Up to 5 JPEG, PNG, or WebP images. Maximum 10 MB each.</Text>
+            {imageError ? (
+              <Text style={styles.imageErrorText}>{imageError}</Text>
+            ) : null}
           </View>
 
           <View style={styles.content}>
@@ -538,22 +623,34 @@ const AddEquipmentScreen = ({ navigation }) => {
                 ]}
               />
               <View style={styles.richEditorContainer}>
-                <RichEditor
-                  ref={richText}
-                  useContainer={false}
-                  style={styles.richEditor}
-                  initialContentHTML={descriptionHtml}
-                  initialHeight={36}
-                  placeholder="Enter description"
-                  editorStyle={{
-                    backgroundColor: AppColors.grey,
-                    color: AppColors.blue,
-                    placeholderColor: AppColors.grey2,
-                    contentCSSText: 'font-size: 14px; line-height: 18px; min-height: 28px;',
-                  }}
-                  onChange={(value) => setDescriptionHtml(value)}
+                <Controller
+                  control={control}
+                  name="description"
+                  render={({ field: { onChange } }) => (
+                    <RichEditor
+                      ref={richText}
+                      useContainer={false}
+                      style={styles.richEditor}
+                      initialContentHTML={descriptionHtml}
+                      initialHeight={36}
+                      placeholder="Enter description"
+                      editorStyle={{
+                        backgroundColor: AppColors.grey,
+                        color: AppColors.blue,
+                        placeholderColor: AppColors.grey2,
+                        contentCSSText: 'font-size: 14px; line-height: 18px; min-height: 28px;',
+                      }}
+                      onChange={(value) => {
+                        setDescriptionHtml(value)
+                        onChange(value)
+                      }}
+                    />
+                  )}
                 />
               </View>
+              {errors.description && (
+                <Text style={styles.errorText}>{errors.description.message}</Text>
+              )}
             </View>
 
             {renderTextField(
@@ -578,35 +675,24 @@ const AddEquipmentScreen = ({ navigation }) => {
             {renderTextField('location', 'Location:', 'Enter gym location', {
               autoCapitalize: 'words',
             })}
-            {renderTextField('purchase_date', 'Purchase Date:', 'YYYY-MM-DD', {
-              autoCapitalize: 'none',
-            })}
+            {renderDateField('purchase_date', 'Purchase Date:', 'Select purchase date', new Date())}
             {renderTextField('purchase_price', 'Purchase Price:', 'Enter purchase price', {
               keyboardType: 'decimal-pad',
               autoCapitalize: 'none',
             })}
-            {renderTextField(
+            {renderDateField(
               'warranty_expiration_date',
               'Warranty Expiration Date:',
-              'YYYY-MM-DD',
-              { autoCapitalize: 'none' }
+              'Select warranty expiration date',
+              null
             )}
-            {renderTextField(
-              'status',
-              'Status:',
-              'active, maintenance, out_of_service, retired',
-              { autoCapitalize: 'none' }
-            )}
-            <Text style={styles.fieldHelpText}>
-              active · maintenance · out_of_service · retired
-            </Text>
-            {renderTextField(
+            {renderSelectField('status', 'Status:', 'Select status', STATUS_OPTIONS)}
+            {renderSelectField(
               'equipment_condition',
               'Condition:',
-              'excellent, good, fair, poor',
-              { autoCapitalize: 'none' }
+              'Select condition',
+              CONDITION_OPTIONS
             )}
-            <Text style={styles.fieldHelpText}>excellent · good · fair · poor</Text>
             {renderTextField(
               'maintenance_interval_days',
               'Maintenance Interval (Days):',
@@ -618,7 +704,14 @@ const AddEquipmentScreen = ({ navigation }) => {
             <View style={styles.row}>
               <TouchableOpacity
                 style={[styles.primaryBtn, isSubmitting && styles.disabledBtn]}
-                onPress={handleSubmit(onSubmit)}
+                onPress={() => {
+                  if (collectNewImages().length < 1) {
+                    setImageError('At least one image is required')
+                  } else {
+                    setImageError('')
+                  }
+                  handleSubmit(onSubmit)()
+                }}
                 disabled={isSubmitting}
               >
                 <Text style={styles.primaryBtnText}>
@@ -738,6 +831,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textAlign: 'center',
   },
+  imageErrorText: {
+    color: AppColors.red,
+    fontSize: 12,
+    marginTop: 8,
+    textAlign: 'center',
+  },
   content: {
     marginTop: 24,
   },
@@ -765,6 +864,27 @@ const styles = StyleSheet.create({
     color: AppColors.red,
     fontSize: 12,
     marginTop: 4,
+  },
+  selectBox: {
+    marginTop: 5,
+    borderWidth: 1,
+    borderColor: AppColors.textInputBorderColor,
+    backgroundColor: AppColors.grey,
+    minHeight: 48,
+    borderRadius: 8,
+    paddingLeft: 12,
+  },
+  selectDropdown: {
+    borderColor: AppColors.grey2,
+    borderWidth: 1,
+    marginTop: 8,
+    backgroundColor: AppColors.white,
+  },
+  selectInput: {
+    color: AppColors.blue,
+  },
+  selectDropdownText: {
+    color: AppColors.blue,
   },
   fieldHelpText: {
     marginTop: -4,
