@@ -156,6 +156,19 @@ const EditProductScreen = ({ navigation, route }) => {
     }
   };
 
+  const removeImage = (targetIndex: number) => {
+    setProductImages((prev) => {
+      const next = [...prev]
+      next[targetIndex] = {
+        id: `placeholder-${targetIndex}`,
+        iconName: 'image-outline',
+        isPlaceholder: true,
+      }
+      return next
+    })
+    setSelectedImageIndex((current) => (current === targetIndex ? 0 : current))
+  }
+
   const handleDeleteProduct = async () => {
     const currentProductId = route?.params?.product?.uid;
     console.log('handleDeleteProduct() pressed for product id:', currentProductId)
@@ -218,19 +231,6 @@ const EditProductScreen = ({ navigation, route }) => {
     }
 
     try {
-      const requestPayload = new FormData();
-      requestPayload.append('title', String(formData.title ?? '').trim());
-      requestPayload.append('description', String(formData.description ?? '').trim());
-      requestPayload.append('sku', String(formData.sku ?? '').trim());
-      requestPayload.append('brand', String(formData.brand ?? '').trim());
-      requestPayload.append('price', String(formData.price ?? '').trim());
-      requestPayload.append('sale_price', String(formData.sale_price ?? '').trim());
-      requestPayload.append('cost_price', String(formData.cost_price ?? '').trim());
-      requestPayload.append('quantity_in_stock', String(formData.quantity_in_stock ?? '').trim());
-      requestPayload.append('weight', String(formData.weight ?? '').trim());
-      requestPayload.append('size', String(formData.size ?? '').trim());
-      requestPayload.append('color', String(formData.color ?? '').trim());
-
       const existingImages = productImages
         .filter((image) => !image?.isPlaceholder && !image?.localAsset && image?.image_url)
         .map((image) => image.image_url);
@@ -257,33 +257,67 @@ const EditProductScreen = ({ navigation, route }) => {
 
       setImageError('');
 
-      existingImages.forEach((imageUrl) => {
-        requestPayload.append('image_urls[]', imageUrl);
-      });
+      const originalImageCount = (product?.images || []).length;
+      const hasNewImages = newImages.length > 0;
+      const imagesWereRemoved = existingImages.length < originalImageCount;
+      const imagesChanged = hasNewImages || imagesWereRemoved;
 
-      newImages.forEach((imageFile) => {
-        requestPayload.append('new_images[]', imageFile as any);
-      });
-      console.log('Submitting product update images:', {
-        existingImageCount: existingImages.length,
-        newImageCount: newImages.length,
-        newImageNames: newImages.map((image) => image.name),
-      });
+      // Always use FormData when images change to trigger sync
+      const requestPayload = new FormData();
+      requestPayload.append('title', String(formData.title ?? '').trim());
+      requestPayload.append('description', String(formData.description ?? '').trim());
+      requestPayload.append('sku', String(formData.sku ?? '').trim());
+      requestPayload.append('brand', String(formData.brand ?? '').trim());
+      requestPayload.append('price', String(formData.price ?? '').trim());
+      requestPayload.append('sale_price', String(formData.sale_price ?? '').trim());
+      requestPayload.append('cost_price', String(formData.cost_price ?? '').trim());
+      requestPayload.append('quantity_in_stock', String(formData.quantity_in_stock ?? '').trim());
+      requestPayload.append('weight', String(formData.weight ?? '').trim());
+      requestPayload.append('size', String(formData.size ?? '').trim());
+      requestPayload.append('color', String(formData.color ?? '').trim());
+
+      const method = imagesChanged ? 'POST' : 'PUT';
+      const headers = imagesChanged
+        ? { Authorization: 'Bearer ' + tokens.access_token }
+        : {
+            Authorization: 'Bearer ' + tokens.access_token,
+            'Content-Type': 'application/json',
+          };
+
+      if (imagesChanged) {
+        existingImages.forEach((imageUrl) => {
+          requestPayload.append('image_urls[]', imageUrl);
+        });
+
+        newImages.forEach((imageFile) => {
+          requestPayload.append('new_images[]', imageFile as any);
+        });
+      }
+
+      const body = imagesChanged
+        ? requestPayload
+        : JSON.stringify({
+            title: String(formData.title ?? '').trim(),
+            description: String(formData.description ?? '').trim(),
+            sku: String(formData.sku ?? '').trim(),
+            brand: String(formData.brand ?? '').trim(),
+            price: String(formData.price ?? '').trim(),
+            sale_price: String(formData.sale_price ?? '').trim(),
+            cost_price: String(formData.cost_price ?? '').trim(),
+            quantity_in_stock: String(formData.quantity_in_stock ?? '').trim(),
+            weight: String(formData.weight ?? '').trim(),
+            size: String(formData.size ?? '').trim(),
+            color: String(formData.color ?? '').trim(),
+          });
 
       const response = await fetch(
         `${webServer}/api/v1/gyms/${user.gym_id}/products/${currentProductId}`,
         {
-          method: "POST",
-          headers: {
-            Authorization: "Bearer " + tokens.access_token,
-          },
-          body: requestPayload,
+          method,
+          headers,
+          body,
         }
       );
-
-      for (const [key, value] of (requestPayload as any)._parts ?? []) {
-        console.log("requestPayload", key, value);
-      }
 
       const rawResponse = await response.text();
       const obj = rawResponse ? JSON.parse(rawResponse) : {};
@@ -455,38 +489,51 @@ const EditProductScreen = ({ navigation, route }) => {
               </View>
               <View style={styles.heroImageThumbnails}>
                 {productImages.map((image, index) => (
-                  <TouchableOpacity
+                  <View
                     key={`product-image-slot-${index}-${image?.id || image?.image_url || 'empty'}`}
-                    onPress={() => {
-                      setSelectedImageIndex(index);
-                      pickImage(index);
-                    }}
+                    style={styles.thumbnailWrapper}
                   >
-                    {image?.isPlaceholder ? (
-                      <View
-                        style={[
-                          styles.thumbnail,
-                          styles.placeholderThumbnail,
-                          selectedImageIndex === index && styles.selectedThumbnail,
-                        ]}
-                      >
-                        <MaterialCommunityIcons
-                          name={image?.iconName || 'image-outline'}
-                          size={24}
-                          color={AppColors.blue}
+                    <TouchableOpacity
+                      onPress={() => {
+                        setSelectedImageIndex(index);
+                        pickImage(index);
+                      }}
+                    >
+                      {image?.isPlaceholder ? (
+                        <View
+                          style={[
+                            styles.thumbnail,
+                            styles.placeholderThumbnail,
+                            selectedImageIndex === index && styles.selectedThumbnail,
+                          ]}
+                        >
+                          <MaterialCommunityIcons
+                            name={image?.iconName || 'image-outline'}
+                            size={24}
+                            color={AppColors.blue}
+                          />
+                        </View>
+                      ) : (
+                        <Image
+                          style={[
+                            styles.thumbnail,
+                            selectedImageIndex === index && styles.selectedThumbnail,
+                          ]}
+                          source={{ uri: image?.source?.uri || null }}
+                          resizeMode="cover"
                         />
-                      </View>
-                    ) : (
-                      <Image
-                        style={[
-                          styles.thumbnail,
-                          selectedImageIndex === index && styles.selectedThumbnail,
-                        ]}
-                        source={{ uri: image?.source?.uri || null }}
-                        resizeMode="cover"
-                      />
+                      )}
+                    </TouchableOpacity>
+                    {!image?.isPlaceholder && (
+                      <TouchableOpacity
+                        style={styles.removeImageBtn}
+                        onPress={() => removeImage(index)}
+                        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                      >
+                        <MaterialCommunityIcons name="close" size={14} color="#fff" />
+                      </TouchableOpacity>
                     )}
-                  </TouchableOpacity>
+                  </View>
                 ))}
               </View>
               <Text style={styles.imageHelpText}>Upload up to 5 JPEG or PNG images. Maximum 5 MB each.</Text>
@@ -842,6 +889,20 @@ const styles = StyleSheet.create({
   selectedThumbnail: {
     borderWidth: 2,
     borderColor: AppColors.blue,
+  },
+  thumbnailWrapper: {
+    position: 'relative',
+  },
+  removeImageBtn: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: AppColors.blue,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   imageHelpText: {
     marginTop: 10,
