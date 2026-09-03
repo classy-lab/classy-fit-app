@@ -99,7 +99,7 @@ const UpdateMemberScreen = ({ navigation }: { navigation: any }) => {
           <UpdateMemberForm navigation={navigation} memberData={memberData} />
         </View>
         <View style={styles.imageContainer}>
-          <HealthyLifestyleSvg />
+          {/* <HealthyLifestyleSvg /> */}
         </View>
       </ScrollView>
     </SafeAreaView>
