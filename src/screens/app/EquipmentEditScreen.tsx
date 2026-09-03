@@ -64,8 +64,7 @@ const nullableNonNegativeNumber = (label: string) =>
 const editEquipmentSchema = yup.object({
   equipment_category_uid: yup
     .string()
-    .nullable()
-    .typeError('Category must be a string or empty'),
+    .required('Category is required'),
   title: yup.string().trim().required('Title is required'),
   description: yup
     .string()
@@ -789,7 +788,7 @@ const EquipmentEditScreen = ({ navigation, route }) => {
 
                 <View style={styles.heroImageThumbnails}>
                   {equipmentImages.map((image, index) => (
-                    <View key={image.id} style={styles.thumbnailWrapper}>
+                    <View key={image?.id || `image-${index}`} style={styles.thumbnailWrapper}>
                       <TouchableOpacity
                         onPress={() => {
                           setSelectedImageIndex(index)
@@ -893,9 +892,11 @@ const EquipmentEditScreen = ({ navigation, route }) => {
                   'Select category',
                   categoryOptions
                 )}
-                {TEXT_FIELDS.slice(1, 8).map(([name, label, placeholder, options]) =>
-                  renderTextField(name, label, placeholder, options)
-                )}
+                {TEXT_FIELDS.slice(1, 8).map(([name, label, placeholder, options], idx) => (
+                  <View key={`field-${idx}-${name}`}>
+                    {renderTextField(name, label, placeholder, options)}
+                  </View>
+                ))}
                 {renderDateField(...DATE_FIELDS.purchase_date)}
                 {renderTextField(...TEXT_FIELDS[8])}
                 {renderDateField(...DATE_FIELDS.warranty_expiration_date)}
@@ -906,7 +907,11 @@ const EquipmentEditScreen = ({ navigation, route }) => {
                   'Select condition',
                   CONDITION_OPTIONS
                 )}
-                {TEXT_FIELDS.slice(9).map((field) => renderTextField(...field))}
+                {TEXT_FIELDS.slice(9).map((field, idx) => (
+                  <View key={`field-${idx}-${field[0]}`}>
+                    {renderTextField(...field)}
+                  </View>
+                ))}
 
                 <View style={styles.row}>
                   <TouchableOpacity
