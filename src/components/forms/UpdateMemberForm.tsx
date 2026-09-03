@@ -92,7 +92,7 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
       style={{
         flex: 1,
         minWidth: 0,
-        borderRadius: 14,
+        borderRadius: 100,
         backgroundColor: bgColor,
         paddingHorizontal: 12,
         paddingVertical: 10,
@@ -191,14 +191,18 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
       {/* <Text style={{ fontSize: 14, marginBottom: 12, marginTop: 16, fontWeight: "700", color: "#374151" }}>
         Quick Contact
       </Text> */}
-      <View style={{ flexDirection: "row", gap: 8, marginBottom: 24 }}>
+      <View style={{ flexDirection: "row", gap: 8, marginBottom: 16 }}>
         {memberData?.email && <ContactButton iconName="email" label="Email" value={memberData.email} onPress={handleEmailPress} bgColor={AppColors.blue} />}
         {memberData?.phone && <ContactButton iconName="phone" label="Call" value={memberData.phone} onPress={handlePhoneCall} bgColor="#dbeafe" />}
+        {/* {memberData?.whatsapp && <ContactButton iconName="whatsapp" label="WhatsApp" value={memberData.whatsapp} onPress={handleWhatsApp} bgColor="#25d366" />} */}
+      </View>
+      <View style={{ flexDirection: "row", gap: 8, marginBottom: 16 }}>
+        {/* {memberData?.email && <ContactButton iconName="email" label="Email" value={memberData.email} onPress={handleEmailPress} bgColor={AppColors.blue} />} */}
         {memberData?.whatsapp && <ContactButton iconName="whatsapp" label="WhatsApp" value={memberData.whatsapp} onPress={handleWhatsApp} bgColor="#25d366" />}
       </View>
 
       {/* Divider */}
-      <View style={{ marginTop: 24 }} />
+      <View style={{ marginTop: 16 }} />
 
       <InfoField label="First Name" value={memberData?.fname} />
       <InfoField label="Last Name" value={memberData?.lname} />
