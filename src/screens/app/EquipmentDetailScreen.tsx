@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { useFocusEffect } from '@react-navigation/native'
+import { WebView } from 'react-native-webview'
 import RenderHtml from 'react-native-render-html'
 import { AppColors } from '../../styles/colors'
 import { UserContext } from '../../context/UserContext'
@@ -16,6 +17,21 @@ const resolveEquipmentImageUri = (webServer, imageUrl) => {
     return normalized;
   }
   return `${webServer}/api/${normalized.replace(/^\/?(api\/)?/, '')}`;
+};
+
+const extractYouTubeVideoId = (url: string): string | null => {
+  if (!url) return null;
+  const patterns = [
+    /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([^&]+)/,
+    /(?:https?:\/\/)?(?:www\.)?youtu\.be\/([^?]+)/,
+    /^([a-zA-Z0-9_-]{11})$/,
+  ];
+  
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match && match[1]) return match[1];
+  }
+  return null;
 };
 
 const buildImageSlots = (images = [], webServer) => {
@@ -228,6 +244,24 @@ const EquipmentDetailScreen = ({ navigation, route }) => {
               <View style={styles.content}>
                 <Text style={styles.equipmentTitle}>{equipment?.title ?? 'Untitled Equipment'}</Text>
 
+                {equipment?.usage_video_url ? (
+                  <View style={styles.videoBlock}>
+                    <Text style={styles.formLabel}>Usage Guide Video:</Text>
+                    <View style={styles.videoContainer}>
+                      <WebView
+                        source={{
+                          uri: `https://www.youtube.com/embed/${extractYouTubeVideoId(equipment.usage_video_url)}?autoplay=0&controls=1&modestbranding=1&fs=1&iv_load_policy=3&rel=0`,
+                        }}
+                        style={styles.videoPlayer}
+                        allowsFullscreenVideo={true}
+                        javaScriptEnabled={true}
+                        domStorageEnabled={true}
+                        startInLoadingState={true}
+                      />
+                    </View>
+                  </View>
+                ) : null}
+
                 {equipment?.description ? (
                   <View style={styles.descriptionBlock}>
                     <Text style={styles.formLabel}>Description:</Text>
@@ -419,6 +453,22 @@ const styles = StyleSheet.create({
   descriptionBlock: {
     marginTop: 16,
     marginBottom: 8,
+  },
+  videoBlock: {
+    marginTop: 20,
+    marginBottom: 16,
+  },
+  videoContainer: {
+    width: '100%',
+    height: 240,
+    marginTop: 8,
+    borderRadius: 8,
+    overflow: 'hidden',
+    backgroundColor: '#000',
+  },
+  videoPlayer: {
+    width: '100%',
+    height: '100%',
   },
   formLabel: {
     marginBottom: 8,
