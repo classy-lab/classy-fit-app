@@ -130,18 +130,18 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
 
   const InfoField = ({ label, value }: { label: string; value: string }) => (
     <View style={{ marginBottom: 16 }}>
-      <Text style={{ fontSize: 14, marginBottom: 8 }}>
+      <Text style={{ marginBottom: 8 }}>
         {label}
       </Text>
       <View style={{
         backgroundColor: AppColors.grey,
-        paddingHorizontal: 14,
-        paddingVertical: 12,
+        paddingHorizontal: 12,
+        paddingVertical: 16,
         borderRadius: 10,
         borderLeftWidth: 4,
         borderLeftColor: AppColors.blue,
       }}>
-        <Text style={{ fontSize: 14, color: AppColors.primary }}>
+        <Text style={{ color: AppColors.primary }}>
           {value || "—"}
         </Text>
       </View>
@@ -183,21 +183,15 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
         <Text style={{ fontSize: 20, marginBottom: 8, color: AppColors.blue }}>
           {`${memberData?.fname || ""} ${memberData?.lname || ""}`.trim() || "Member"}
         </Text>
-        <Text style={{ fontSize: 13, color: "#6b7280", marginBottom: 4 }}>{memberData?.sex ? `${memberData.sex.charAt(0).toUpperCase() + memberData.sex.slice(1)}` : "Sex not specified"}</Text>
-        <Text style={{ fontSize: 12, color: "#9ca3af", fontStyle: "italic" }}>Member ID: {memberData?.uid}</Text>
+        <Text style={{ color: AppColors.blue, marginBottom: 4 }}>{memberData?.sex ? `${memberData.sex.charAt(0).toUpperCase() + memberData.sex.slice(1)}` : "Sex not specified"}</Text>
+        <Text style={{ color: AppColors.grey3, fontStyle: "italic" }}>Member ID: {memberData?.uid}</Text>
       </View>
 
-      {/* Quick Action Buttons */}
-      {/* <Text style={{ fontSize: 14, marginBottom: 12, marginTop: 16, fontWeight: "700", color: "#374151" }}>
-        Quick Contact
-      </Text> */}
       <View style={{ flexDirection: "row", gap: 8, marginBottom: 16 }}>
         {memberData?.email && <ContactButton iconName="email" label="Email" value={memberData.email} onPress={handleEmailPress} bgColor={AppColors.blue} />}
-        {memberData?.phone && <ContactButton iconName="phone" label="Call" value={memberData.phone} onPress={handlePhoneCall} bgColor="#dbeafe" />}
-        {/* {memberData?.whatsapp && <ContactButton iconName="whatsapp" label="WhatsApp" value={memberData.whatsapp} onPress={handleWhatsApp} bgColor="#25d366" />} */}
+        {memberData?.phone && <ContactButton iconName="phone" label="Call" value={memberData.phone} onPress={handlePhoneCall} bgColor={AppColors.blue} />}
       </View>
       <View style={{ flexDirection: "row", gap: 8, marginBottom: 16 }}>
-        {/* {memberData?.email && <ContactButton iconName="email" label="Email" value={memberData.email} onPress={handleEmailPress} bgColor={AppColors.blue} />} */}
         {memberData?.whatsapp && <ContactButton iconName="whatsapp" label="WhatsApp" value={memberData.whatsapp} onPress={handleWhatsApp} bgColor="#25d366" />}
       </View>
 
