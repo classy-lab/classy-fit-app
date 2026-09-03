@@ -113,9 +113,8 @@ export const styles = StyleSheet.create({
   avatarOptionImage: {
     width: 48,
     height: 48,
-    // borderRadius: 28,
-    // borderWidth: 1,
     borderColor: AppColors.grey2,
+    margin: 2,
   },
   loginBtnContainer: {
     alignItems: "center",
