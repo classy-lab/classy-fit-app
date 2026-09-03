@@ -159,20 +159,20 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
         borderRadius: 16,
         padding: 20,
         alignItems: "center",
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.08,
-        shadowRadius: 8,
-        elevation: 4,
+        // shadowColor: AppColors.blue,
+        // shadowOffset: { width: 0, height: 8 },
+        // shadowOpacity: 0.08,
+        // shadowRadius: 8,
+        // elevation: 4,
       }}>
         <View style={{
           width: 100,
           height: 100,
-          borderRadius: 50,
+          // borderRadius: 50,
           overflow: "hidden",
           marginBottom: 16,
-          borderWidth: 1,
-          borderColor: AppColors.blue,
+          // borderWidth: 1,
+          // borderColor: AppColors.blue,
         }}>
           {memberPictureUri ? (
             <Image source={{ uri: memberPictureUri }} style={{ width: "100%", height: "100%" }} resizeMode="cover" />
@@ -183,7 +183,7 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
         <Text style={{ fontSize: 20, marginBottom: 8, color: AppColors.blue }}>
           {`${memberData?.fname || ""} ${memberData?.lname || ""}`.trim() || "Member"}
         </Text>
-        <Text style={{ color: AppColors.blue, marginBottom: 4 }}>{memberData?.sex ? `${memberData.sex.charAt(0).toUpperCase() + memberData.sex.slice(1)}` : "Sex not specified"}</Text>
+        {/* <Text style={{ color: AppColors.blue, marginBottom: 4 }}>{memberData?.sex ? `${memberData.sex.charAt(0).toUpperCase() + memberData.sex.slice(1)}` : "Sex not specified"}</Text> */}
         <Text style={{ color: AppColors.grey3, fontStyle: "italic" }}>Member ID: {memberData?.uid}</Text>
       </View>
 
@@ -200,7 +200,7 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
 
       <InfoField label="First Name" value={memberData?.fname} />
       <InfoField label="Last Name" value={memberData?.lname} />
-      <InfoField label="Gender" value={memberData?.sex} />
+      <InfoField label="Gender" value={memberData?.sex ? `${memberData.sex.charAt(0).toUpperCase() + memberData.sex.slice(1)}` : "Not specified"} />
       <InfoField label="Phone Number" value={memberData?.phone} />
       <InfoField label="WhatsApp" value={memberData?.whatsapp} />
       <InfoField label="E-mail" value={memberData?.email} />
