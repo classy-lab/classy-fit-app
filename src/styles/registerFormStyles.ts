@@ -29,7 +29,7 @@ export const styles = StyleSheet.create({
     height: 48,
   },
   phoneFlagButton: {
-    width: 92,
+    width: 80,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -41,7 +41,7 @@ export const styles = StyleSheet.create({
   },
   phoneDropdownFlag: {
     width: 28,
-    height: 21,
+    height: 20,
     borderRadius: 2,
   },
   phoneDropdownArrow: {
