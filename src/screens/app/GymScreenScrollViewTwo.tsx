@@ -57,9 +57,17 @@ const GymScreenScrollViewTwo = () => {
     }, [tokens?.access_token, tokens?.refresh_token])
   );
 
-  const getShortTitle = (title, maxChars = 14) => {
+  const getShortTitle = (title) => {
     const trimmedTitle = String(title ?? 'Untitled').trim();
-    return trimmedTitle.length > maxChars ? `${trimmedTitle.slice(0, maxChars)}...` : trimmedTitle;
+    const words = trimmedTitle.split(' ');
+    
+    if (words.length >= 2) {
+      return `${words[0]}\n${words[1]}...`;
+    } else if (words.length === 1) {
+      return `${words[0]}...`;
+    } else {
+      return 'Untitled...';
+    }
   };
 
   const handleEquipmentPress = (item) => {
@@ -96,7 +104,7 @@ const GymScreenScrollViewTwo = () => {
                       <Ionicons name="barbell-outline" color={AppColors.blue} size={28} />
                     </View>
                   </TouchableOpacity>
-                  <Text style={gymScreenStyles.cardText} numberOfLines={1} ellipsizeMode="tail">{getShortTitle(item.title)}</Text>
+                  <Text style={gymScreenStyles.cardText} numberOfLines={3} ellipsizeMode="tail">{getShortTitle(item.title)}</Text>
                 </View>
               );
             })}
