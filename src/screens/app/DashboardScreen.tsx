@@ -21,7 +21,7 @@ const DashboardScreen = ({ navigation, route }) => {
       <SafeAreaView style={styles.container}>
         <View style={styles.navs}>
           <View style={styles.greetingContainer}>
-            <Text style={styles.welcomeText}>Welcome back, {user?.given_name}! 👋</Text>
+            <Text style={styles.welcomeText}>Welcome back, {user?.given_name}!</Text>
             <Text style={styles.gymNameText}>{user?.gym_name}</Text>
           </View>
           <SignOut />
@@ -64,21 +64,18 @@ const DashboardScreen = ({ navigation, route }) => {
                   <FontAwesome5 name="user-friends" size={28} color={AppColors.blue} />
                 </View>
                 <Text style={styles.squareLabel}>Staff</Text>
-                <Text style={styles.squareSubtitle}>Manage team</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('MembersScreen')}>
                 <View style={styles.whiteSquare}>
                   <FontAwesome5 name="users" size={28} color={AppColors.blue} />
                 </View>
                 <Text style={styles.squareLabel}>Members</Text>
-                <Text style={styles.squareSubtitle}>View members</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('ContractorsScreen')}>
                 <View style={styles.whiteSquare}>
                   <FontAwesome5 name="user-tie" size={28} color={AppColors.blue} />
                 </View>
                 <Text style={styles.squareLabel}>Contractors</Text>
-                <Text style={styles.squareSubtitle}>Manage partners</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('ProductsScreen')
               }>
@@ -86,7 +83,6 @@ const DashboardScreen = ({ navigation, route }) => {
                   <MaterialCommunityIcons name="package-variant" size={28} color={AppColors.blue} />
                 </View>
                 <Text style={styles.squareLabel}>Products</Text>
-                <Text style={styles.squareSubtitle}>Inventory</Text>
               </TouchableOpacity>
 
             </View>
@@ -102,7 +98,7 @@ export default DashboardScreen
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#f8f9fa',
+    backgroundColor: AppColors.white,
     flex: 1,
   },
   navs: {
@@ -122,11 +118,13 @@ const styles = StyleSheet.create({
     color: AppColors.blue,
     fontSize: 16,
     fontWeight: '600',
+    fontFamily: 'Montserrat',
   },
   gymNameText: {
-    color: '#6b7280',
+    color: AppColors.primary,
     fontSize: 13,
     marginTop: 4,
+    fontFamily: 'Montserrat',
   },
   headingContainer: {
     paddingHorizontal: 24,
@@ -138,6 +136,13 @@ const styles = StyleSheet.create({
     fontFamily: 'Montserrat',
     fontSize: 32,
     marginTop: 20,
+    fontWeight: '700',
+  },
+  subtitle: {
+    color: AppColors.grey3,
+    fontSize: 14,
+    marginTop: 4,
+    fontFamily: 'Montserrat',
   },
   scrollView: {
     height: '100%',
@@ -151,9 +156,9 @@ const styles = StyleSheet.create({
   primaryCard: {
     backgroundColor: AppColors.blue,
     borderRadius: 24,
-    width: windowWidth - 64,
-    height: 128,
-    justifyContent: 'center',
+    width: windowWidth - 48,
+    minHeight: 120,
+    justifyContent: 'space-between',
     alignItems: 'center',
     flexDirection: 'row',
     paddingHorizontal: 20,
@@ -164,8 +169,8 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 5,
   },
-  statementsButton: {
-    position: 'relative',
+  secondaryCard: {
+    backgroundColor: AppColors.blue,
   },
   primaryCardLeft: {
     flexDirection: 'row',
@@ -178,13 +183,14 @@ const styles = StyleSheet.create({
   },
   primaryCardTitle: {
     color: AppColors.white,
-    fontSize: 20,
-    fontWeight: '600',
+    fontSize: 24,
+    fontFamily: 'Montserrat',
   },
   primaryCardSubtitle: {
     color: AppColors.white,
-    // fontSize: 12,
-    // marginTop: 2,
+    fontSize: 14,
+    marginTop: 2,
+    fontFamily: 'Montserrat',
   },
   sectionHeader: {
     marginTop: 24,
@@ -192,13 +198,13 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     color: AppColors.blue,
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 14,
+    fontFamily: 'Montserrat',
   },
   greySquares: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
     rowGap: 16,
     columnGap: 12,
     width: '100%',
@@ -206,20 +212,33 @@ const styles = StyleSheet.create({
   },
   greySquare: {
     backgroundColor: AppColors.grey,
-    width: s(144),
-    height: s(144),
-    borderRadius: s(24),
+    width: '48%',
+    minWidth: 144,
+    minHeight: 144,
+    paddingVertical: 20,
+    borderRadius: 16,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   whiteSquare: {
     backgroundColor: AppColors.white,
-    borderRadius: s(16),
-    width: s(60),
-    height: s(60),
+    borderRadius: 12,
+    width: 64,
+    height: 64,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: s(8)
+    marginBottom: 12,
+  },
+  squareLabel: {
+    color: AppColors.blue,
+    fontSize: 14,
+    fontFamily: 'Montserrat',
+  },
+  squareSubtitle: {
+    color: AppColors.grey3,
+    fontSize: 11,
+    marginTop: 2,
+    fontFamily: 'Montserrat',
   },
   signOut: {
     flexDirection: 'row',
@@ -228,7 +247,8 @@ const styles = StyleSheet.create({
   signOutText: {
     marginRight: 4,
     color: AppColors.blue,
-    fontSize: 14
+    fontSize: 14,
+    fontFamily: 'Montserrat',
   },
 
 })
