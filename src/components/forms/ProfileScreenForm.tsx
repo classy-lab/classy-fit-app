@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useContext } from "react";
-import { Alert } from "react-native";
+import { Alert, ScrollViewComponent, ScrollView } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import ImagePicker from "react-native-image-crop-picker";
@@ -491,17 +491,19 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
                       <Image source={require("../../assets/images/avatars/profile-img.png")} style={styles.avatar} resizeMode="cover" />
                     )}
                   </TouchableOpacity>
-                  <Text style={styles.helperText}>Choose a photo from your gallery or pick one of the local avatars below.</Text>
+                  <Text style={styles.helperText}>Choose a photo from your gallery or pick an avatar below.</Text>
                   <View style={styles.avatarGrid}>
-                    {localAvatarOptions.map((avatar) => (
-                      <TouchableOpacity
-                        key={avatar.key}
-                        onPress={() => selectLocalAvatar(avatar, onChange)}
-                        style={styles.avatarOption}
-                      >
-                        <Image source={avatar.asset} style={styles.avatarOptionImage} resizeMode="cover" />
-                      </TouchableOpacity>
-                    ))}
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                      {localAvatarOptions.map((avatar) => (
+                        <TouchableOpacity
+                          key={avatar.key}
+                          onPress={() => selectLocalAvatar(avatar, onChange)}
+                          style={styles.avatarOption}
+                        >
+                          <Image source={avatar.asset} style={styles.avatarOptionImage} resizeMode="cover" />
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
                   </View>
                 </View>
               );
