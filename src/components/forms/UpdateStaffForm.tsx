@@ -205,7 +205,7 @@ const UpdateStaffForm = ({ staffData }: { staffData: any }) => {
         <View style={{
           width: 100,
           height: 100,
-          // borderRadius: 50,
+          borderRadius: 16,
           overflow: "hidden",
           marginBottom: 16,
           // borderWidth: 1,
