@@ -87,6 +87,14 @@ const addEquipmentSchema = yup.object({
         return plainText.length > 0;
       }
     ),
+  usage_video_url: yup
+    .string()
+    .nullable()
+    .test('valid-youtube-url', 'Invalid YouTube URL format', (value) => {
+      if (!value || String(value).trim() === '') return true
+      const youtubeRegex = /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/\S+$/i
+      return youtubeRegex.test(value)
+    }),
   brand: yup.string().trim().required("Brand is required").nullable(),
   model: yup.string().trim()
     .required("Model is required").nullable(),
@@ -134,6 +142,7 @@ type AddEquipmentFormValues = {
   equipment_category_uid: string
   title: string
   description: string
+  usage_video_url: string
   brand: string
   model: string
   serial_number: string
@@ -201,6 +210,7 @@ const AddEquipmentScreen = ({ navigation }) => {
       equipment_category_uid: '',
       title: '',
       description: '',
+      usage_video_url: '',
       brand: '',
       model: '',
       serial_number: '',
@@ -355,6 +365,7 @@ const AddEquipmentScreen = ({ navigation }) => {
       appendNullableField(requestPayload, 'asset_tag', formData.asset_tag)
       appendNullableField(requestPayload, 'color', formData.color)
       appendNullableField(requestPayload, 'location', formData.location)
+      appendNullableField(requestPayload, 'usage_video_url', formData.usage_video_url)
       appendNullableField(requestPayload, 'purchase_date', formData.purchase_date)
       appendNullableField(requestPayload, 'purchase_price', formData.purchase_price)
       appendNullableField(
@@ -688,6 +699,13 @@ const AddEquipmentScreen = ({ navigation }) => {
                 <Text style={styles.errorText}>{errors.description.message}</Text>
               )}
             </View>
+
+            {renderTextField(
+              'usage_video_url',
+              'Usage Video (YouTube URL):',
+              'https://www.youtube.com/watch?v=...',
+              { autoCapitalize: 'none' }
+            )}
 
             {renderSelectField(
               'equipment_category_uid',
