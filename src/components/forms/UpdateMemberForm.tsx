@@ -138,8 +138,8 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
         paddingHorizontal: 12,
         paddingVertical: 16,
         borderRadius: 12,
-        borderLeftWidth: 4,
-        borderLeftColor: AppColors.blue,
+        // borderLeftWidth: 4,
+        // borderLeftColor: AppColors.blue,
       }}>
         <Text style={{ color: AppColors.primary }}>
           {value || "—"}
