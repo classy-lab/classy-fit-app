@@ -5,7 +5,7 @@ import { gymScreenStyles } from '../../styles/gymScreenStyles'
 const GymScreenScrollViewThree = () => {
   return (
     <>
-      <Text style={gymScreenStyles.sectionTitle}>Messaging</Text>
+      <Text style={gymScreenStyles.sectionTitle}>Bills</Text>
       <ScrollView
         style={gymScreenStyles.greySquares}
         horizontal={true}
@@ -17,7 +17,7 @@ const GymScreenScrollViewThree = () => {
               <MemberNotification />
             </View>
           </TouchableOpacity>
-          <Text style={gymScreenStyles.cardText}>Member{'\n'}Notifications</Text>
+          <Text style={gymScreenStyles.cardText}>Utility Bills</Text>
         </View>
       </ScrollView>
     </>
