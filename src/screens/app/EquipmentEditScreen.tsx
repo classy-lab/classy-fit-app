@@ -27,12 +27,6 @@ import DateOfBirthField from '../../components/forms/input_fields/DateOfBirthFie
 
 const MAX_EQUIPMENT_IMAGE_BYTES = 10 * 1024 * 1024
 
-const CATEGORY_OPTIONS = [
-  { key: '1', value: 'Cardio' },
-  { key: '2', value: 'Strength' },
-  { key: '3', value: 'Free Weights' },
-]
-
 const STATUS_OPTIONS = [
   { key: 'active', value: 'Active' },
   { key: 'maintenance', value: 'Maintenance' },
@@ -70,8 +64,8 @@ const nullableNonNegativeNumber = (label: string) =>
 const editEquipmentSchema = yup.object({
   equipment_category_uid: yup
     .string()
-    .oneOf(['1', '2', '3'], 'Category is required')
-    .required('Category is required'),
+    .nullable()
+    .typeError('Category must be a string or empty'),
   title: yup.string().trim().required('Title is required'),
   description: yup
     .string()
@@ -310,8 +304,41 @@ const EquipmentEditScreen = ({ navigation, route }) => {
   const [imageError, setImageError] = useState('')
   const [isDeleting, setIsDeleting] = useState(false)
   const [equipment, setEquipment] = useState(routeEquipment)
+  const [categoryOptions, setCategoryOptions] = useState<Array<{ key: string; value: string }>>([])
   const richText = useRef(null)
   const lastSyncedHtmlRef = useRef('')
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch(
+          `${webServer}/api/v1/gyms/${user?.gym_id}/equipment-categories`,
+          {
+            headers: {
+              Authorization: 'Bearer ' + tokens.access_token,
+            },
+          }
+        )
+
+        if (response.status === 200) {
+          const data = await response.json()
+          const options = (data.data || []).map((cat: any) => ({
+            key: String(cat.uid),
+            value: cat.name,
+          }))
+          setCategoryOptions(options)
+        } else {
+          console.log('Failed to fetch categories:', response.status)
+        }
+      } catch (error) {
+        console.log('Failed to fetch equipment categories:', error)
+      }
+    }
+
+    if (tokens?.access_token) {
+      fetchCategories()
+    }
+  }, [tokens?.access_token, webServer])
 
   const {
     control,
@@ -864,7 +891,7 @@ const EquipmentEditScreen = ({ navigation, route }) => {
                   'equipment_category_uid',
                   'Category:',
                   'Select category',
-                  CATEGORY_OPTIONS
+                  categoryOptions
                 )}
                 {TEXT_FIELDS.slice(1, 8).map(([name, label, placeholder, options]) =>
                   renderTextField(name, label, placeholder, options)
