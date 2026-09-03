@@ -80,6 +80,14 @@ const editEquipmentSchema = yup.object({
 
       return plainText.length > 0
     }),
+  usage_video_url: yup
+    .string()
+    .nullable()
+    .test('valid-youtube-url', 'Invalid YouTube URL format', (value) => {
+      if (!value || String(value).trim() === '') return true
+      const youtubeRegex = /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/\S+$/i
+      return youtubeRegex.test(value)
+    }),
   brand: yup.string().trim().required('Brand is required'),
   model: yup.string().trim().required('Model is required'),
   serial_number: yup.string().nullable(),
@@ -113,6 +121,7 @@ type EditEquipmentFormValues = {
   equipment_category_uid: string
   title: string
   description: string
+  usage_video_url: string
   brand: string
   model: string
   serial_number: string
@@ -133,6 +142,7 @@ const DEFAULT_FORM_VALUES: EditEquipmentFormValues = {
   equipment_category_uid: '',
   title: '',
   description: '',
+  usage_video_url: '',
   brand: '',
   model: '',
   serial_number: '',
@@ -228,6 +238,7 @@ const equipmentToFormValues = (equipment: any): EditEquipmentFormValues => ({
   equipment_category_uid: String(equipment?.equipment_category_uid ?? ''),
   title: String(equipment?.title ?? ''),
   description: String(equipment?.description ?? ''),
+  usage_video_url: String(equipment?.usage_video_url ?? ''),
   brand: String(equipment?.brand ?? ''),
   model: String(equipment?.model ?? ''),
   serial_number: String(equipment?.serial_number ?? ''),
@@ -885,6 +896,13 @@ const EquipmentEditScreen = ({ navigation, route }) => {
                     <Text style={styles.errorText}>{String(errors.description.message)}</Text>
                   ) : null}
                 </View>
+
+                {renderTextField(
+                  'usage_video_url',
+                  'Usage Video (YouTube URL):',
+                  'https://www.youtube.com/watch?v=...',
+                  { autoCapitalize: 'none' }
+                )}
 
                 {renderSelectField(
                   'equipment_category_uid',
