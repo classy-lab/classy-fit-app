@@ -507,11 +507,40 @@ const tagsStyles = {
     color: '#111111',
     marginBottom: 15,
   },
+  h2: {
+    color: '#333333',
+    marginBottom: 12,
+  },
+  h3: {
+    color: '#555555',
+    marginBottom: 10,
+  },
   ul: {
     marginBottom: 10,
   },
   li: {
     color: AppColors.primary,
     lineHeight: 20,
+  },
+  b: {
+    fontWeight: 'bold',
+  },
+  strong: {
+    fontWeight: 'bold',
+  },
+  i: {
+    fontStyle: 'italic',
+  },
+  em: {
+    fontStyle: 'italic',
+  },
+  u: {
+    textDecorationLine: 'underline',
+  },
+  s: {
+    textDecorationLine: 'line-through',
+  },
+  del: {
+    textDecorationLine: 'line-through',
   },
 };
