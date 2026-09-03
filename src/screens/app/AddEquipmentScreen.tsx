@@ -65,8 +65,7 @@ const nullableNonNegativeNumber = (label: string) =>
 const addEquipmentSchema = yup.object({
   equipment_category_uid: yup
     .string()
-    .nullable()
-    .typeError('Category must be a string or empty'),
+    .required('Category is required'),
   title: yup.string().trim().required('Title is required'),
   description: yup
     .string()
