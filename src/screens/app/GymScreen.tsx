@@ -49,6 +49,7 @@ export default GymScreen
 const styles = StyleSheet.create({
   container: {
     backgroundColor: AppColors.white,
+    flex: 1,
   },
   navs: {
     flexDirection: 'row',
