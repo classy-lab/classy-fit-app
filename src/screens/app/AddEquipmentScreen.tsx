@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
-import { useContext, useRef, useState } from 'react'
+import { useContext, useRef, useState, useEffect } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
@@ -29,12 +29,6 @@ const EQUIPMENT_IMAGE_PLACEHOLDER_COUNT = 5
 
 const STATUS_VALUES = ['active', 'maintenance', 'out_of_service', 'retired']
 const CONDITION_VALUES = ['excellent', 'good', 'fair', 'poor']
-
-const CATEGORY_OPTIONS = [
-  { key: '1', value: 'Cardio' },
-  { key: '2', value: 'Strength' },
-  { key: '3', value: 'Free Weights' },
-]
 
 const toTitleCase = (value: string) =>
   value
@@ -71,8 +65,8 @@ const nullableNonNegativeNumber = (label: string) =>
 const addEquipmentSchema = yup.object({
   equipment_category_uid: yup
     .string()
-    .oneOf(['1', '2', '3'], 'Category is required')
-    .required('Category is required'),
+    .nullable()
+    .typeError('Category must be a string or empty'),
   title: yup.string().trim().required('Title is required'),
   description: yup
     .string()
@@ -163,7 +157,40 @@ const AddEquipmentScreen = ({ navigation }) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [imageError, setImageError] = useState('')
+  const [categoryOptions, setCategoryOptions] = useState<Array<{ key: string; value: string }>>([])
   const richText = useRef(null)
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch(
+          `${webServer}/api/v1/gyms/${user?.gym_id}/equipment-categories`,
+          {
+            headers: {
+              Authorization: 'Bearer ' + tokens.access_token,
+            },
+          }
+        )
+
+        if (response.status === 200) {
+          const data = await response.json()
+          const options = (data.data || []).map((cat: any) => ({
+            key: String(cat.uid),
+            value: cat.name,
+          }))
+          setCategoryOptions(options)
+        } else {
+          console.log('Failed to fetch categories:', response.status)
+        }
+      } catch (error) {
+        console.log('Failed to fetch equipment categories:', error)
+      }
+    }
+
+    if (tokens?.access_token) {
+      fetchCategories()
+    }
+  }, [tokens?.access_token, webServer])
 
   const {
     control,
@@ -405,6 +432,7 @@ const AddEquipmentScreen = ({ navigation }) => {
         icon: 'danger',
         autoHide: false,
       })
+      console.log('Create equipment failed with response:', response.status, obj?.message)
     } catch (error) {
       console.log('Create equipment request failed:', error)
       showMessage({
@@ -666,7 +694,7 @@ const AddEquipmentScreen = ({ navigation }) => {
               'equipment_category_uid',
               'Category:',
               'Select category',
-              CATEGORY_OPTIONS
+              categoryOptions
             )}
             {renderTextField('brand', 'Brand:', 'Enter brand', { autoCapitalize: 'words' })}
             {renderTextField('model', 'Model:', 'Enter model', { autoCapitalize: 'characters' })}
