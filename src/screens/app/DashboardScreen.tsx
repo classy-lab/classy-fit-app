@@ -41,7 +41,7 @@ const DashboardScreen = ({ navigation, route }) => {
                     <Text style={styles.primaryCardSubtitle}>Manage equipment</Text>
                   </View>
                 </View>
-                <Feather name="arrow-right" size={24} color={AppColors.white} />
+                <Feather style={styles.arrow} name="arrow-right" size={24} color={AppColors.white} />
               </TouchableOpacity>
               <TouchableOpacity style={[styles.primaryCard, styles.secondaryCard]} onPress={() => { navigation.navigate('EarningsScreen') }}>
                 <View style={styles.primaryCardLeft}>
@@ -51,7 +51,7 @@ const DashboardScreen = ({ navigation, route }) => {
                     <Text style={styles.primaryCardSubtitle}>View your revenue</Text>
                   </View>
                 </View>
-                <Feather name="arrow-right" size={24} color={AppColors.white} />
+                <Feather style={styles.arrow} name="arrow-right" size={24} color={AppColors.white} />
               </TouchableOpacity>
 
             </View>
@@ -117,7 +117,6 @@ const styles = StyleSheet.create({
   welcomeText: {
     color: AppColors.blue,
     fontSize: 16,
-    fontWeight: '600',
     fontFamily: 'Montserrat',
   },
   gymNameText: {
@@ -130,13 +129,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     marginBottom: 24,
     marginTop: 8,
+    alignItems: 'center',
   },
   title: {
     color: AppColors.blue,
     fontFamily: 'Montserrat',
     fontSize: 32,
     marginTop: 20,
-    fontWeight: '700',
   },
   subtitle: {
     color: AppColors.grey3,
@@ -186,10 +185,15 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontFamily: 'Montserrat',
   },
+  arrow: {
+    position: 'absolute',
+    right: 26,
+    bottom: 16,
+  },
   primaryCardSubtitle: {
     color: AppColors.white,
     fontSize: 14,
-    marginTop: 2,
+    marginTop: 4,
     fontFamily: 'Montserrat',
   },
   sectionHeader: {
@@ -204,7 +208,8 @@ const styles = StyleSheet.create({
   greySquares: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
+    alignItems: 'center',
     rowGap: 16,
     columnGap: 12,
     width: '100%',
@@ -213,10 +218,9 @@ const styles = StyleSheet.create({
   greySquare: {
     backgroundColor: AppColors.grey,
     width: '48%',
-    minWidth: 144,
-    minHeight: 144,
-    paddingVertical: 20,
+    aspectRatio: 1,
     borderRadius: 16,
+    // flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
   },
