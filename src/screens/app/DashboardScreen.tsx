@@ -80,7 +80,7 @@ const DashboardScreen = ({ navigation, route }) => {
               <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('ProductsScreen')
               }>
                 <View style={styles.whiteSquare}>
-                  <MaterialCommunityIcons name="package-variant" size={28} color={AppColors.blue} />
+                  <MaterialCommunityIcons name="shopping" size={28} color={AppColors.blue} />
                 </View>
                 <Text style={styles.squareLabel}>Products</Text>
               </TouchableOpacity>
