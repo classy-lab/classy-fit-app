@@ -8,6 +8,7 @@ import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
 import GymScreenScrollViewOne from './GymScreenScrollViewOne'
 import GymScreenScrollViewTwo from './GymScreenScrollViewTwo'
 import GymScreenScrollViewThree from './GymScreenScrollViewThree'
+import SignOut from '../../components/utils/SignOut'
 
 
 const windowWidth = Dimensions.get('window').width
@@ -19,12 +20,7 @@ const GymScreen = ({ navigation, route }) => {
       <SafeAreaView style={styles.container}>
         <View style={styles.navs}>
           <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
-          <View style={styles.signOut}>
-            <Text style={styles.signOutText}>Log out</Text>
-            <View style={styles.circle}>
-              <MaterialIcons name="logout" color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
-            </View>
-          </View>
+          <SignOut />
         </View>
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.headingContainer}>
