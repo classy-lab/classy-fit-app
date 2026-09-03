@@ -206,7 +206,6 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
       <InfoField label="E-mail" value={memberData?.email} />
       <InfoField label="Preferred Contact Method" value={getPreferredContactLabel(memberData?.preferred_contact)} />
 
-      <View style={{ height: 20 }} />
     </ScrollView>
   );
 };
