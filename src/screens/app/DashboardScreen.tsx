@@ -35,7 +35,7 @@ const DashboardScreen = ({ navigation, route }) => {
             <View style={{ alignItems: 'center', }}>
               <TouchableOpacity style={styles.primaryCard} onPress={() => navigation.navigate('GymScreen')}>
                 <View style={styles.primaryCardLeft}>
-                  <MaterialCommunityIcons name="dumbbell" size={32} color={AppColors.white} />
+                  <MaterialCommunityIcons name="weight-lifter" size={32} color={AppColors.white} />
                   <View style={styles.primaryCardTextContainer}>
                     <Text style={styles.primaryCardTitle}>Gym</Text>
                     <Text style={styles.primaryCardSubtitle}>Manage equipment</Text>
@@ -45,7 +45,7 @@ const DashboardScreen = ({ navigation, route }) => {
               </TouchableOpacity>
               <TouchableOpacity style={[styles.primaryCard, styles.secondaryCard]} onPress={() => { navigation.navigate('EarningsScreen') }}>
                 <View style={styles.primaryCardLeft}>
-                  <MaterialCommunityIcons name="cash-multiple" size={32} color={AppColors.white} />
+                  <MaterialCommunityIcons name="chart-line" size={32} color={AppColors.white} />
                   <View style={styles.primaryCardTextContainer}>
                     <Text style={styles.primaryCardTitle}>Earnings</Text>
                     <Text style={styles.primaryCardSubtitle}>View your revenue</Text>
