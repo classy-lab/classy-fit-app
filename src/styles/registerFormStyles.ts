@@ -111,8 +111,8 @@ export const styles = StyleSheet.create({
     margin: 1,
   },
   avatarOptionImage: {
-    width: 48,
-    height: 48,
+    width: 56,
+    height: 56,
     borderColor: AppColors.grey2,
     margin: 2,
   },
