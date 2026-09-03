@@ -137,7 +137,7 @@ const UpdateMemberForm = ({ navigation, memberData }: { navigation: any; memberD
         backgroundColor: AppColors.grey,
         paddingHorizontal: 12,
         paddingVertical: 16,
-        borderRadius: 10,
+        borderRadius: 12,
         borderLeftWidth: 4,
         borderLeftColor: AppColors.blue,
       }}>
