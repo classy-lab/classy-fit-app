@@ -1,10 +1,11 @@
 // @ts-nocheck
-import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, ActivityIndicator } from 'react-native'
+import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, ActivityIndicator, useWindowDimensions } from 'react-native'
 import { useState, useCallback, useContext } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { useFocusEffect } from '@react-navigation/native'
+import RenderHtml from 'react-native-render-html'
 import { AppColors } from '../../styles/colors'
 import { UserContext } from '../../context/UserContext'
 
@@ -32,6 +33,7 @@ const buildImageSlots = (images = [], webServer) => {
 };
 
 const EquipmentDetailScreen = ({ navigation, route }) => {
+  const { width } = useWindowDimensions()
   const { user } = useContext(UserContext);
   const { tokens, setTokens } = useContext(UserContext);
   const { webServer } = useContext(UserContext);
@@ -229,7 +231,12 @@ const EquipmentDetailScreen = ({ navigation, route }) => {
                 {equipment?.description ? (
                   <View style={styles.descriptionBlock}>
                     <Text style={styles.formLabel}>Description:</Text>
-                    <Text style={styles.equipmentDesc}>{equipment.description}</Text>
+                    <RenderHtml
+                      contentWidth={width - 48}
+                      source={{ html: equipment.description || '<p>No description available.</p>' }}
+                      tagsStyles={tagsStyles}
+                      baseStyle={styles.descriptionText}
+                    />
                   </View>
                 ) : null}
 
@@ -245,7 +252,12 @@ const EquipmentDetailScreen = ({ navigation, route }) => {
                 {equipment?.notes ? (
                   <View style={styles.descriptionBlock}>
                     <Text style={styles.formLabel}>Notes:</Text>
-                    <Text style={styles.equipmentDesc}>{equipment.notes}</Text>
+                    <RenderHtml
+                      contentWidth={width - 48}
+                      source={{ html: equipment.notes || '<p>No notes available.</p>' }}
+                      tagsStyles={tagsStyles}
+                      baseStyle={styles.descriptionText}
+                    />
                   </View>
                 ) : null}
               </View>
@@ -258,6 +270,25 @@ const EquipmentDetailScreen = ({ navigation, route }) => {
 }
 
 export default EquipmentDetailScreen
+
+const tagsStyles = {
+  p: {
+    color: AppColors.primary,
+    lineHeight: 20,
+    marginBottom: 10,
+  },
+  h1: {
+    color: '#111111',
+    marginBottom: 15,
+  },
+  ul: {
+    marginBottom: 10,
+  },
+  li: {
+    color: AppColors.primary,
+    lineHeight: 20,
+  },
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -366,6 +397,10 @@ const styles = StyleSheet.create({
   equipmentDesc: {
     lineHeight: 24,
     color: '#333',
+  },
+  descriptionText: {
+    lineHeight: 24,
+    color: AppColors.primary,
   },
   detailsCard: {
     marginTop: 20,
