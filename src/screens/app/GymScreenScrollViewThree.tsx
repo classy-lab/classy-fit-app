@@ -5,7 +5,7 @@ import { gymScreenStyles } from '../../styles/gymScreenStyles'
 const GymScreenScrollViewThree = () => {
   return (
     <>
-      <Text style={gymScreenStyles.sectionTitle}>Bills</Text>
+      <Text style={gymScreenStyles.sectionTitle}>Bills / Expenses</Text>
       <ScrollView
         style={gymScreenStyles.greySquares}
         horizontal={true}
