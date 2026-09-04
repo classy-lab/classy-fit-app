@@ -20,7 +20,7 @@ const GymScreenScrollViewOne = () => {
               <BuildingSvg />
             </View>
           </TouchableOpacity>
-          <Text style={gymScreenStyles.cardText}>Building</Text>
+          <Text style={gymScreenStyles.cardText}>Live Occupancy</Text>
         </View>
         <View style={gymScreenStyles.greySquareContainer}>
           <TouchableOpacity style={gymScreenStyles.greySquare}>
