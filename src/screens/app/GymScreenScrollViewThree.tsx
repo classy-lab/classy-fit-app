@@ -1,5 +1,6 @@
 import { ScrollView, View, TouchableOpacity, Text } from 'react-native'
-import MemberNotification from '../../assets/svg/MemberNotification'
+import Ionicons from '@expo/vector-icons/Ionicons'
+import { AppColors } from '../../styles/colors'
 import { gymScreenStyles } from '../../styles/gymScreenStyles'
 
 const GymScreenScrollViewThree = () => {
@@ -14,7 +15,7 @@ const GymScreenScrollViewThree = () => {
         <View style={gymScreenStyles.greySquareContainer}>
           <TouchableOpacity style={gymScreenStyles.greySquare}>
             <View style={gymScreenStyles.whiteSquare}>
-              <MemberNotification />
+              <Ionicons name="flash" color={AppColors.blue} size={32} />
             </View>
           </TouchableOpacity>
           <Text style={gymScreenStyles.cardText}>Utility Bills</Text>
