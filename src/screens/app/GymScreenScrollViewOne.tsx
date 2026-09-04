@@ -1,7 +1,8 @@
 import { ScrollView, View, TouchableOpacity, Text } from 'react-native'
-import BuildingSvg from '../../components/svg/BuildingSvg'
+import Ionicons from '@expo/vector-icons/Ionicons'
 import ClassesSvg from '../../components/svg/ClassesSvg'
 import PersonalTrainingSvg from '../../components/svg/PersonalTrainingSvg'
+import { AppColors } from '../../styles/colors'
 import { gymScreenStyles } from '../../styles/gymScreenStyles'
 
 
@@ -17,7 +18,7 @@ const GymScreenScrollViewOne = () => {
         <View style={gymScreenStyles.greySquareContainer}>
           <TouchableOpacity style={gymScreenStyles.greySquare}>
             <View style={gymScreenStyles.whiteSquare}>
-              <BuildingSvg />
+              <Ionicons name="people" color={AppColors.blue} size={32} />
             </View>
           </TouchableOpacity>
           <Text style={gymScreenStyles.cardText}>Live Occupancy</Text>
