@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { StyleSheet, Text, View, Image, TouchableOpacity, ImageBackground, ScrollView } from 'react-native'
+import { StyleSheet, Text, View, Image, TouchableOpacity, ImageBackground, ScrollView, Linking, ActivityIndicator, Alert } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { AppColors } from '../../styles/colors'
 import Feather from '@expo/vector-icons/Feather'
@@ -7,6 +7,9 @@ import { s } from 'react-native-size-matters'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import EarningsBarGraph from '../../assets/svg/EarningsBarGraph'
 import Entypo from '@expo/vector-icons/Entypo'
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
+import { useContext, useState } from 'react'
+import { UserContext } from '../../context/UserContext'
 
 import LineChart from '../../assets/svg/LineChart'
 import LineChart2 from '../../assets/svg/LineChart2'
@@ -15,6 +18,80 @@ import LineChart4 from '../../assets/svg/LineChart4'
 const imageSource = require('../../assets/images/ovalBg.png')
 
 const EarningsScreen = ({ navigation, route }) => {
+  const { user, tokens, setTokens, webServer } = useContext(UserContext)
+  const [isLoadingStripe, setIsLoadingStripe] = useState(false)
+
+  const handleConnectStripe = async () => {
+    if (!user?.gym_id) {
+      Alert.alert('Error', 'Gym information not found')
+      return
+    }
+
+    setIsLoadingStripe(true)
+    try {
+      const response = await fetch(
+        `${webServer}/api/v1/gyms/${user.gym_id}/stripe/accounts/onboarding-link`,
+        {
+          headers: {
+            Authorization: 'Bearer ' + tokens.access_token,
+          },
+        }
+      )
+
+      if (response.status === 401) {
+        console.log('Access token expired, requesting new one')
+        const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
+          method: 'POST',
+          body: JSON.stringify({
+            token: tokens.refresh_token,
+          }),
+        })
+
+        if (refreshResponse.status === 200) {
+          const refreshObj = await refreshResponse.json()
+          setTokens((prev) => ({
+            ...prev,
+            access_token: refreshObj.access_token,
+            refresh_token: refreshObj.refresh_token,
+          }))
+          setIsLoadingStripe(false)
+          // Retry the original request
+          handleConnectStripe()
+          return
+        }
+      }
+
+      if (response.status !== 200) {
+        const errorData = await response.json()
+        Alert.alert(
+          'Error',
+          errorData?.message || 'Failed to get Stripe onboarding link'
+        )
+        setIsLoadingStripe(false)
+        return
+      }
+
+      const data = await response.json()
+
+      if (!data?.onboarding_url || typeof data.onboarding_url !== 'string') {
+        Alert.alert('Error', 'Invalid onboarding link received from server')
+        setIsLoadingStripe(false)
+        return
+      }
+
+      // Open the Stripe onboarding URL
+      try {
+        await Linking.openURL(data.onboarding_url)
+      } catch (error) {
+        Alert.alert('Error', 'Unable to open Stripe onboarding link')
+      }
+    } catch (error) {
+      console.log('Stripe onboarding error:', error)
+      Alert.alert('Error', 'Failed to initiate Stripe Connect setup')
+    } finally {
+      setIsLoadingStripe(false)
+    }
+  }
 
   return (
     <>
@@ -47,6 +124,31 @@ const EarningsScreen = ({ navigation, route }) => {
               </View>
             </View>
             <View style={styles.body}>
+              <TouchableOpacity
+                style={styles.stripeCard}
+                onPress={handleConnectStripe}
+                disabled={isLoadingStripe}
+              >
+                <View style={styles.stripeCardContent}>
+                  <View style={styles.stripeCardLeft}>
+                    <View style={styles.stripeCardIcon}>
+                      <FontAwesome6 name="stripe-s" size={24} color={AppColors.blue} />
+                    </View>
+                    <View style={styles.stripeCardText}>
+                      <Text style={styles.stripeCardTitle}>Connect Stripe Account</Text>
+                      <Text style={styles.stripeCardSubtitle}>
+                        Set up payments for your gym
+                      </Text>
+                    </View>
+                  </View>
+                  {isLoadingStripe ? (
+                    <ActivityIndicator color={AppColors.blue} size="small" />
+                  ) : (
+                    <Feather name="arrow-right" color={AppColors.blue} size={20} />
+                  )}
+                </View>
+              </TouchableOpacity>
+
               <TouchableOpacity onPress={() => navigation.navigate('HomeTab', { screen: 'AllEarnings' })}>
                 <View style={styles.squareCard}>
                   <View style={styles.squareCardHeadingContainer}>
@@ -271,5 +373,47 @@ const styles = StyleSheet.create({
   },
   smallBarGraph: {
     marginTop: 16
-  }
+  },
+  stripeCard: {
+    width: '100%',
+    backgroundColor: AppColors.white,
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    marginTop: 20,
+    marginBottom: 20,
+    boxShadow: '4px 8px 24px rgba(000, 0, 0, 0.1)',
+  },
+  stripeCardContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  stripeCardLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  stripeCardIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    backgroundColor: AppColors.grey,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  stripeCardText: {
+    flex: 1,
+  },
+  stripeCardTitle: {
+    fontSize: 14,
+    fontFamily: 'Montserrat-Bold',
+    color: AppColors.blue,
+  },
+  stripeCardSubtitle: {
+    fontSize: 12,
+    color: AppColors.grey2,
+    marginTop: 2,
+  },
 })
