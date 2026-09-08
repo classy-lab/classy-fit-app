@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, Linking } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import AuthStack from "./src/navigation/AuthStack"; // Contains Login/Signup screens
 import AppTabs from "./src/navigation/AppTabs"; // Contains Home/Dashboard/Settings screens
@@ -20,6 +20,20 @@ const customTextProps = {
 const customTextInputProps = {
   style: {
     fontFamily: "Montserrat",
+  },
+};
+
+// Deep linking configuration for Stripe Connect onboarding return
+const linking: any = {
+  prefixes: ["classyfit://"],
+  config: {
+    screens: {
+      HomeTab: {
+        screens: {
+          DashboardScreen: "stripe-onboarding-complete",
+        },
+      },
+    },
   },
 };
 
@@ -65,7 +79,10 @@ export default function App() {
       }}
     >
       <CartProvider>
-        <NavigationContainer>
+        <NavigationContainer
+          linking={linking}
+          fallback={<></>}
+        >
           {isLoggedIn ? <AppTabs /> : <AuthStack />}
         </NavigationContainer>
         <FlashMessage position={"top"} />

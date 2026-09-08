@@ -35,7 +35,7 @@ const LoginForm = () => {
   const { isLoggedIn, setIsLoggedIn } = useContext(UserContext);
   const [website, setWebsite] = useState("");
   const { webServer } = useContext(UserContext);
-
+  console.log(webServer);
   // Use a ref to store the load time without triggering re-renders
   const formLoadTime = useRef(Date.now());
 
