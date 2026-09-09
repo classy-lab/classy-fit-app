@@ -152,7 +152,7 @@ const EarningsScreen = ({ navigation, route }) => {
       console.log('[DEV] Stripe account status:', JSON.stringify(data, null, 2))
       Alert.alert(
         '[DEV] Stripe Status Sync',
-        `onboarding_status: ${data?.onboarding_status}\ndetails_submitted: ${data?.details_submitted}\ncharges_enabled: ${data?.charges_enabled}\npayouts_enabled: ${data?.payouts_enabled}`
+        `onboarding_status: ${data?.account?.onboarding_status}\ndetails_submitted: ${data?.account?.details_submitted}\ncharges_enabled: ${data?.account?.charges_enabled}\npayouts_enabled: ${data?.account?.payouts_enabled}`
       )
       setIsLoadingStripe(false)
     } catch (error) {
