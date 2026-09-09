@@ -93,6 +93,75 @@ const EarningsScreen = ({ navigation, route }) => {
     }
   }
 
+  // [DEV] Temporary test function to sync Stripe account status
+  // This verifies that the status endpoint can retrieve live Stripe account state
+  // Remove after confirming status synchronization works end-to-end
+  const handleSyncStripeStatus = async (isRetry = false, newAccessToken = null) => {
+    if (!user?.gym_id) {
+      Alert.alert('Error', 'Gym information not found')
+      return
+    }
+
+    setIsLoadingStripe(true)
+    try {
+      const currentAccessToken = newAccessToken || tokens.access_token
+
+      const response = await fetch(
+        `${webServer}/api/v1/gyms/${user.gym_id}/stripe/accounts/status`,
+        {
+          headers: {
+            Authorization: 'Bearer ' + currentAccessToken,
+          },
+        }
+      )
+
+      if (response.status === 401 && !isRetry) {
+        console.log('Access token expired, requesting new one')
+        const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
+          method: 'POST',
+          body: JSON.stringify({
+            token: tokens.refresh_token,
+          }),
+        })
+
+        if (refreshResponse.status === 200) {
+          const refreshObj = await refreshResponse.json()
+          setTokens((prev) => ({
+            ...prev,
+            access_token: refreshObj.access_token,
+            refresh_token: refreshObj.refresh_token,
+          }))
+          // Retry with new token
+          await handleSyncStripeStatus(true, refreshObj.access_token)
+          return
+        }
+      }
+
+      if (response.status !== 200) {
+        const errorData = await response.json()
+        console.log('Stripe status sync error:', errorData?.message)
+        Alert.alert(
+          'Error',
+          errorData?.message || 'Failed to sync Stripe account status'
+        )
+        setIsLoadingStripe(false)
+        return
+      }
+
+      const data = await response.json()
+      console.log('[DEV] Stripe account status:', JSON.stringify(data, null, 2))
+      Alert.alert(
+        '[DEV] Stripe Status Sync',
+        `onboarding_status: ${data?.onboarding_status}\ndetails_submitted: ${data?.details_submitted}\ncharges_enabled: ${data?.charges_enabled}\npayouts_enabled: ${data?.payouts_enabled}`
+      )
+      setIsLoadingStripe(false)
+    } catch (error) {
+      console.log('[DEV] Status sync exception:', error)
+      Alert.alert('Error', 'Failed to sync Stripe account status')
+      setIsLoadingStripe(false)
+    }
+  }
+
   return (
     <>
       <ImageBackground source={imageSource} style={styles.background}>
@@ -145,6 +214,24 @@ const EarningsScreen = ({ navigation, route }) => {
                     <ActivityIndicator color={AppColors.blue} size="small" />
                   ) : (
                     <Feather name="arrow-right" color={AppColors.blue} size={20} />
+                  )}
+                </View>
+              </TouchableOpacity>
+
+              {/* [DEV] Temporary test button to verify status synchronization */}
+              <TouchableOpacity
+                style={[styles.stripeCard, { marginTop: 8, backgroundColor: '#f8f8f8', borderWidth: 1, borderColor: '#ccc' }]}
+                onPress={() => handleSyncStripeStatus()}
+                disabled={isLoadingStripe}
+              >
+                <View style={styles.stripeCardContent}>
+                  <View style={styles.stripeCardLeft}>
+                    <Text style={styles.stripeCardTitle}>[DEV] Sync Stripe Status</Text>
+                  </View>
+                  {isLoadingStripe ? (
+                    <ActivityIndicator color={AppColors.blue} size="small" />
+                  ) : (
+                    <Feather name="refresh-cw" color={AppColors.blue} size={20} />
                   )}
                 </View>
               </TouchableOpacity>
