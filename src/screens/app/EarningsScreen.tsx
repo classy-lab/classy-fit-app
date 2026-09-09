@@ -8,7 +8,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import EarningsBarGraph from '../../assets/svg/EarningsBarGraph'
 import Entypo from '@expo/vector-icons/Entypo'
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { UserContext } from '../../context/UserContext'
 
 import LineChart from '../../assets/svg/LineChart'
@@ -20,6 +20,85 @@ const imageSource = require('../../assets/images/ovalBg.png')
 const EarningsScreen = ({ navigation, route }) => {
   const { user, tokens, setTokens, webServer } = useContext(UserContext)
   const [isLoadingStripe, setIsLoadingStripe] = useState(false)
+  const [isCheckingStripeStatus, setIsCheckingStripeStatus] = useState(true)
+  const [isStripeConfigured, setIsStripeConfigured] = useState(false)
+
+  useEffect(() => {
+    checkStripeAccountStatus()
+  }, [])
+
+  const checkStripeAccountStatus = async () => {
+    if (!user?.gym_id) {
+      // Gym info missing: fail safely by keeping the button visible so onboarding is still reachable
+      setIsStripeConfigured(false)
+      setIsCheckingStripeStatus(false)
+      return
+    }
+
+    setIsCheckingStripeStatus(true)
+    try {
+      const response = await fetch(
+        `${webServer}/api/v1/gyms/${user.gym_id}/stripe/accounts/status`,
+        {
+          headers: {
+            Authorization: 'Bearer ' + tokens.access_token,
+          },
+        }
+      )
+
+      if (response.status === 401) {
+        console.log('Access token expired, requesting new one')
+        const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
+          method: 'POST',
+          body: JSON.stringify({
+            token: tokens.refresh_token,
+          }),
+        })
+
+        if (refreshResponse.status === 200) {
+          const refreshObj = await refreshResponse.json()
+          setTokens((prev) => ({
+            ...prev,
+            access_token: refreshObj.access_token,
+            refresh_token: refreshObj.refresh_token,
+          }))
+          // Retry the original request with the new token
+          checkStripeAccountStatus()
+          return
+        }
+
+        // Refresh failed: fail safely, keep button visible
+        setIsStripeConfigured(false)
+        setIsCheckingStripeStatus(false)
+        return
+      }
+
+      if (response.status === 200) {
+        const data = await response.json()
+        const account = data?.account
+
+        // Fully configured only when every one of these conditions holds true.
+        // Existence of stripe_account_id alone is NOT sufficient.
+        const fullyConfigured =
+          !!account?.stripe_account_id &&
+          account?.onboarding_status === 'complete' &&
+          account?.details_submitted === true &&
+          account?.charges_enabled === true &&
+          account?.payouts_enabled === true
+
+        setIsStripeConfigured(fullyConfigured)
+      } else {
+        // 404 (no account yet) or any other error means Stripe isn't fully configured
+        setIsStripeConfigured(false)
+      }
+    } catch (error) {
+      console.log('Stripe status check error:', error)
+      // Fail safely: if status can't be determined, assume not configured so onboarding stays reachable
+      setIsStripeConfigured(false)
+    } finally {
+      setIsCheckingStripeStatus(false)
+    }
+  }
 
   const handleConnectStripe = async () => {
     if (!user?.gym_id) {
@@ -124,30 +203,32 @@ const EarningsScreen = ({ navigation, route }) => {
               </View>
             </View>
             <View style={styles.body}>
-              <TouchableOpacity
-                style={styles.stripeCard}
-                onPress={handleConnectStripe}
-                disabled={isLoadingStripe}
-              >
-                <View style={styles.stripeCardContent}>
-                  <View style={styles.stripeCardLeft}>
-                    <View style={styles.stripeCardIcon}>
-                      <FontAwesome6 name="stripe-s" size={24} color={AppColors.blue} />
+              {!isCheckingStripeStatus && !isStripeConfigured && (
+                <TouchableOpacity
+                  style={styles.stripeCard}
+                  onPress={handleConnectStripe}
+                  disabled={isLoadingStripe}
+                >
+                  <View style={styles.stripeCardContent}>
+                    <View style={styles.stripeCardLeft}>
+                      <View style={styles.stripeCardIcon}>
+                        <FontAwesome6 name="stripe-s" size={24} color={AppColors.blue} />
+                      </View>
+                      <View style={styles.stripeCardText}>
+                        <Text style={styles.stripeCardTitle}>Connect Stripe Account</Text>
+                        <Text style={styles.stripeCardSubtitle}>
+                          Set up payments for your gym
+                        </Text>
+                      </View>
                     </View>
-                    <View style={styles.stripeCardText}>
-                      <Text style={styles.stripeCardTitle}>Connect Stripe Account</Text>
-                      <Text style={styles.stripeCardSubtitle}>
-                        Set up payments for your gym
-                      </Text>
-                    </View>
+                    {isLoadingStripe ? (
+                      <ActivityIndicator color={AppColors.blue} size="small" />
+                    ) : (
+                      <Feather name="arrow-right" color={AppColors.blue} size={20} />
+                    )}
                   </View>
-                  {isLoadingStripe ? (
-                    <ActivityIndicator color={AppColors.blue} size="small" />
-                  ) : (
-                    <Feather name="arrow-right" color={AppColors.blue} size={20} />
-                  )}
-                </View>
-              </TouchableOpacity>
+                </TouchableOpacity>
+              )}
 
               <TouchableOpacity onPress={() => navigation.navigate('HomeTab', { screen: 'AllEarnings' })}>
                 <View style={styles.squareCard}>
