@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { StyleSheet, Linking } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
+import { StripeProvider } from "@stripe/stripe-react-native";
 import AuthStack from "./src/navigation/AuthStack"; // Contains Login/Signup screens
 import AppTabs from "./src/navigation/AppTabs"; // Contains Home/Dashboard/Settings screens
 import { useFonts } from "expo-font";
@@ -50,6 +51,9 @@ export default function App() {
   const [webServer, setWebserver] = useState(
     "http://localhost:8080/classy-api",
   );
+  const [stripePublishableKey, setStripePublishableKey] = useState(
+    require("./app.json").expo.extra.stripePublishableKey || "pk_test_placeholder",
+  );
 
   useEffect(() => {
     if (!fontsLoaded) {
@@ -76,17 +80,23 @@ export default function App() {
         tokens,
         setTokens,
         webServer,
+        stripePublishableKey,
       }}
     >
-      <CartProvider>
-        <NavigationContainer
-          linking={linking}
-          fallback={<></>}
-        >
-          {isLoggedIn ? <AppTabs /> : <AuthStack />}
-        </NavigationContainer>
-        <FlashMessage position={"top"} />
-      </CartProvider>
+      <StripeProvider
+        publishableKey={stripePublishableKey}
+        urlScheme="classyfit"
+      >
+        <CartProvider>
+          <NavigationContainer
+            linking={linking}
+            fallback={<></>}
+          >
+            {isLoggedIn ? <AppTabs /> : <AuthStack />}
+          </NavigationContainer>
+          <FlashMessage position={"top"} />
+        </CartProvider>
+      </StripeProvider>
     </UserContext.Provider>
   );
 }
