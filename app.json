@@ -35,7 +35,8 @@
     "extra": {
       "eas": {
         "projectId": "71a3d6be-20db-4bcb-80e2-59c2a18db2b5"
-      }
+      },
+      "stripePublishableKey": "pk_test_51SDGbk0lJ7p6e5R32ZYYqws98d4GAAp95A1v3VUdQ2FYqALQlOPfDr3iK32GuuP7CMIRkUtc1P2HGYm2l25xqohn0073ZYCjPh"
     },
     "owner": "vanbeek",
     "runtimeVersion": {
@@ -45,7 +46,14 @@
       "url": "https://u.expo.dev/71a3d6be-20db-4bcb-80e2-59c2a18db2b5"
     },
     "plugins": [
-      "expo-font"
+      "expo-font",
+      [
+        "@stripe/stripe-react-native",
+        {
+          "enableGooglePay": false,
+          "includeOnramp": false
+        }
+      ]
     ]
   }
 }
