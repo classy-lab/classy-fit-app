@@ -278,7 +278,7 @@ const ViewCartScreen = () => {
       })
       
       // Navigate to thank you screen
-      navigation.navigate('ThankYouScreen')
+      navigation.navigate('ThankYouScreen', { orderInfo })
     } catch (error) {
       console.log('Checkout error:', error)
       showMessage({
