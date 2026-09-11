@@ -25,7 +25,7 @@ const EarningsScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     checkStripeAccountStatus()
-  }, [])
+  }, [user?.gym_id, tokens?.access_token])
 
   const checkStripeAccountStatus = async () => {
     if (!user?.gym_id) {
