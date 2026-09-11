@@ -54,6 +54,7 @@ export default function App() {
   const [stripePublishableKey, setStripePublishableKey] = useState(
     require("./app.json").expo.extra.stripePublishableKey || "pk_test_placeholder",
   );
+  const [stripeAccountId, setStripeAccountId] = useState<string | undefined>();
 
   useEffect(() => {
     if (!fontsLoaded) {
@@ -64,6 +65,46 @@ export default function App() {
     setCustomText(customTextProps);
     setCustomTextInput(customTextInputProps);
   }, [fontsLoaded]);
+
+  useEffect(() => {
+    if (!user?.gym_id || !tokens?.access_token) {
+      setStripeAccountId(undefined);
+      return;
+    }
+
+    let isMounted = true;
+
+    const fetchStripeAccountId = async () => {
+      try {
+        const response = await fetch(
+          `${webServer}/api/v1/gyms/${user.gym_id}/stripe/accounts/status`,
+          {
+            headers: {
+              Authorization: "Bearer " + tokens.access_token,
+            },
+          }
+        );
+
+        if (isMounted && response.status === 200) {
+          const data = await response.json();
+          const accountId = data?.account?.stripe_account_id;
+          setStripeAccountId(accountId || undefined);
+        } else if (isMounted) {
+          setStripeAccountId(undefined);
+        }
+      } catch (error) {
+        if (isMounted) {
+          setStripeAccountId(undefined);
+        }
+      }
+    };
+
+    fetchStripeAccountId();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user?.gym_id, tokens?.access_token, webServer]);
 
   if (!fontsLoaded) {
     return null;
@@ -85,6 +126,7 @@ export default function App() {
     >
       <StripeProvider
         publishableKey={stripePublishableKey}
+        stripeAccountId={stripeAccountId}
         urlScheme="classyfit"
       >
         <CartProvider>
