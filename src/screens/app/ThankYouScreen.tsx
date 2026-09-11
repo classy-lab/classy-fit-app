@@ -18,6 +18,8 @@ import { UserContext } from "../../context/UserContext";
 
 const ThankYouScreen = ({ navigation, route }) => {
   const { isLoggedIn } = useContext(UserContext);
+  const orderInfo = route?.params?.orderInfo;
+  const isCheckout = !!orderInfo?.order_number;
 
   const handleSubmit = () => {
     if (isLoggedIn) {
@@ -61,11 +63,23 @@ const ThankYouScreen = ({ navigation, route }) => {
             <PinkLeafSvg style={styles.pinkLeaf} />
           </View>
           <View style={styles.body}>
-            <Text style={styles.bodyText}>
-              Your account has been created. {"\n"}
-              Please check your email and click on activation link to activate
-              your account.
-            </Text>
+            {isCheckout ? (
+              <>
+                <Text style={styles.bodyText}>
+                  Your purchase was successful!{"\n"}
+                  Your order has been confirmed.
+                </Text>
+                <Text style={styles.orderNumber}>
+                  Order #{orderInfo.order_number}
+                </Text>
+              </>
+            ) : (
+              <Text style={styles.bodyText}>
+                Your account has been created. {"\n"}
+                Please check your email and click on activation link to activate
+                your account.
+              </Text>
+            )}
             <View style={styles.loginBtnContainer}>
               <TouchableOpacity
                 style={styles.loginBtn}
@@ -134,6 +148,13 @@ const styles = StyleSheet.create({
     fontSize: 20,
     textAlign: "center",
     lineHeight: 32,
+  },
+  orderNumber: {
+    fontFamily: "Montserrat",
+    color: AppColors.grey3,
+    fontSize: 16,
+    textAlign: "center",
+    marginTop: 12,
   },
   boldText: {
     fontWeight: "bold",
