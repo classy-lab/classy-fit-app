@@ -155,11 +155,15 @@ const ClassSessionScreen = ({ navigation, route }) => {
 
     const endpoint = `${webServer}/api/v1/classes/${session.session_uid}/booking`
     const performRequest = async (accessToken) => {
+      console.log('[ClassBooking] POST', endpoint, {
+        sessionUid: session.session_uid,
+        idempotencyKey,
+      })
       return fetch(endpoint, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${accessToken}`,
-          'Idempotency-Key': bookingAttemptKeyRef.current,
+          'Idempotency-Key': idempotencyKey,
         },
       })
     }
@@ -184,6 +188,11 @@ const ClassSessionScreen = ({ navigation, route }) => {
       }
 
       const responseText = await response.text()
+      console.log('[ClassBooking] response', {
+        url: endpoint,
+        status: response.status,
+        responseText,
+      })
       let responseBody: any = {}
       if (responseText) {
         try {
@@ -195,6 +204,10 @@ const ClassSessionScreen = ({ navigation, route }) => {
 
       if (response.status !== 200 && response.status !== 201) {
         const message = responseBody?.message || 'Unable to book class.'
+        console.log('[ClassBooking] booking failed message', {
+          title: 'Booking failed',
+          message,
+        })
         showMessage({
           message: 'Booking failed',
           description: message,
@@ -224,6 +237,9 @@ const ClassSessionScreen = ({ navigation, route }) => {
 
       const clientSecret = payment?.payment_intent?.client_secret
       if (!clientSecret) {
+        console.log('[ClassBooking] missing client_secret', {
+          payment,
+        })
         showMessage({
           message: 'Booking failed',
           description: 'Payment initialization failed. Please try again.',
@@ -237,6 +253,11 @@ const ClassSessionScreen = ({ navigation, route }) => {
         merchantDisplayName: 'Classy Fit',
         style: 'alwaysDark',
       })
+      console.log('[ClassBooking] initPaymentSheet result', {
+        hasError: !!initError,
+        errorCode: initError?.code,
+        errorMessage: initError?.message,
+      })
 
       if (initError) {
         console.log('Class Payment Sheet init error:', initError)
@@ -249,9 +270,15 @@ const ClassSessionScreen = ({ navigation, route }) => {
       }
 
       const { error: presentError } = await presentPaymentSheet()
+      console.log('[ClassBooking] presentPaymentSheet result', {
+        hasError: !!presentError,
+        errorCode: presentError?.code,
+        errorMessage: presentError?.message,
+      })
 
       if (presentError) {
         if (presentError.code === 'Canceled') {
+          console.log('[ClassBooking] PaymentSheet canceled by user')
           return
         }
 
