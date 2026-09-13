@@ -235,6 +235,7 @@ const ViewCartScreen = () => {
         paymentIntentClientSecret: clientSecret,
         merchantDisplayName: 'Classy Fit',
         style: 'alwaysDark',
+        returnURL: 'classyfit://stripe-redirect',
       })
 
       if (initError) {
