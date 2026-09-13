@@ -23,6 +23,8 @@ import AddProductScreen from '../screens/app/AddProductScreen'
 import EditProductScreen from '../screens/app/EditProductScreen'
 import ViewCartScreen from '../screens/app/ViewCartScreen'
 import ThankYouScreen from '../screens/app/ThankYouScreen'
+import ClassesScreen from '../screens/app/ClassesScreen'
+import ClassSessionScreen from '../screens/app/ClassSessionScreen'
 import TreadmillEquipmentScreen from '../screens/app/TreadmillEquipmentScreen'
 import GymEquipmentScreen from '../screens/app/GymEquipmentScreen'
 import EquipmentDetailScreen from '../screens/app/EquipmentDetailScreen'
@@ -35,10 +37,12 @@ import UpdateMemberScreen from '../screens/app/UpdateMemberScreen'
 import AddMemberScreen from '../screens/app/AddMemberScreen'
 import AddEquipmentScreen from '../screens/app/AddEquipmentScreen'
 import EquipmentEditScreen from '../screens/app/EquipmentEditScreen'
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 
 const Tab = createBottomTabNavigator()
 const HomeStack = createStackNavigator()
 const ProductStack = createStackNavigator()
+const ClassesStack = createStackNavigator()
 const StaffStack = createStackNavigator()
 const GymStack = createStackNavigator()
 
@@ -100,6 +104,15 @@ function ProductStackScreen() {
       <ProductStack.Screen name="ViewCartScreen" component={ViewCartScreen} />
       <ProductStack.Screen name="ThankYouScreen" component={ThankYouScreen} />
     </ProductStack.Navigator>
+  )
+}
+
+function ClassesStackScreen() {
+  return (
+    <ClassesStack.Navigator screenOptions={screenOptions}>
+      <ClassesStack.Screen name="ClassesScreen" component={ClassesScreen} />
+      <ClassesStack.Screen name="ClassSessionScreen" component={ClassSessionScreen} />
+    </ClassesStack.Navigator>
   )
 }
 
@@ -179,6 +192,15 @@ const AppTabs = () => {
           tabBarIcon: ({ color, size }) => <Ionicons name="bag-handle" size={20} color={color} />
         }}
         listeners={createRootTabListener('ProductsTab', 'ProductsScreen')}
+      />
+      <Tab.Screen
+        name="ClassesTab"
+        component={ClassesStackScreen}
+        options={{
+          title: "Classes",
+          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="calendar-month" size={20} color={color} />
+        }}
+        listeners={createRootTabListener('ClassesTab', 'ClassesScreen')}
       />
       {/* <Tab.Screen
         name="CartTab"
