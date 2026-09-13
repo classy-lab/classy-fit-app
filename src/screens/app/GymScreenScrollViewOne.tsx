@@ -18,14 +18,6 @@ const GymScreenScrollViewOne = () => {
         <View style={gymScreenStyles.greySquareContainer}>
           <TouchableOpacity style={gymScreenStyles.greySquare}>
             <View style={gymScreenStyles.whiteSquare}>
-              <Ionicons name="people" color={AppColors.blue} size={32} />
-            </View>
-          </TouchableOpacity>
-          <Text style={gymScreenStyles.cardText}>Live Occupancy</Text>
-        </View>
-        <View style={gymScreenStyles.greySquareContainer}>
-          <TouchableOpacity style={gymScreenStyles.greySquare}>
-            <View style={gymScreenStyles.whiteSquare}>
               <ClassesSvg />
             </View>
           </TouchableOpacity>
