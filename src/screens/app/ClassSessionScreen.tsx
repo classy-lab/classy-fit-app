@@ -252,6 +252,7 @@ const ClassSessionScreen = ({ navigation, route }) => {
         paymentIntentClientSecret: clientSecret,
         merchantDisplayName: 'Classy Fit',
         style: 'alwaysDark',
+        returnURL: 'classyfit://stripe-redirect',
       })
       console.log('[ClassBooking] initPaymentSheet result', {
         hasError: !!initError,
