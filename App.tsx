@@ -77,7 +77,7 @@ export default function App() {
     const fetchStripeAccountId = async () => {
       try {
         const response = await fetch(
-          `${webServer}/api/v1/gyms/${user.gym_id}/stripe/accounts/status`,
+          `${webServer}/api/v1/gyms/${user.gym_id}/stripe/account-context`,
           {
             headers: {
               Authorization: "Bearer " + tokens.access_token,
