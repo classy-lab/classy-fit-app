@@ -25,6 +25,7 @@ import ViewCartScreen from '../screens/app/ViewCartScreen'
 import ThankYouScreen from '../screens/app/ThankYouScreen'
 import ClassesScreen from '../screens/app/ClassesScreen'
 import ClassSessionScreen from '../screens/app/ClassSessionScreen'
+import ClassBookingSuccessScreen from '../screens/app/ClassBookingSuccessScreen'
 import TreadmillEquipmentScreen from '../screens/app/TreadmillEquipmentScreen'
 import GymEquipmentScreen from '../screens/app/GymEquipmentScreen'
 import EquipmentDetailScreen from '../screens/app/EquipmentDetailScreen'
@@ -112,6 +113,7 @@ function ClassesStackScreen() {
     <ClassesStack.Navigator screenOptions={screenOptions}>
       <ClassesStack.Screen name="ClassesScreen" component={ClassesScreen} />
       <ClassesStack.Screen name="ClassSessionScreen" component={ClassSessionScreen} />
+      <ClassesStack.Screen name="ClassBookingSuccessScreen" component={ClassBookingSuccessScreen} />
     </ClassesStack.Navigator>
   )
 }
