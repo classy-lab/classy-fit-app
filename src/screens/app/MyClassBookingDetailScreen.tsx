@@ -110,7 +110,7 @@ const MyClassBookingDetailScreen = ({ navigation, route }) => {
         return
       }
 
-      setBooking(responseBody?.data ?? null)
+      setBooking(responseBody?.booking ?? null)
     } catch (error) {
       const message = 'Failed to load booking details.'
       setErrorMessage(message)
