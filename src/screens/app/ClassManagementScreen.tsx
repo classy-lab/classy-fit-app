@@ -48,6 +48,7 @@ type UserContextValue = {
 
 type ClassManagementNavigation = {
   goBack: () => void
+  navigate: (screen: 'AddClassScreen') => void
 }
 
 type LoadOptions = {
@@ -239,7 +240,7 @@ const ClassManagementScreen = ({ navigation }: { navigation: ClassManagementNavi
   }
 
   const handleAddClass = () => {
-    Alert.alert('Add Class', 'Add Class will be available soon.')
+    navigation.navigate('AddClassScreen')
   }
 
   const handleEditClass = () => {
