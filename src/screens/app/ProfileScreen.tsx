@@ -21,6 +21,7 @@ import SignOut from "../../components/utils/SignOut";
 const ProfileScreen = () => {
   const navigation = useNavigation();
   const { user, setUser } = useContext(UserContext);
+  const isOwner = String(user?.role ?? '').trim().toLowerCase() === 'owner';
   return (
     <>
       <SafeAreaView style={styles.container}>
@@ -54,6 +55,16 @@ const ProfileScreen = () => {
               <Text style={styles.menuButtonText}>My Class Bookings</Text>
               <Feather name="chevron-right" color={AppColors.grey} size={20} />
             </TouchableOpacity>
+            {isOwner ? (
+              <TouchableOpacity
+                style={styles.menuButton}
+                onPress={() => navigation.navigate('ClassManagementScreen')}
+              >
+                <Feather name="settings" color={AppColors.blue} size={20} />
+                <Text style={styles.menuButtonText}>Manage Classes</Text>
+                <Feather name="chevron-right" color={AppColors.grey} size={20} />
+              </TouchableOpacity>
+            ) : null}
             <ProfileScreenForm />
           </View>
           <View style={styles.imageContainer}>
@@ -148,4 +159,3 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
 });
-
