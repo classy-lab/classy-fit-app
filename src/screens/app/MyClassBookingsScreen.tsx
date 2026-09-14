@@ -254,7 +254,7 @@ const MyClassBookingsScreen = ({ navigation }) => {
                     <View style={styles.cardHeader}>
                       <View style={styles.cardHeaderText}>
                         <Text style={styles.cardTitle}>{booking?.class_name || 'Untitled class'}</Text>
-                        <Text style={styles.pricePill}>{renderPrice(booking)}</Text>
+                        {/* <Text style={styles.pricePill}>Cost: {renderPrice(booking)}</Text> */}
                       </View>
                     </View>
 
@@ -265,12 +265,12 @@ const MyClassBookingsScreen = ({ navigation }) => {
                     <View style={styles.metaGrid}>
                       <View style={styles.metaItem}>
                         <Text style={styles.metaLabel}>Date</Text>
-                        <Text style={styles.metaValue}>{formatDate(booking?.session_start_at)}</Text>
+                        <Text style={styles.metaValue}>{formatDate(booking?.start_at)}</Text>
                       </View>
                       <View style={styles.metaItem}>
                         <Text style={styles.metaLabel}>Time</Text>
                         <Text style={styles.metaValue}>
-                          {formatTime(booking?.session_start_at)} - {formatTime(booking?.session_end_at)}
+                          {formatTime(booking?.start_at)} - {formatTime(booking?.end_at)}
                         </Text>
                       </View>
                       <View style={styles.metaItem}>
@@ -283,6 +283,10 @@ const MyClassBookingsScreen = ({ navigation }) => {
                           <Text style={styles.metaValue}>{renderPaymentStatus(booking)}</Text>
                         </View>
                       )}
+                      <View style={styles.metaItem}>
+                        <Text style={styles.metaLabel}>Cost</Text>
+                        <Text style={styles.pricePill}>{renderPrice(booking)}</Text>
+                      </View>
                     </View>
                   </TouchableOpacity>
                 ))}
@@ -302,7 +306,7 @@ const MyClassBookingsScreen = ({ navigation }) => {
                     <View style={styles.cardHeader}>
                       <View style={styles.cardHeaderText}>
                         <Text style={styles.cardTitle}>{booking?.class_name || 'Untitled class'}</Text>
-                        <Text style={styles.pricePill}>{renderPrice(booking)}</Text>
+                        <Text style={styles.pricePill}>Cost: {renderPrice(booking)}</Text>
                       </View>
                     </View>
 
@@ -313,12 +317,12 @@ const MyClassBookingsScreen = ({ navigation }) => {
                     <View style={styles.metaGrid}>
                       <View style={styles.metaItem}>
                         <Text style={styles.metaLabel}>Date</Text>
-                        <Text style={styles.metaValue}>{formatDate(booking?.session_start_at)}</Text>
+                        <Text style={styles.metaValue}>{formatDate(booking?.start_at)}</Text>
                       </View>
                       <View style={styles.metaItem}>
                         <Text style={styles.metaLabel}>Time</Text>
                         <Text style={styles.metaValue}>
-                          {formatTime(booking?.session_start_at)} - {formatTime(booking?.session_end_at)}
+                          {formatTime(booking?.start_at)} - {formatTime(booking?.end_at)}
                         </Text>
                       </View>
                       <View style={styles.metaItem}>
@@ -465,8 +469,8 @@ const styles = StyleSheet.create({
   pricePill: {
     fontSize: 13,
     fontWeight: '500',
-    color: AppColors.primary,
-    backgroundColor: AppColors.lightGrey,
+    color: AppColors.white,
+    backgroundColor: AppColors.blue,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
@@ -488,7 +492,7 @@ const styles = StyleSheet.create({
   },
   metaLabel: {
     fontSize: 12,
-    color: AppColors.grey,
+    color: AppColors.primary,
     fontWeight: '500',
   },
   metaValue: {
