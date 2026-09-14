@@ -6,7 +6,7 @@ import { AppColors } from '../../styles/colors'
 import { gymScreenStyles } from '../../styles/gymScreenStyles'
 
 
-const GymScreenScrollViewOne = () => {
+const GymScreenScrollViewOne = ({ navigation }) => {
   return (
     <>
       <Text style={gymScreenStyles.sectionTitle}>Gym</Text>
@@ -16,7 +16,7 @@ const GymScreenScrollViewOne = () => {
         showsHorizontalScrollIndicator={false}
       >
         <View style={gymScreenStyles.greySquareContainer}>
-          <TouchableOpacity style={gymScreenStyles.greySquare}>
+          <TouchableOpacity style={gymScreenStyles.greySquare} onPress={() => navigation.navigate('ClassesScreen')}>
             <View style={gymScreenStyles.whiteSquare}>
               <ClassesSvg />
             </View>
