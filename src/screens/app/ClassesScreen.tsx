@@ -172,10 +172,7 @@ const ClassesScreen = ({ navigation }) => {
   }
 
   const openSession = (session) => {
-    navigation.navigate('ClassesTab', {
-      screen: 'ClassSessionScreen',
-      params: { session },
-    })
+    navigation.navigate('ClassSessionScreen', { session })
   }
 
   const renderPrice = (session) => {
@@ -385,7 +382,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     color: AppColors.blue,
-    fontFamily: 'Montserrat',
+    fontFamily: 'Montserrat-Bold',
     fontSize: 20,
     marginBottom: 8,
   },
