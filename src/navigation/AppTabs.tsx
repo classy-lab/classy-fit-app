@@ -38,12 +38,10 @@ import UpdateMemberScreen from '../screens/app/UpdateMemberScreen'
 import AddMemberScreen from '../screens/app/AddMemberScreen'
 import AddEquipmentScreen from '../screens/app/AddEquipmentScreen'
 import EquipmentEditScreen from '../screens/app/EquipmentEditScreen'
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 
 const Tab = createBottomTabNavigator()
 const HomeStack = createStackNavigator()
 const ProductStack = createStackNavigator()
-const ClassesStack = createStackNavigator()
 const StaffStack = createStackNavigator()
 const GymStack = createStackNavigator()
 
@@ -55,6 +53,9 @@ function HomeStackScreen() {
       <HomeStack.Screen name="DashboardScreen" component={DashboardScreen} />
       <HomeStack.Screen name="EarningsScreen" component={EarningsScreen} />
       <HomeStack.Screen name="GymScreen" component={GymScreen} />
+      <HomeStack.Screen name="ClassesScreen" component={ClassesScreen} />
+      <HomeStack.Screen name="ClassSessionScreen" component={ClassSessionScreen} />
+      <HomeStack.Screen name="ClassBookingSuccessScreen" component={ClassBookingSuccessScreen} />
       <HomeStack.Screen name="StaffScreen" component={StaffScreen} />
       <HomeStack.Screen name="MembersScreen" component={MembersScreen} />
       <HomeStack.Screen name="ProductsScreen" component={ProductsScreen} />
@@ -73,6 +74,9 @@ function GymStackScreen() {
   return (
     <GymStack.Navigator screenOptions={screenOptions}>
       <GymStack.Screen name="GymScreen" component={GymScreen} />
+      <GymStack.Screen name="ClassesScreen" component={ClassesScreen} />
+      <GymStack.Screen name="ClassSessionScreen" component={ClassSessionScreen} />
+      <GymStack.Screen name="ClassBookingSuccessScreen" component={ClassBookingSuccessScreen} />
       <GymStack.Screen name="GymEquipmentScreen" component={GymEquipmentScreen} />
       <GymStack.Screen name="EquipmentDetailScreen" component={EquipmentDetailScreen} />
       <GymStack.Screen name="TreadmillEquipmentScreen" component={TreadmillEquipmentScreen} />
@@ -107,17 +111,6 @@ function ProductStackScreen() {
     </ProductStack.Navigator>
   )
 }
-
-function ClassesStackScreen() {
-  return (
-    <ClassesStack.Navigator screenOptions={screenOptions}>
-      <ClassesStack.Screen name="ClassesScreen" component={ClassesScreen} />
-      <ClassesStack.Screen name="ClassSessionScreen" component={ClassSessionScreen} />
-      <ClassesStack.Screen name="ClassBookingSuccessScreen" component={ClassBookingSuccessScreen} />
-    </ClassesStack.Navigator>
-  )
-}
-
 
 const screenOptions = {
   tabBarActiveTintColor: AppColors.blue,
@@ -194,15 +187,6 @@ const AppTabs = () => {
           tabBarIcon: ({ color, size }) => <Ionicons name="bag-handle" size={20} color={color} />
         }}
         listeners={createRootTabListener('ProductsTab', 'ProductsScreen')}
-      />
-      <Tab.Screen
-        name="ClassesTab"
-        component={ClassesStackScreen}
-        options={{
-          title: "Classes",
-          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="calendar-month" size={20} color={color} />
-        }}
-        listeners={createRootTabListener('ClassesTab', 'ClassesScreen')}
       />
       {/* <Tab.Screen
         name="CartTab"
