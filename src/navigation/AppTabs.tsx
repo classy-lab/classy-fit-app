@@ -15,6 +15,7 @@ import MembersScreen from '../screens/app/MembersScreen'
 import ProductsScreen from '../screens/app/ProductsScreen'
 import ProfileScreen from '../screens/app/ProfileScreen'
 import ClassManagementScreen from '../screens/app/ClassManagementScreen'
+import AddClassScreen from '../screens/app/AddClassScreen'
 import EarningsScreen from '../screens/app/EarningsScreen'
 import ContractorsScreen from '../screens/app/ContractorsScreen'
 import SignoutScreen from '../screens/app/SignoutScreen'
@@ -123,6 +124,7 @@ function ProfileStackScreen() {
       <ProfileStack.Screen name="MyClassBookingsScreen" component={MyClassBookingsScreen} />
       <ProfileStack.Screen name="MyClassBookingDetailScreen" component={MyClassBookingDetailScreen} />
       <ProfileStack.Screen name="ClassManagementScreen" component={ClassManagementScreen} />
+      <ProfileStack.Screen name="AddClassScreen" component={AddClassScreen} />
     </ProfileStack.Navigator>
   )
 }
