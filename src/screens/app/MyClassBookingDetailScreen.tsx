@@ -251,13 +251,13 @@ const MyClassBookingDetailScreen = ({ navigation, route }) => {
 
               <View style={styles.detailRow}>
                 <Text style={styles.detailLabel}>Date</Text>
-                <Text style={styles.detailValue}>{formatDate(booking?.session_start_at)}</Text>
+                <Text style={styles.detailValue}>{formatDate(booking?.start_at)}</Text>
               </View>
 
               <View style={styles.detailRow}>
                 <Text style={styles.detailLabel}>Time</Text>
                 <Text style={styles.detailValue}>
-                  {formatTime(booking?.session_start_at)} - {formatTime(booking?.session_end_at)}
+                  {formatTime(booking?.start_at)} - {formatTime(booking?.end_at)}
                 </Text>
               </View>
 
