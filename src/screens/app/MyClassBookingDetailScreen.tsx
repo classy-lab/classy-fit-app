@@ -236,8 +236,25 @@ const MyClassBookingDetailScreen = ({ navigation, route }) => {
         ) : (
           <View style={styles.content}>
             <View style={styles.headerSection}>
-              <Text style={styles.className}>{booking?.class_name || 'Untitled class'}</Text>
-              <Text style={styles.priceBadge}>{renderPrice()}</Text>
+              <View style={styles.headerTop}>
+                <View style={styles.headerLeft}>
+                  <Text style={styles.className}>{booking?.class_name || 'Untitled class'}</Text>
+                  {booking?.trainer_display_name && (
+                    <Text style={styles.trainerInfo}>by {booking.trainer_display_name}</Text>
+                  )}
+                </View>
+                <Text style={styles.priceBadge}>{renderPrice()}</Text>
+              </View>
+              <View style={styles.statusRow}>
+                <View style={[styles.statusBadge, styles.statusBadgeBooking]}>
+                  <Text style={styles.statusText}>{renderBookingStatus()}</Text>
+                </View>
+                {booking?.payment_status && (
+                  <View style={[styles.statusBadge, styles.statusBadgePayment]}>
+                    <Text style={styles.statusText}>{renderPaymentStatus()}</Text>
+                  </View>
+                )}
+              </View>
             </View>
 
             {booking?.class_description && (
@@ -277,19 +294,7 @@ const MyClassBookingDetailScreen = ({ navigation, route }) => {
             </View>
 
             <View style={styles.detailsSection}>
-              <Text style={styles.sectionTitle}>Booking Information</Text>
-
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Booking Status</Text>
-                <Text style={styles.detailValue}>{renderBookingStatus()}</Text>
-              </View>
-
-              {booking?.payment_status && (
-                <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>Payment Status</Text>
-                  <Text style={styles.detailValue}>{renderPaymentStatus()}</Text>
-                </View>
-              )}
+              <Text style={styles.sectionTitle}>Additional Information</Text>
 
               {booking?.booked_at && (
                 <View style={styles.detailRow}>
@@ -323,7 +328,7 @@ export default MyClassBookingDetailScreen
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: AppColors.white,
+    backgroundColor: '#f8f9fb',
     flex: 1,
   },
   navs: {
@@ -334,6 +339,9 @@ const styles = StyleSheet.create({
     paddingRight: 24,
     paddingTop: 12,
     paddingBottom: 12,
+    backgroundColor: AppColors.white,
+    borderBottomColor: AppColors.lightGrey,
+    borderBottomWidth: 1,
   },
   backBtn: {
     padding: 8,
@@ -353,7 +361,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingVertical: 20,
   },
   centerState: {
     justifyContent: 'center',
@@ -363,7 +371,7 @@ const styles = StyleSheet.create({
   stateText: {
     marginTop: 12,
     fontSize: 16,
-    color: AppColors.grey,
+    color: AppColors.grey3,
     textAlign: 'center',
   },
   emptyTitle: {
@@ -407,76 +415,131 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   headerSection: {
+    backgroundColor: AppColors.white,
+    borderRadius: 12,
+    padding: 20,
     marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 3,
   },
   className: {
     fontSize: 28,
     fontWeight: 'bold',
     color: AppColors.blue,
-    marginBottom: 8,
+    marginBottom: 12,
   },
   priceBadge: {
     fontSize: 18,
     fontWeight: '600',
     color: AppColors.primary,
-    backgroundColor: AppColors.lightGrey,
+    backgroundColor: '#e3f2fd',
     paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 6,
+    paddingVertical: 8,
+    borderRadius: 20,
     alignSelf: 'flex-start',
   },
   descriptionSection: {
-    backgroundColor: AppColors.lightGrey,
+    backgroundColor: '#f0f4ff',
     padding: 16,
-    borderRadius: 8,
+    borderRadius: 12,
     marginBottom: 20,
+    borderLeftColor: AppColors.blue,
+    borderLeftWidth: 4,
   },
   description: {
     fontSize: 14,
     color: AppColors.blue,
-    lineHeight: 20,
+    lineHeight: 22,
   },
   detailsSection: {
     backgroundColor: AppColors.white,
-    borderColor: AppColors.grey,
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 16,
+    borderRadius: 12,
+    padding: 20,
     marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
     color: AppColors.blue,
-    marginBottom: 12,
+    marginBottom: 16,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 10,
-    borderBottomColor: AppColors.lightGrey,
+    paddingVertical: 12,
+    borderBottomColor: '#eeeeee',
     borderBottomWidth: 1,
   },
   detailRow_last: {
     borderBottomWidth: 0,
   },
   detailLabel: {
-    fontSize: 14,
-    color: AppColors.grey,
+    fontSize: 13,
+    color: AppColors.grey3,
     fontWeight: '500',
+    flex: 0.4,
   },
   detailValue: {
     fontSize: 14,
     color: AppColors.blue,
     fontWeight: '600',
     textAlign: 'right',
+    flex: 0.6,
+    paddingLeft: 12,
+  },
+  trainerInfo: {
+    fontSize: 14,
+    color: AppColors.grey3,
+    fontStyle: 'italic',
+    marginTop: 4,
+  },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 16,
+  },
+  headerLeft: {
     flex: 1,
-    marginLeft: 12,
+    marginRight: 12,
+  },
+  statusRow: {
+    flexDirection: 'row',
+    gap: 8,
+    paddingTop: 12,
+    borderTopColor: '#eeeeee',
+    borderTopWidth: 1,
+  },
+  statusBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+  },
+  statusBadgeBooking: {
+    backgroundColor: '#e8f5e9',
+  },
+  statusBadgePayment: {
+    backgroundColor: '#e3f2fd',
+  },
+  statusText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: AppColors.blue,
   },
   notes: {
     fontSize: 14,
     color: AppColors.blue,
-    lineHeight: 20,
+    lineHeight: 22,
   },
 })
