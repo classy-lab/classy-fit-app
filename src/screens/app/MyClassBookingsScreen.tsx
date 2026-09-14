@@ -173,7 +173,7 @@ const MyClassBookingsScreen = ({ navigation }) => {
   }
 
   const isUpcoming = (booking) => {
-    const sessionDate = parseDate(booking?.session_start_at)
+    const sessionDate = parseDate(booking?.start_at)
     if (!sessionDate) return false
     return sessionDate.getTime() > Date.now()
   }
