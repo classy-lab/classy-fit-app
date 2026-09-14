@@ -1,4 +1,5 @@
 import { ScrollView, View, TouchableOpacity, Text } from 'react-native'
+import { useNavigation } from '@react-navigation/native'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import ClassesSvg from '../../components/svg/ClassesSvg'
 import PersonalTrainingSvg from '../../components/svg/PersonalTrainingSvg'
@@ -6,7 +7,8 @@ import { AppColors } from '../../styles/colors'
 import { gymScreenStyles } from '../../styles/gymScreenStyles'
 
 
-const GymScreenScrollViewOne = ({ navigation }) => {
+const GymScreenScrollViewOne = () => {
+  const navigation = useNavigation<any>()
   return (
     <>
       <Text style={gymScreenStyles.sectionTitle}>Gym</Text>
