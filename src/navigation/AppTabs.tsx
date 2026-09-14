@@ -23,6 +23,9 @@ import AddProductScreen from '../screens/app/AddProductScreen'
 import EditProductScreen from '../screens/app/EditProductScreen'
 import ViewCartScreen from '../screens/app/ViewCartScreen'
 import ThankYouScreen from '../screens/app/ThankYouScreen'
+import ClassesScreen from '../screens/app/ClassesScreen'
+import ClassSessionScreen from '../screens/app/ClassSessionScreen'
+import ClassBookingSuccessScreen from '../screens/app/ClassBookingSuccessScreen'
 import TreadmillEquipmentScreen from '../screens/app/TreadmillEquipmentScreen'
 import GymEquipmentScreen from '../screens/app/GymEquipmentScreen'
 import EquipmentDetailScreen from '../screens/app/EquipmentDetailScreen'
@@ -35,12 +38,15 @@ import UpdateMemberScreen from '../screens/app/UpdateMemberScreen'
 import AddMemberScreen from '../screens/app/AddMemberScreen'
 import AddEquipmentScreen from '../screens/app/AddEquipmentScreen'
 import EquipmentEditScreen from '../screens/app/EquipmentEditScreen'
+import MyClassBookingsScreen from '../screens/app/MyClassBookingsScreen'
+import MyClassBookingDetailScreen from '../screens/app/MyClassBookingDetailScreen'
 
 const Tab = createBottomTabNavigator()
 const HomeStack = createStackNavigator()
 const ProductStack = createStackNavigator()
 const StaffStack = createStackNavigator()
 const GymStack = createStackNavigator()
+const ProfileStack = createStackNavigator()
 
 function HomeStackScreen() {
   return (
@@ -50,6 +56,9 @@ function HomeStackScreen() {
       <HomeStack.Screen name="DashboardScreen" component={DashboardScreen} />
       <HomeStack.Screen name="EarningsScreen" component={EarningsScreen} />
       <HomeStack.Screen name="GymScreen" component={GymScreen} />
+      <HomeStack.Screen name="ClassesScreen" component={ClassesScreen} />
+      <HomeStack.Screen name="ClassSessionScreen" component={ClassSessionScreen} />
+      <HomeStack.Screen name="ClassBookingSuccessScreen" component={ClassBookingSuccessScreen} />
       <HomeStack.Screen name="StaffScreen" component={StaffScreen} />
       <HomeStack.Screen name="MembersScreen" component={MembersScreen} />
       <HomeStack.Screen name="ProductsScreen" component={ProductsScreen} />
@@ -68,6 +77,9 @@ function GymStackScreen() {
   return (
     <GymStack.Navigator screenOptions={screenOptions}>
       <GymStack.Screen name="GymScreen" component={GymScreen} />
+      <GymStack.Screen name="ClassesScreen" component={ClassesScreen} />
+      <GymStack.Screen name="ClassSessionScreen" component={ClassSessionScreen} />
+      <GymStack.Screen name="ClassBookingSuccessScreen" component={ClassBookingSuccessScreen} />
       <GymStack.Screen name="GymEquipmentScreen" component={GymEquipmentScreen} />
       <GymStack.Screen name="EquipmentDetailScreen" component={EquipmentDetailScreen} />
       <GymStack.Screen name="TreadmillEquipmentScreen" component={TreadmillEquipmentScreen} />
@@ -103,6 +115,15 @@ function ProductStackScreen() {
   )
 }
 
+function ProfileStackScreen() {
+  return (
+    <ProfileStack.Navigator screenOptions={screenOptions}>
+      <ProfileStack.Screen name="ProfileScreen" component={ProfileScreen} />
+      <ProfileStack.Screen name="MyClassBookingsScreen" component={MyClassBookingsScreen} />
+      <ProfileStack.Screen name="MyClassBookingDetailScreen" component={MyClassBookingDetailScreen} />
+    </ProfileStack.Navigator>
+  )
+}
 
 const screenOptions = {
   tabBarActiveTintColor: AppColors.blue,
@@ -195,8 +216,8 @@ const AppTabs = () => {
         })}
       /> */}
       <Tab.Screen
-        name="ProfileScreen"
-        component={ProfileScreen}
+        name="ProfileTab"
+        component={ProfileStackScreen}
         options={{
           title: "Profile",
           tabBarIcon: ({ color, size }) => <FontAwesome6 name="circle-user" size={20} color={color} />
@@ -204,7 +225,7 @@ const AppTabs = () => {
         listeners={({ navigation }) => ({
           tabPress: (e) => {
             e.preventDefault();
-            navigation.navigate('ProfileScreen');
+            navigation.navigate('ProfileTab', { screen: 'ProfileScreen' });
           },
         })}
       />

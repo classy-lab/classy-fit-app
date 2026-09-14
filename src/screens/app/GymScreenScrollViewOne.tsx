@@ -1,4 +1,5 @@
 import { ScrollView, View, TouchableOpacity, Text } from 'react-native'
+import { useNavigation } from '@react-navigation/native'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import ClassesSvg from '../../components/svg/ClassesSvg'
 import PersonalTrainingSvg from '../../components/svg/PersonalTrainingSvg'
@@ -7,6 +8,7 @@ import { gymScreenStyles } from '../../styles/gymScreenStyles'
 
 
 const GymScreenScrollViewOne = () => {
+  const navigation = useNavigation<any>()
   return (
     <>
       <Text style={gymScreenStyles.sectionTitle}>Gym</Text>
@@ -16,15 +18,7 @@ const GymScreenScrollViewOne = () => {
         showsHorizontalScrollIndicator={false}
       >
         <View style={gymScreenStyles.greySquareContainer}>
-          <TouchableOpacity style={gymScreenStyles.greySquare}>
-            <View style={gymScreenStyles.whiteSquare}>
-              <Ionicons name="people" color={AppColors.blue} size={32} />
-            </View>
-          </TouchableOpacity>
-          <Text style={gymScreenStyles.cardText}>Live Occupancy</Text>
-        </View>
-        <View style={gymScreenStyles.greySquareContainer}>
-          <TouchableOpacity style={gymScreenStyles.greySquare}>
+          <TouchableOpacity style={gymScreenStyles.greySquare} onPress={() => navigation.navigate('ClassesScreen')}>
             <View style={gymScreenStyles.whiteSquare}>
               <ClassesSvg />
             </View>

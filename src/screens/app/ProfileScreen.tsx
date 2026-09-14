@@ -46,6 +46,14 @@ const ProfileScreen = () => {
             <Text style={styles.subHead}>{normalizeRole(user?.role)}</Text>
           </View>
           <View style={styles.body}>
+            <TouchableOpacity
+              style={styles.menuButton}
+              onPress={() => navigation.navigate('MyClassBookingsScreen')}
+            >
+              <Feather name="calendar" color={AppColors.blue} size={20} />
+              <Text style={styles.menuButtonText}>My Class Bookings</Text>
+              <Feather name="chevron-right" color={AppColors.grey} size={20} />
+            </TouchableOpacity>
             <ProfileScreenForm />
           </View>
           <View style={styles.imageContainer}>
@@ -121,4 +129,23 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   scrollView: {},
+  menuButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: AppColors.white,
+    borderColor: AppColors.grey,
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    marginBottom: 20,
+  },
+  menuButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: AppColors.blue,
+    flex: 1,
+    marginLeft: 12,
+  },
 });
+
