@@ -142,8 +142,7 @@ const MyClassBookingDetailScreen = ({ navigation, route }) => {
     const date = parseDate(value)
     if (!date) return 'Unknown date'
     return new Intl.DateTimeFormat(undefined, {
-      weekday: 'long',
-      month: 'long',
+      month: 'short',
       day: 'numeric',
       year: 'numeric',
     }).format(date)
@@ -264,8 +263,6 @@ const MyClassBookingDetailScreen = ({ navigation, route }) => {
             )}
 
             <View style={styles.detailsSection}>
-              <Text style={styles.sectionTitle}>Session Details</Text>
-
               <View style={styles.detailRow}>
                 <Text style={styles.detailLabel}>Date</Text>
                 <Text style={styles.detailValue}>{formatDate(booking?.start_at)}</Text>
@@ -285,38 +282,13 @@ const MyClassBookingDetailScreen = ({ navigation, route }) => {
                 </View>
               )}
 
-              {booking?.trainer_display_name && (
-                <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>Trainer</Text>
-                  <Text style={styles.detailValue}>{booking.trainer_display_name}</Text>
-                </View>
-              )}
-            </View>
-
-            <View style={styles.detailsSection}>
-              <Text style={styles.sectionTitle}>Additional Information</Text>
-
               {booking?.booked_at && (
                 <View style={styles.detailRow}>
                   <Text style={styles.detailLabel}>Booked on</Text>
                   <Text style={styles.detailValue}>{formatDateTime(booking.booked_at)}</Text>
                 </View>
               )}
-
-              {booking?.cancelled_at && (
-                <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>Cancelled on</Text>
-                  <Text style={styles.detailValue}>{formatDateTime(booking.cancelled_at)}</Text>
-                </View>
-              )}
             </View>
-
-            {booking?.notes && (
-              <View style={styles.detailsSection}>
-                <Text style={styles.sectionTitle}>Notes</Text>
-                <Text style={styles.notes}>{booking.notes}</Text>
-              </View>
-            )}
           </View>
         )}
       </ScrollView>
@@ -419,11 +391,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 20,
     marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 3,
   },
   className: {
     fontSize: 28,
@@ -459,19 +426,12 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 20,
     marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '700',
     color: AppColors.blue,
-    marginBottom: 16,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    marginBottom: 12,
   },
   detailRow: {
     flexDirection: 'row',
