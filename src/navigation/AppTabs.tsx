@@ -38,12 +38,15 @@ import UpdateMemberScreen from '../screens/app/UpdateMemberScreen'
 import AddMemberScreen from '../screens/app/AddMemberScreen'
 import AddEquipmentScreen from '../screens/app/AddEquipmentScreen'
 import EquipmentEditScreen from '../screens/app/EquipmentEditScreen'
+import MyClassBookingsScreen from '../screens/app/MyClassBookingsScreen'
+import MyClassBookingDetailScreen from '../screens/app/MyClassBookingDetailScreen'
 
 const Tab = createBottomTabNavigator()
 const HomeStack = createStackNavigator()
 const ProductStack = createStackNavigator()
 const StaffStack = createStackNavigator()
 const GymStack = createStackNavigator()
+const ProfileStack = createStackNavigator()
 
 function HomeStackScreen() {
   return (
@@ -109,6 +112,16 @@ function ProductStackScreen() {
       <ProductStack.Screen name="ViewCartScreen" component={ViewCartScreen} />
       <ProductStack.Screen name="ThankYouScreen" component={ThankYouScreen} />
     </ProductStack.Navigator>
+  )
+}
+
+function ProfileStackScreen() {
+  return (
+    <ProfileStack.Navigator screenOptions={screenOptions}>
+      <ProfileStack.Screen name="ProfileScreen" component={ProfileScreen} />
+      <ProfileStack.Screen name="MyClassBookingsScreen" component={MyClassBookingsScreen} />
+      <ProfileStack.Screen name="MyClassBookingDetailScreen" component={MyClassBookingDetailScreen} />
+    </ProfileStack.Navigator>
   )
 }
 
@@ -203,8 +216,8 @@ const AppTabs = () => {
         })}
       /> */}
       <Tab.Screen
-        name="ProfileScreen"
-        component={ProfileScreen}
+        name="ProfileTab"
+        component={ProfileStackScreen}
         options={{
           title: "Profile",
           tabBarIcon: ({ color, size }) => <FontAwesome6 name="circle-user" size={20} color={color} />
@@ -212,7 +225,7 @@ const AppTabs = () => {
         listeners={({ navigation }) => ({
           tabPress: (e) => {
             e.preventDefault();
-            navigation.navigate('ProfileScreen');
+            navigation.navigate('ProfileTab', { screen: 'ProfileScreen' });
           },
         })}
       />
