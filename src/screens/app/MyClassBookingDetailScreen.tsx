@@ -1,6 +1,7 @@
 // @ts-nocheck
-import { useCallback, useContext, useState } from 'react'
+import { useCallback, useContext, useRef, useState } from 'react'
 import {
+  Alert,
   ActivityIndicator,
   ScrollView,
   StyleSheet,
@@ -21,6 +22,8 @@ const MyClassBookingDetailScreen = ({ navigation, route }) => {
   const [booking, setBooking] = useState(null)
   const [loading, setLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState('')
+  const [isCancelling, setIsCancelling] = useState(false)
+  const cancellationKeyRef = useRef<string | null>(null)
 
   const refreshAccessToken = async () => {
     if (!tokens?.refresh_token) {
@@ -200,6 +203,142 @@ const MyClassBookingDetailScreen = ({ navigation, route }) => {
     return status.charAt(0).toUpperCase() + status.slice(1)
   }
 
+  const bookingStatus = String(booking?.booking_status ?? '').toLowerCase()
+  const paymentStatus = String(booking?.payment_status ?? '').toLowerCase()
+  const isCancellable = bookingStatus === 'pending' || bookingStatus === 'confirmed'
+  const hasRefundablePayment = paymentStatus === 'succeeded'
+
+  const generateCancellationIdempotencyKey = () => {
+    const random = Math.random().toString(36).slice(2, 10)
+    return `class-booking-${bookingUid}-cancel-${Date.now()}-${random}`
+  }
+
+  const handleCancelBooking = () => {
+    if (!booking || !isCancellable || isCancelling) {
+      return
+    }
+
+    Alert.alert(
+      'Cancel booking?',
+      hasRefundablePayment
+        ? 'This class booking will be cancelled and your payment will be refunded.'
+        : 'This class booking will be cancelled. No payment refund is expected.',
+      [
+        { text: 'Go Back', style: 'cancel' },
+        {
+          text: 'Cancel Booking',
+          style: 'destructive',
+          onPress: () => {
+            void submitCancellation()
+          },
+        },
+      ],
+      { cancelable: true }
+    )
+  }
+
+  const submitCancellation = async () => {
+    if (!tokens?.access_token || !bookingUid) {
+      showMessage({
+        message: 'Cancellation unavailable',
+        description: 'Please sign in again and try once more.',
+        type: 'danger',
+      })
+      return
+    }
+
+    if (!cancellationKeyRef.current) {
+      cancellationKeyRef.current = generateCancellationIdempotencyKey()
+    }
+
+    const idempotencyKey = cancellationKeyRef.current
+    const endpoint = `${webServer}/api/v1/classes/bookings/${bookingUid}/cancel`
+
+    const performRequest = async (accessToken) => {
+      return fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+          'Idempotency-Key': idempotencyKey,
+        },
+        body: '{}',
+      })
+    }
+
+    setIsCancelling(true)
+
+    try {
+      let accessToken = tokens.access_token
+      let response = await performRequest(accessToken)
+
+      if (response.status === 401 || response.status === 403) {
+        const refreshedAccessToken = await refreshAccessToken()
+        if (refreshedAccessToken) {
+          accessToken = refreshedAccessToken
+          response = await performRequest(accessToken)
+        } else {
+          showMessage({
+            message: 'Session expired',
+            description: 'Please sign in again.',
+            type: 'danger',
+          })
+          return
+        }
+      }
+
+      const responseText = await response.text()
+      let responseBody: any = {}
+      if (responseText) {
+        try {
+          responseBody = JSON.parse(responseText)
+        } catch {
+          responseBody = { message: responseText }
+        }
+      }
+
+      if (response.status === 409) {
+        const message = responseBody?.message || 'This booking is already cancelled.'
+        showMessage({
+          message: 'Unable to cancel booking',
+          description: message,
+          type: 'danger',
+        })
+        await loadBooking()
+        return
+      }
+
+      if (response.status !== 200) {
+        const message = responseBody?.message || 'Unable to cancel this booking.'
+        showMessage({
+          message: 'Cancellation failed',
+          description: message,
+          type: 'danger',
+        })
+        return
+      }
+
+      const refund = responseBody?.refund
+      showMessage({
+        message: 'Booking cancelled',
+        description: refund
+          ? 'Your booking was cancelled and the payment was refunded.'
+          : 'Your booking was cancelled.',
+        type: 'success',
+      })
+
+      await loadBooking()
+    } catch (error) {
+      showMessage({
+        message: 'Cancellation failed',
+        description: 'We could not complete this cancellation. Please try again.',
+        type: 'danger',
+      })
+    } finally {
+      setIsCancelling(false)
+    }
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.navs}>
@@ -289,6 +428,28 @@ const MyClassBookingDetailScreen = ({ navigation, route }) => {
                 </View>
               )}
             </View>
+
+            {isCancellable && (
+              <View style={styles.actionSection}>
+                <TouchableOpacity
+                  style={[styles.cancelBtn, isCancelling && styles.cancelBtnDisabled]}
+                  disabled={isCancelling}
+                  activeOpacity={0.85}
+                  onPress={handleCancelBooking}
+                >
+                  {isCancelling ? (
+                    <ActivityIndicator color={AppColors.white} />
+                  ) : (
+                    <Text style={styles.cancelBtnText}>Cancel Booking</Text>
+                  )}
+                </TouchableOpacity>
+                <Text style={styles.cancelHelpText}>
+                  {hasRefundablePayment
+                    ? 'Cancelling this booking will also refund the payment.'
+                    : 'Cancelling this booking will remove it from your schedule.'}
+                </Text>
+              </View>
+            )}
           </View>
         )}
       </ScrollView>
@@ -426,6 +587,32 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 20,
     marginBottom: 16,
+  },
+  actionSection: {
+    marginTop: 8,
+    marginBottom: 16,
+  },
+  cancelBtn: {
+    minHeight: 50,
+    borderRadius: 999,
+    backgroundColor: '#e53935',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+  },
+  cancelBtnDisabled: {
+    opacity: 0.7,
+  },
+  cancelBtnText: {
+    color: AppColors.white,
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  cancelHelpText: {
+    marginTop: 10,
+    fontSize: 13,
+    color: AppColors.grey3,
+    lineHeight: 18,
   },
   sectionTitle: {
     fontSize: 14,
