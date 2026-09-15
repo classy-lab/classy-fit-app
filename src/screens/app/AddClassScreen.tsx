@@ -20,6 +20,8 @@ import Feather from '@expo/vector-icons/Feather'
 import { SelectList } from 'react-native-dropdown-select-list'
 import { AppColors } from '../../styles/colors'
 import { UserContext } from '../../context/UserContext'
+import DateOfBirthField from '../../components/forms/input_fields/DateOfBirthField'
+import TimePickerField from '../../components/forms/input_fields/TimePickerField'
 
 type RefreshTokens = {
   access_token?: string
@@ -662,13 +664,13 @@ const AddClassScreen = ({ navigation }: { navigation: AddClassNavigation }) => {
                   control={control}
                   name="session_start_date"
                   render={({ field: { onChange, onBlur, value } }) => (
-                    <TextInput
+                    <DateOfBirthField
                       value={value}
+                      onChange={onChange}
                       onBlur={onBlur}
-                      onChangeText={onChange}
-                      placeholder="YYYY-MM-DD"
-                      placeholderTextColor={AppColors.grey3}
-                      style={styles.input}
+                      placeholder="Select start date"
+                      title="Select start date"
+                      maximumDate={null}
                     />
                   )}
                 />
@@ -681,13 +683,12 @@ const AddClassScreen = ({ navigation }: { navigation: AddClassNavigation }) => {
                   control={control}
                   name="session_start_time"
                   render={({ field: { onChange, onBlur, value } }) => (
-                    <TextInput
+                    <TimePickerField
                       value={value}
+                      onChange={onChange}
                       onBlur={onBlur}
-                      onChangeText={onChange}
-                      placeholder="HH:MM"
-                      placeholderTextColor={AppColors.grey3}
-                      style={styles.input}
+                      placeholder="Select start time"
+                      title="Select start time"
                     />
                   )}
                 />
@@ -702,13 +703,13 @@ const AddClassScreen = ({ navigation }: { navigation: AddClassNavigation }) => {
                   control={control}
                   name="session_end_date"
                   render={({ field: { onChange, onBlur, value } }) => (
-                    <TextInput
+                    <DateOfBirthField
                       value={value}
+                      onChange={onChange}
                       onBlur={onBlur}
-                      onChangeText={onChange}
-                      placeholder="YYYY-MM-DD"
-                      placeholderTextColor={AppColors.grey3}
-                      style={styles.input}
+                      placeholder="Select end date"
+                      title="Select end date"
+                      maximumDate={null}
                     />
                   )}
                 />
@@ -721,13 +722,12 @@ const AddClassScreen = ({ navigation }: { navigation: AddClassNavigation }) => {
                   control={control}
                   name="session_end_time"
                   render={({ field: { onChange, onBlur, value } }) => (
-                    <TextInput
+                    <TimePickerField
                       value={value}
+                      onChange={onChange}
                       onBlur={onBlur}
-                      onChangeText={onChange}
-                      placeholder="HH:MM"
-                      placeholderTextColor={AppColors.grey3}
-                      style={styles.input}
+                      placeholder="Select end time"
+                      title="Select end time"
                     />
                   )}
                 />
