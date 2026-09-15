@@ -82,6 +82,10 @@ function GymStackScreen() {
       <GymStack.Screen name="ClassesScreen" component={ClassesScreen} />
       <GymStack.Screen name="ClassSessionScreen" component={ClassSessionScreen} />
       <GymStack.Screen name="ClassBookingSuccessScreen" component={ClassBookingSuccessScreen} />
+      <GymStack.Screen name="MyClassBookingsScreen" component={MyClassBookingsScreen} />
+      <GymStack.Screen name="MyClassBookingDetailScreen" component={MyClassBookingDetailScreen} />
+      <GymStack.Screen name="ClassManagementScreen" component={ClassManagementScreen} />
+      <GymStack.Screen name="AddClassScreen" component={AddClassScreen} />
       <GymStack.Screen name="GymEquipmentScreen" component={GymEquipmentScreen} />
       <GymStack.Screen name="EquipmentDetailScreen" component={EquipmentDetailScreen} />
       <GymStack.Screen name="TreadmillEquipmentScreen" component={TreadmillEquipmentScreen} />
