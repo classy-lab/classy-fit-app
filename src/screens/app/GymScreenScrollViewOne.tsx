@@ -1,14 +1,18 @@
 import { ScrollView, View, TouchableOpacity, Text } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
-import Ionicons from '@expo/vector-icons/Ionicons'
+import Feather from '@expo/vector-icons/Feather'
 import ClassesSvg from '../../components/svg/ClassesSvg'
 import PersonalTrainingSvg from '../../components/svg/PersonalTrainingSvg'
 import { AppColors } from '../../styles/colors'
 import { gymScreenStyles } from '../../styles/gymScreenStyles'
+import { useContext } from 'react'
+import { UserContext } from '../../context/UserContext'
 
 
 const GymScreenScrollViewOne = () => {
   const navigation = useNavigation<any>()
+  const { user } = useContext(UserContext)
+  const isOwner = String(user?.role ?? '').trim().toLowerCase() === 'owner'
   return (
     <>
       <Text style={gymScreenStyles.sectionTitle}>Gym</Text>
@@ -25,6 +29,30 @@ const GymScreenScrollViewOne = () => {
           </TouchableOpacity>
           <Text style={gymScreenStyles.cardText}>Classes</Text>
         </View>
+        <View style={gymScreenStyles.greySquareContainer}>
+          <TouchableOpacity
+            style={gymScreenStyles.greySquare}
+            onPress={() => navigation.navigate('MyClassBookingsScreen')}
+          >
+            <View style={gymScreenStyles.whiteSquare}>
+              <Feather name="calendar" color={AppColors.blue} size={28} />
+            </View>
+          </TouchableOpacity>
+          <Text style={gymScreenStyles.cardText}>My Class {'\n'}Bookings</Text>
+        </View>
+        {isOwner ? (
+          <View style={gymScreenStyles.greySquareContainer}>
+            <TouchableOpacity
+              style={gymScreenStyles.greySquare}
+              onPress={() => navigation.navigate('ClassManagementScreen')}
+            >
+              <View style={gymScreenStyles.whiteSquare}>
+                <Feather name="settings" color={AppColors.blue} size={28} />
+              </View>
+            </TouchableOpacity>
+            <Text style={gymScreenStyles.cardText}>Manage {'\n'}Classes</Text>
+          </View>
+        ) : null}
         <View style={gymScreenStyles.greySquareContainer}>
           <TouchableOpacity style={gymScreenStyles.greySquare}>
             <View style={gymScreenStyles.whiteSquare}>

@@ -14,6 +14,8 @@ import StaffScreen from '../screens/app/StaffScreen'
 import MembersScreen from '../screens/app/MembersScreen'
 import ProductsScreen from '../screens/app/ProductsScreen'
 import ProfileScreen from '../screens/app/ProfileScreen'
+import ClassManagementScreen from '../screens/app/ClassManagementScreen'
+import AddClassScreen from '../screens/app/AddClassScreen'
 import EarningsScreen from '../screens/app/EarningsScreen'
 import ContractorsScreen from '../screens/app/ContractorsScreen'
 import SignoutScreen from '../screens/app/SignoutScreen'
@@ -59,6 +61,10 @@ function HomeStackScreen() {
       <HomeStack.Screen name="ClassesScreen" component={ClassesScreen} />
       <HomeStack.Screen name="ClassSessionScreen" component={ClassSessionScreen} />
       <HomeStack.Screen name="ClassBookingSuccessScreen" component={ClassBookingSuccessScreen} />
+      <HomeStack.Screen name="MyClassBookingsScreen" component={MyClassBookingsScreen} />
+      <HomeStack.Screen name="MyClassBookingDetailScreen" component={MyClassBookingDetailScreen} />
+      <HomeStack.Screen name="ClassManagementScreen" component={ClassManagementScreen} />
+      <HomeStack.Screen name="AddClassScreen" component={AddClassScreen} />
       <HomeStack.Screen name="StaffScreen" component={StaffScreen} />
       <HomeStack.Screen name="MembersScreen" component={MembersScreen} />
       <HomeStack.Screen name="ProductsScreen" component={ProductsScreen} />
@@ -80,6 +86,10 @@ function GymStackScreen() {
       <GymStack.Screen name="ClassesScreen" component={ClassesScreen} />
       <GymStack.Screen name="ClassSessionScreen" component={ClassSessionScreen} />
       <GymStack.Screen name="ClassBookingSuccessScreen" component={ClassBookingSuccessScreen} />
+      <GymStack.Screen name="MyClassBookingsScreen" component={MyClassBookingsScreen} />
+      <GymStack.Screen name="MyClassBookingDetailScreen" component={MyClassBookingDetailScreen} />
+      <GymStack.Screen name="ClassManagementScreen" component={ClassManagementScreen} />
+      <GymStack.Screen name="AddClassScreen" component={AddClassScreen} />
       <GymStack.Screen name="GymEquipmentScreen" component={GymEquipmentScreen} />
       <GymStack.Screen name="EquipmentDetailScreen" component={EquipmentDetailScreen} />
       <GymStack.Screen name="TreadmillEquipmentScreen" component={TreadmillEquipmentScreen} />
@@ -121,6 +131,8 @@ function ProfileStackScreen() {
       <ProfileStack.Screen name="ProfileScreen" component={ProfileScreen} />
       <ProfileStack.Screen name="MyClassBookingsScreen" component={MyClassBookingsScreen} />
       <ProfileStack.Screen name="MyClassBookingDetailScreen" component={MyClassBookingDetailScreen} />
+      <ProfileStack.Screen name="ClassManagementScreen" component={ClassManagementScreen} />
+      <ProfileStack.Screen name="AddClassScreen" component={AddClassScreen} />
     </ProfileStack.Navigator>
   )
 }
