@@ -1,4 +1,4 @@
-import { useContext, useMemo, useState } from 'react'
+import { useContext, useEffect, useMemo, useState } from 'react'
 import {
   ActivityIndicator,
   Alert,
@@ -17,6 +17,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { showMessage } from 'react-native-flash-message'
 import Feather from '@expo/vector-icons/Feather'
+import { SelectList } from 'react-native-dropdown-select-list'
 import { AppColors } from '../../styles/colors'
 import { UserContext } from '../../context/UserContext'
 
@@ -26,6 +27,9 @@ type RefreshTokens = {
 }
 
 type UserContextValue = {
+  user?: {
+    gym_id?: number | string
+  } | null
   tokens?: RefreshTokens | null
   setTokens: (value: RefreshTokens | null | ((prev: RefreshTokens | null) => RefreshTokens | null)) => void
   webServer: string
@@ -43,6 +47,16 @@ type AddClassFormValues = {
   price?: string
   currency_code?: string
   status?: 'active' | 'inactive'
+  session_start_date?: string
+  session_start_time?: string
+  session_end_date?: string
+  session_end_time?: string
+  session_capacity?: string
+  session_price?: string
+  session_status?: 'scheduled' | 'cancelled' | 'completed'
+  trainer_gym_user_id?: string
+  location?: string
+  additional_notes?: string
 }
 
 type AddClassFormInput = {
@@ -53,7 +67,25 @@ type AddClassFormInput = {
   price: string
   currency_code: string
   status: 'active' | 'inactive'
+  session_start_date: string
+  session_start_time: string
+  session_end_date: string
+  session_end_time: string
+  session_capacity: string
+  session_price: string
+  session_status: 'scheduled' | 'cancelled' | 'completed'
+  trainer_gym_user_id: string
+  location: string
+  additional_notes: string
 }
+
+type TrainerOption = {
+  key: string
+  value: string
+}
+
+const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
+const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/
 
 const addClassSchema = yup.object({
   name: yup
@@ -99,12 +131,71 @@ const addClassSchema = yup.object({
     .required('Currency is required')
     .matches(/^[A-Z]{3}$/, 'Currency must be 3 uppercase letters'),
   status: yup.mixed<'active' | 'inactive'>().oneOf(['active', 'inactive']).required('Status is required'),
+  session_start_date: yup
+    .string()
+    .trim()
+    .required('Session start date is required')
+    .matches(DATE_PATTERN, 'Session start date must use YYYY-MM-DD'),
+  session_start_time: yup
+    .string()
+    .trim()
+    .required('Session start time is required')
+    .matches(TIME_PATTERN, 'Session start time must use HH:MM'),
+  session_end_date: yup
+    .string()
+    .trim()
+    .required('Session end date is required')
+    .matches(DATE_PATTERN, 'Session end date must use YYYY-MM-DD'),
+  session_end_time: yup
+    .string()
+    .trim()
+    .required('Session end time is required')
+    .matches(TIME_PATTERN, 'Session end time must use HH:MM'),
+  session_capacity: yup
+    .string()
+    .trim()
+    .nullable()
+    .test('session-capacity-integer', 'Session capacity must be a whole number', (value) => {
+      if (!value) return true
+      return /^\d+$/.test(String(value))
+    })
+    .test('session-capacity-positive', 'Session capacity must be greater than 0', (value) => {
+      if (!value || !/^\d+$/.test(String(value))) return true
+      return Number(value) > 0
+    }),
+  session_price: yup
+    .string()
+    .trim()
+    .nullable()
+    .test('session-price-format', 'Session price must be a valid amount', (value) => {
+      if (!value) return true
+      return /^\d+(\.\d{1,2})?$/.test(String(value))
+    })
+    .test('session-price-nonnegative', 'Session price must be greater than or equal to 0', (value) => {
+      if (!value || !/^\d+(\.\d{1,2})?$/.test(String(value))) return true
+      return Number(value) >= 0
+    }),
+  session_status: yup
+    .mixed<'scheduled' | 'cancelled' | 'completed'>()
+    .oneOf(['scheduled', 'cancelled', 'completed'])
+    .required('Session status is required'),
+  trainer_gym_user_id: yup.string().trim().nullable(),
+  location: yup
+    .string()
+    .trim()
+    .nullable()
+    .max(255, 'Location must be 255 characters or fewer'),
+  additional_notes: yup
+    .string()
+    .trim()
+    .nullable(),
 })
 
 const AddClassScreen = ({ navigation }: { navigation: AddClassNavigation }) => {
-  const { tokens, setTokens, webServer } = useContext(UserContext) as UserContextValue
+  const { user, tokens, setTokens, webServer } = useContext(UserContext) as UserContextValue
   const [submitting, setSubmitting] = useState(false)
   const [serverMessage, setServerMessage] = useState('')
+  const [trainerOptions, setTrainerOptions] = useState<TrainerOption[]>([])
 
   const defaultValues = useMemo<AddClassFormInput>(() => ({
     name: '',
@@ -114,6 +205,16 @@ const AddClassScreen = ({ navigation }: { navigation: AddClassNavigation }) => {
     price: '',
     currency_code: 'USD',
     status: 'active',
+    session_start_date: '',
+    session_start_time: '',
+    session_end_date: '',
+    session_end_time: '',
+    session_capacity: '',
+    session_price: '',
+    session_status: 'scheduled',
+    trainer_gym_user_id: '',
+    location: '',
+    additional_notes: '',
   }), [])
 
   const {
@@ -128,6 +229,59 @@ const AddClassScreen = ({ navigation }: { navigation: AddClassNavigation }) => {
   })
 
   const statusValue = watch('status')
+  const sessionStatusValue = watch('session_status')
+
+  useEffect(() => {
+    if (!user?.gym_id || !tokens?.access_token) {
+      setTrainerOptions([])
+      return
+    }
+
+    let isMounted = true
+
+    const fetchTrainers = async () => {
+      const response = await performAuthenticatedRequest(`${webServer}/api/v1/gyms/${user.gym_id}/staff`)
+      if (!response) {
+        if (isMounted) {
+          setTrainerOptions([])
+        }
+        return
+      }
+
+      if (response.status !== 200) {
+        if (isMounted) {
+          setTrainerOptions([])
+        }
+        return
+      }
+
+      const payload = await response.json()
+      const options = Array.isArray(payload?.trainers)
+        ? payload.trainers
+            .map((trainer: { gym_user_id?: number | string; fname?: string; lname?: string; uid?: number | string }) => {
+              const gymUserId = trainer.gym_user_id ?? trainer.uid
+              const firstName = String(trainer.fname ?? '').trim()
+              const lastName = String(trainer.lname ?? '').trim()
+              const fullName = `${firstName} ${lastName}`.trim()
+              return gymUserId ? {
+                key: String(gymUserId),
+                value: fullName || `Trainer ${gymUserId}`,
+              } : null
+            })
+            .filter((trainer: TrainerOption | null): trainer is TrainerOption => trainer !== null)
+        : []
+
+      if (isMounted) {
+        setTrainerOptions(options)
+      }
+    }
+
+    void fetchTrainers()
+
+    return () => {
+      isMounted = false
+    }
+  }, [tokens?.access_token, user?.gym_id, webServer])
 
   const refreshAccessToken = async (): Promise<string | null> => {
     if (!tokens?.refresh_token) {
@@ -194,6 +348,11 @@ const AddClassScreen = ({ navigation }: { navigation: AddClassNavigation }) => {
     return response
   }
 
+  const buildDateTimeValue = (dateValue: string, timeValue: string) => {
+    const normalizedTime = timeValue.trim().length === 5 ? `${timeValue.trim()}:00` : timeValue.trim()
+    return `${dateValue.trim()} ${normalizedTime}`
+  }
+
   const onSubmit = async (formData: AddClassFormValues) => {
     if (submitting) {
       return
@@ -203,7 +362,7 @@ const AddClassScreen = ({ navigation }: { navigation: AddClassNavigation }) => {
     setServerMessage('')
 
     try {
-      const payload = {
+      const classPayload = {
         name: String(formData.name ?? '').trim(),
         description: String(formData.description ?? '').trim(),
         duration_minutes: Number.parseInt(formData.duration_minutes, 10),
@@ -213,9 +372,29 @@ const AddClassScreen = ({ navigation }: { navigation: AddClassNavigation }) => {
         status: formData.status,
       }
 
-      const response = await performAuthenticatedRequest(`${webServer}/api/v1/classes`, {
+      const sessionCapacity = String(formData.session_capacity ?? '').trim()
+      const sessionPrice = String(formData.session_price ?? '').trim()
+      const sessionTrainer = String(formData.trainer_gym_user_id ?? '').trim()
+      const location = String(formData.location ?? '').trim()
+      const additionalNotes = String(formData.additional_notes ?? '').trim()
+      const sessionPayload = {
+        start_at: buildDateTimeValue(String(formData.session_start_date ?? ''), String(formData.session_start_time ?? '')),
+        end_at: buildDateTimeValue(String(formData.session_end_date ?? ''), String(formData.session_end_time ?? '')),
+        trainer_gym_user_id: sessionTrainer === '' ? null : Number.parseInt(sessionTrainer, 10),
+        location: location === '' ? null : location,
+        additional_notes: additionalNotes === '' ? null : additionalNotes,
+        capacity: sessionCapacity === '' ? Number.parseInt(formData.capacity, 10) : Number.parseInt(sessionCapacity, 10),
+        price: sessionPrice === '' ? Number.parseFloat(formData.price) : Number.parseFloat(sessionPrice),
+        currency_code: String(formData.currency_code ?? 'USD').trim().toUpperCase(),
+        status: formData.session_status ?? 'scheduled',
+      }
+
+      const response = await performAuthenticatedRequest(`${webServer}/api/v1/classes/with-session`, {
         method: 'POST',
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          class: classPayload,
+          session: sessionPayload,
+        }),
       })
 
       if (!response) {
@@ -241,7 +420,7 @@ const AddClassScreen = ({ navigation }: { navigation: AddClassNavigation }) => {
       if (response.status === 201) {
         showMessage({
           message: 'Class created',
-          description: responseBody?.message || 'Your class has been created successfully.',
+          description: responseBody?.message || 'Your class and first session have been created successfully.',
           type: 'success',
         })
         navigation.goBack()
@@ -330,6 +509,10 @@ const AddClassScreen = ({ navigation }: { navigation: AddClassNavigation }) => {
       >
         <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           <View style={styles.card}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Class Information</Text>
+            </View>
+
             <View style={styles.field}>
               <Text style={styles.label}>Class Name</Text>
               <Controller
@@ -468,6 +651,225 @@ const AddClassScreen = ({ navigation }: { navigation: AddClassNavigation }) => {
               {errors.status ? <Text style={styles.errorText}>{errors.status.message}</Text> : null}
             </View>
 
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>First Session</Text>
+            </View>
+
+            <View style={styles.row}>
+              <View style={[styles.field, styles.rowField]}>
+                <Text style={styles.label}>Start Date</Text>
+                <Controller
+                  control={control}
+                  name="session_start_date"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                      value={value}
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      placeholder="YYYY-MM-DD"
+                      placeholderTextColor={AppColors.grey3}
+                      style={styles.input}
+                    />
+                  )}
+                />
+                {errors.session_start_date ? <Text style={styles.errorText}>{errors.session_start_date.message}</Text> : null}
+              </View>
+
+              <View style={[styles.field, styles.rowField]}>
+                <Text style={styles.label}>Start Time</Text>
+                <Controller
+                  control={control}
+                  name="session_start_time"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                      value={value}
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      placeholder="HH:MM"
+                      placeholderTextColor={AppColors.grey3}
+                      style={styles.input}
+                    />
+                  )}
+                />
+                {errors.session_start_time ? <Text style={styles.errorText}>{errors.session_start_time.message}</Text> : null}
+              </View>
+            </View>
+
+            <View style={styles.row}>
+              <View style={[styles.field, styles.rowField]}>
+                <Text style={styles.label}>End Date</Text>
+                <Controller
+                  control={control}
+                  name="session_end_date"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                      value={value}
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      placeholder="YYYY-MM-DD"
+                      placeholderTextColor={AppColors.grey3}
+                      style={styles.input}
+                    />
+                  )}
+                />
+                {errors.session_end_date ? <Text style={styles.errorText}>{errors.session_end_date.message}</Text> : null}
+              </View>
+
+              <View style={[styles.field, styles.rowField]}>
+                <Text style={styles.label}>End Time</Text>
+                <Controller
+                  control={control}
+                  name="session_end_time"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                      value={value}
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      placeholder="HH:MM"
+                      placeholderTextColor={AppColors.grey3}
+                      style={styles.input}
+                    />
+                  )}
+                />
+                {errors.session_end_time ? <Text style={styles.errorText}>{errors.session_end_time.message}</Text> : null}
+              </View>
+            </View>
+
+            <View style={styles.field}>
+              <Text style={styles.label}>Trainer</Text>
+              <Controller
+                control={control}
+                name="trainer_gym_user_id"
+                render={({ field: { onChange, value } }) => {
+                  const selectedTrainer = trainerOptions.find((trainer) => trainer.key === value)
+
+                  return (
+                    <SelectList
+                      setSelected={(selectedValue) => onChange(String(selectedValue ?? ''))}
+                      data={trainerOptions}
+                      save="key"
+                      placeholder="Select trainer (optional)"
+                      boxStyles={styles.selectBox}
+                      dropdownStyles={styles.selectDropdown}
+                      search={false}
+                      {...(selectedTrainer ? { defaultOption: selectedTrainer } : {})}
+                    />
+                  )
+                }}
+              />
+              {trainerOptions.length === 0 ? <Text style={styles.helperText}>No trainers available for this gym.</Text> : null}
+            </View>
+
+            <View style={styles.field}>
+              <Text style={styles.label}>Location</Text>
+              <Controller
+                control={control}
+                name="location"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
+                    value={value}
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    placeholder="Optional location"
+                    placeholderTextColor={AppColors.grey3}
+                    style={styles.input}
+                    maxLength={255}
+                  />
+                )}
+              />
+              {errors.location ? <Text style={styles.errorText}>{errors.location.message}</Text> : null}
+            </View>
+
+            <View style={styles.field}>
+              <Text style={styles.label}>Additional Notes</Text>
+              <Controller
+                control={control}
+                name="additional_notes"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
+                    value={value}
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    placeholder="Optional notes for the first session"
+                    placeholderTextColor={AppColors.grey3}
+                    style={[styles.input, styles.multilineInput]}
+                    multiline
+                    textAlignVertical="top"
+                  />
+                )}
+              />
+              {errors.additional_notes ? <Text style={styles.errorText}>{errors.additional_notes.message}</Text> : null}
+            </View>
+
+            <View style={styles.row}>
+              <View style={[styles.field, styles.rowField]}>
+                <Text style={styles.label}>Session Capacity</Text>
+                <Controller
+                  control={control}
+                  name="session_capacity"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                      value={value}
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      placeholder="Defaults to class capacity"
+                      placeholderTextColor={AppColors.grey3}
+                      style={styles.input}
+                      keyboardType="number-pad"
+                    />
+                  )}
+                />
+                {errors.session_capacity ? <Text style={styles.errorText}>{errors.session_capacity.message}</Text> : null}
+              </View>
+
+              <View style={[styles.field, styles.rowField]}>
+                <Text style={styles.label}>Session Price</Text>
+                <Controller
+                  control={control}
+                  name="session_price"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                      value={value}
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      placeholder="Defaults to class price"
+                      placeholderTextColor={AppColors.grey3}
+                      style={styles.input}
+                      keyboardType="decimal-pad"
+                    />
+                  )}
+                />
+                {errors.session_price ? <Text style={styles.errorText}>{errors.session_price.message}</Text> : null}
+              </View>
+            </View>
+
+            <View style={styles.field}>
+              <Text style={styles.label}>Session Status</Text>
+              <View style={styles.segmentedControl}>
+                {(['scheduled', 'cancelled', 'completed'] as const).map((option) => {
+                  const selected = sessionStatusValue === option
+                  return (
+                    <Controller
+                      key={option}
+                      control={control}
+                      name="session_status"
+                      render={({ field: { onChange } }) => (
+                        <TouchableOpacity
+                          style={[styles.segmentButton, selected ? styles.segmentButtonSelected : null]}
+                          onPress={() => onChange(option)}
+                        >
+                          <Text style={[styles.segmentButtonText, selected ? styles.segmentButtonTextSelected : null]}>
+                            {option.charAt(0).toUpperCase() + option.slice(1)}
+                          </Text>
+                        </TouchableOpacity>
+                      )}
+                    />
+                  )
+                })}
+              </View>
+              {errors.session_status ? <Text style={styles.errorText}>{errors.session_status.message}</Text> : null}
+            </View>
+
             {serverMessage ? <Text style={styles.serverMessage}>{serverMessage}</Text> : null}
 
             <TouchableOpacity
@@ -534,6 +936,15 @@ const styles = StyleSheet.create({
     backgroundColor: AppColors.white,
     marginTop: 12,
   },
+  sectionHeader: {
+    marginTop: 8,
+    marginBottom: 12,
+  },
+  sectionTitle: {
+    color: AppColors.blue,
+    fontSize: 18,
+    fontWeight: '700',
+  },
   field: {
     marginBottom: 16,
   },
@@ -563,6 +974,25 @@ const styles = StyleSheet.create({
     color: AppColors.blue,
     fontSize: 16,
     fontWeight: '600',
+  },
+  selectBox: {
+    borderWidth: 1,
+    borderColor: AppColors.grey,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    backgroundColor: AppColors.white,
+  },
+  selectDropdown: {
+    borderWidth: 1,
+    borderColor: AppColors.grey2,
+    marginTop: 8,
+    borderRadius: 12,
+  },
+  helperText: {
+    color: AppColors.grey3,
+    fontSize: 12,
+    marginTop: 6,
   },
   row: {
     flexDirection: 'row',
