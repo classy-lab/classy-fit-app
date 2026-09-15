@@ -7,7 +7,6 @@ import {
   View,
   ScrollView,
   Image,
-  TouchableOpacity,
 } from "react-native";
 import { AppColors } from "../../styles/colors";
 import { useNavigation } from "@react-navigation/native";
@@ -21,7 +20,6 @@ import SignOut from "../../components/utils/SignOut";
 const ProfileScreen = () => {
   const navigation = useNavigation();
   const { user, setUser } = useContext(UserContext);
-  const isOwner = String(user?.role ?? '').trim().toLowerCase() === 'owner';
   return (
     <>
       <SafeAreaView style={styles.container}>
@@ -47,24 +45,6 @@ const ProfileScreen = () => {
             <Text style={styles.subHead}>{normalizeRole(user?.role)}</Text>
           </View>
           <View style={styles.body}>
-            <TouchableOpacity
-              style={styles.menuButton}
-              onPress={() => navigation.navigate('MyClassBookingsScreen')}
-            >
-              <Feather name="calendar" color={AppColors.blue} size={20} />
-              <Text style={styles.menuButtonText}>My Class Bookings</Text>
-              <Feather name="chevron-right" color={AppColors.grey} size={20} />
-            </TouchableOpacity>
-            {isOwner ? (
-              <TouchableOpacity
-                style={styles.menuButton}
-                onPress={() => navigation.navigate('ClassManagementScreen')}
-              >
-                <Feather name="settings" color={AppColors.blue} size={20} />
-                <Text style={styles.menuButtonText}>Manage Classes</Text>
-                <Feather name="chevron-right" color={AppColors.grey} size={20} />
-              </TouchableOpacity>
-            ) : null}
             <ProfileScreenForm />
           </View>
           <View style={styles.imageContainer}>
