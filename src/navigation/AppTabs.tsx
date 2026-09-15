@@ -61,6 +61,10 @@ function HomeStackScreen() {
       <HomeStack.Screen name="ClassesScreen" component={ClassesScreen} />
       <HomeStack.Screen name="ClassSessionScreen" component={ClassSessionScreen} />
       <HomeStack.Screen name="ClassBookingSuccessScreen" component={ClassBookingSuccessScreen} />
+      <HomeStack.Screen name="MyClassBookingsScreen" component={MyClassBookingsScreen} />
+      <HomeStack.Screen name="MyClassBookingDetailScreen" component={MyClassBookingDetailScreen} />
+      <HomeStack.Screen name="ClassManagementScreen" component={ClassManagementScreen} />
+      <HomeStack.Screen name="AddClassScreen" component={AddClassScreen} />
       <HomeStack.Screen name="StaffScreen" component={StaffScreen} />
       <HomeStack.Screen name="MembersScreen" component={MembersScreen} />
       <HomeStack.Screen name="ProductsScreen" component={ProductsScreen} />
