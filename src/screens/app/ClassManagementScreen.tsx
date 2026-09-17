@@ -493,7 +493,7 @@ export default ClassManagementScreen
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: AppColors.white,
+    backgroundColor: AppColors.grey,
     flex: 1,
   },
   navs: {
@@ -524,13 +524,18 @@ const styles = StyleSheet.create({
   },
   addButton: {
     backgroundColor: AppColors.blue,
-    borderRadius: 12,
+    borderRadius: 999,
     paddingVertical: 12,
     paddingHorizontal: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
+    shadowColor: AppColors.primary,
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 5 },
+    elevation: 3,
   },
   addButtonText: {
     color: AppColors.white,
@@ -564,7 +569,7 @@ const styles = StyleSheet.create({
   errorCard: {
     borderWidth: 1,
     borderColor: AppColors.grey,
-    borderRadius: 12,
+    borderRadius: 18,
     padding: 20,
     backgroundColor: AppColors.white,
     marginTop: 24,
@@ -582,7 +587,7 @@ const styles = StyleSheet.create({
   },
   retryBtn: {
     backgroundColor: AppColors.blue,
-    borderRadius: 10,
+    borderRadius: 999,
     paddingVertical: 12,
     alignItems: 'center',
   },
@@ -597,8 +602,8 @@ const styles = StyleSheet.create({
   card: {
     borderWidth: 1,
     borderColor: AppColors.grey,
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: 18,
+    padding: 18,
     backgroundColor: AppColors.white,
   },
   cardHeader: {
@@ -612,7 +617,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     color: AppColors.blue,
-    fontSize: 18,
+    fontSize: 20,
     fontFamily: 'Montserrat',
     marginBottom: 4,
   },
@@ -627,15 +632,15 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   statusActive: {
-    backgroundColor: '#E8F5E9',
+    backgroundColor: AppColors.blue,
   },
   statusInactive: {
-    backgroundColor: '#F3F4F6',
+    backgroundColor: AppColors.grey3,
   },
   statusText: {
     fontSize: 12,
     fontWeight: '600',
-    color: AppColors.blue,
+    color: AppColors.white,
   },
   description: {
     color: AppColors.primary,
@@ -645,16 +650,21 @@ const styles = StyleSheet.create({
   },
   metaRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 12,
     marginTop: 16,
   },
   metaItem: {
-    flex: 1,
+    flexBasis: '31%',
+    backgroundColor: AppColors.grey,
+    borderRadius: 14,
+    padding: 12,
   },
   metaLabel: {
     color: AppColors.grey3,
     fontSize: 12,
     marginBottom: 4,
+    textTransform: 'uppercase',
   },
   metaValue: {
     color: AppColors.blue,
@@ -670,7 +680,7 @@ const styles = StyleSheet.create({
     flex: 1,
     borderWidth: 1,
     borderColor: AppColors.blue,
-    borderRadius: 12,
+    borderRadius: 999,
     paddingVertical: 11,
     paddingHorizontal: 12,
     flexDirection: 'row',
@@ -685,8 +695,8 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     flex: 1,
-    backgroundColor: '#D64D4D',
-    borderRadius: 12,
+    backgroundColor: AppColors.red,
+    borderRadius: 999,
     paddingVertical: 11,
     paddingHorizontal: 12,
     flexDirection: 'row',
