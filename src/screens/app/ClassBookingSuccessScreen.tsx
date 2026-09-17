@@ -79,7 +79,7 @@ export default ClassBookingSuccessScreen
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: AppColors.white,
+    backgroundColor: AppColors.grey,
   },
   navs: {
     flexDirection: 'row',
@@ -88,6 +88,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 8,
     paddingBottom: 12,
+    backgroundColor: AppColors.white,
+    borderBottomColor: AppColors.grey,
+    borderBottomWidth: 1,
   },
   backBtn: {
     paddingRight: 8,
@@ -103,13 +106,15 @@ const styles = StyleSheet.create({
   body: {
     flex: 1,
     paddingHorizontal: 20,
-    paddingTop: 12,
+    paddingTop: 16,
   },
   card: {
-    backgroundColor: AppColors.grey,
+    backgroundColor: AppColors.white,
     borderRadius: 20,
     padding: 20,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: AppColors.grey,
   },
   iconCircle: {
     width: 64,
@@ -123,12 +128,12 @@ const styles = StyleSheet.create({
   heading: {
     color: AppColors.blue,
     fontFamily: 'Montserrat',
-    fontSize: 24,
+    fontSize: 26,
     marginBottom: 8,
     textAlign: 'center',
   },
   message: {
-    color: AppColors.primary,
+    color: AppColors.grey3,
     fontFamily: 'Montserrat',
     fontSize: 14,
     lineHeight: 20,
@@ -138,7 +143,7 @@ const styles = StyleSheet.create({
   className: {
     color: AppColors.blue,
     fontFamily: 'Montserrat',
-    fontSize: 20,
+    fontSize: 22,
     marginBottom: 10,
     textAlign: 'center',
   },
@@ -146,8 +151,13 @@ const styles = StyleSheet.create({
     color: AppColors.primary,
     fontFamily: 'Montserrat',
     fontSize: 14,
-    marginTop: 6,
+    marginTop: 8,
     textAlign: 'center',
+    backgroundColor: AppColors.grey,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    width: '100%',
   },
   primaryBtn: {
     marginTop: 20,
