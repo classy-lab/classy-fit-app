@@ -895,7 +895,7 @@ export default AddClassScreen
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: AppColors.white,
+    backgroundColor: AppColors.grey,
   },
   flex: {
     flex: 1,
@@ -926,27 +926,30 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 24,
-    paddingBottom: 24,
+    paddingBottom: 28,
   },
   card: {
     borderWidth: 1,
     borderColor: AppColors.grey,
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: 20,
+    padding: 18,
     backgroundColor: AppColors.white,
     marginTop: 12,
   },
   sectionHeader: {
-    marginTop: 8,
+    marginTop: 12,
     marginBottom: 12,
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: AppColors.grey,
   },
   sectionTitle: {
     color: AppColors.blue,
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '700',
   },
   field: {
-    marginBottom: 16,
+    marginBottom: 18,
   },
   label: {
     color: AppColors.blue,
@@ -957,12 +960,12 @@ const styles = StyleSheet.create({
   input: {
     borderWidth: 1,
     borderColor: AppColors.grey,
-    borderRadius: 12,
+    borderRadius: 14,
     paddingHorizontal: 14,
     paddingVertical: 12,
     color: AppColors.blue,
     fontSize: 16,
-    backgroundColor: AppColors.white,
+    backgroundColor: AppColors.grey,
   },
   multilineInput: {
     minHeight: 110,
@@ -978,10 +981,10 @@ const styles = StyleSheet.create({
   selectBox: {
     borderWidth: 1,
     borderColor: AppColors.grey,
-    borderRadius: 12,
+    borderRadius: 14,
     paddingHorizontal: 14,
     paddingVertical: 12,
-    backgroundColor: AppColors.white,
+    backgroundColor: AppColors.grey,
   },
   selectDropdown: {
     borderWidth: 1,
@@ -1002,7 +1005,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   errorText: {
-    color: '#C0392B',
+    color: AppColors.red,
     fontSize: 12,
     marginTop: 6,
   },
@@ -1014,14 +1017,14 @@ const styles = StyleSheet.create({
     flex: 1,
     borderWidth: 1,
     borderColor: AppColors.grey,
-    borderRadius: 12,
+    borderRadius: 14,
     paddingVertical: 12,
     alignItems: 'center',
     backgroundColor: AppColors.white,
   },
   segmentButtonSelected: {
     borderColor: AppColors.blue,
-    backgroundColor: '#EAF1FF',
+    backgroundColor: AppColors.grey,
   },
   segmentButtonText: {
     color: AppColors.primary,
@@ -1032,15 +1035,20 @@ const styles = StyleSheet.create({
     color: AppColors.blue,
   },
   serverMessage: {
-    color: '#C0392B',
+    color: AppColors.red,
     fontSize: 14,
     marginBottom: 16,
   },
   submitButton: {
     backgroundColor: AppColors.blue,
-    borderRadius: 12,
+    borderRadius: 999,
     paddingVertical: 14,
     alignItems: 'center',
+    shadowColor: AppColors.primary,
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 5 },
+    elevation: 3,
   },
   submitButtonDisabled: {
     opacity: 0.75,
