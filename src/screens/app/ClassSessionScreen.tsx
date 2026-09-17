@@ -53,6 +53,8 @@ const ClassSessionScreen = ({ navigation, route }) => {
   const session = route?.params?.session ?? {}
   const bookingAttemptKeyRef = useRef<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const location = String(session?.location ?? '').trim()
+  const additionalNotes = String(session?.additional_notes ?? '').trim()
 
   const price = Number(session?.price ?? 0)
   const capacity = Number(session?.capacity ?? 0)
@@ -315,6 +317,13 @@ const ClassSessionScreen = ({ navigation, route }) => {
             <Text style={styles.description}>{session.class_description}</Text>
           ) : null}
 
+          {location ? (
+            <View style={styles.detailSection}>
+              <Text style={styles.metaLabel}>Location</Text>
+              <Text style={styles.detailValue}>{location}</Text>
+            </View>
+          ) : null}
+
           <View style={styles.metaGrid}>
             {sessionSummary.map((item) => (
               <View key={item.label} style={styles.metaItem}>
@@ -323,6 +332,13 @@ const ClassSessionScreen = ({ navigation, route }) => {
               </View>
             ))}
           </View>
+
+          {additionalNotes ? (
+            <View style={styles.detailSection}>
+              <Text style={styles.metaLabel}>Additional Notes</Text>
+              <Text style={styles.detailValue}>{additionalNotes}</Text>
+            </View>
+          ) : null}
 
           {!isScheduled ? (
             <View style={styles.noticeBox}>
@@ -454,6 +470,16 @@ const styles = StyleSheet.create({
     fontFamily: 'Montserrat',
     fontSize: 14,
     lineHeight: 20,
+  },
+  detailSection: {
+    marginTop: 18,
+  },
+  detailValue: {
+    color: AppColors.primary,
+    fontFamily: 'Montserrat',
+    fontSize: 14,
+    lineHeight: 20,
+    marginTop: 4,
   },
   noticeBox: {
     backgroundColor: '#FDE68A',
