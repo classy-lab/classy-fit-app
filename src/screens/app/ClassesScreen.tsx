@@ -295,7 +295,7 @@ export default ClassesScreen
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: AppColors.white,
+    backgroundColor: AppColors.grey,
   },
   navs: {
     flexDirection: 'row',
@@ -314,14 +314,14 @@ const styles = StyleSheet.create({
   title: {
     color: AppColors.blue,
     fontFamily: 'Montserrat',
-    fontSize: 28,
+    fontSize: 30,
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
     paddingHorizontal: 20,
-    paddingBottom: 24,
+    paddingBottom: 28,
   },
   centerState: {
     alignItems: 'center',
@@ -343,10 +343,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   errorCard: {
-    backgroundColor: AppColors.grey,
+    backgroundColor: AppColors.white,
     borderRadius: 18,
     padding: 18,
     marginTop: 12,
+    borderWidth: 1,
+    borderColor: AppColors.grey,
   },
   errorTitle: {
     color: AppColors.blue,
@@ -366,7 +368,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     alignSelf: 'flex-start',
     paddingHorizontal: 18,
-    paddingVertical: 10,
+    paddingVertical: 12,
   },
   retryBtnText: {
     color: AppColors.white,
@@ -374,16 +376,19 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   card: {
-    backgroundColor: AppColors.grey,
+    backgroundColor: AppColors.white,
     borderRadius: 20,
-    padding: 16,
+    padding: 18,
     marginTop: 14,
+    borderWidth: 1,
+    borderColor: AppColors.grey,
   },
   cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     gap: 12,
+    marginBottom: 12,
   },
   cardHeaderText: {
     flex: 1,
@@ -391,13 +396,18 @@ const styles = StyleSheet.create({
   cardTitle: {
     color: AppColors.blue,
     fontFamily: 'Montserrat-Bold',
-    fontSize: 20,
+    fontSize: 22,
     marginBottom: 8,
   },
   pricePill: {
-    color: AppColors.primary,
+    color: AppColors.white,
     fontFamily: 'Montserrat',
-    fontSize: 15,
+    fontSize: 13,
+    backgroundColor: AppColors.blue,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 999,
+    alignSelf: 'flex-start',
   },
   badge: {
     borderRadius: 999,
@@ -405,13 +415,13 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   badgeFree: {
-    backgroundColor: '#DCFCE7',
+    backgroundColor: AppColors.grey3,
   },
   badgePaid: {
-    backgroundColor: '#DBEAFE',
+    backgroundColor: AppColors.blue,
   },
   badgeText: {
-    color: AppColors.blue,
+    color: AppColors.white,
     fontFamily: 'Montserrat',
     fontSize: 12,
   },
@@ -420,10 +430,13 @@ const styles = StyleSheet.create({
     fontFamily: 'Montserrat',
     fontSize: 14,
     lineHeight: 20,
-    marginTop: 10,
+    marginTop: 2,
   },
   locationSection: {
     marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: AppColors.grey,
   },
   metaGrid: {
     flexDirection: 'row',
@@ -433,6 +446,9 @@ const styles = StyleSheet.create({
   },
   metaItem: {
     width: '48%',
+    backgroundColor: AppColors.grey,
+    borderRadius: 14,
+    padding: 12,
   },
   metaLabel: {
     color: AppColors.grey3,
