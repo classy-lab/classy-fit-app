@@ -7,6 +7,7 @@ import {
   View,
   ScrollView,
   Image,
+  TouchableOpacity,
 } from "react-native";
 import { AppColors } from "../../styles/colors";
 import { useNavigation } from "@react-navigation/native";
@@ -46,6 +47,15 @@ const ProfileScreen = () => {
           </View>
           <View style={styles.body}>
             <ProfileScreenForm />
+            <TouchableOpacity
+              style={styles.menuButton}
+              activeOpacity={0.85}
+              onPress={() => navigation.navigate('MyPersonalTrainingBookingsScreen')}
+            >
+              <Feather name="calendar" color={AppColors.blue} size={20} />
+              <Text style={styles.menuButtonText}>My Personal Training Bookings</Text>
+              <Feather name="chevron-right" color={AppColors.blue} size={20} />
+            </TouchableOpacity>
           </View>
           <View style={styles.imageContainer}>
             <VectorImageSvg />
