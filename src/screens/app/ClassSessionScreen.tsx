@@ -393,7 +393,7 @@ export default ClassSessionScreen
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: AppColors.white,
+    backgroundColor: AppColors.grey,
   },
   navs: {
     flexDirection: 'row',
@@ -402,6 +402,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 8,
     paddingBottom: 12,
+    backgroundColor: AppColors.white,
+    borderBottomColor: AppColors.grey,
+    borderBottomWidth: 1,
   },
   backBtn: {
     paddingRight: 8,
@@ -422,9 +425,11 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
   },
   card: {
-    backgroundColor: AppColors.grey,
+    backgroundColor: AppColors.white,
     borderRadius: 20,
     padding: 18,
+    borderWidth: 1,
+    borderColor: AppColors.grey,
   },
   headerRow: {
     flexDirection: 'row',
@@ -438,13 +443,18 @@ const styles = StyleSheet.create({
   className: {
     color: AppColors.blue,
     fontFamily: 'Montserrat',
-    fontSize: 24,
+    fontSize: 26,
     marginBottom: 8,
   },
   priceLabel: {
-    color: AppColors.primary,
+    color: AppColors.white,
     fontFamily: 'Montserrat',
-    fontSize: 16,
+    fontSize: 13,
+    backgroundColor: AppColors.blue,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 999,
+    alignSelf: 'flex-start',
   },
   badge: {
     borderRadius: 999,
@@ -452,13 +462,13 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   freeBadge: {
-    backgroundColor: '#DCFCE7',
+    backgroundColor: AppColors.grey3,
   },
   paidBadge: {
-    backgroundColor: '#DBEAFE',
+    backgroundColor: AppColors.blue,
   },
   badgeText: {
-    color: AppColors.blue,
+    color: AppColors.white,
     fontFamily: 'Montserrat',
     fontSize: 12,
   },
@@ -466,7 +476,7 @@ const styles = StyleSheet.create({
     color: AppColors.primary,
     fontFamily: 'Montserrat',
     fontSize: 14,
-    lineHeight: 21,
+    lineHeight: 22,
     marginTop: 14,
   },
   metaGrid: {
@@ -477,6 +487,9 @@ const styles = StyleSheet.create({
   },
   metaItem: {
     width: '48%',
+    backgroundColor: AppColors.grey,
+    borderRadius: 14,
+    padding: 12,
   },
   metaLabel: {
     color: AppColors.grey3,
@@ -493,6 +506,9 @@ const styles = StyleSheet.create({
   },
   detailSection: {
     marginTop: 18,
+    backgroundColor: AppColors.grey,
+    borderRadius: 16,
+    padding: 14,
   },
   detailValue: {
     color: AppColors.primary,
@@ -502,10 +518,12 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   noticeBox: {
-    backgroundColor: '#FDE68A',
+    backgroundColor: AppColors.grey,
     borderRadius: 14,
     marginTop: 18,
-    padding: 12,
+    padding: 14,
+    borderLeftWidth: 4,
+    borderLeftColor: AppColors.blue,
   },
   noticeText: {
     color: AppColors.primary,
@@ -519,6 +537,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     minHeight: 52,
     marginTop: 18,
+    shadowColor: AppColors.primary,
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 3,
   },
   bookBtnDisabled: {
     opacity: 0.5,
