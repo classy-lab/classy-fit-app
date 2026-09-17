@@ -5,7 +5,7 @@ export const AppColors = {
   grey: '#F5F6FA',
   grey2: '#B0BED4',
   grey3: '#979797',
-  red: 'red',
+  red: '#e91c1c',
   hamburgerIconColor: '#D0D0D0',
   textInputBorderColor: '#F1F1F1'
 };
