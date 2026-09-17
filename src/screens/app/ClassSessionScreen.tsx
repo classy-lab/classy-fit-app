@@ -166,7 +166,7 @@ const ClassSessionScreen = ({ navigation, route }) => {
       })
     }
 
-    try {
+    const submitCheckoutRequest = async () => {
       let accessToken = tokens.access_token
       let response = await performRequest(accessToken)
 
@@ -181,7 +181,7 @@ const ClassSessionScreen = ({ navigation, route }) => {
             description: 'Please sign in again.',
             type: 'danger',
           })
-          return
+          return null
         }
       }
 
@@ -194,6 +194,17 @@ const ClassSessionScreen = ({ navigation, route }) => {
           responseBody = { message: responseText }
         }
       }
+
+      return { response, responseBody }
+    }
+
+    try {
+      const initialCheckoutResult = await submitCheckoutRequest()
+      if (!initialCheckoutResult) {
+        return
+      }
+
+      let { response, responseBody } = initialCheckoutResult
 
       if (response.status !== 200 && response.status !== 201) {
         const message = responseBody?.message || 'Unable to book class.'
@@ -267,6 +278,15 @@ const ClassSessionScreen = ({ navigation, route }) => {
         return
       }
 
+      const reconciliationResult = await submitCheckoutRequest()
+      if (reconciliationResult && (reconciliationResult.response.status === 200 || reconciliationResult.response.status === 201)) {
+        response = reconciliationResult.response
+        responseBody = reconciliationResult.responseBody
+      }
+
+      const reconciledBooking = responseBody?.booking ?? booking
+      const reconciledPayment = responseBody?.payment ?? payment
+
       showMessage({
         message: 'Payment successful',
         description: 'Your class booking payment has been submitted.',
@@ -274,10 +294,10 @@ const ClassSessionScreen = ({ navigation, route }) => {
       })
       navigation.navigate('ClassBookingSuccessScreen', {
         session,
-        booking,
-        payment,
+        booking: reconciledBooking,
+        payment: reconciledPayment,
         isPaid: true,
-        idempotencyKey: responseBody?.idempotency_key,
+        idempotencyKey: responseBody?.idempotency_key ?? idempotencyKey,
       })
     } catch (error) {
       console.log('Class booking checkout error:', error)
