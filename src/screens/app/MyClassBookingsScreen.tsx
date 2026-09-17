@@ -22,6 +22,7 @@ const MyClassBookingsScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+  const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming')
 
   const refreshAccessToken = async () => {
     if (!tokens?.refresh_token) {
@@ -204,6 +205,8 @@ const MyClassBookingsScreen = ({ navigation }) => {
 
   const upcomingBookings = bookings.filter(isUpcoming)
   const pastBookings = bookings.filter((b) => !isUpcoming(b))
+  const visibleBookings = activeTab === 'upcoming' ? upcomingBookings : pastBookings
+  const activeBookingsLabel = activeTab === 'upcoming' ? 'Upcoming' : 'Past'
 
   return (
     <SafeAreaView style={styles.container}>
@@ -241,10 +244,29 @@ const MyClassBookingsScreen = ({ navigation }) => {
           </View>
         ) : (
           <>
-            {upcomingBookings.length > 0 && (
+            <View style={styles.filterBar}>
+              <TouchableOpacity
+                style={[styles.filterButton, activeTab === 'upcoming' && styles.filterButtonActive]}
+                onPress={() => setActiveTab('upcoming')}
+              >
+                <Text style={[styles.filterButtonText, activeTab === 'upcoming' && styles.filterButtonTextActive]}>
+                  Upcoming ({upcomingBookings.length})
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.filterButton, activeTab === 'past' && styles.filterButtonActive]}
+                onPress={() => setActiveTab('past')}
+              >
+                <Text style={[styles.filterButtonText, activeTab === 'past' && styles.filterButtonTextActive]}>
+                  Past ({pastBookings.length})
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {visibleBookings.length > 0 ? (
               <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Upcoming</Text>
-                {upcomingBookings.map((booking) => (
+                <Text style={styles.sectionTitle}>{activeBookingsLabel}</Text>
+                {visibleBookings.map((booking) => (
                   <TouchableOpacity
                     key={String(booking?.booking_uid ?? `${booking?.class_uid}-${booking?.session_uid}`)}
                     style={styles.card}
@@ -261,6 +283,15 @@ const MyClassBookingsScreen = ({ navigation }) => {
                     {booking?.trainer_display_name && (
                       <Text style={styles.trainerName}>with {booking.trainer_display_name}</Text>
                     )}
+
+                    {booking?.location ? (
+                      <View style={styles.locationRow}>
+                        <Text style={styles.metaLabel}>Location</Text>
+                        <Text style={styles.metaValue} numberOfLines={2}>
+                          {booking.location}
+                        </Text>
+                      </View>
+                    ) : null}
 
                     <View style={styles.metaGrid}>
                       <View style={styles.metaItem}>
@@ -291,53 +322,14 @@ const MyClassBookingsScreen = ({ navigation }) => {
                   </TouchableOpacity>
                 ))}
               </View>
-            )}
-
-            {pastBookings.length > 0 && (
-              <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Past</Text>
-                {pastBookings.map((booking) => (
-                  <TouchableOpacity
-                    key={String(booking?.booking_uid ?? `${booking?.class_uid}-${booking?.session_uid}-past`)}
-                    style={[styles.card, styles.cardPast]}
-                    activeOpacity={0.85}
-                    onPress={() => openBooking(booking)}
-                  >
-                    <View style={styles.cardHeader}>
-                      <View style={styles.cardHeaderText}>
-                        <Text style={styles.cardTitle}>{booking?.class_name || 'Untitled class'}</Text>
-                        <Text style={styles.pricePill}>Cost: {renderPrice(booking)}</Text>
-                      </View>
-                    </View>
-
-                    {booking?.trainer_display_name && (
-                      <Text style={styles.trainerName}>with {booking.trainer_display_name}</Text>
-                    )}
-
-                    <View style={styles.metaGrid}>
-                      <View style={styles.metaItem}>
-                        <Text style={styles.metaLabel}>Date</Text>
-                        <Text style={styles.metaValue}>{formatDate(booking?.start_at)}</Text>
-                      </View>
-                      <View style={styles.metaItem}>
-                        <Text style={styles.metaLabel}>Time</Text>
-                        <Text style={styles.metaValue}>
-                          {formatTime(booking?.start_at)} - {formatTime(booking?.end_at)}
-                        </Text>
-                      </View>
-                      <View style={styles.metaItem}>
-                        <Text style={styles.metaLabel}>Booking Status</Text>
-                        <Text style={styles.metaValue}>{renderBookingStatus(booking)}</Text>
-                      </View>
-                      {booking?.payment_status && (
-                        <View style={styles.metaItem}>
-                          <Text style={styles.metaLabel}>Payment</Text>
-                          <Text style={styles.metaValue}>{renderPaymentStatus(booking)}</Text>
-                        </View>
-                      )}
-                    </View>
-                  </TouchableOpacity>
-                ))}
+            ) : (
+              <View style={styles.emptyCard}>
+                <Text style={styles.emptyTitle}>{activeBookingsLabel} bookings</Text>
+                <Text style={styles.stateText}>
+                  {activeTab === 'upcoming'
+                    ? 'No upcoming bookings right now. Check back for new sessions.'
+                    : 'You do not have any past bookings yet.'}
+                </Text>
               </View>
             )}
           </>
@@ -391,7 +383,7 @@ const styles = StyleSheet.create({
   stateText: {
     marginTop: 12,
     fontSize: 16,
-    color: AppColors.grey,
+    color: AppColors.grey3,
     textAlign: 'center',
   },
   emptyTitle: {
@@ -400,30 +392,38 @@ const styles = StyleSheet.create({
     color: AppColors.blue,
     textAlign: 'center',
   },
+  emptyCard: {
+    backgroundColor: AppColors.white,
+    borderRadius: 18,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: AppColors.grey,
+    marginTop: 12,
+  },
   errorCard: {
-    backgroundColor: '#fff3cd',
-    borderLeftColor: '#ff6b6b',
-    borderLeftWidth: 4,
-    padding: 16,
-    borderRadius: 8,
+    backgroundColor: AppColors.white,
+    borderColor: AppColors.grey,
+    borderWidth: 1,
+    borderRadius: 18,
+    padding: 20,
     marginVertical: 20,
   },
   errorTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ff6b6b',
+    color: AppColors.blue,
     marginBottom: 8,
   },
   errorText: {
     fontSize: 14,
-    color: '#666',
+    color: AppColors.grey3,
     marginBottom: 12,
   },
   retryBtn: {
     backgroundColor: AppColors.blue,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 6,
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    borderRadius: 999,
     alignSelf: 'flex-start',
   },
   retryBtnText: {
@@ -433,18 +433,19 @@ const styles = StyleSheet.create({
   },
   section: {
     marginBottom: 24,
+    marginTop: 16,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: 20,
+    fontWeight: '700',
     color: AppColors.blue,
-    marginBottom: 12,
+    marginBottom: 14,
   },
   card: {
     backgroundColor: AppColors.white,
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    borderRadius: 18,
+    padding: 18,
+    marginBottom: 14,
     borderColor: AppColors.grey,
     borderWidth: 1,
   },
@@ -461,43 +462,75 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   cardTitle: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 18,
+    fontWeight: '700',
     color: AppColors.blue,
     marginBottom: 4,
   },
   pricePill: {
     fontSize: 13,
-    fontWeight: '500',
+    fontWeight: '600',
     color: AppColors.white,
     backgroundColor: AppColors.blue,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 999,
     alignSelf: 'flex-start',
   },
   trainerName: {
     fontSize: 14,
-    color: AppColors.grey,
+    color: AppColors.grey3,
     marginBottom: 8,
     fontStyle: 'italic',
   },
+  locationRow: {
+    marginTop: 8,
+  },
   metaGrid: {
-    marginTop: 12,
+    marginTop: 14,
   },
   metaItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 8,
+    gap: 12,
   },
   metaLabel: {
     fontSize: 12,
-    color: AppColors.primary,
-    fontWeight: '500',
+    color: AppColors.grey3,
+    fontWeight: '600',
+    textTransform: 'uppercase',
   },
   metaValue: {
     fontSize: 12,
     color: AppColors.blue,
     fontWeight: '600',
+  },
+  filterBar: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 8,
+    marginBottom: 6,
+  },
+  filterButton: {
+    flex: 1,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: AppColors.grey,
+    backgroundColor: AppColors.white,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  filterButtonActive: {
+    borderColor: AppColors.blue,
+    backgroundColor: AppColors.blue,
+  },
+  filterButtonText: {
+    color: AppColors.primary,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  filterButtonTextActive: {
+    color: AppColors.white,
   },
 })
