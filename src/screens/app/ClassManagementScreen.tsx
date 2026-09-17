@@ -48,7 +48,7 @@ type UserContextValue = {
 
 type ClassManagementNavigation = {
   goBack: () => void
-  navigate: (screen: 'AddClassScreen') => void
+  navigate: (screen: 'AddClassScreen' | 'EditClassScreen', params?: { classUid?: number }) => void
 }
 
 type LoadOptions = {
@@ -243,8 +243,8 @@ const ClassManagementScreen = ({ navigation }: { navigation: ClassManagementNavi
     navigation.navigate('AddClassScreen')
   }
 
-  const handleEditClass = () => {
-    Alert.alert('Edit Class', 'Edit Class will be available soon.')
+  const handleEditClass = (classUid: number) => {
+    navigation.navigate('EditClassScreen', { classUid })
   }
 
   const deleteClass = async (classUid: number) => {
@@ -461,7 +461,7 @@ const ClassManagementScreen = ({ navigation }: { navigation: ClassManagementNavi
                   </View>
 
                   <View style={styles.cardActions}>
-                    <TouchableOpacity style={styles.editButton} onPress={handleEditClass}>
+                    <TouchableOpacity style={styles.editButton} onPress={() => handleEditClass(classUid)}>
                       <Feather name="edit-2" color={AppColors.blue} size={16} />
                       <Text style={styles.editButtonText}>Edit</Text>
                     </TouchableOpacity>
