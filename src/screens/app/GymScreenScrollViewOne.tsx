@@ -22,7 +22,12 @@ const GymScreenScrollViewOne = () => {
         showsHorizontalScrollIndicator={false}
       >
         <View style={gymScreenStyles.greySquareContainer}>
-          <TouchableOpacity style={gymScreenStyles.greySquare} onPress={() => navigation.navigate('ClassesScreen')}>
+          <TouchableOpacity
+            style={gymScreenStyles.greySquare}
+            activeOpacity={0.8}
+            hitSlop={8}
+            onPress={() => navigation.navigate('ClassesScreen')}
+          >
             <View style={gymScreenStyles.whiteSquare}>
               <ClassesSvg />
             </View>
