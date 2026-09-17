@@ -30,6 +30,11 @@ import ThankYouScreen from '../screens/app/ThankYouScreen'
 import ClassesScreen from '../screens/app/ClassesScreen'
 import ClassSessionScreen from '../screens/app/ClassSessionScreen'
 import ClassBookingSuccessScreen from '../screens/app/ClassBookingSuccessScreen'
+import PersonalTrainingSessionsScreen from '../screens/app/PersonalTrainingSessionsScreen'
+import PersonalTrainingSessionScreen from '../screens/app/PersonalTrainingSessionScreen'
+import PersonalTrainingBookingSuccessScreen from '../screens/app/PersonalTrainingBookingSuccessScreen'
+import MyPersonalTrainingBookingsScreen from '../screens/app/MyPersonalTrainingBookingsScreen'
+import MyPersonalTrainingBookingDetailScreen from '../screens/app/MyPersonalTrainingBookingDetailScreen'
 import TreadmillEquipmentScreen from '../screens/app/TreadmillEquipmentScreen'
 import GymEquipmentScreen from '../screens/app/GymEquipmentScreen'
 import EquipmentDetailScreen from '../screens/app/EquipmentDetailScreen'
@@ -63,6 +68,11 @@ function HomeStackScreen() {
       <HomeStack.Screen name="ClassesScreen" component={ClassesScreen} />
       <HomeStack.Screen name="ClassSessionScreen" component={ClassSessionScreen} />
       <HomeStack.Screen name="ClassBookingSuccessScreen" component={ClassBookingSuccessScreen} />
+      <HomeStack.Screen name="PersonalTrainingSessionsScreen" component={PersonalTrainingSessionsScreen} />
+      <HomeStack.Screen name="PersonalTrainingSessionScreen" component={PersonalTrainingSessionScreen} />
+      <HomeStack.Screen name="PersonalTrainingBookingSuccessScreen" component={PersonalTrainingBookingSuccessScreen} />
+      <HomeStack.Screen name="MyPersonalTrainingBookingsScreen" component={MyPersonalTrainingBookingsScreen} />
+      <HomeStack.Screen name="MyPersonalTrainingBookingDetailScreen" component={MyPersonalTrainingBookingDetailScreen} />
       <HomeStack.Screen name="MyClassBookingsScreen" component={MyClassBookingsScreen} />
       <HomeStack.Screen name="MyClassBookingDetailScreen" component={MyClassBookingDetailScreen} />
       <HomeStack.Screen name="ClassManagementScreen" component={ClassManagementScreen} />
@@ -90,6 +100,11 @@ function GymStackScreen() {
       <GymStack.Screen name="ClassesScreen" component={ClassesScreen} />
       <GymStack.Screen name="ClassSessionScreen" component={ClassSessionScreen} />
       <GymStack.Screen name="ClassBookingSuccessScreen" component={ClassBookingSuccessScreen} />
+      <GymStack.Screen name="PersonalTrainingSessionsScreen" component={PersonalTrainingSessionsScreen} />
+      <GymStack.Screen name="PersonalTrainingSessionScreen" component={PersonalTrainingSessionScreen} />
+      <GymStack.Screen name="PersonalTrainingBookingSuccessScreen" component={PersonalTrainingBookingSuccessScreen} />
+      <GymStack.Screen name="MyPersonalTrainingBookingsScreen" component={MyPersonalTrainingBookingsScreen} />
+      <GymStack.Screen name="MyPersonalTrainingBookingDetailScreen" component={MyPersonalTrainingBookingDetailScreen} />
       <GymStack.Screen name="MyClassBookingsScreen" component={MyClassBookingsScreen} />
       <GymStack.Screen name="MyClassBookingDetailScreen" component={MyClassBookingDetailScreen} />
       <GymStack.Screen name="ClassManagementScreen" component={ClassManagementScreen} />
@@ -137,6 +152,8 @@ function ProfileStackScreen() {
       <ProfileStack.Screen name="ProfileScreen" component={ProfileScreen} />
       <ProfileStack.Screen name="MyClassBookingsScreen" component={MyClassBookingsScreen} />
       <ProfileStack.Screen name="MyClassBookingDetailScreen" component={MyClassBookingDetailScreen} />
+      <ProfileStack.Screen name="MyPersonalTrainingBookingsScreen" component={MyPersonalTrainingBookingsScreen} />
+      <ProfileStack.Screen name="MyPersonalTrainingBookingDetailScreen" component={MyPersonalTrainingBookingDetailScreen} />
       <ProfileStack.Screen name="ClassManagementScreen" component={ClassManagementScreen} />
       <ProfileStack.Screen name="AddClassScreen" component={AddClassScreen} />
       <ProfileStack.Screen name="EditClassScreen" component={EditClassScreen} />
