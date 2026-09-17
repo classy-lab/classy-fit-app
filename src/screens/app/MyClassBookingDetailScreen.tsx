@@ -203,6 +203,14 @@ const MyClassBookingDetailScreen = ({ navigation, route }) => {
     return status.charAt(0).toUpperCase() + status.slice(1)
   }
 
+  const renderBookingDetailText = (value) => {
+    if (value === null || value === undefined) {
+      return ''
+    }
+
+    return String(value).trim()
+  }
+
   const bookingStatus = String(booking?.booking_status ?? '').toLowerCase()
   const paymentStatus = String(booking?.payment_status ?? '').toLowerCase()
   const isCancellable = bookingStatus === 'pending' || bookingStatus === 'confirmed'
@@ -384,14 +392,18 @@ const MyClassBookingDetailScreen = ({ navigation, route }) => {
                 <Text style={styles.priceBadge}>{renderPrice()}</Text>
               </View>
               <View style={styles.statusRow}>
-                <View style={[styles.statusBadge, styles.statusBadgeBooking]}>
-                  <Text style={styles.statusText}>{renderBookingStatus()}</Text>
+                <View style={styles.statusGroup}>
+                  <Text style={styles.statusLabel}>Booking Status</Text>
+                  <View style={[styles.statusBadge, styles.statusBadgeBooking]}>
+                    <Text style={styles.statusText}>{renderBookingStatus()}</Text>
+                  </View>
                 </View>
-                {booking?.payment_status && (
+                <View style={styles.statusGroup}>
+                  <Text style={styles.statusLabel}>Payment Status</Text>
                   <View style={[styles.statusBadge, styles.statusBadgePayment]}>
                     <Text style={styles.statusText}>{renderPaymentStatus()}</Text>
                   </View>
-                )}
+                </View>
               </View>
             </View>
 
@@ -427,6 +439,20 @@ const MyClassBookingDetailScreen = ({ navigation, route }) => {
                   <Text style={styles.detailValue}>{formatDateTime(booking.booked_at)}</Text>
                 </View>
               )}
+
+              {renderBookingDetailText(booking?.location) ? (
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>Location</Text>
+                  <Text style={styles.detailValue}>{renderBookingDetailText(booking.location)}</Text>
+                </View>
+              ) : null}
+
+              {renderBookingDetailText(booking?.additional_notes) ? (
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>Additional Notes</Text>
+                  <Text style={styles.detailValue}>{renderBookingDetailText(booking.additional_notes)}</Text>
+                </View>
+              ) : null}
             </View>
 
             {isCancellable && (
@@ -663,12 +689,22 @@ const styles = StyleSheet.create({
   },
   statusRow: {
     flexDirection: 'row',
-    gap: 8,
+    justifyContent: 'space-between',
     paddingTop: 12,
     borderTopColor: '#eeeeee',
     borderTopWidth: 1,
   },
+  statusGroup: {
+    flex: 1,
+  },
+  statusLabel: {
+    fontSize: 12,
+    color: AppColors.grey3,
+    fontWeight: '600',
+    marginBottom: 6,
+  },
   statusBadge: {
+    alignSelf: 'flex-start',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
