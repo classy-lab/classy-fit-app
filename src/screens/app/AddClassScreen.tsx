@@ -260,17 +260,17 @@ const AddClassScreen = ({ navigation }: { navigation: AddClassNavigation }) => {
       const payload = await response.json()
       const options = Array.isArray(payload?.trainers)
         ? payload.trainers
-            .map((trainer: { gym_user_id?: number | string; fname?: string; lname?: string; uid?: number | string }) => {
-              const gymUserId = trainer.gym_user_id ?? trainer.uid
-              const firstName = String(trainer.fname ?? '').trim()
-              const lastName = String(trainer.lname ?? '').trim()
-              const fullName = `${firstName} ${lastName}`.trim()
-              return gymUserId ? {
-                key: String(gymUserId),
-                value: fullName || `Trainer ${gymUserId}`,
-              } : null
-            })
-            .filter((trainer: TrainerOption | null): trainer is TrainerOption => trainer !== null)
+          .map((trainer: { gym_user_id?: number | string; fname?: string; lname?: string; uid?: number | string }) => {
+            const gymUserId = trainer.gym_user_id ?? trainer.uid
+            const firstName = String(trainer.fname ?? '').trim()
+            const lastName = String(trainer.lname ?? '').trim()
+            const fullName = `${firstName} ${lastName}`.trim()
+            return gymUserId ? {
+              key: String(gymUserId),
+              value: fullName || `Trainer ${gymUserId}`,
+            } : null
+          })
+          .filter((trainer: TrainerOption | null): trainer is TrainerOption => trainer !== null)
         : []
 
       if (isMounted) {
@@ -1049,6 +1049,7 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 5 },
     elevation: 3,
+    height: 50,
   },
   submitButtonDisabled: {
     opacity: 0.75,
@@ -1056,6 +1057,5 @@ const styles = StyleSheet.create({
   submitButtonText: {
     color: AppColors.white,
     fontSize: 16,
-    fontWeight: '700',
   },
 })
