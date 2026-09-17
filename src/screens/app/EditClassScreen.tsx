@@ -1131,19 +1131,18 @@ const styles = StyleSheet.create({
     color: AppColors.white,
   },
   saveButton: {
-    backgroundColor: AppColors.grey2,
+    backgroundColor: AppColors.blue,
     borderRadius: 999,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 52,
+    minHeight: 50,
     marginTop: 22,
   },
   saveButtonDisabled: {
     opacity: 0.5,
   },
   saveButtonText: {
-    color: AppColors.primary,
-    fontFamily: 'Montserrat-Bold',
+    color: AppColors.white,
     fontSize: 16,
   },
   statusPill: {
@@ -1244,6 +1243,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
     backgroundColor: AppColors.white,
+    height: 50,
   },
   sessionEditButtonText: {
     color: AppColors.blue,
