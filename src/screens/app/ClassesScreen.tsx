@@ -223,6 +223,7 @@ const ClassesScreen = ({ navigation }) => {
             const price = Number(session?.price ?? 0)
             const capacity = Number(session?.capacity ?? 0)
             const bookedCount = Number(session?.booked_count ?? 0)
+            const location = String(session?.location ?? '').trim()
             const availableCapacity =
               session?.available_capacity !== null && session?.available_capacity !== undefined
                 ? Number(session.available_capacity)
@@ -249,6 +250,13 @@ const ClassesScreen = ({ navigation }) => {
                   <Text style={styles.description} numberOfLines={3}>
                     {session.class_description}
                   </Text>
+                ) : null}
+
+                {location ? (
+                  <View style={styles.locationSection}>
+                    <Text style={styles.metaLabel}>Location</Text>
+                    <Text style={styles.metaValue}>{location}</Text>
+                  </View>
                 ) : null}
 
                 <View style={styles.metaGrid}>
@@ -413,6 +421,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     marginTop: 10,
+  },
+  locationSection: {
+    marginTop: 12,
   },
   metaGrid: {
     flexDirection: 'row',
