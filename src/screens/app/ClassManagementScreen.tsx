@@ -531,11 +531,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    shadowColor: AppColors.primary,
-    shadowOpacity: 0.12,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 5 },
-    elevation: 3,
+    height: 50,
   },
   addButtonText: {
     color: AppColors.white,
@@ -668,8 +664,6 @@ const styles = StyleSheet.create({
   },
   metaValue: {
     color: AppColors.blue,
-    fontSize: 14,
-    fontWeight: '600',
   },
   cardActions: {
     flexDirection: 'row',
@@ -687,6 +681,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
+    height: 50
   },
   editButtonText: {
     color: AppColors.blue,
