@@ -33,6 +33,7 @@ import ClassBookingSuccessScreen from '../screens/app/ClassBookingSuccessScreen'
 import PersonalTrainingSessionsScreen from '../screens/app/PersonalTrainingSessionsScreen'
 import PersonalTrainingSessionScreen from '../screens/app/PersonalTrainingSessionScreen'
 import AddPersonalTrainingSessionScreen from '../screens/app/AddPersonalTrainingSessionScreen'
+import EditPersonalTrainingSessionScreen from '../screens/app/EditPersonalTrainingSessionScreen'
 import PersonalTrainingManagementScreen from '../screens/app/PersonalTrainingManagementScreen'
 import PersonalTrainingBookingSuccessScreen from '../screens/app/PersonalTrainingBookingSuccessScreen'
 import MyPersonalTrainingBookingsScreen from '../screens/app/MyPersonalTrainingBookingsScreen'
@@ -73,6 +74,7 @@ function HomeStackScreen() {
       <HomeStack.Screen name="PersonalTrainingSessionsScreen" component={PersonalTrainingSessionsScreen} />
       <HomeStack.Screen name="PersonalTrainingSessionScreen" component={PersonalTrainingSessionScreen} />
       <HomeStack.Screen name="AddPersonalTrainingSessionScreen" component={AddPersonalTrainingSessionScreen} />
+      <HomeStack.Screen name="EditPersonalTrainingSessionScreen" component={EditPersonalTrainingSessionScreen} />
       <HomeStack.Screen name="PersonalTrainingManagementScreen" component={PersonalTrainingManagementScreen} />
       <HomeStack.Screen name="PersonalTrainingBookingSuccessScreen" component={PersonalTrainingBookingSuccessScreen} />
       <HomeStack.Screen name="MyPersonalTrainingBookingsScreen" component={MyPersonalTrainingBookingsScreen} />
@@ -107,6 +109,7 @@ function GymStackScreen() {
       <GymStack.Screen name="PersonalTrainingSessionsScreen" component={PersonalTrainingSessionsScreen} />
       <GymStack.Screen name="PersonalTrainingSessionScreen" component={PersonalTrainingSessionScreen} />
       <GymStack.Screen name="AddPersonalTrainingSessionScreen" component={AddPersonalTrainingSessionScreen} />
+      <GymStack.Screen name="EditPersonalTrainingSessionScreen" component={EditPersonalTrainingSessionScreen} />
       <GymStack.Screen name="PersonalTrainingManagementScreen" component={PersonalTrainingManagementScreen} />
       <GymStack.Screen name="PersonalTrainingBookingSuccessScreen" component={PersonalTrainingBookingSuccessScreen} />
       <GymStack.Screen name="MyPersonalTrainingBookingsScreen" component={MyPersonalTrainingBookingsScreen} />
