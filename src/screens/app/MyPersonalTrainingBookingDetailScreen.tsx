@@ -1,7 +1,7 @@
-// @ts-nocheck
-import { useCallback, useContext, useState } from 'react'
+import { useCallback, useContext, useRef, useState } from 'react'
 import {
   ActivityIndicator,
+  Alert,
   ScrollView,
   StyleSheet,
   Text,
@@ -59,6 +59,8 @@ const MyPersonalTrainingBookingDetailScreen = ({ navigation, route }) => {
   const [booking, setBooking] = useState(null)
   const [loading, setLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState('')
+  const [isCancelling, setIsCancelling] = useState(false)
+  const cancellationKeyRef = useRef<string | null>(null)
 
   const refreshAccessToken = async () => {
     if (!tokens?.refresh_token) {
@@ -162,6 +164,50 @@ const MyPersonalTrainingBookingDetailScreen = ({ navigation, route }) => {
     }
   }, [tokens?.access_token, tokens?.refresh_token, setTokens, webServer, bookingUid])
 
+  const submitRequestWithRefresh = useCallback(
+    async (performRequest) => {
+      let accessToken = tokens?.access_token
+      if (!accessToken) {
+        showMessage({
+          message: 'Session expired',
+          description: 'Please sign in again.',
+          type: 'danger',
+        })
+        return null
+      }
+
+      let response = await performRequest(accessToken)
+
+      if (response.status === 401 || response.status === 403) {
+        const refreshedAccessToken = await refreshAccessToken()
+        if (refreshedAccessToken) {
+          accessToken = refreshedAccessToken
+          response = await performRequest(accessToken)
+        } else {
+          showMessage({
+            message: 'Session expired',
+            description: 'Please sign in again.',
+            type: 'danger',
+          })
+          return null
+        }
+      }
+
+      const responseText = await response.text()
+      let responseBody: any = {}
+      if (responseText) {
+        try {
+          responseBody = JSON.parse(responseText)
+        } catch {
+          responseBody = { message: responseText }
+        }
+      }
+
+      return { response, responseBody }
+    },
+    [refreshAccessToken, tokens?.access_token]
+  )
+
   useFocusEffect(
     useCallback(() => {
       void loadBooking()
@@ -182,11 +228,133 @@ const MyPersonalTrainingBookingDetailScreen = ({ navigation, route }) => {
     return status.charAt(0).toUpperCase() + status.slice(1)
   }
 
+  const renderPaymentStatus = () => {
+    const status = String(booking?.payment_status ?? 'unpaid').toLowerCase()
+    if (status === 'unpaid') {
+      return 'Pending'
+    }
+
+    return status.charAt(0).toUpperCase() + status.slice(1)
+  }
+
   const renderDetailText = (value) => {
     if (value === null || value === undefined) {
       return ''
     }
     return String(value).trim()
+  }
+
+  const bookingStatus = String(booking?.booking_status ?? '').toLowerCase()
+  const paymentStatus = String(booking?.payment_status ?? '').toLowerCase()
+  const isCancellable = bookingStatus === 'pending' || bookingStatus === 'confirmed'
+  const hasRefundablePayment = paymentStatus === 'succeeded'
+
+  const generateCancellationIdempotencyKey = () => {
+    const random = Math.random().toString(36).slice(2, 10)
+    return `pt-booking-${bookingUid}-cancel-${Date.now()}-${random}`
+  }
+
+  const handleCancelBooking = () => {
+    if (!booking || !isCancellable || isCancelling) {
+      return
+    }
+
+    Alert.alert(
+      'Cancel booking?',
+      hasRefundablePayment
+        ? 'This personal training booking will be cancelled and your payment will be refunded.'
+        : 'This personal training booking will be cancelled.',
+      [
+        { text: 'No', style: 'cancel' },
+        {
+          text: 'Cancel Booking',
+          style: 'destructive',
+          onPress: () => {
+            void submitCancellation()
+          },
+        },
+      ],
+      { cancelable: true }
+    )
+  }
+
+  const submitCancellation = async () => {
+    if (!tokens?.access_token || !bookingUid) {
+      showMessage({
+        message: 'Cancellation unavailable',
+        description: 'Please sign in again and try once more.',
+        type: 'danger',
+      })
+      return
+    }
+
+    if (!cancellationKeyRef.current) {
+      cancellationKeyRef.current = generateCancellationIdempotencyKey()
+    }
+
+    const idempotencyKey = cancellationKeyRef.current
+    const endpoint = `${webServer}/api/v1/personal-training/bookings/${bookingUid}/cancel`
+
+    const performRequest = async (accessToken) => {
+      return fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Idempotency-Key': idempotencyKey,
+        },
+      })
+    }
+
+    setIsCancelling(true)
+
+    try {
+      const result = await submitRequestWithRefresh(performRequest)
+      if (!result) {
+        return
+      }
+
+      const { response, responseBody } = result
+
+      if (response.status === 409) {
+        const message = responseBody?.message || 'This booking is already cancelled.'
+        showMessage({
+          message: 'Unable to cancel booking',
+          description: message,
+          type: 'danger',
+        })
+        await loadBooking()
+        return
+      }
+
+      if (response.status !== 200) {
+        const message = responseBody?.message || 'Unable to cancel this booking.'
+        showMessage({
+          message: 'Cancellation failed',
+          description: message,
+          type: 'danger',
+        })
+        return
+      }
+
+      const refund = responseBody?.refund
+      showMessage({
+        message: 'Booking cancelled',
+        description: refund
+          ? 'Your booking was cancelled and the payment was refunded.'
+          : 'Your booking was cancelled.',
+        type: 'success',
+      })
+
+      await loadBooking()
+    } catch (error) {
+      showMessage({
+        message: 'Cancellation failed',
+        description: 'We could not complete this cancellation. Please try again.',
+        type: 'danger',
+      })
+    } finally {
+      setIsCancelling(false)
+    }
   }
 
   return (
@@ -238,6 +406,12 @@ const MyPersonalTrainingBookingDetailScreen = ({ navigation, route }) => {
                   <Text style={styles.statusLabel}>Booking Status</Text>
                   <View style={[styles.statusBadge, styles.statusBadgeBooking]}>
                     <Text style={styles.statusText}>{renderBookingStatus()}</Text>
+                  </View>
+                </View>
+                <View style={styles.statusGroup}>
+                  <Text style={styles.statusLabel}>Payment Status</Text>
+                  <View style={[styles.statusBadge, styles.statusBadgePayment]}>
+                    <Text style={styles.statusText}>{renderPaymentStatus()}</Text>
                   </View>
                 </View>
               </View>
@@ -294,6 +468,28 @@ const MyPersonalTrainingBookingDetailScreen = ({ navigation, route }) => {
                 <Text style={styles.detailValue}>{renderPrice()}</Text>
               </View>
             </View>
+
+            {isCancellable ? (
+              <View style={styles.actionSection}>
+                <TouchableOpacity
+                  style={[styles.cancelBtn, isCancelling && styles.cancelBtnDisabled]}
+                  disabled={isCancelling}
+                  activeOpacity={0.85}
+                  onPress={handleCancelBooking}
+                >
+                  {isCancelling ? (
+                    <ActivityIndicator color={AppColors.white} />
+                  ) : (
+                    <Text style={styles.cancelBtnText}>Cancel Booking</Text>
+                  )}
+                </TouchableOpacity>
+                <Text style={styles.cancelHelpText}>
+                  {hasRefundablePayment
+                    ? 'Cancelling this booking will also refund the payment.'
+                    : 'Cancelling this booking will remove it from your schedule.'}
+                </Text>
+              </View>
+            ) : null}
           </View>
         )}
       </ScrollView>
@@ -458,6 +654,9 @@ const styles = StyleSheet.create({
   statusBadgeBooking: {
     backgroundColor: AppColors.blue,
   },
+  statusBadgePayment: {
+    backgroundColor: AppColors.primary,
+  },
   statusText: {
     color: AppColors.white,
     fontSize: 12,
@@ -497,5 +696,34 @@ const styles = StyleSheet.create({
     color: AppColors.primary,
     fontFamily: 'Montserrat',
     lineHeight: 20,
+  },
+  actionSection: {
+    marginTop: 16,
+    paddingHorizontal: 2,
+    paddingBottom: 8,
+  },
+  cancelBtn: {
+    backgroundColor: AppColors.red,
+    borderRadius: 999,
+    minHeight: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+  },
+  cancelBtnDisabled: {
+    opacity: 0.7,
+  },
+  cancelBtnText: {
+    color: AppColors.white,
+    fontFamily: 'Montserrat',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  cancelHelpText: {
+    marginTop: 10,
+    color: AppColors.grey3,
+    fontFamily: 'Montserrat',
+    fontSize: 13,
+    lineHeight: 18,
   },
 })
