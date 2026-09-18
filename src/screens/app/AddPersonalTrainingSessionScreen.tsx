@@ -75,6 +75,15 @@ const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
 const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/
 const CURRENCY_PATTERN = /^[A-Z]{3}$/
 
+const formatDateValue = (date: Date) => {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+const getTodayDateValue = () => formatDateValue(new Date())
+
 const addPersonalTrainingSessionSchema = yup
   .object({
     trainer_gym_user_id: yup
@@ -175,9 +184,9 @@ const AddPersonalTrainingSessionScreen = ({ navigation }: { navigation: AddPerso
 
   const defaultValues = useMemo<AddPersonalTrainingSessionFormInput>(() => ({
     trainer_gym_user_id: '',
-    session_start_date: '',
+    session_start_date: getTodayDateValue(),
     session_start_time: '',
-    session_end_date: '',
+    session_end_date: getTodayDateValue(),
     session_end_time: '',
     price: '',
     currency_code: 'USD',
