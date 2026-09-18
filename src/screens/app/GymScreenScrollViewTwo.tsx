@@ -15,7 +15,7 @@ const GymScreenScrollViewTwo = () => {
 
   return (
     <>
-      <Text style={gymScreenStyles.sectionTitle}>Gym Equipment</Text>
+      <Text style={gymScreenStyles.sectionTitle}>Equipment</Text>
       <ScrollView
         style={gymScreenStyles.greySquares}
         horizontal={true}
