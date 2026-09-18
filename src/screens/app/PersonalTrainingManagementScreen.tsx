@@ -50,6 +50,7 @@ type UserContextValue = {
 
 type PersonalTrainingManagementNavigation = {
   goBack: () => void
+  navigate: (screen: 'AddPersonalTrainingSessionScreen') => void
 }
 
 type LoadOptions = {
@@ -291,12 +292,13 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
       </View>
 
       <View style={styles.actionsBar}>
-        <TouchableOpacity style={styles.addButton} activeOpacity={1} disabled>
+        <TouchableOpacity
+          style={styles.addButton}
+          activeOpacity={0.85}
+          onPress={() => navigation.navigate('AddPersonalTrainingSessionScreen')}
+        >
           <Feather name="plus" color={AppColors.white} size={18} />
-          <View style={styles.addButtonTextWrap}>
-            <Text style={styles.addButtonText}>Add Session</Text>
-            <Text style={styles.addButtonSubtext}>Coming soon</Text>
-          </View>
+          <Text style={styles.addButtonText}>Add Session</Text>
         </TouchableOpacity>
       </View>
 
@@ -444,20 +446,10 @@ const styles = StyleSheet.create({
     elevation: 2,
     opacity: 0.92,
   },
-  addButtonTextWrap: {
-    flex: 1,
-  },
   addButtonText: {
     color: AppColors.white,
     fontSize: 16,
     fontWeight: '700',
-    fontFamily: 'Montserrat',
-  },
-  addButtonSubtext: {
-    color: AppColors.white,
-    fontSize: 12,
-    marginTop: 2,
-    opacity: 0.9,
     fontFamily: 'Montserrat',
   },
   scrollView: {
