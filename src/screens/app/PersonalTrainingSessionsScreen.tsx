@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useCallback, useContext, useState } from 'react'
 import {
   ActivityIndicator,
@@ -17,14 +16,53 @@ import { AppColors } from '../../styles/colors'
 import { UserContext } from '../../context/UserContext'
 import { getMemberPersonalTrainingTitle } from '../../components/utils/personalTrainingDisplay'
 
-const parseDate = (value) => {
+type RefreshTokens = {
+  access_token?: string
+  refresh_token?: string
+}
+
+type UserContextValue = {
+  user?: {
+    gym_id?: number | string
+  } | null
+  tokens?: RefreshTokens | null
+  setTokens: (value: RefreshTokens | null | ((prev: RefreshTokens | null) => RefreshTokens | null)) => void
+  webServer: string
+}
+
+type PersonalTrainingSessionSummary = {
+  session_uid?: number
+  uid?: number
+  trainer_gym_user_id?: number | null
+  trainer_display_name?: string | null
+  price?: number | string | null
+  currency_code?: string | null
+  start_at?: string | null
+  end_at?: string | null
+  location?: string | null
+  additional_notes?: string | null
+  status?: string | null
+}
+
+type PersonalTrainingSessionsNavigation = {
+  goBack: () => void
+  navigate: (
+    screen: 'PersonalTrainingSessionScreen',
+    params: {
+      sessionUid?: number | string
+      session?: PersonalTrainingSessionSummary
+    }
+  ) => void
+}
+
+const parseDate = (value?: string | null) => {
   if (!value) return null
   const normalized = String(value).includes('T') ? String(value) : String(value).replace(' ', 'T')
   const date = new Date(normalized)
   return Number.isNaN(date.getTime()) ? null : date
 }
 
-const formatDate = (value) => {
+const formatDate = (value?: string | null) => {
   const date = parseDate(value)
   if (!date) return 'Unknown date'
   return new Intl.DateTimeFormat(undefined, {
@@ -35,7 +73,7 @@ const formatDate = (value) => {
   }).format(date)
 }
 
-const formatTime = (value) => {
+const formatTime = (value?: string | null) => {
   const date = parseDate(value)
   if (!date) return 'Unknown time'
   return new Intl.DateTimeFormat(undefined, {
@@ -44,9 +82,13 @@ const formatTime = (value) => {
   }).format(date)
 }
 
-const PersonalTrainingSessionsScreen = ({ navigation }) => {
-  const { user, tokens, setTokens, webServer } = useContext(UserContext)
-  const [sessions, setSessions] = useState([])
+const isPersonalTrainingSessionSummary = (value: unknown): value is PersonalTrainingSessionSummary => {
+  return typeof value === 'object' && value !== null
+}
+
+const PersonalTrainingSessionsScreen = ({ navigation }: { navigation: PersonalTrainingSessionsNavigation }) => {
+  const { user, tokens, setTokens, webServer } = useContext(UserContext) as UserContextValue
+  const [sessions, setSessions] = useState<PersonalTrainingSessionSummary[]>([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
@@ -72,8 +114,8 @@ const PersonalTrainingSessionsScreen = ({ navigation }) => {
       return null
     }
 
-    setTokens((prev: any) => ({
-      ...prev,
+    setTokens((prev) => ({
+      ...(prev ?? {}),
       access_token: refreshObj.access_token,
       refresh_token: refreshObj.refresh_token,
     }))
@@ -100,7 +142,7 @@ const PersonalTrainingSessionsScreen = ({ navigation }) => {
 
     const endpoint = `${webServer}/api/v1/personal-training/sessions`
 
-    const performRequest = async (accessToken) => {
+    const performRequest = async (accessToken: string): Promise<Response> => {
       return fetch(endpoint, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -125,10 +167,10 @@ const PersonalTrainingSessionsScreen = ({ navigation }) => {
       }
 
       const responseText = await response.text()
-      let responseBody: any = {}
+      let responseBody: { data?: unknown; message?: string } = {}
       if (responseText) {
         try {
-          responseBody = JSON.parse(responseText)
+          responseBody = JSON.parse(responseText) as { data?: unknown; message?: string }
         } catch {
           responseBody = { message: responseText }
         }
@@ -146,7 +188,11 @@ const PersonalTrainingSessionsScreen = ({ navigation }) => {
         return
       }
 
-      setSessions(Array.isArray(responseBody?.data) ? responseBody.data : [])
+      setSessions(
+        Array.isArray(responseBody?.data)
+          ? responseBody.data.filter(isPersonalTrainingSessionSummary)
+          : []
+      )
     } catch (error) {
       const message = 'Failed to load personal training sessions.'
       setErrorMessage(message)
@@ -172,14 +218,14 @@ const PersonalTrainingSessionsScreen = ({ navigation }) => {
     void loadSessions({ isRefresh: true })
   }
 
-  const openSession = (session) => {
+  const openSession = (session: PersonalTrainingSessionSummary) => {
     navigation.navigate('PersonalTrainingSessionScreen', {
       sessionUid: session?.session_uid,
       session,
     })
   }
 
-  const renderPrice = (session) => {
+  const renderPrice = (session: PersonalTrainingSessionSummary) => {
     const price = Number(session?.price ?? 0)
     if (price <= 0) {
       return 'Free'
@@ -188,7 +234,7 @@ const PersonalTrainingSessionsScreen = ({ navigation }) => {
     return `${price.toFixed(2)} ${currency}`.trim()
   }
 
-  const renderNotesPreview = (session) => {
+  const renderNotesPreview = (session: PersonalTrainingSessionSummary) => {
     const notes = String(session?.additional_notes ?? '').trim()
     if (!notes) return null
     return notes.length > 80 ? `${notes.slice(0, 77)}...` : notes
