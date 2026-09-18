@@ -31,6 +31,11 @@ const formatTime = (value) => {
   }).format(date)
 }
 
+const renderSessionTitle = (trainerName) => {
+  const name = String(trainerName ?? '').trim()
+  return name ? `Personal Training with ${name}` : 'Personal Training Session'
+}
+
 const PersonalTrainingBookingSuccessScreen = ({ navigation, route }) => {
   const session = route?.params?.session ?? {}
   const isPaid = !!route?.params?.isPaid
@@ -65,8 +70,7 @@ const PersonalTrainingBookingSuccessScreen = ({ navigation, route }) => {
               : 'Your personal training session has been booked successfully.'}
           </Text>
 
-          <Text style={styles.sessionName}>Personal Training Session</Text>
-          {trainer ? <Text style={styles.detail}>Trainer: {trainer}</Text> : null}
+          <Text style={styles.sessionName}>{renderSessionTitle(trainer)}</Text>
           <Text style={styles.detail}>Date: {formatDate(session?.start_at)}</Text>
           <Text style={styles.detail}>Time: {formatTime(session?.start_at)} - {formatTime(session?.end_at)}</Text>
           {location ? <Text style={styles.detail}>Location: {location}</Text> : null}

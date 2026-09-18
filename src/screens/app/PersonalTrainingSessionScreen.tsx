@@ -44,6 +44,11 @@ const formatTime = (value) => {
   }).format(date)
 }
 
+const renderSessionTitle = (trainerName) => {
+  const name = String(trainerName ?? '').trim()
+  return name ? `Personal Training with ${name}` : 'Personal Training Session'
+}
+
 const generateIdempotencyKey = (sessionUid) => {
   const random = Math.random().toString(36).slice(2, 10)
   return `pt-booking-${sessionUid}-${Date.now()}-${random}`
@@ -195,6 +200,7 @@ const PersonalTrainingSessionScreen = ({ navigation, route }) => {
   const location = String(session?.location ?? '').trim()
   const additionalNotes = String(session?.additional_notes ?? '').trim()
   const bookingButtonLabel = isFree ? 'Book Session' : 'Pay & Book Session'
+  const trainerName = String(session?.trainer_display_name ?? '').trim()
 
   const submitBooking = async () => {
     if (!sessionUid || !user?.gym_id || !tokens?.access_token) {
@@ -463,19 +469,13 @@ const PersonalTrainingSessionScreen = ({ navigation, route }) => {
           <View style={styles.card}>
             <View style={styles.headerRow}>
               <View style={styles.headerText}>
-                <Text style={styles.sessionName}>Personal Training Session</Text>
+                <Text style={styles.sessionName}>{renderSessionTitle(trainerName)}</Text>
                 <Text style={styles.priceLabel}>{priceLabel}</Text>
               </View>
               <View style={[styles.badge, isFree ? styles.freeBadge : styles.paidBadge]}>
                 <Text style={styles.badgeText}>{isFree ? 'Free' : 'Paid'}</Text>
               </View>
             </View>
-
-            {session?.trainer_display_name ? (
-              <Text style={styles.trainerText}>with {session.trainer_display_name}</Text>
-            ) : (
-              <Text style={styles.trainerText}>with TBA</Text>
-            )}
 
             {session?.status ? (
               <View style={styles.statusRow}>
@@ -677,13 +677,6 @@ const styles = StyleSheet.create({
     color: AppColors.white,
     fontSize: 12,
     fontWeight: '700',
-    fontFamily: 'Montserrat',
-  },
-  trainerText: {
-    fontSize: 14,
-    color: AppColors.grey3,
-    marginBottom: 10,
-    fontStyle: 'italic',
     fontFamily: 'Montserrat',
   },
   statusRow: {

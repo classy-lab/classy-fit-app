@@ -53,6 +53,11 @@ const formatDateTime = (value) => {
   }).format(date)
 }
 
+const renderSessionTitle = (trainerName) => {
+  const name = String(trainerName ?? '').trim()
+  return name ? `Personal Training with ${name}` : 'Personal Training Session'
+}
+
 const MyPersonalTrainingBookingDetailScreen = ({ navigation, route }) => {
   const { tokens, setTokens, webServer } = useContext(UserContext)
   const bookingUid = route?.params?.bookingUid
@@ -248,6 +253,7 @@ const MyPersonalTrainingBookingDetailScreen = ({ navigation, route }) => {
   const paymentStatus = String(booking?.payment_status ?? '').toLowerCase()
   const isCancellable = bookingStatus === 'pending' || bookingStatus === 'confirmed'
   const hasRefundablePayment = paymentStatus === 'succeeded'
+  const trainerName = String(booking?.trainer_display_name ?? '').trim()
 
   const generateCancellationIdempotencyKey = () => {
     const random = Math.random().toString(36).slice(2, 10)
@@ -394,10 +400,7 @@ const MyPersonalTrainingBookingDetailScreen = ({ navigation, route }) => {
             <View style={styles.headerSection}>
               <View style={styles.headerTop}>
                 <View style={styles.headerLeft}>
-                  <Text style={styles.sessionName}>Personal Training Session</Text>
-                  {booking?.trainer_display_name && (
-                    <Text style={styles.trainerInfo}>by {booking.trainer_display_name}</Text>
-                  )}
+                  <Text style={styles.sessionName}>{renderSessionTitle(trainerName)}</Text>
                 </View>
                 <Text style={styles.priceBadge}>{renderPrice()}</Text>
               </View>
@@ -611,13 +614,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Montserrat',
     fontSize: 22,
     marginBottom: 4,
-  },
-  trainerInfo: {
-    color: AppColors.grey3,
-    fontFamily: 'Montserrat',
-    fontSize: 14,
-    marginBottom: 8,
-    fontStyle: 'italic',
   },
   priceBadge: {
     fontSize: 13,

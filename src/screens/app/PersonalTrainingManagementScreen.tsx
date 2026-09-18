@@ -106,6 +106,11 @@ const renderStatusLabel = (status?: SessionStatus) => {
   return normalized.charAt(0).toUpperCase() + normalized.slice(1)
 }
 
+const renderSessionTitle = (trainerName?: string | null) => {
+  const name = String(trainerName ?? '').trim()
+  return name ? `${name} — Personal Training` : 'Personal Training Session'
+}
+
 const PersonalTrainingManagementScreen = ({ navigation }: { navigation: PersonalTrainingManagementNavigation }) => {
   const { user, tokens, setTokens, webServer } = useContext(UserContext) as UserContextValue
   const [sessions, setSessions] = useState<ManagedPersonalTrainingSession[]>([])
@@ -475,17 +480,13 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
                 >
                   <View style={styles.cardHeader}>
                     <View style={styles.cardHeaderText}>
-                      <Text style={styles.cardTitle}>Personal Training Session</Text>
+                      <Text style={styles.cardTitle}>{renderSessionTitle(trainerDisplayName)}</Text>
                       <Text style={styles.cardSubtitle}>{priceLabel}</Text>
                     </View>
                     <View style={[styles.statusPill, statusStyle]}>
                       <Text style={styles.statusText}>{renderStatusLabel(status)}</Text>
                     </View>
                   </View>
-
-                  <Text style={styles.trainerName}>
-                    {trainerDisplayName ? `with ${trainerDisplayName}` : 'with TBA'}
-                  </Text>
 
                   <View style={styles.metaGrid}>
                     <View style={styles.metaItem}>
@@ -765,13 +766,6 @@ const styles = StyleSheet.create({
     color: AppColors.white,
     fontSize: 12,
     fontWeight: '700',
-    fontFamily: 'Montserrat',
-  },
-  trainerName: {
-    fontSize: 14,
-    color: AppColors.grey3,
-    marginBottom: 8,
-    fontStyle: 'italic',
     fontFamily: 'Montserrat',
   },
   metaGrid: {

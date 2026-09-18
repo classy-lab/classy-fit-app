@@ -43,6 +43,11 @@ const formatTime = (value) => {
   }).format(date)
 }
 
+const renderSessionTitle = (trainerName) => {
+  const name = String(trainerName ?? '').trim()
+  return name ? `Personal Training with ${name}` : 'Personal Training Session'
+}
+
 const PersonalTrainingSessionsScreen = ({ navigation }) => {
   const { user, tokens, setTokens, webServer } = useContext(UserContext)
   const [sessions, setSessions] = useState([])
@@ -233,6 +238,7 @@ const PersonalTrainingSessionsScreen = ({ navigation }) => {
             const location = String(session?.location ?? '').trim()
             const notesPreview = renderNotesPreview(session)
             const status = String(session?.status ?? 'scheduled').toLowerCase()
+            const trainerName = String(session?.trainer_display_name ?? '').trim()
 
             return (
               <TouchableOpacity
@@ -243,19 +249,13 @@ const PersonalTrainingSessionsScreen = ({ navigation }) => {
               >
                 <View style={styles.cardHeader}>
                   <View style={styles.cardHeaderText}>
-                    <Text style={styles.cardTitle}>Personal Training Session</Text>
+                    <Text style={styles.cardTitle}>{renderSessionTitle(trainerName)}</Text>
                     <Text style={styles.pricePill}>{renderPrice(session)}</Text>
                   </View>
                   <View style={[styles.badge, price <= 0 ? styles.badgeFree : styles.badgePaid]}>
                     <Text style={styles.badgeText}>{price <= 0 ? 'Free' : 'Paid'}</Text>
                   </View>
                 </View>
-
-                {session?.trainer_display_name ? (
-                  <Text style={styles.trainerName}>with {session.trainer_display_name}</Text>
-                ) : (
-                  <Text style={styles.trainerName}>with TBA</Text>
-                )}
 
                 <View style={styles.metaGrid}>
                   <View style={styles.metaItem}>
@@ -439,13 +439,6 @@ const styles = StyleSheet.create({
     color: AppColors.white,
     fontSize: 12,
     fontWeight: '700',
-    fontFamily: 'Montserrat',
-  },
-  trainerName: {
-    fontSize: 14,
-    color: AppColors.grey3,
-    marginBottom: 8,
-    fontStyle: 'italic',
     fontFamily: 'Montserrat',
   },
   metaGrid: {
