@@ -58,6 +58,19 @@ const GymScreenScrollViewOne = () => {
             <Text style={gymScreenStyles.cardText}>Manage {'\n'}Classes</Text>
           </View>
         ) : null}
+        {isOwner ? (
+          <View style={gymScreenStyles.greySquareContainer}>
+            <TouchableOpacity
+              style={gymScreenStyles.greySquare}
+              onPress={() => navigation.navigate('PersonalTrainingManagementScreen')}
+            >
+              <View style={gymScreenStyles.whiteSquare}>
+                <Feather name="settings" color={AppColors.blue} size={28} />
+              </View>
+            </TouchableOpacity>
+            <Text style={gymScreenStyles.cardText}>Manage Personal {'\n'}Training</Text>
+          </View>
+        ) : null}
         <View style={gymScreenStyles.greySquareContainer}>
           <TouchableOpacity
             style={gymScreenStyles.greySquare}
