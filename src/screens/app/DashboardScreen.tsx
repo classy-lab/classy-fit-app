@@ -78,14 +78,24 @@ const DashboardScreen = ({ navigation, route }) => {
                 </View>
                 <Text style={styles.squareLabel}>Contractors</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('ProductsScreen')
-              }>
+              <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('ProductsScreen')}>
                 <View style={styles.whiteSquare}>
                   <MaterialCommunityIcons name="shopping" size={28} color={AppColors.blue} />
                 </View>
                 <Text style={styles.squareLabel}>Products</Text>
               </TouchableOpacity>
-
+              <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('ContractorsScreen')}>
+                <View style={styles.whiteSquare}>
+                  <FontAwesome5 name="user-tie" size={28} color={AppColors.blue} />
+                </View>
+                <Text style={styles.squareLabel}>Gym Videos</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('ProductsScreen')}>
+                <View style={styles.whiteSquare}>
+                  <MaterialCommunityIcons name="shopping" size={28} color={AppColors.blue} />
+                </View>
+                <Text style={styles.squareLabel}>Gym Membership</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </ScrollView>
