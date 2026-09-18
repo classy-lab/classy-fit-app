@@ -1,5 +1,6 @@
 import { useCallback, useContext, useState } from 'react'
 import {
+  Alert,
   ActivityIndicator,
   RefreshControl,
   ScrollView,
@@ -111,6 +112,7 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+  const [deletingSessionUid, setDeletingSessionUid] = useState<number | null>(null)
 
   const isOwner = String(user?.role ?? '').trim().toLowerCase() === 'owner'
 
@@ -253,6 +255,126 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
     void loadSessions({ isRefresh: true })
   }
 
+  const deleteSession = useCallback(
+    async (sessionUid: number) => {
+      if (!sessionUid || deletingSessionUid !== null) {
+        return
+      }
+
+      setDeletingSessionUid(sessionUid)
+
+      try {
+        const response = await performAuthenticatedRequest(
+          `${webServer}/api/v1/personal-training/sessions/${sessionUid}`,
+          {
+            method: 'DELETE',
+          }
+        )
+
+        if (!response) {
+          const message = 'Please sign in again to delete personal training sessions.'
+          showMessage({
+            message: 'Delete failed',
+            description: message,
+            type: 'danger',
+          })
+          return
+        }
+
+        const responseText = await response.text()
+        let responseBody: { message?: string } = {}
+        if (responseText) {
+          try {
+            responseBody = JSON.parse(responseText)
+          } catch {
+            responseBody = { message: responseText }
+          }
+        }
+
+        if (response.status === 200) {
+          showMessage({
+            message: 'Personal training session deleted',
+            description: responseBody?.message || 'The personal training session was deleted successfully.',
+            type: 'success',
+          })
+          await loadSessions()
+          return
+        }
+
+        const message =
+          responseBody?.message ||
+          'Unable to delete personal training session.'
+
+        if (response.status === 409) {
+          showMessage({
+            message: 'Delete blocked',
+            description: message,
+            type: 'danger',
+          })
+          return
+        }
+
+        if (response.status === 401) {
+          showMessage({
+            message: 'Authentication required',
+            description: 'Please sign in again to delete personal training sessions.',
+            type: 'danger',
+          })
+          return
+        }
+
+        if (response.status === 403) {
+          showMessage({
+            message: 'Permission denied',
+            description: message,
+            type: 'danger',
+          })
+          return
+        }
+
+        showMessage({
+          message: 'Delete failed',
+          description: message,
+          type: 'danger',
+        })
+      } catch {
+        showMessage({
+          message: 'Delete failed',
+          description: 'Unable to delete personal training session.',
+          type: 'danger',
+        })
+      } finally {
+        setDeletingSessionUid((current) => (current === sessionUid ? null : current))
+      }
+    },
+    [deletingSessionUid, loadSessions, performAuthenticatedRequest, webServer]
+  )
+
+  const confirmDeleteSession = (sessionUid: number, sessionLabel: string) => {
+    if (!sessionUid || deletingSessionUid !== null) {
+      return
+    }
+
+    Alert.alert(
+      'Delete personal training session?',
+      `This will permanently delete ${sessionLabel}. This cannot be undone.`,
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            void deleteSession(sessionUid)
+          },
+        },
+      ],
+      { cancelable: true }
+    )
+  }
+
   const renderPrice = (session: ManagedPersonalTrainingSession) => {
     const price = Number(session?.price ?? 0)
     if (price <= 0) {
@@ -338,6 +460,7 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
               const location = String(session?.location ?? '').trim()
               const notes = String(session?.additional_notes ?? '').trim()
               const trainerDisplayName = String(session?.trainer_display_name ?? '').trim()
+              const deleting = deletingSessionUid === sessionUid
               const statusStyle =
                 status === 'cancelled'
                   ? styles.statusCancelled
@@ -396,10 +519,24 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
                       style={styles.editButton}
                       activeOpacity={0.85}
                       onPress={() => navigation.navigate('EditPersonalTrainingSessionScreen', { sessionUid })}
-                      disabled={!sessionUid}
+                      disabled={!sessionUid || deleting}
                     >
                       <Feather name="edit-2" color={AppColors.blue} size={16} />
                       <Text style={styles.editButtonText}>Edit</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={[styles.deleteButton, deleting ? styles.deleteButtonDisabled : null]}
+                      activeOpacity={0.85}
+                      onPress={() => confirmDeleteSession(sessionUid, `${trainerDisplayName || 'this personal training session'}`)}
+                      disabled={!sessionUid || deleting}
+                    >
+                      {deleting ? (
+                        <ActivityIndicator size="small" color={AppColors.white} />
+                      ) : (
+                        <Feather name="trash-2" color={AppColors.white} size={16} />
+                      )}
+                      <Text style={styles.deleteButtonText}>{deleting ? 'Deleting...' : 'Delete'}</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -471,6 +608,8 @@ const styles = StyleSheet.create({
     marginTop: 16,
     flexDirection: 'row',
     justifyContent: 'flex-start',
+    gap: 10,
+    flexWrap: 'wrap',
   },
   editButton: {
     flexDirection: 'row',
@@ -485,6 +624,26 @@ const styles = StyleSheet.create({
   },
   editButtonText: {
     color: AppColors.blue,
+    fontSize: 14,
+    fontWeight: '700',
+    fontFamily: 'Montserrat',
+  },
+  deleteButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    borderColor: AppColors.red,
+    borderWidth: 1,
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    backgroundColor: AppColors.red,
+  },
+  deleteButtonDisabled: {
+    opacity: 0.75,
+  },
+  deleteButtonText: {
+    color: AppColors.white,
     fontSize: 14,
     fontWeight: '700',
     fontFamily: 'Montserrat',
