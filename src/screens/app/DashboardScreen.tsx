@@ -29,7 +29,7 @@ const DashboardScreen = ({ navigation, route }) => {
         </View>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.headingContainer}>
-            <Text style={styles.title}>Dashboard</Text>
+            <Text style={styles.title}>Overview</Text>
             {/* <Text style={styles.subtitle}>Manage your gym operations</Text> */}
           </View>
           <View style={styles.body}>
