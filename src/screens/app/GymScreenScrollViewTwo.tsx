@@ -6,111 +6,48 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native'
 import { useCallback, useContext, useState } from 'react'
 import { AppColors } from '../../styles/colors'
 import { UserContext } from '../../context/UserContext'
+import PersonalTrainingSvg from '../../components/svg/PersonalTrainingSvg'
 
 const GymScreenScrollViewTwo = () => {
   const navigation = useNavigation<any>()
   const { user, tokens, setTokens, webServer } = useContext(UserContext);
   const [equipment, setEquipment] = useState([]);
 
-  useFocusEffect(
-    useCallback(() => {
-      const fetchEquipment = async () => {
-        try {
-          const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/equipment`, {
-            headers: {
-              Authorization: "Bearer " + tokens.access_token,
-            },
-          });
-
-          const obj = await response.json();
-
-          if (response.status === 200) {
-            setEquipment(obj.data ?? []);
-          }
-          else {
-            console.log("Access token expired, requesting new one - useFocusEffect()");
-
-            const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
-              method: "POST",
-              body: JSON.stringify({
-                token: tokens.refresh_token,
-              }),
-            });
-
-            const refreshObj = await refreshResponse.json();
-
-            if (refreshResponse.status === 200) {
-              console.log("Got new access token and refresh token");
-              setTokens((prev: any) => ({
-                ...prev,
-                access_token: refreshObj.access_token,
-                refresh_token: refreshObj.refresh_token,
-              }));
-            }
-          }
-        } catch (error) {
-          console.log('Failed to fetch equipment:', error);
-        }
-      };
-
-      fetchEquipment();
-    }, [tokens?.access_token, tokens?.refresh_token])
-  );
-
-  const getShortTitle = (title) => {
-    const trimmedTitle = String(title ?? 'Untitled').trim();
-    const words = trimmedTitle.split(' ');
-    
-    if (words.length >= 2) {
-      return `${words[0]}\n${words[1]}...`;
-    } else if (words.length === 1) {
-      return `${words[0]}...`;
-    } else {
-      return 'Untitled...';
-    }
-  };
-
-  const handleEquipmentPress = (item) => {
-    // EquipmentDetailScreen exists and is registered in GymStack.
-    navigation.navigate('GymTab', { screen: 'EquipmentDetailScreen', params: { equipmentId: item.uid, equipment: item } });
-  };
-
   return (
     <>
-      <View style={styles.sectionHeading}>
-        <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', columnGap: 12, justifyContent: 'flex-end' }}>
-          <Text style={[gymScreenStyles.sectionTitle, styles.sectionTitle]}>Equipment</Text>
-          <TouchableOpacity onPress={() => navigation.navigate('GymTab', { screen: 'GymEquipmentScreen' })}>
-            <Text style={styles.viewAllText}>View All</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate('GymTab', { screen: 'AddEquipmentScreen' })}>
-            <Text style={styles.viewAllText}>Add Equipment</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-      <View style={gymScreenStyles.greySquares}>
-        {equipment.length === 0 ? (
-          <Text style={styles.noResultsText}>No equipment found for this gym</Text>
-        ) : (
-          <ScrollView
-            horizontal={true}
-            showsHorizontalScrollIndicator={false}
+      <Text style={gymScreenStyles.sectionTitle}>Gym Equipment</Text>
+      <ScrollView
+        style={gymScreenStyles.greySquares}
+        horizontal={true}
+        showsHorizontalScrollIndicator={false}
+      >
+        <View style={gymScreenStyles.greySquareContainer}>
+          <TouchableOpacity
+            style={gymScreenStyles.greySquare}
+            activeOpacity={0.8}
+            hitSlop={8}
+            onPress={() => navigation.navigate('GymTab', { screen: 'GymEquipmentScreen' })}
           >
-            {equipment.map((item, index) => {
-              return (
-                <View key={item.uid ?? index} style={gymScreenStyles.greySquareContainer}>
-                  <TouchableOpacity style={gymScreenStyles.greySquare} onPress={() => handleEquipmentPress(item)}>
-                    <View style={gymScreenStyles.whiteSquare}>
-                      <Ionicons name="barbell-outline" color={AppColors.blue} size={28} />
-                    </View>
-                  </TouchableOpacity>
-                  <Text style={gymScreenStyles.cardText} numberOfLines={3} ellipsizeMode="tail">{getShortTitle(item.title)}</Text>
-                </View>
-              );
-            })}
-          </ScrollView>
-        )}
-      </View>
+            <View style={gymScreenStyles.whiteSquare}>
+              <PersonalTrainingSvg />
+            </View>
+          </TouchableOpacity>
+          <Text style={gymScreenStyles.cardText}>Gym {'\n'}Equipment</Text>
+        </View>
+        <View style={gymScreenStyles.greySquareContainer}>
+          <TouchableOpacity
+            style={gymScreenStyles.greySquare}
+            activeOpacity={0.8}
+            hitSlop={8}
+            onPress={() => navigation.navigate('GymTab', { screen: 'AddEquipmentScreen' })}
+          >
+            <View style={gymScreenStyles.whiteSquare}>
+              <PersonalTrainingSvg />
+            </View>
+          </TouchableOpacity>
+          <Text style={gymScreenStyles.cardText}>Add {'\n'}Equipment</Text>
+        </View>
+      </ScrollView>
     </>
   )
 }
