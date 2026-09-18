@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   headingContainer: {
-    width: 375,
+    width: '100%',
     alignItems: 'center',
     marginBottom: 20
   },
@@ -68,6 +68,8 @@ const styles = StyleSheet.create({
     fontFamily: 'Montserrat',
     fontSize: 32,
     marginTop: 20,
+    textAlign: 'center',
+    width: '100%',
   },
   body: {
     paddingLeft: 24,
