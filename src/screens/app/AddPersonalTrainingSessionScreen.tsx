@@ -75,7 +75,8 @@ const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
 const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/
 const CURRENCY_PATTERN = /^[A-Z]{3}$/
 
-const addPersonalTrainingSessionSchema = yup.object({
+const addPersonalTrainingSessionSchema = yup
+  .object({
   trainer_gym_user_id: yup
     .string()
     .trim()
@@ -131,7 +132,38 @@ const addPersonalTrainingSessionSchema = yup.object({
     .mixed<'scheduled' | 'cancelled' | 'completed'>()
     .oneOf(['scheduled', 'cancelled', 'completed'])
     .required('Status is required'),
-})
+  })
+  .test('start-before-end', 'Start must be before end', function (values) {
+    const startDate = String(values?.session_start_date ?? '').trim()
+    const startTime = String(values?.session_start_time ?? '').trim()
+    const endDate = String(values?.session_end_date ?? '').trim()
+    const endTime = String(values?.session_end_time ?? '').trim()
+
+    if (
+      !DATE_PATTERN.test(startDate) ||
+      !TIME_PATTERN.test(startTime) ||
+      !DATE_PATTERN.test(endDate) ||
+      !TIME_PATTERN.test(endTime)
+    ) {
+      return true
+    }
+
+    const startAt = new Date(`${startDate}T${startTime.length === 5 ? `${startTime}:00` : startTime}`)
+    const endAt = new Date(`${endDate}T${endTime.length === 5 ? `${endTime}:00` : endTime}`)
+
+    if (Number.isNaN(startAt.getTime()) || Number.isNaN(endAt.getTime())) {
+      return true
+    }
+
+    if (startAt.getTime() >= endAt.getTime()) {
+      return this.createError({
+        path: 'session_end_time',
+        message: 'Start must be before end',
+      })
+    }
+
+    return true
+  })
 
 const AddPersonalTrainingSessionScreen = ({ navigation }: { navigation: AddPersonalTrainingSessionNavigation }) => {
   const { user, tokens, setTokens, webServer } = useContext(UserContext) as UserContextValue
