@@ -252,6 +252,7 @@ const styles = StyleSheet.create({
     color: AppColors.blue,
     fontSize: 14,
     fontFamily: 'Montserrat',
+    textAlign: 'center'
   },
   squareSubtitle: {
     color: AppColors.grey3,
