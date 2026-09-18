@@ -14,6 +14,7 @@ import { showMessage } from 'react-native-flash-message'
 import { Feather } from '@expo/vector-icons'
 import { AppColors } from '../../styles/colors'
 import { UserContext } from '../../context/UserContext'
+import { getMemberPersonalTrainingTitle } from '../../components/utils/personalTrainingDisplay'
 
 const parseDate = (value) => {
   if (!value) return null
@@ -51,11 +52,6 @@ const formatDateTime = (value) => {
     hour: 'numeric',
     minute: '2-digit',
   }).format(date)
-}
-
-const renderSessionTitle = (trainerName) => {
-  const name = String(trainerName ?? '').trim()
-  return name ? `Personal Training with ${name}` : 'Personal Training Session'
 }
 
 const MyPersonalTrainingBookingDetailScreen = ({ navigation, route }) => {
@@ -400,7 +396,7 @@ const MyPersonalTrainingBookingDetailScreen = ({ navigation, route }) => {
             <View style={styles.headerSection}>
               <View style={styles.headerTop}>
                 <View style={styles.headerLeft}>
-                  <Text style={styles.sessionName}>{renderSessionTitle(trainerName)}</Text>
+                  <Text style={styles.sessionName}>{getMemberPersonalTrainingTitle(trainerName)}</Text>
                 </View>
                 <Text style={styles.priceBadge}>{renderPrice()}</Text>
               </View>
