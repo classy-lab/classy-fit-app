@@ -3,6 +3,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Feather } from '@expo/vector-icons'
 import { AppColors } from '../../styles/colors'
+import { getMemberPersonalTrainingTitle } from '../../components/utils/personalTrainingDisplay'
 
 const parseDate = (value) => {
   if (!value) return null
@@ -29,11 +30,6 @@ const formatTime = (value) => {
     hour: 'numeric',
     minute: '2-digit',
   }).format(date)
-}
-
-const renderSessionTitle = (trainerName) => {
-  const name = String(trainerName ?? '').trim()
-  return name ? `Personal Training with ${name}` : 'Personal Training Session'
 }
 
 const PersonalTrainingBookingSuccessScreen = ({ navigation, route }) => {
@@ -70,7 +66,7 @@ const PersonalTrainingBookingSuccessScreen = ({ navigation, route }) => {
               : 'Your personal training session has been booked successfully.'}
           </Text>
 
-          <Text style={styles.sessionName}>{renderSessionTitle(trainer)}</Text>
+          <Text style={styles.sessionName}>{getMemberPersonalTrainingTitle(trainer)}</Text>
           <Text style={styles.detail}>Date: {formatDate(session?.start_at)}</Text>
           <Text style={styles.detail}>Time: {formatTime(session?.start_at)} - {formatTime(session?.end_at)}</Text>
           {location ? <Text style={styles.detail}>Location: {location}</Text> : null}
