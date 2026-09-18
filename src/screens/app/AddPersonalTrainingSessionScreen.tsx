@@ -77,61 +77,61 @@ const CURRENCY_PATTERN = /^[A-Z]{3}$/
 
 const addPersonalTrainingSessionSchema = yup
   .object({
-  trainer_gym_user_id: yup
-    .string()
-    .trim()
-    .required('Trainer is required')
-    .test('trainer-integer', 'Trainer must be a valid gym user id', (value) => /^\d+$/.test(String(value ?? ''))),
-  session_start_date: yup
-    .string()
-    .trim()
-    .required('Start date is required')
-    .matches(DATE_PATTERN, 'Start date must use YYYY-MM-DD'),
-  session_start_time: yup
-    .string()
-    .trim()
-    .required('Start time is required')
-    .matches(TIME_PATTERN, 'Start time must use HH:MM'),
-  session_end_date: yup
-    .string()
-    .trim()
-    .required('End date is required')
-    .matches(DATE_PATTERN, 'End date must use YYYY-MM-DD'),
-  session_end_time: yup
-    .string()
-    .trim()
-    .required('End time is required')
-    .matches(TIME_PATTERN, 'End time must use HH:MM'),
-  price: yup
-    .string()
-    .trim()
-    .required('Price is required')
-    .test('price-format', 'Price must be a valid amount', (value) => /^\d+(\.\d{1,2})?$/.test(String(value ?? '')))
-    .test('price-nonnegative', 'Price must be greater than or equal to 0', (value) => {
-      if (!/^\d+(\.\d{1,2})?$/.test(String(value ?? ''))) {
-        return true
-      }
+    trainer_gym_user_id: yup
+      .string()
+      .trim()
+      .required('Trainer is required')
+      .test('trainer-integer', 'Trainer must be a valid gym user id', (value) => /^\d+$/.test(String(value ?? ''))),
+    session_start_date: yup
+      .string()
+      .trim()
+      .required('Start date is required')
+      .matches(DATE_PATTERN, 'Start date must use YYYY-MM-DD'),
+    session_start_time: yup
+      .string()
+      .trim()
+      .required('Start time is required')
+      .matches(TIME_PATTERN, 'Start time must use HH:MM'),
+    session_end_date: yup
+      .string()
+      .trim()
+      .required('End date is required')
+      .matches(DATE_PATTERN, 'End date must use YYYY-MM-DD'),
+    session_end_time: yup
+      .string()
+      .trim()
+      .required('End time is required')
+      .matches(TIME_PATTERN, 'End time must use HH:MM'),
+    price: yup
+      .string()
+      .trim()
+      .required('Price is required')
+      .test('price-format', 'Price must be a valid amount', (value) => /^\d+(\.\d{1,2})?$/.test(String(value ?? '')))
+      .test('price-nonnegative', 'Price must be greater than or equal to 0', (value) => {
+        if (!/^\d+(\.\d{1,2})?$/.test(String(value ?? ''))) {
+          return true
+        }
 
-      return Number(value) >= 0
-    }),
-  currency_code: yup
-    .string()
-    .trim()
-    .required('Currency is required')
-    .matches(CURRENCY_PATTERN, 'Currency must be 3 uppercase letters'),
-  location: yup
-    .string()
-    .trim()
-    .nullable()
-    .max(255, 'Location must be 255 characters or fewer'),
-  additional_notes: yup
-    .string()
-    .trim()
-    .nullable(),
-  status: yup
-    .mixed<'scheduled' | 'cancelled' | 'completed'>()
-    .oneOf(['scheduled', 'cancelled', 'completed'])
-    .required('Status is required'),
+        return Number(value) >= 0
+      }),
+    currency_code: yup
+      .string()
+      .trim()
+      .required('Currency is required')
+      .matches(CURRENCY_PATTERN, 'Currency must be 3 uppercase letters'),
+    location: yup
+      .string()
+      .trim()
+      .nullable()
+      .max(255, 'Location must be 255 characters or fewer'),
+    additional_notes: yup
+      .string()
+      .trim()
+      .nullable(),
+    status: yup
+      .mixed<'scheduled' | 'cancelled' | 'completed'>()
+      .oneOf(['scheduled', 'cancelled', 'completed'])
+      .required('Status is required'),
   })
   .test('start-before-end', 'Start must be before end', function (values) {
     const startDate = String(values?.session_start_date ?? '').trim()
