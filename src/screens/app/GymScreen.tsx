@@ -61,7 +61,8 @@ const styles = StyleSheet.create({
   headingContainer: {
     width: '100%',
     alignItems: 'center',
-    marginBottom: 20
+    marginBottom: 20,
+    position: 'relative',
   },
   title: {
     color: AppColors.blue,
@@ -70,6 +71,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     textAlign: 'center',
     width: '100%',
+    zIndex: 1,
   },
   body: {
     paddingLeft: 24,
@@ -124,8 +126,8 @@ const styles = StyleSheet.create({
   },
   pinkLeaf: {
     position: 'absolute',
-    // zIndex: -1,
-    // top: 0,
-    right: 88
+    zIndex: 0,
+    top: 0,
+    right: 148,
   }
 })
