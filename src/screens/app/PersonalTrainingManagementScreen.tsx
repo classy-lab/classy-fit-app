@@ -15,6 +15,7 @@ import { Feather } from '@expo/vector-icons'
 import { showMessage } from 'react-native-flash-message'
 import { AppColors } from '../../styles/colors'
 import { UserContext } from '../../context/UserContext'
+import { getOwnerPersonalTrainingTitle } from '../../components/utils/personalTrainingDisplay'
 
 type RefreshTokens = {
   access_token?: string
@@ -104,11 +105,6 @@ const renderStatusLabel = (status?: SessionStatus) => {
   }
 
   return normalized.charAt(0).toUpperCase() + normalized.slice(1)
-}
-
-const renderSessionTitle = (trainerName?: string | null) => {
-  const name = String(trainerName ?? '').trim()
-  return name ? `${name} — Personal Training` : 'Personal Training Session'
 }
 
 const PersonalTrainingManagementScreen = ({ navigation }: { navigation: PersonalTrainingManagementNavigation }) => {
@@ -480,7 +476,7 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
                 >
                   <View style={styles.cardHeader}>
                     <View style={styles.cardHeaderText}>
-                      <Text style={styles.cardTitle}>{renderSessionTitle(trainerDisplayName)}</Text>
+                      <Text style={styles.cardTitle}>{getOwnerPersonalTrainingTitle(trainerDisplayName)}</Text>
                       <Text style={styles.cardSubtitle}>{priceLabel}</Text>
                     </View>
                     <View style={[styles.statusPill, statusStyle]}>
