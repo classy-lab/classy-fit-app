@@ -93,12 +93,17 @@ const DashboardScreen = ({ navigation, route }) => {
                 </View>
                 <Text style={styles.squareLabel}>Gym Videos</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('ProductsScreen')}>
+              {/* {isOwner ? ( */}
+              <TouchableOpacity
+                style={styles.greySquare}
+                onPress={() => navigation.navigate('MembershipPlanManagementScreen')}
+              >
                 <View style={styles.whiteSquare}>
-                  <MaterialCommunityIcons name="shopping" size={28} color={AppColors.blue} />
+                  <MaterialCommunityIcons name="credit-card" size={28} color={AppColors.blue} />
                 </View>
                 <Text style={styles.squareLabel}>Gym Membership</Text>
               </TouchableOpacity>
+              {/* ) : null} */}
             </View>
           </View>
         </ScrollView>
