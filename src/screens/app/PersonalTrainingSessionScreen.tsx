@@ -16,6 +16,7 @@ import { useStripe } from '@stripe/stripe-react-native'
 import { showMessage } from 'react-native-flash-message'
 import { AppColors } from '../../styles/colors'
 import { UserContext } from '../../context/UserContext'
+import { getMemberPersonalTrainingTitle } from '../../components/utils/personalTrainingDisplay'
 
 const parseDate = (value) => {
   if (!value) return null
@@ -42,11 +43,6 @@ const formatTime = (value) => {
     hour: 'numeric',
     minute: '2-digit',
   }).format(date)
-}
-
-const renderSessionTitle = (trainerName) => {
-  const name = String(trainerName ?? '').trim()
-  return name ? `Personal Training with ${name}` : 'Personal Training Session'
 }
 
 const generateIdempotencyKey = (sessionUid) => {
@@ -469,7 +465,7 @@ const PersonalTrainingSessionScreen = ({ navigation, route }) => {
           <View style={styles.card}>
             <View style={styles.headerRow}>
               <View style={styles.headerText}>
-                <Text style={styles.sessionName}>{renderSessionTitle(trainerName)}</Text>
+                <Text style={styles.sessionName}>{getMemberPersonalTrainingTitle(trainerName)}</Text>
                 <Text style={styles.priceLabel}>{priceLabel}</Text>
               </View>
               <View style={[styles.badge, isFree ? styles.freeBadge : styles.paidBadge]}>
