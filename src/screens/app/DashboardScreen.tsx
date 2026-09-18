@@ -29,7 +29,7 @@ const DashboardScreen = ({ navigation, route }) => {
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.headingContainer}>
             <Text style={styles.title}>Dashboard</Text>
-            <Text style={styles.subtitle}>Manage your gym operations</Text>
+            {/* <Text style={styles.subtitle}>Manage your gym operations</Text> */}
           </View>
           <View style={styles.body}>
             <View style={{ alignItems: 'center', }}>
@@ -55,9 +55,9 @@ const DashboardScreen = ({ navigation, route }) => {
               </TouchableOpacity>
 
             </View>
-            <View style={styles.sectionHeader}>
+            {/* <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Management</Text>
-            </View>
+            </View> */}
             <View style={styles.greySquares}>
               <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('StaffScreen')}>
                 <View style={styles.whiteSquare}>
@@ -206,6 +206,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Montserrat',
   },
   greySquares: {
+    marginTop: 8,
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
