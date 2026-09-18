@@ -40,7 +40,7 @@ const DashboardScreen = ({ navigation, route }) => {
                   <MaterialCommunityIcons name="dumbbell" size={32} color={AppColors.white} />
                   <View style={styles.primaryCardTextContainer}>
                     <Text style={styles.primaryCardTitle}>Gym</Text>
-                    <Text style={styles.primaryCardSubtitle}>Manage equipment</Text>
+                    <Text style={styles.primaryCardSubtitle}>Classes, Personal Training, etc</Text>
                   </View>
                 </View>
                 <Feather style={styles.arrow} name="arrow-right" size={24} color={AppColors.white} />
