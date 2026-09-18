@@ -14,7 +14,7 @@ const GymScreenScrollViewOne = () => {
   const isOwner = String(user?.role ?? '').trim().toLowerCase() === 'owner'
   return (
     <>
-      <Text style={gymScreenStyles.sectionTitle}>Gym</Text>
+      <Text style={gymScreenStyles.sectionTitle}>Classes</Text>
       <ScrollView
         style={gymScreenStyles.greySquares}
         horizontal={true}
