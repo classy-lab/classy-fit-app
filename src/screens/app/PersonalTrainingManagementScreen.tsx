@@ -50,7 +50,10 @@ type UserContextValue = {
 
 type PersonalTrainingManagementNavigation = {
   goBack: () => void
-  navigate: (screen: 'AddPersonalTrainingSessionScreen') => void
+  navigate: (
+    screen: 'AddPersonalTrainingSessionScreen' | 'EditPersonalTrainingSessionScreen',
+    params?: { sessionUid?: number }
+  ) => void
 }
 
 type LoadOptions = {
@@ -387,6 +390,18 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
                       <Text style={styles.detailValue}>{notes}</Text>
                     </View>
                   ) : null}
+
+                  <View style={styles.cardActions}>
+                    <TouchableOpacity
+                      style={styles.editButton}
+                      activeOpacity={0.85}
+                      onPress={() => navigation.navigate('EditPersonalTrainingSessionScreen', { sessionUid })}
+                      disabled={!sessionUid}
+                    >
+                      <Feather name="edit-2" color={AppColors.blue} size={16} />
+                      <Text style={styles.editButtonText}>Edit</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
               )
             })}
@@ -449,6 +464,28 @@ const styles = StyleSheet.create({
   addButtonText: {
     color: AppColors.white,
     fontSize: 16,
+    fontWeight: '700',
+    fontFamily: 'Montserrat',
+  },
+  cardActions: {
+    marginTop: 16,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+  },
+  editButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    borderColor: AppColors.blue,
+    borderWidth: 1,
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    backgroundColor: AppColors.white,
+  },
+  editButtonText: {
+    color: AppColors.blue,
+    fontSize: 14,
     fontWeight: '700',
     fontFamily: 'Montserrat',
   },
