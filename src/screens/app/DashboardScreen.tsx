@@ -15,6 +15,7 @@ const windowWidth = Dimensions.get('window').width
 
 const DashboardScreen = ({ navigation, route }) => {
   const { user, setUser } = useContext(UserContext);
+  const isOwner = String(user?.role ?? '').trim().toLowerCase() === 'owner';
 
   return (
     <>
@@ -72,12 +73,14 @@ const DashboardScreen = ({ navigation, route }) => {
                 </View>
                 <Text style={styles.squareLabel}>Members</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('ContractorsScreen')}>
-                <View style={styles.whiteSquare}>
-                  <FontAwesome5 name="user-tie" size={28} color={AppColors.blue} />
-                </View>
-                <Text style={styles.squareLabel}>Contractors</Text>
-              </TouchableOpacity>
+              {isOwner ? (
+                <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('ContractorsScreen')}>
+                  <View style={styles.whiteSquare}>
+                    <FontAwesome5 name="user-tie" size={28} color={AppColors.blue} />
+                  </View>
+                  <Text style={styles.squareLabel}>Contractors</Text>
+                </TouchableOpacity>
+              ) : null}
               <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('ProductsScreen')}>
                 <View style={styles.whiteSquare}>
                   <MaterialCommunityIcons name="shopping" size={28} color={AppColors.blue} />
