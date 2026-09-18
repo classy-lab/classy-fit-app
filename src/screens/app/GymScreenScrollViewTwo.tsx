@@ -1,12 +1,12 @@
 // @ts-nocheck
 import { View, TouchableOpacity, Text, StyleSheet, ScrollView } from 'react-native'
-import Ionicons from '@expo/vector-icons/Ionicons'
+import Feather from '@expo/vector-icons/Feather'
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5'
 import { gymScreenStyles } from '../../styles/gymScreenStyles'
 import { useFocusEffect, useNavigation } from '@react-navigation/native'
 import { useCallback, useContext, useState } from 'react'
 import { AppColors } from '../../styles/colors'
 import { UserContext } from '../../context/UserContext'
-import PersonalTrainingSvg from '../../components/svg/PersonalTrainingSvg'
 
 const GymScreenScrollViewTwo = () => {
   const navigation = useNavigation<any>()
@@ -29,7 +29,7 @@ const GymScreenScrollViewTwo = () => {
             onPress={() => navigation.navigate('GymTab', { screen: 'GymEquipmentScreen' })}
           >
             <View style={gymScreenStyles.whiteSquare}>
-              <PersonalTrainingSvg />
+              <FontAwesome5 name="dumbbell" color={AppColors.blue} size={26} />
             </View>
           </TouchableOpacity>
           <Text style={gymScreenStyles.cardText}>Gym {'\n'}Equipment</Text>
@@ -42,7 +42,7 @@ const GymScreenScrollViewTwo = () => {
             onPress={() => navigation.navigate('GymTab', { screen: 'AddEquipmentScreen' })}
           >
             <View style={gymScreenStyles.whiteSquare}>
-              <PersonalTrainingSvg />
+              <Feather name="plus-circle" color={AppColors.blue} size={28} />
             </View>
           </TouchableOpacity>
           <Text style={gymScreenStyles.cardText}>Add {'\n'}Equipment</Text>
