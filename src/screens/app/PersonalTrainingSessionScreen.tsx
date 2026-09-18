@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useCallback, useContext, useRef, useState } from 'react'
 import {
   ActivityIndicator,
@@ -18,14 +17,96 @@ import { AppColors } from '../../styles/colors'
 import { UserContext } from '../../context/UserContext'
 import { getMemberPersonalTrainingTitle } from '../../components/utils/personalTrainingDisplay'
 
-const parseDate = (value) => {
+type RefreshTokens = {
+  access_token?: string
+  refresh_token?: string
+}
+
+type UserContextValue = {
+  user?: {
+    gym_id?: number | string
+  } | null
+  tokens?: RefreshTokens | null
+  setTokens: (value: RefreshTokens | null | ((prev: RefreshTokens | null) => RefreshTokens | null)) => void
+  webServer: string
+}
+
+type PersonalTrainingSessionRecord = {
+  session_uid?: number
+  uid?: number
+  trainer_gym_user_id?: number | null
+  trainer_display_name?: string | null
+  price?: number | string | null
+  currency_code?: string | null
+  start_at?: string | null
+  end_at?: string | null
+  location?: string | null
+  additional_notes?: string | null
+  status?: string | null
+}
+
+type PersonalTrainingBookingRecord = {
+  booking_uid?: number
+  uid?: number
+  trainer_display_name?: string | null
+  price?: number | string | null
+  currency_code?: string | null
+  booking_status?: string | null
+  payment_status?: string | null
+  location?: string | null
+  start_at?: string | null
+  end_at?: string | null
+}
+
+type PersonalTrainingSessionNavigation = {
+  goBack: () => void
+  navigate: (
+    screen: 'PersonalTrainingBookingSuccessScreen',
+    params: {
+      session?: PersonalTrainingSessionRecord | null
+      booking?: PersonalTrainingBookingRecord | null
+      payment?: {
+        payment_intent?: {
+          client_secret?: string | null
+        } | null
+      } | null
+      isPaid?: boolean
+      idempotencyKey?: string
+    }
+  ) => void
+}
+
+type PersonalTrainingSessionRoute = {
+  params?: {
+    sessionUid?: number | string
+    session?: PersonalTrainingSessionRecord | null
+  } | null
+}
+
+type LoadSessionResponse = {
+  session?: PersonalTrainingSessionRecord | null
+  message?: string
+}
+
+type LoadBookingResponse = {
+  booking?: PersonalTrainingBookingRecord | null
+  payment?: {
+    payment_intent?: {
+      client_secret?: string | null
+    } | null
+  } | null
+  idempotency_key?: string
+  message?: string
+}
+
+const parseDate = (value?: string | null) => {
   if (!value) return null
   const normalized = String(value).includes('T') ? String(value) : String(value).replace(' ', 'T')
   const date = new Date(normalized)
   return Number.isNaN(date.getTime()) ? null : date
 }
 
-const formatDate = (value) => {
+const formatDate = (value?: string | null) => {
   const date = parseDate(value)
   if (!date) return 'Unknown date'
   return new Intl.DateTimeFormat(undefined, {
@@ -36,7 +117,7 @@ const formatDate = (value) => {
   }).format(date)
 }
 
-const formatTime = (value) => {
+const formatTime = (value?: string | null) => {
   const date = parseDate(value)
   if (!date) return 'Unknown time'
   return new Intl.DateTimeFormat(undefined, {
@@ -45,18 +126,24 @@ const formatTime = (value) => {
   }).format(date)
 }
 
-const generateIdempotencyKey = (sessionUid) => {
+const generateIdempotencyKey = (sessionUid: string) => {
   const random = Math.random().toString(36).slice(2, 10)
   return `pt-booking-${sessionUid}-${Date.now()}-${random}`
 }
 
-const PersonalTrainingSessionScreen = ({ navigation, route }) => {
-  const { user, tokens, setTokens, webServer } = useContext(UserContext)
+const PersonalTrainingSessionScreen = ({
+  navigation,
+  route,
+}: {
+  navigation: PersonalTrainingSessionNavigation
+  route: PersonalTrainingSessionRoute
+}) => {
+  const { user, tokens, setTokens, webServer } = useContext(UserContext) as UserContextValue
   const { initPaymentSheet, presentPaymentSheet } = useStripe()
   const sessionUid = String(route?.params?.sessionUid ?? route?.params?.session?.session_uid ?? '').trim()
   const initialSession = route?.params?.session ?? null
   const bookingAttemptKeyRef = useRef<string | null>(null)
-  const [session, setSession] = useState(initialSession)
+  const [session, setSession] = useState<PersonalTrainingSessionRecord | null>(initialSession)
   const [loading, setLoading] = useState(!initialSession)
   const [refreshing, setRefreshing] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
@@ -83,8 +170,8 @@ const PersonalTrainingSessionScreen = ({ navigation, route }) => {
       return null
     }
 
-    setTokens((prev: any) => ({
-      ...prev,
+    setTokens((prev) => ({
+      ...(prev ?? {}),
       access_token: refreshObj.access_token,
       refresh_token: refreshObj.refresh_token,
     }))
@@ -92,7 +179,7 @@ const PersonalTrainingSessionScreen = ({ navigation, route }) => {
     return refreshObj.access_token
   }
 
-  const loadSession = async ({ isRefresh = false } = {}) => {
+  const loadSession = async ({ isRefresh = false }: { isRefresh?: boolean } = {}) => {
     if (!sessionUid || !user?.gym_id || !tokens?.access_token) {
       setErrorMessage('Unable to load personal training session.')
       setLoading(false)
@@ -109,7 +196,7 @@ const PersonalTrainingSessionScreen = ({ navigation, route }) => {
     setErrorMessage('')
 
     const endpoint = `${webServer}/api/v1/personal-training/sessions/${sessionUid}`
-    const performRequest = async (accessToken) => {
+    const performRequest = async (accessToken: string): Promise<Response> => {
       return fetch(endpoint, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -134,10 +221,10 @@ const PersonalTrainingSessionScreen = ({ navigation, route }) => {
       }
 
       const responseText = await response.text()
-      let responseBody: any = {}
+      let responseBody: LoadSessionResponse = {}
       if (responseText) {
         try {
-          responseBody = JSON.parse(responseText)
+          responseBody = JSON.parse(responseText) as LoadSessionResponse
         } catch {
           responseBody = { message: responseText }
         }
@@ -225,7 +312,7 @@ const PersonalTrainingSessionScreen = ({ navigation, route }) => {
     setIsSubmitting(true)
 
     const bookingEndpoint = `${webServer}/api/v1/personal-training/sessions/${sessionUid}/book`
-    const performBookingRequest = async (accessToken) => {
+    const performBookingRequest = async (accessToken: string): Promise<Response> => {
       return fetch(bookingEndpoint, {
         method: 'POST',
         headers: {
@@ -235,7 +322,7 @@ const PersonalTrainingSessionScreen = ({ navigation, route }) => {
       })
     }
 
-    const performCheckoutRequest = async (accessToken, bookingUid) => {
+    const performCheckoutRequest = async (accessToken: string, bookingUid: number): Promise<Response> => {
       return fetch(`${webServer}/api/v1/personal-training/bookings/${bookingUid}/checkout`, {
         method: 'POST',
         headers: {
@@ -245,7 +332,9 @@ const PersonalTrainingSessionScreen = ({ navigation, route }) => {
       })
     }
 
-    const submitRequestWithRefresh = async (performRequest) => {
+    const submitRequestWithRefresh = async (
+      performRequest: (accessToken: string) => Promise<Response>
+    ): Promise<{ response: Response; responseBody: LoadBookingResponse; accessToken: string } | null> => {
       let accessToken = tokens.access_token
       let response = await performRequest(accessToken)
 
@@ -265,10 +354,10 @@ const PersonalTrainingSessionScreen = ({ navigation, route }) => {
       }
 
       const responseText = await response.text()
-      let responseBody: any = {}
+      let responseBody: LoadBookingResponse = {}
       if (responseText) {
         try {
-          responseBody = JSON.parse(responseText)
+          responseBody = JSON.parse(responseText) as LoadBookingResponse
         } catch {
           responseBody = { message: responseText }
         }
