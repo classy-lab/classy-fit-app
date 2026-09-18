@@ -34,19 +34,6 @@ const GymScreenScrollViewThree = () => {
           </TouchableOpacity>
           <Text style={gymScreenStyles.cardText}>Personal {'\n'}Training</Text>
         </View>
-        <View style={gymScreenStyles.greySquareContainer}>
-          <TouchableOpacity
-            style={gymScreenStyles.greySquare}
-            activeOpacity={0.8}
-            hitSlop={8}
-            onPress={() => navigation.navigate('MyPersonalTrainingBookingsScreen')}
-          >
-            <View style={gymScreenStyles.whiteSquare}>
-              <Feather name="calendar" color={AppColors.blue} size={28} />
-            </View>
-          </TouchableOpacity>
-          <Text style={gymScreenStyles.cardText}>My PT {'\n'}Bookings</Text>
-        </View>
         {isOwner ? (
           <View style={gymScreenStyles.greySquareContainer}>
             <TouchableOpacity
@@ -60,6 +47,19 @@ const GymScreenScrollViewThree = () => {
             <Text style={gymScreenStyles.cardText}>Manage Personal {'\n'}Training</Text>
           </View>
         ) : null}
+        <View style={gymScreenStyles.greySquareContainer}>
+          <TouchableOpacity
+            style={gymScreenStyles.greySquare}
+            activeOpacity={0.8}
+            hitSlop={8}
+            onPress={() => navigation.navigate('MyPersonalTrainingBookingsScreen')}
+          >
+            <View style={gymScreenStyles.whiteSquare}>
+              <Feather name="calendar" color={AppColors.blue} size={28} />
+            </View>
+          </TouchableOpacity>
+          <Text style={gymScreenStyles.cardText}>My PT {'\n'}Bookings</Text>
+        </View>
       </ScrollView>
     </>
   )
