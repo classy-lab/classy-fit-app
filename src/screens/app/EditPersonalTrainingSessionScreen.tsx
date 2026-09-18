@@ -995,7 +995,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 14,
-    color: AppColors.grey3,
+    color: AppColors.red,
     marginBottom: 12,
     fontFamily: 'Montserrat',
   },
