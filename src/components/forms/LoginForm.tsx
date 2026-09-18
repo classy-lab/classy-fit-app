@@ -7,6 +7,7 @@ import {
   StyleSheet,
   View,
   Text,
+  ActivityIndicator,
   TouchableOpacity,
   TextInput,
   Dimensions,
@@ -32,6 +33,7 @@ const LoginForm = () => {
   const { tokens, setTokens } = useContext(UserContext);
   const { isLoggedIn, setIsLoggedIn } = useContext(UserContext);
   const [website, setWebsite] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { webServer } = useContext(UserContext);
   console.log(webServer);
 
@@ -71,6 +73,7 @@ const LoginForm = () => {
     // This function only runs if validation passes
     // console.log("Form Submitted (Validation Passed):", data);
 
+    setIsSubmitting(true);
     try {
       // Perform your authentication logic or API call here
       // const response = await api.post('/login', data);
@@ -122,6 +125,8 @@ const LoginForm = () => {
       // Handle API errors (React Hook Form does not swallow errors here)
       console.error("Login failed:", error);
       // Optionally, show an error message to the user
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -174,12 +179,17 @@ const LoginForm = () => {
         {/* Render other form inputs and their corresponding error messages */}
         <View style={styles.loginBtnContainer}>
           <TouchableOpacity
-            style={styles.loginBtn}
+            style={[styles.loginBtn, isSubmitting && styles.loginBtnDisabled]}
             title="loginSubmit"
             activeOpacity={0.7}
             onPress={handleSubmit(onSubmit)}
+            disabled={isSubmitting}
           >
-            <Text style={styles.loginBtnText}>Login</Text>
+            {isSubmitting ? (
+              <ActivityIndicator color={AppColors.white} />
+            ) : (
+              <Text style={styles.loginBtnText}>Login</Text>
+            )}
           </TouchableOpacity>
         </View>
       </View>
@@ -231,5 +241,8 @@ const styles = StyleSheet.create({
   loginBtnText: {
     color: AppColors.white,
     fontSize: s(14),
+  },
+  loginBtnDisabled: {
+    opacity: 0.7,
   },
 });
