@@ -1,18 +1,46 @@
-// @ts-nocheck
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Feather } from '@expo/vector-icons'
 import { AppColors } from '../../styles/colors'
 import { getMemberPersonalTrainingTitle } from '../../components/utils/personalTrainingDisplay'
 
-const parseDate = (value) => {
+type PersonalTrainingSessionRecord = {
+  trainer_display_name?: string | null
+  location?: string | null
+  start_at?: string | null
+  end_at?: string | null
+  price?: number | string | null
+  currency_code?: string | null
+}
+
+type PersonalTrainingBookingRecord = {
+  trainer_display_name?: string | null
+  location?: string | null
+  price?: number | string | null
+  currency_code?: string | null
+  booking_uid?: number | string
+}
+
+type PersonalTrainingBookingSuccessNavigation = {
+  navigate: (screen: 'PersonalTrainingSessionsScreen') => void
+}
+
+type PersonalTrainingBookingSuccessRoute = {
+  params?: {
+    session?: PersonalTrainingSessionRecord | null
+    booking?: PersonalTrainingBookingRecord | null
+    isPaid?: boolean
+  } | null
+}
+
+const parseDate = (value?: string | null) => {
   if (!value) return null
   const normalized = String(value).includes('T') ? String(value) : String(value).replace(' ', 'T')
   const date = new Date(normalized)
   return Number.isNaN(date.getTime()) ? null : date
 }
 
-const formatDate = (value) => {
+const formatDate = (value?: string | null) => {
   const date = parseDate(value)
   if (!date) return 'Unknown date'
   return new Intl.DateTimeFormat(undefined, {
@@ -23,7 +51,7 @@ const formatDate = (value) => {
   }).format(date)
 }
 
-const formatTime = (value) => {
+const formatTime = (value?: string | null) => {
   const date = parseDate(value)
   if (!date) return 'Unknown time'
   return new Intl.DateTimeFormat(undefined, {
@@ -32,7 +60,13 @@ const formatTime = (value) => {
   }).format(date)
 }
 
-const PersonalTrainingBookingSuccessScreen = ({ navigation, route }) => {
+const PersonalTrainingBookingSuccessScreen = ({
+  navigation,
+  route,
+}: {
+  navigation: PersonalTrainingBookingSuccessNavigation
+  route: PersonalTrainingBookingSuccessRoute
+}) => {
   const session = route?.params?.session ?? {}
   const isPaid = !!route?.params?.isPaid
   const booking = route?.params?.booking
