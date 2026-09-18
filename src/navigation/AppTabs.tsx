@@ -35,6 +35,9 @@ import PersonalTrainingSessionScreen from '../screens/app/PersonalTrainingSessio
 import AddPersonalTrainingSessionScreen from '../screens/app/AddPersonalTrainingSessionScreen'
 import EditPersonalTrainingSessionScreen from '../screens/app/EditPersonalTrainingSessionScreen'
 import PersonalTrainingManagementScreen from '../screens/app/PersonalTrainingManagementScreen'
+import MembershipPlanManagementScreen from '../screens/app/MembershipPlanManagementScreen'
+import AddMembershipPlanScreen from '../screens/app/AddMembershipPlanScreen'
+import EditMembershipPlanScreen from '../screens/app/EditMembershipPlanScreen'
 import PersonalTrainingBookingSuccessScreen from '../screens/app/PersonalTrainingBookingSuccessScreen'
 import MyPersonalTrainingBookingsScreen from '../screens/app/MyPersonalTrainingBookingsScreen'
 import MyPersonalTrainingBookingDetailScreen from '../screens/app/MyPersonalTrainingBookingDetailScreen'
@@ -76,6 +79,9 @@ function HomeStackScreen() {
       <HomeStack.Screen name="AddPersonalTrainingSessionScreen" component={AddPersonalTrainingSessionScreen} />
       <HomeStack.Screen name="EditPersonalTrainingSessionScreen" component={EditPersonalTrainingSessionScreen} />
       <HomeStack.Screen name="PersonalTrainingManagementScreen" component={PersonalTrainingManagementScreen} />
+      <HomeStack.Screen name="MembershipPlanManagementScreen" component={MembershipPlanManagementScreen} />
+      <HomeStack.Screen name="AddMembershipPlanScreen" component={AddMembershipPlanScreen} />
+      <HomeStack.Screen name="EditMembershipPlanScreen" component={EditMembershipPlanScreen} />
       <HomeStack.Screen name="PersonalTrainingBookingSuccessScreen" component={PersonalTrainingBookingSuccessScreen} />
       <HomeStack.Screen name="MyPersonalTrainingBookingsScreen" component={MyPersonalTrainingBookingsScreen} />
       <HomeStack.Screen name="MyPersonalTrainingBookingDetailScreen" component={MyPersonalTrainingBookingDetailScreen} />
@@ -111,6 +117,9 @@ function GymStackScreen() {
       <GymStack.Screen name="AddPersonalTrainingSessionScreen" component={AddPersonalTrainingSessionScreen} />
       <GymStack.Screen name="EditPersonalTrainingSessionScreen" component={EditPersonalTrainingSessionScreen} />
       <GymStack.Screen name="PersonalTrainingManagementScreen" component={PersonalTrainingManagementScreen} />
+      <GymStack.Screen name="MembershipPlanManagementScreen" component={MembershipPlanManagementScreen} />
+      <GymStack.Screen name="AddMembershipPlanScreen" component={AddMembershipPlanScreen} />
+      <GymStack.Screen name="EditMembershipPlanScreen" component={EditMembershipPlanScreen} />
       <GymStack.Screen name="PersonalTrainingBookingSuccessScreen" component={PersonalTrainingBookingSuccessScreen} />
       <GymStack.Screen name="MyPersonalTrainingBookingsScreen" component={MyPersonalTrainingBookingsScreen} />
       <GymStack.Screen name="MyPersonalTrainingBookingDetailScreen" component={MyPersonalTrainingBookingDetailScreen} />
@@ -167,6 +176,9 @@ function ProfileStackScreen() {
       <ProfileStack.Screen name="AddClassScreen" component={AddClassScreen} />
       <ProfileStack.Screen name="EditClassScreen" component={EditClassScreen} />
       <ProfileStack.Screen name="EditClassSessionScreen" component={EditClassSessionScreen} />
+      <ProfileStack.Screen name="MembershipPlanManagementScreen" component={MembershipPlanManagementScreen} />
+      <ProfileStack.Screen name="AddMembershipPlanScreen" component={AddMembershipPlanScreen} />
+      <ProfileStack.Screen name="EditMembershipPlanScreen" component={EditMembershipPlanScreen} />
     </ProfileStack.Navigator>
   )
 }
