@@ -281,7 +281,7 @@ const PersonalTrainingSessionScreen = ({ navigation, route }) => {
         return
       }
 
-      let { response, responseBody, accessToken } = bookingResult
+      const { response, responseBody } = bookingResult
 
       if (response.status !== 200 && response.status !== 201) {
         const message = responseBody?.message || 'Unable to book this session.'
@@ -294,9 +294,42 @@ const PersonalTrainingSessionScreen = ({ navigation, route }) => {
       }
 
       const booking = responseBody?.booking
-      const payment = responseBody?.payment
+      const bookingUid = Number(booking?.booking_uid ?? 0)
 
-      if (!payment) {
+      if (!bookingUid) {
+        showMessage({
+          message: 'Booking failed',
+          description: 'Unable to load booking details. Please try again.',
+          type: 'danger',
+        })
+        return
+      }
+
+      const checkoutResult = await submitRequestWithRefresh((token) =>
+        performCheckoutRequest(token, bookingUid)
+      )
+
+      if (!checkoutResult) {
+        return
+      }
+
+      let checkoutResponse = checkoutResult.response
+      let checkoutResponseBody = checkoutResult.responseBody
+
+      if (checkoutResponse.status !== 200 && checkoutResponse.status !== 201) {
+        const message = checkoutResponseBody?.message || 'Unable to complete this booking.'
+        showMessage({
+          message: 'Booking failed',
+          description: message,
+          type: 'danger',
+        })
+        return
+      }
+
+      const checkoutBooking = checkoutResponseBody?.booking ?? booking
+      const checkoutPayment = checkoutResponseBody?.payment ?? null
+
+      if (isFree) {
         showMessage({
           message: 'Booking successful',
           description: 'Your personal training session has been booked successfully.',
@@ -304,15 +337,15 @@ const PersonalTrainingSessionScreen = ({ navigation, route }) => {
         })
         navigation.navigate('PersonalTrainingBookingSuccessScreen', {
           session,
-          booking,
-          payment: null,
+          booking: checkoutBooking,
+          payment: checkoutPayment,
           isPaid: false,
           idempotencyKey: responseBody?.idempotency_key ?? idempotencyKey,
         })
         return
       }
 
-      const clientSecret = payment?.payment_intent?.client_secret
+      const clientSecret = checkoutPayment?.payment_intent?.client_secret
       if (!clientSecret) {
         showMessage({
           message: 'Booking failed',
@@ -356,16 +389,16 @@ const PersonalTrainingSessionScreen = ({ navigation, route }) => {
       }
 
       const reconciliationResult = await submitRequestWithRefresh((token) =>
-        performCheckoutRequest(token, booking?.booking_uid)
+        performCheckoutRequest(token, bookingUid)
       )
 
       if (reconciliationResult && (reconciliationResult.response.status === 200 || reconciliationResult.response.status === 201)) {
-        response = reconciliationResult.response
-        responseBody = reconciliationResult.responseBody
+        checkoutResponse = reconciliationResult.response
+        checkoutResponseBody = reconciliationResult.responseBody
       }
 
-      const reconciledBooking = responseBody?.booking ?? booking
-      const reconciledPayment = responseBody?.payment ?? payment
+      const reconciledBooking = checkoutResponseBody?.booking ?? checkoutBooking
+      const reconciledPayment = checkoutResponseBody?.payment ?? checkoutPayment
 
       showMessage({
         message: 'Payment successful',
@@ -377,7 +410,7 @@ const PersonalTrainingSessionScreen = ({ navigation, route }) => {
         booking: reconciledBooking,
         payment: reconciledPayment,
         isPaid: true,
-        idempotencyKey: responseBody?.idempotency_key ?? idempotencyKey,
+        idempotencyKey: checkoutResponseBody?.idempotency_key ?? responseBody?.idempotency_key ?? idempotencyKey,
       })
     } catch (error) {
       console.log('Personal training booking checkout error:', error)
