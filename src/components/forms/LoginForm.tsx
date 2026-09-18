@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useState, useContext, useEffect, useRef } from "react";
+import React, { useState, useContext } from "react";
 import * as yup from "yup";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -24,8 +24,6 @@ import FlashMessage, {
 
 const windowWidth = Dimensions.get("window").width;
 
-const MIN_SUBMISSION_TIME_MS = 500; // 5 seconds threshold before reg form can be submitted
-
 const LoginForm = () => {
   const route = useRoute();
   const selectedGymId = route.params?.gymId || "";
@@ -36,13 +34,6 @@ const LoginForm = () => {
   const [website, setWebsite] = useState("");
   const { webServer } = useContext(UserContext);
   console.log(webServer);
-  // Use a ref to store the load time without triggering re-renders
-  const formLoadTime = useRef(Date.now());
-
-  // Reset the timer if the user navigates back to this screen
-  useEffect(() => {
-    formLoadTime.current = Date.now();
-  }, []);
 
   // 1. Define the Yup validation schema
   const schema = yup.object().shape({
@@ -71,17 +62,9 @@ const LoginForm = () => {
 
   // 3. Define the submit handler
   const onSubmit = async (data) => {
-    const totalTimeElapsed = Date.now() - formLoadTime.current;
-
     // 1. Honeypot check
     if (website.trim() !== "") {
       // console.log("Submission failed", "Bot behavior detected.");
-      return;
-    }
-
-    // 2. Timestamp check
-    if (totalTimeElapsed < MIN_SUBMISSION_TIME_MS) {
-      // console.log("Submission failed", "Form submitted too quickly.");
       return;
     }
 
