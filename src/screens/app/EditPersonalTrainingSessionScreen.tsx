@@ -958,14 +958,12 @@ const styles = StyleSheet.create({
   },
   loadingTitle: {
     fontSize: 18,
-    fontWeight: '700',
     color: AppColors.blue,
     fontFamily: 'Montserrat',
     textAlign: 'center',
   },
   emptyTitle: {
     fontSize: 20,
-    fontWeight: '600',
     color: AppColors.blue,
     textAlign: 'center',
     fontFamily: 'Montserrat',
@@ -988,7 +986,6 @@ const styles = StyleSheet.create({
   },
   errorTitle: {
     fontSize: 16,
-    fontWeight: '600',
     color: AppColors.blue,
     marginBottom: 8,
     fontFamily: 'Montserrat',
@@ -1008,7 +1005,6 @@ const styles = StyleSheet.create({
   },
   retryBtnText: {
     color: AppColors.white,
-    fontWeight: '600',
     fontSize: 14,
     fontFamily: 'Montserrat',
   },
@@ -1032,7 +1028,6 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: '700',
     color: AppColors.blue,
     fontFamily: 'Montserrat',
   },
@@ -1050,7 +1045,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: AppColors.blue,
     marginBottom: 8,
-    fontWeight: '600',
     fontFamily: 'Montserrat',
   },
   input: {
@@ -1072,7 +1066,6 @@ const styles = StyleSheet.create({
   readOnlyText: {
     color: AppColors.primary,
     fontFamily: 'Montserrat',
-    fontWeight: '600',
   },
   selectBox: {
     borderRadius: 14,
@@ -1113,7 +1106,6 @@ const styles = StyleSheet.create({
   segmentButtonText: {
     color: AppColors.blue,
     fontFamily: 'Montserrat',
-    fontWeight: '700',
   },
   segmentButtonTextSelected: {
     color: AppColors.white,
@@ -1149,7 +1141,6 @@ const styles = StyleSheet.create({
   submitButtonText: {
     color: AppColors.white,
     fontSize: 16,
-    fontWeight: '700',
     fontFamily: 'Montserrat',
   },
   footerNote: {
