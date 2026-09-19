@@ -658,7 +658,6 @@ const styles = StyleSheet.create({
   title: {
     color: AppColors.blue,
     fontSize: 26,
-    fontWeight: '700',
     flex: 1,
     textAlign: 'center',
   },
@@ -682,7 +681,6 @@ const styles = StyleSheet.create({
   addButtonText: {
     color: AppColors.white,
     fontSize: 15,
-    fontWeight: '700',
   },
   scrollView: {
     flex: 1,
@@ -700,7 +698,6 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 20,
-    fontWeight: '700',
     color: AppColors.blue,
     textAlign: 'center',
   },
@@ -721,7 +718,6 @@ const styles = StyleSheet.create({
   },
   errorTitle: {
     fontSize: 16,
-    fontWeight: '700',
     color: AppColors.blue,
     marginBottom: 8,
   },
@@ -740,7 +736,6 @@ const styles = StyleSheet.create({
   },
   retryBtnText: {
     color: AppColors.white,
-    fontWeight: '700',
     fontSize: 14,
   },
   list: {
@@ -765,14 +760,12 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 18,
-    fontWeight: '700',
     color: AppColors.blue,
     marginBottom: 4,
     lineHeight: 24,
   },
   cardSubtitle: {
     fontSize: 13,
-    fontWeight: '700',
     color: AppColors.white,
     backgroundColor: AppColors.blue,
     paddingHorizontal: 12,
@@ -794,7 +787,6 @@ const styles = StyleSheet.create({
   statusText: {
     color: AppColors.white,
     fontSize: 12,
-    fontWeight: '700',
   },
   description: {
     color: AppColors.primary,
@@ -823,7 +815,6 @@ const styles = StyleSheet.create({
   metaValue: {
     color: AppColors.blue,
     fontSize: 14,
-    fontWeight: '700',
   },
   cardActions: {
     flexDirection: 'row',
@@ -846,7 +837,6 @@ const styles = StyleSheet.create({
   editButtonText: {
     color: AppColors.blue,
     fontSize: 15,
-    fontWeight: '700',
   },
   statusButton: {
     flex: 1,
@@ -863,7 +853,6 @@ const styles = StyleSheet.create({
   statusButtonText: {
     color: AppColors.white,
     fontSize: 15,
-    fontWeight: '700',
   },
   deleteButton: {
     marginTop: 12,
@@ -880,7 +869,6 @@ const styles = StyleSheet.create({
   deleteButtonText: {
     color: AppColors.white,
     fontSize: 15,
-    fontWeight: '700',
   },
   buttonDisabled: {
     opacity: 0.7,
