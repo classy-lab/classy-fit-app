@@ -23,7 +23,7 @@ const DashboardScreen = ({ navigation, route }) => {
         <View style={styles.navs}>
           <View style={styles.greetingContainer}>
             <Text style={styles.welcomeText}>Welcome back, {user?.given_name}!</Text>
-            <Text style={styles.gymNameText}>{user?.gym_name}</Text>
+            <Text style={styles.gymNameText}>{user?.gym_name} ({user?.role ?? ''})</Text>
           </View>
           <SignOut />
         </View>
