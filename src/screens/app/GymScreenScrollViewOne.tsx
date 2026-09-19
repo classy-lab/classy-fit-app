@@ -33,19 +33,6 @@ const GymScreenScrollViewOne = () => {
           </TouchableOpacity>
           <Text style={gymScreenStyles.cardText}>Classes</Text>
         </View>
-        <View style={gymScreenStyles.greySquareContainer}>
-          <TouchableOpacity
-            style={gymScreenStyles.greySquare}
-            activeOpacity={0.8}
-            hitSlop={8}
-            onPress={() => navigation.navigate('MembershipPlansScreen')}
-          >
-            <View style={gymScreenStyles.whiteSquare}>
-              <Feather name="credit-card" color={AppColors.blue} size={28} />
-            </View>
-          </TouchableOpacity>
-          <Text style={gymScreenStyles.cardText}>Membership {'\n'}Plans</Text>
-        </View>
         {isOwner ? (
           <View style={gymScreenStyles.greySquareContainer}>
             <TouchableOpacity
