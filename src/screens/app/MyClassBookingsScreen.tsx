@@ -360,7 +360,6 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
     color: AppColors.blue,
     flex: 1,
     textAlign: 'center',
@@ -388,7 +387,6 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 20,
-    fontWeight: '600',
     color: AppColors.blue,
     textAlign: 'center',
   },
@@ -410,7 +408,6 @@ const styles = StyleSheet.create({
   },
   errorTitle: {
     fontSize: 16,
-    fontWeight: '600',
     color: AppColors.blue,
     marginBottom: 8,
   },
@@ -428,7 +425,6 @@ const styles = StyleSheet.create({
   },
   retryBtnText: {
     color: AppColors.white,
-    fontWeight: '600',
     fontSize: 14,
   },
   section: {
@@ -437,7 +433,6 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: '700',
     color: AppColors.blue,
     marginBottom: 14,
   },
@@ -463,13 +458,11 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 18,
-    fontWeight: '700',
     color: AppColors.blue,
     marginBottom: 4,
   },
   pricePill: {
     fontSize: 13,
-    fontWeight: '600',
     color: AppColors.white,
     backgroundColor: AppColors.blue,
     paddingHorizontal: 12,
@@ -498,13 +491,11 @@ const styles = StyleSheet.create({
   metaLabel: {
     fontSize: 12,
     color: AppColors.grey3,
-    fontWeight: '600',
     textTransform: 'uppercase',
   },
   metaValue: {
     fontSize: 12,
     color: AppColors.blue,
-    fontWeight: '600',
   },
   filterBar: {
     flexDirection: 'row',
@@ -528,7 +519,6 @@ const styles = StyleSheet.create({
   filterButtonText: {
     color: AppColors.primary,
     fontSize: 14,
-    fontWeight: '600',
   },
   filterButtonTextActive: {
     color: AppColors.white,
