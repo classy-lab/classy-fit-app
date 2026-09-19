@@ -258,11 +258,27 @@ const MyMembershipScreen = ({ navigation }: { navigation: MyMembershipNavigation
     [memberships]
   )
 
+  const renewalTargetMembershipUid = useMemo(() => {
+    if (currentMemberships.length > 0) {
+      return currentMemberships[0]?.uid ?? null
+    }
+
+    const expiredMembership = historicalMemberships.find(
+      (membership) => String(membership?.status ?? '').toLowerCase() === 'expired'
+    )
+
+    return expiredMembership?.uid ?? null
+  }, [currentMemberships, historicalMemberships])
+
   const openMembershipPlans = () => {
     navigation.navigate('MembershipPlansScreen')
   }
 
-  const renderMembershipCard = (membership: MembershipSummary, variant: 'current' | 'pending' | 'history') => {
+  const renderMembershipCard = (
+    membership: MembershipSummary,
+    variant: 'current' | 'pending' | 'history',
+    showRenewAction = false
+  ) => {
     const status = String(membership?.status ?? '').toLowerCase()
 
     return (
@@ -300,6 +316,13 @@ const MyMembershipScreen = ({ navigation }: { navigation: MyMembershipNavigation
             <Text style={styles.detailValue}>{formatDate(membership?.end_at)}</Text>
           </View>
         </View>
+
+        {showRenewAction ? (
+          <TouchableOpacity style={styles.renewBtn} onPress={openMembershipPlans} activeOpacity={0.85}>
+            <Feather name="refresh-cw" color={AppColors.white} size={16} />
+            <Text style={styles.renewBtnText}>Renew Membership</Text>
+          </TouchableOpacity>
+        ) : null}
       </View>
     )
   }
@@ -357,8 +380,12 @@ const MyMembershipScreen = ({ navigation }: { navigation: MyMembershipNavigation
             {currentMemberships.length > 0 ? (
               <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Current Membership</Text>
-                {currentMemberships.map((membership, index) =>
-                  renderMembershipCard(membership, index === 0 ? 'current' : 'history')
+                {currentMemberships.map((membership) =>
+                  renderMembershipCard(
+                    membership,
+                    'current',
+                    String(membership?.uid ?? '') === String(renewalTargetMembershipUid ?? '')
+                  )
                 )}
               </View>
             ) : null}
@@ -373,7 +400,13 @@ const MyMembershipScreen = ({ navigation }: { navigation: MyMembershipNavigation
             {historicalMemberships.length > 0 ? (
               <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Membership History</Text>
-                {historicalMemberships.map((membership) => renderMembershipCard(membership, 'history'))}
+                {historicalMemberships.map((membership) =>
+                  renderMembershipCard(
+                    membership,
+                    'history',
+                    String(membership?.uid ?? '') === String(renewalTargetMembershipUid ?? '')
+                  )
+                )}
               </View>
             ) : null}
           </View>
@@ -441,7 +474,7 @@ const styles = StyleSheet.create({
   },
   errorTitle: {
     fontSize: 18,
-    fontWeight: '700',
+    fontFamily: 'Montserrat',
     color: AppColors.blue,
     marginBottom: 8,
   },
@@ -461,7 +494,7 @@ const styles = StyleSheet.create({
   retryBtnText: {
     color: AppColors.white,
     fontSize: 14,
-    fontWeight: '700',
+    fontFamily: 'Montserrat',
   },
   emptyCard: {
     backgroundColor: AppColors.white,
@@ -483,7 +516,7 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 22,
-    fontWeight: '700',
+    fontFamily: 'Montserrat',
     color: AppColors.blue,
     textAlign: 'center',
   },
@@ -496,7 +529,7 @@ const styles = StyleSheet.create({
   },
   primaryBtnText: {
     color: AppColors.white,
-    fontWeight: '700',
+    fontFamily: 'Montserrat',
     fontSize: 14,
   },
   content: {
@@ -507,7 +540,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: '800',
+    fontFamily: 'Montserrat',
     color: AppColors.blue,
   },
   card: {
@@ -536,12 +569,13 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 18,
-    fontWeight: '800',
+    fontFamily: 'Montserrat',
     color: AppColors.blue,
   },
   cardSubtitle: {
     marginTop: 4,
     fontSize: 13,
+    fontFamily: 'Montserrat',
     color: AppColors.grey3,
   },
   statusPill: {
@@ -562,7 +596,7 @@ const styles = StyleSheet.create({
   statusText: {
     color: AppColors.white,
     fontSize: 12,
-    fontWeight: '800',
+    fontFamily: 'Montserrat',
     textTransform: 'uppercase',
     letterSpacing: 0.4,
   },
@@ -577,15 +611,32 @@ const styles = StyleSheet.create({
   },
   detailLabel: {
     fontSize: 12,
-    fontWeight: '700',
+    fontFamily: 'Montserrat',
     color: AppColors.grey3,
     textTransform: 'uppercase',
   },
   detailValue: {
     fontSize: 14,
-    fontWeight: '700',
+    fontFamily: 'Montserrat',
     color: AppColors.primary,
     textAlign: 'right',
     flexShrink: 1,
+  },
+  renewBtn: {
+    marginTop: 16,
+    backgroundColor: AppColors.blue,
+    borderRadius: 999,
+    minHeight: 46,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'stretch',
+    flexDirection: 'row',
+    gap: 8,
+  },
+  renewBtnText: {
+    color: AppColors.white,
+    fontFamily: 'Montserrat',
+    fontSize: 14,
   },
 })
