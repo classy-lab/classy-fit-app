@@ -152,7 +152,6 @@ const styles = StyleSheet.create({
   },
   menuButtonText: {
     fontSize: 16,
-    fontWeight: "600",
     color: AppColors.blue,
     flex: 1,
     marginLeft: 12,
