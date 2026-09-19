@@ -536,7 +536,6 @@ const styles = StyleSheet.create({
   addButtonText: {
     color: AppColors.white,
     fontSize: 16,
-    fontWeight: '600',
   },
   scrollView: {
     flex: 1,
@@ -589,7 +588,6 @@ const styles = StyleSheet.create({
   },
   retryBtnText: {
     color: AppColors.white,
-    fontWeight: '600',
   },
   list: {
     marginTop: 16,
@@ -635,7 +633,6 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 12,
-    fontWeight: '600',
     color: AppColors.white,
   },
   description: {
@@ -686,7 +683,6 @@ const styles = StyleSheet.create({
   editButtonText: {
     color: AppColors.blue,
     fontSize: 15,
-    fontWeight: '600',
   },
   deleteButton: {
     flex: 1,
@@ -705,6 +701,5 @@ const styles = StyleSheet.create({
   deleteButtonText: {
     color: AppColors.white,
     fontSize: 15,
-    fontWeight: '600',
   },
 })
