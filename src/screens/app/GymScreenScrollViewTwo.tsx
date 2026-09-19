@@ -12,6 +12,7 @@ const GymScreenScrollViewTwo = () => {
   const navigation = useNavigation<any>()
   const { user, tokens, setTokens, webServer } = useContext(UserContext);
   const [equipment, setEquipment] = useState([]);
+  const isOwner = String(user?.role ?? '').trim().toLowerCase() === 'owner';
 
   return (
     <>
@@ -34,19 +35,21 @@ const GymScreenScrollViewTwo = () => {
           </TouchableOpacity>
           <Text style={gymScreenStyles.cardText}>Gym {'\n'}Equipment</Text>
         </View>
-        <View style={gymScreenStyles.greySquareContainer}>
-          <TouchableOpacity
-            style={gymScreenStyles.greySquare}
-            activeOpacity={0.8}
-            hitSlop={8}
-            onPress={() => navigation.navigate('GymTab', { screen: 'AddEquipmentScreen' })}
-          >
-            <View style={gymScreenStyles.whiteSquare}>
-              <Feather name="plus-circle" color={AppColors.blue} size={28} />
-            </View>
-          </TouchableOpacity>
-          <Text style={gymScreenStyles.cardText}>Add {'\n'}Equipment</Text>
-        </View>
+        {isOwner ? (
+          <View style={gymScreenStyles.greySquareContainer}>
+            <TouchableOpacity
+              style={gymScreenStyles.greySquare}
+              activeOpacity={0.8}
+              hitSlop={8}
+              onPress={() => navigation.navigate('GymTab', { screen: 'AddEquipmentScreen' })}
+            >
+              <View style={gymScreenStyles.whiteSquare}>
+                <Feather name="plus-circle" color={AppColors.blue} size={28} />
+              </View>
+            </TouchableOpacity>
+            <Text style={gymScreenStyles.cardText}>Add {'\n'}Equipment</Text>
+          </View>
+        ) : null}
       </ScrollView>
     </>
   )
