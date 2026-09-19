@@ -382,7 +382,6 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
     color: AppColors.blue,
     flex: 1,
     textAlign: 'center',
@@ -412,7 +411,6 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 20,
-    fontWeight: '600',
     color: AppColors.blue,
     textAlign: 'center',
     fontFamily: 'Montserrat',
@@ -435,7 +433,6 @@ const styles = StyleSheet.create({
   },
   errorTitle: {
     fontSize: 16,
-    fontWeight: '600',
     color: AppColors.blue,
     marginBottom: 8,
     fontFamily: 'Montserrat',
@@ -455,7 +452,6 @@ const styles = StyleSheet.create({
   },
   retryBtnText: {
     color: AppColors.white,
-    fontWeight: '600',
     fontSize: 14,
     fontFamily: 'Montserrat',
   },
@@ -465,7 +461,6 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: '700',
     color: AppColors.blue,
     marginBottom: 14,
     fontFamily: 'Montserrat',
@@ -489,14 +484,12 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 18,
-    fontWeight: '700',
     color: AppColors.blue,
     marginBottom: 4,
     fontFamily: 'Montserrat',
   },
   pricePill: {
     fontSize: 13,
-    fontWeight: '600',
     color: AppColors.white,
     backgroundColor: AppColors.blue,
     paddingHorizontal: 12,
@@ -519,7 +512,6 @@ const styles = StyleSheet.create({
   badgeText: {
     color: AppColors.white,
     fontSize: 12,
-    fontWeight: '700',
     fontFamily: 'Montserrat',
   },
   locationRow: {
@@ -537,14 +529,12 @@ const styles = StyleSheet.create({
   metaLabel: {
     fontSize: 12,
     color: AppColors.grey3,
-    fontWeight: '600',
     textTransform: 'uppercase',
     fontFamily: 'Montserrat',
   },
   metaValue: {
     fontSize: 12,
     color: AppColors.blue,
-    fontWeight: '600',
     textAlign: 'right',
     flexShrink: 1,
     fontFamily: 'Montserrat',
@@ -571,7 +561,6 @@ const styles = StyleSheet.create({
   filterButtonText: {
     color: AppColors.primary,
     fontSize: 14,
-    fontWeight: '600',
     fontFamily: 'Montserrat',
   },
   filterButtonTextActive: {
