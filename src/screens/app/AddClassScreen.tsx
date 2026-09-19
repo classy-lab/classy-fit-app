@@ -946,7 +946,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: AppColors.blue,
     fontSize: 20,
-    fontWeight: '700',
   },
   field: {
     marginBottom: 18,
@@ -954,7 +953,6 @@ const styles = StyleSheet.create({
   label: {
     color: AppColors.blue,
     fontSize: 14,
-    fontWeight: '600',
     marginBottom: 8,
   },
   input: {
@@ -976,7 +974,6 @@ const styles = StyleSheet.create({
   readOnlyText: {
     color: AppColors.blue,
     fontSize: 16,
-    fontWeight: '600',
   },
   selectBox: {
     borderWidth: 1,
@@ -1029,7 +1026,6 @@ const styles = StyleSheet.create({
   segmentButtonText: {
     color: AppColors.primary,
     fontSize: 15,
-    fontWeight: '600',
   },
   segmentButtonTextSelected: {
     color: AppColors.blue,
