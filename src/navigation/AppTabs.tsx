@@ -40,6 +40,7 @@ import MembershipPurchaseSuccessScreen from '../screens/app/MembershipPurchaseSu
 import MembershipPlanManagementScreen from '../screens/app/MembershipPlanManagementScreen'
 import AddMembershipPlanScreen from '../screens/app/AddMembershipPlanScreen'
 import EditMembershipPlanScreen from '../screens/app/EditMembershipPlanScreen'
+import MyMembershipScreen from '../screens/app/MyMembershipScreen'
 import PersonalTrainingBookingSuccessScreen from '../screens/app/PersonalTrainingBookingSuccessScreen'
 import MyPersonalTrainingBookingsScreen from '../screens/app/MyPersonalTrainingBookingsScreen'
 import MyPersonalTrainingBookingDetailScreen from '../screens/app/MyPersonalTrainingBookingDetailScreen'
@@ -178,6 +179,9 @@ function ProfileStackScreen() {
       <ProfileStack.Screen name="MyClassBookingDetailScreen" component={MyClassBookingDetailScreen} />
       <ProfileStack.Screen name="MyPersonalTrainingBookingsScreen" component={MyPersonalTrainingBookingsScreen} />
       <ProfileStack.Screen name="MyPersonalTrainingBookingDetailScreen" component={MyPersonalTrainingBookingDetailScreen} />
+      <ProfileStack.Screen name="MyMembershipScreen" component={MyMembershipScreen} />
+      <ProfileStack.Screen name="MembershipPlansScreen" component={MembershipPlansScreen} />
+      <ProfileStack.Screen name="MembershipPurchaseSuccessScreen" component={MembershipPurchaseSuccessScreen} />
       <ProfileStack.Screen name="ClassManagementScreen" component={ClassManagementScreen} />
       <ProfileStack.Screen name="AddClassScreen" component={AddClassScreen} />
       <ProfileStack.Screen name="EditClassScreen" component={EditClassScreen} />
