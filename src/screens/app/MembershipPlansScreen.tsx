@@ -607,7 +607,7 @@ const styles = StyleSheet.create({
   title: {
     color: AppColors.blue,
     fontSize: 24,
-    fontWeight: '700',
+    fontFamily: 'Montserrat',
     flex: 1,
     textAlign: 'center',
   },
@@ -630,7 +630,7 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 20,
-    fontWeight: '700',
+    fontFamily: 'Montserrat',
     color: AppColors.blue,
     textAlign: 'center',
   },
@@ -651,7 +651,7 @@ const styles = StyleSheet.create({
   },
   errorTitle: {
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: 'Montserrat',
     color: AppColors.blue,
     marginBottom: 8,
   },
@@ -670,7 +670,7 @@ const styles = StyleSheet.create({
   },
   retryBtnText: {
     color: AppColors.white,
-    fontWeight: '700',
+    fontFamily: 'Montserrat',
     fontSize: 14,
   },
   list: {
@@ -695,7 +695,7 @@ const styles = StyleSheet.create({
   },
   durationPill: {
     fontSize: 13,
-    fontWeight: '700',
+    fontFamily: 'Montserrat',
     color: AppColors.white,
     backgroundColor: AppColors.blue,
     paddingHorizontal: 12,
@@ -706,7 +706,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 18,
-    fontWeight: '700',
+    fontFamily: 'Montserrat',
     color: AppColors.blue,
     lineHeight: 24,
   },
@@ -737,7 +737,7 @@ const styles = StyleSheet.create({
   metaValue: {
     color: AppColors.blue,
     fontSize: 14,
-    fontWeight: '700',
+    fontFamily: 'Montserrat',
   },
   chooseButton: {
     marginTop: 18,
@@ -756,6 +756,6 @@ const styles = StyleSheet.create({
   chooseButtonText: {
     color: AppColors.white,
     fontSize: 15,
-    fontWeight: '700',
+    fontFamily: 'Montserrat',
   },
 })
