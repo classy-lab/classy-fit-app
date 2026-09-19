@@ -1,7 +1,6 @@
-import { useCallback, useContext, useState } from 'react'
+import { useCallback, useContext, useRef, useState } from 'react'
 import {
   ActivityIndicator,
-  Alert,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -12,6 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useFocusEffect } from '@react-navigation/native'
 import Feather from '@expo/vector-icons/Feather'
+import { useStripe } from '@stripe/stripe-react-native'
 import { showMessage } from 'react-native-flash-message'
 import { AppColors } from '../../styles/colors'
 import { UserContext } from '../../context/UserContext'
@@ -51,8 +51,46 @@ type MembershipPlansResponse = {
   message?: string
 }
 
+type MembershipPurchaseMembership = {
+  uid?: number
+  gym_id?: number
+  member_gym_user_id?: number
+  membership_plan_uid?: number
+  plan_name?: string | null
+  duration_months?: number | string | null
+  price?: number | string | null
+  currency_code?: string | null
+  start_at?: string | null
+  end_at?: string | null
+  status?: string | null
+  created_at?: string | null
+  updated_at?: string | null
+}
+
+type MembershipPurchaseResponse = {
+  status?: string
+  message?: string
+  membership?: MembershipPurchaseMembership | null
+  payment?: {
+    payment_intent?: {
+      client_secret?: string | null
+    } | null
+  } | null
+  idempotency_key?: string
+}
+
+type MembershipPurchaseSuccessParams = {
+  membership?: MembershipPurchaseMembership | null
+  isPaid?: boolean
+  idempotencyKey?: string
+}
+
 type MembershipPlansNavigation = {
   goBack: () => void
+  navigate: (
+    screen: 'MembershipPurchaseSuccessScreen',
+    params: MembershipPurchaseSuccessParams
+  ) => void
 }
 
 const durationOrder: Record<number, number> = {
@@ -105,10 +143,13 @@ const formatPlanPrice = (plan: MembershipPlan) => {
 
 const MembershipPlansScreen = ({ navigation }: { navigation: MembershipPlansNavigation }) => {
   const { user, tokens, setTokens, webServer } = useContext(UserContext) as UserContextValue
+  const { initPaymentSheet, presentPaymentSheet } = useStripe()
   const [plans, setPlans] = useState<MembershipPlan[]>([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+  const [isPurchasing, setIsPurchasing] = useState(false)
+  const purchaseAttemptKeyRef = useRef<{ planUid: number; key: string } | null>(null)
 
   const refreshAccessToken = async (): Promise<string | null> => {
     if (!tokens?.refresh_token) {
@@ -252,12 +293,204 @@ const MembershipPlansScreen = ({ navigation }: { navigation: MembershipPlansNavi
     void loadPlans({ isRefresh: true })
   }
 
-  const choosePlan = (plan: MembershipPlan) => {
-    Alert.alert(
-      'Membership plans coming soon',
-      `Choosing ${plan?.name || 'this plan'} will be available in a future update.`,
-      [{ text: 'OK', style: 'default' }]
-    )
+  const choosePlan = async (plan: MembershipPlan) => {
+    if (isPurchasing) {
+      return
+    }
+
+    const planUid = Number(plan?.uid ?? 0)
+    if (!planUid || !user?.gym_id || !tokens?.access_token) {
+      showMessage({
+        message: 'Purchase unavailable',
+        description: 'Please sign in again to continue.',
+        type: 'danger',
+      })
+      return
+    }
+
+    if (!purchaseAttemptKeyRef.current || purchaseAttemptKeyRef.current.planUid !== planUid) {
+      const randomSuffix = Math.random().toString(36).slice(2, 10)
+      purchaseAttemptKeyRef.current = {
+        planUid,
+        key: `membership-purchase-${planUid}-${Date.now()}-${randomSuffix}`,
+      }
+    }
+
+    const idempotencyKey = purchaseAttemptKeyRef.current.key
+    const endpoint = `${webServer}/api/v1/membership-plans/${planUid}/purchase`
+
+    const performPurchaseRequest = async (accessToken: string): Promise<Response> => {
+      return fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+          'Idempotency-Key': idempotencyKey,
+        },
+        body: JSON.stringify({}),
+      })
+    }
+
+    const submitPurchaseRequest = async (): Promise<{
+      response: Response
+      responseBody: MembershipPurchaseResponse
+    } | null> => {
+      let accessToken = tokens.access_token as string
+      let response = await performPurchaseRequest(accessToken)
+
+      if (response.status === 401 || response.status === 403) {
+        const refreshedAccessToken = await refreshAccessToken()
+        if (!refreshedAccessToken) {
+          showMessage({
+            message: 'Session expired',
+            description: 'Please sign in again.',
+            type: 'danger',
+          })
+          return null
+        }
+
+        accessToken = refreshedAccessToken
+        response = await performPurchaseRequest(accessToken)
+      }
+
+      const responseText = await response.text()
+      let responseBody: MembershipPurchaseResponse = {}
+      if (responseText) {
+        try {
+          responseBody = JSON.parse(responseText) as MembershipPurchaseResponse
+        } catch {
+          responseBody = { message: responseText }
+        }
+      }
+
+      return { response, responseBody }
+    }
+
+    setIsPurchasing(true)
+
+    try {
+      const initialResult = await submitPurchaseRequest()
+      if (!initialResult) {
+        return
+      }
+
+      const { response, responseBody } = initialResult
+      if (response.status !== 200 && response.status !== 201) {
+        const message = responseBody?.message || 'Unable to purchase this membership plan.'
+        showMessage({
+          message: 'Purchase failed',
+          description: message,
+          type: 'danger',
+        })
+        return
+      }
+
+      const membership = responseBody?.membership ?? null
+      if (!membership) {
+        showMessage({
+          message: 'Purchase failed',
+          description: 'Unable to load membership details. Please try again.',
+          type: 'danger',
+        })
+        return
+      }
+
+      const price = Number(plan?.price ?? membership?.price ?? 0)
+      const isFree = price <= 0
+      const clientSecret = responseBody?.payment?.payment_intent?.client_secret ?? null
+
+      if (isFree) {
+        showMessage({
+          message: 'Purchase submitted',
+          description: 'Your membership request was submitted successfully.',
+          type: 'success',
+        })
+        navigation.navigate('MembershipPurchaseSuccessScreen', {
+          membership,
+          isPaid: false,
+          idempotencyKey: responseBody?.idempotency_key ?? idempotencyKey,
+        })
+        return
+      }
+
+      if (!clientSecret) {
+        showMessage({
+          message: 'Purchase failed',
+          description: 'Payment initialization failed. Please try again.',
+          type: 'danger',
+        })
+        return
+      }
+
+      const { error: initError } = await initPaymentSheet({
+        paymentIntentClientSecret: clientSecret,
+        merchantDisplayName: 'Classy Fit',
+        style: 'alwaysDark',
+        returnURL: 'classyfit://stripe-redirect',
+      })
+
+      if (initError) {
+        console.log('Membership Payment Sheet init error:', initError)
+        showMessage({
+          message: 'Payment setup failed',
+          description: 'Unable to initialize payment sheet. Please try again.',
+          type: 'danger',
+        })
+        return
+      }
+
+      const { error: presentError } = await presentPaymentSheet()
+      if (presentError) {
+        if (presentError.code === 'Canceled') {
+          return
+        }
+
+        console.log('Membership Payment Sheet error:', presentError)
+        showMessage({
+          message: 'Payment failed',
+          description: presentError.message || 'The payment could not be processed. Please try again.',
+          type: 'danger',
+        })
+        return
+      }
+
+      const reconciliationResult = await submitPurchaseRequest()
+      const reconciledBody =
+        reconciliationResult &&
+        (reconciliationResult.response.status === 200 || reconciliationResult.response.status === 201)
+          ? reconciliationResult.responseBody
+          : responseBody
+
+      const reconciledMembership = reconciledBody?.membership ?? membership
+      if (!reconciledMembership) {
+        showMessage({
+          message: 'Purchase failed',
+          description: 'Unable to confirm your membership purchase. Please try again.',
+          type: 'danger',
+        })
+        return
+      }
+
+      showMessage({
+        message: 'Payment successful',
+        description: 'Your membership purchase has been submitted.',
+        type: 'success',
+      })
+      navigation.navigate('MembershipPurchaseSuccessScreen', {
+        membership: reconciledMembership,
+        isPaid: true,
+        idempotencyKey: reconciledBody?.idempotency_key ?? responseBody?.idempotency_key ?? idempotencyKey,
+      })
+    } catch (error) {
+      console.log('Membership purchase error:', error)
+      showMessage({
+        message: 'Purchase failed',
+        description: 'An unexpected error occurred. Please try again.',
+        type: 'danger',
+      })
+    } finally {
+      setIsPurchasing(false)
+    }
   }
 
   return (
@@ -328,9 +561,19 @@ const MembershipPlansScreen = ({ navigation }: { navigation: MembershipPlansNavi
                     </View>
                   </View>
 
-                  <TouchableOpacity style={styles.chooseButton} onPress={() => choosePlan(plan)}>
-                    <Feather name="check-circle" color={AppColors.white} size={16} />
-                    <Text style={styles.chooseButtonText}>Choose Plan</Text>
+                  <TouchableOpacity
+                    style={[styles.chooseButton, isPurchasing && styles.chooseButtonDisabled]}
+                    onPress={() => void choosePlan(plan)}
+                    disabled={isPurchasing}
+                  >
+                    {isPurchasing ? (
+                      <ActivityIndicator color={AppColors.white} />
+                    ) : (
+                      <Feather name="check-circle" color={AppColors.white} size={16} />
+                    )}
+                    <Text style={styles.chooseButtonText}>
+                      {isPurchasing ? 'Processing...' : 'Choose Plan'}
+                    </Text>
                   </TouchableOpacity>
                 </View>
               )
@@ -506,6 +749,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
+  },
+  chooseButtonDisabled: {
+    opacity: 0.75,
   },
   chooseButtonText: {
     color: AppColors.white,
