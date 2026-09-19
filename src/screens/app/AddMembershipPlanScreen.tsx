@@ -588,7 +588,6 @@ const styles = StyleSheet.create({
   title: {
     color: AppColors.blue,
     fontSize: 24,
-    fontWeight: '700',
     flex: 1,
     textAlign: 'center',
   },
@@ -616,7 +615,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: AppColors.blue,
     fontSize: 18,
-    fontWeight: '700',
   },
   serverMessage: {
     color: AppColors.red,
@@ -637,7 +635,6 @@ const styles = StyleSheet.create({
   label: {
     color: AppColors.blue,
     fontSize: 14,
-    fontWeight: '600',
     marginBottom: 8,
   },
   input: {
@@ -689,7 +686,6 @@ const styles = StyleSheet.create({
   segmentButtonText: {
     color: AppColors.blue,
     fontSize: 14,
-    fontWeight: '700',
   },
   segmentButtonTextSelected: {
     color: AppColors.white,
@@ -703,7 +699,6 @@ const styles = StyleSheet.create({
   helperTitle: {
     color: AppColors.blue,
     fontSize: 15,
-    fontWeight: '700',
     marginBottom: 6,
   },
   helperText: {
@@ -729,7 +724,6 @@ const styles = StyleSheet.create({
   submitButtonText: {
     color: AppColors.white,
     fontSize: 15,
-    fontWeight: '700',
   },
   buttonDisabled: {
     opacity: 0.75,
@@ -742,7 +736,6 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 20,
-    fontWeight: '700',
     color: AppColors.blue,
     textAlign: 'center',
   },
