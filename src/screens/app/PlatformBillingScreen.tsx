@@ -1,4 +1,4 @@
-import { useCallback, useContext, useState } from 'react'
+import { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import {
   ActivityIndicator,
   RefreshControl,
@@ -12,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { useFocusEffect } from '@react-navigation/native'
 import Feather from '@expo/vector-icons/Feather'
 import { showMessage } from 'react-native-flash-message'
+import { initStripe, useStripe } from '@stripe/stripe-react-native'
 import { AppColors } from '../../styles/colors'
 import { UserContext } from '../../context/UserContext'
 import SignOut from '../../components/utils/SignOut'
@@ -34,6 +35,7 @@ type UserContextValue = {
       | ((prev: RefreshTokens | null) => RefreshTokens | null)
   ) => void
   webServer: string
+  stripePublishableKey: string
 }
 
 type PlatformBillingRecord = {
@@ -60,7 +62,24 @@ type PlatformBillingResponse = {
   message?: string
 }
 
+type PlatformBillingPaymentIntentResponse = {
+  status?: string
+  billing?: PlatformBillingRecord | null
+  payment?: {
+    payment_intent?: {
+      client_secret?: string | null
+    } | null
+  } | null
+  message?: string
+}
+
+type PaymentFlowResult =
+  | { status: 'success' }
+  | { status: 'cancelled' }
+  | { status: 'error'; message: string }
+
 const PLATFORM_FEE_LABEL = '$10.00 USD / month'
+const PLATFORM_BILLING_URL_SCHEME = 'classyfit'
 
 const formatDateTime = (value?: string | null) => {
   if (!value) {
@@ -88,101 +107,123 @@ const formatLabel = (value?: string | null) => {
   return normalized.charAt(0).toUpperCase() + normalized.slice(1).toLowerCase()
 }
 
+const readResponseBody = async <T extends Record<string, unknown>>(response: Response): Promise<T> => {
+  const responseText = await response.text()
+  if (!responseText) {
+    return {} as T
+  }
+
+  try {
+    return JSON.parse(responseText) as T
+  } catch {
+    return { message: responseText } as unknown as T
+  }
+}
+
+const createPlatformBillingPaymentIdempotencyKey = (gymId: number | string) => {
+  const randomSuffix = Math.random().toString(36).slice(2, 10)
+  return `platform-billing-payment-${gymId}-${Date.now()}-${randomSuffix}`
+}
+
+const refreshAccessToken = async ({
+  tokens,
+  setTokens,
+  webServer,
+}: Pick<UserContextValue, 'tokens' | 'setTokens' | 'webServer'>): Promise<string | null> => {
+  if (!tokens?.refresh_token) {
+    return null
+  }
+
+  const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
+    method: 'POST',
+    body: JSON.stringify({
+      token: tokens.refresh_token,
+    }),
+  })
+
+  if (refreshResponse.status !== 200) {
+    return null
+  }
+
+  const refreshObj = await refreshResponse.json()
+  if (!refreshObj?.access_token || !refreshObj?.refresh_token) {
+    return null
+  }
+
+  setTokens((prev) => ({
+    ...prev,
+    access_token: refreshObj.access_token,
+    refresh_token: refreshObj.refresh_token,
+  }))
+
+  return refreshObj.access_token
+}
+
+const performAuthenticatedRequest = async (
+  authContext: Pick<UserContextValue, 'tokens' | 'setTokens' | 'webServer'>,
+  endpoint: string,
+  init: RequestInit = {}
+): Promise<Response | null> => {
+  if (!authContext.tokens?.access_token) {
+    return null
+  }
+
+  const requestWithToken = async (accessToken: string) => {
+    return fetch(endpoint, {
+      ...init,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(init.headers ?? {}),
+        Authorization: `Bearer ${accessToken}`,
+      },
+    })
+  }
+
+  let accessToken = authContext.tokens.access_token
+  let response = await requestWithToken(accessToken)
+
+  if (response.status === 401 || response.status === 403) {
+    const refreshedAccessToken = await refreshAccessToken(authContext)
+    if (!refreshedAccessToken) {
+      return response
+    }
+
+    accessToken = refreshedAccessToken
+    response = await requestWithToken(accessToken)
+  }
+
+  return response
+}
+
 const PlatformBillingScreen = ({ navigation }: { navigation: { goBack: () => void } }) => {
-  const { user, tokens, setTokens, webServer } = useContext(UserContext) as UserContextValue
+  const { user, tokens, setTokens, webServer, stripePublishableKey } = useContext(UserContext) as UserContextValue
+  const { initPaymentSheet, presentPaymentSheet } = useStripe()
   const [billing, setBilling] = useState<PlatformBillingRecord | null>(null)
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false)
+  const [paymentNotice, setPaymentNotice] = useState<string | null>(null)
+  const [gymStripeAccountId, setGymStripeAccountId] = useState<string | null>(null)
+  const [paymentFlowStatusText, setPaymentFlowStatusText] = useState('Preparing secure payment...')
+  const paymentAttemptBaselineRef = useRef<{
+    paid_through_at: string | null
+    status: string | null
+    current_period_end: string | null
+  } | null>(null)
+  const paymentAttemptKeyRef = useRef<string | null>(null)
+  const paymentAttemptInFlightRef = useRef(false)
 
   const isOwner = String(user?.role ?? '').trim().toLowerCase() === 'owner'
 
-  const refreshAccessToken = async (): Promise<string | null> => {
-    if (!tokens?.refresh_token) {
-      return null
-    }
-
-    const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
-      method: 'POST',
-      body: JSON.stringify({
-        token: tokens.refresh_token,
-      }),
-    })
-
-    if (refreshResponse.status !== 200) {
-      return null
-    }
-
-    const refreshObj = await refreshResponse.json()
-    if (!refreshObj?.access_token || !refreshObj?.refresh_token) {
-      return null
-    }
-
-    setTokens((prev) => ({
-      ...prev,
-      access_token: refreshObj.access_token,
-      refresh_token: refreshObj.refresh_token,
-    }))
-
-    return refreshObj.access_token
-  }
-
-  const performAuthenticatedRequest = async (
-    endpoint: string,
-    init: RequestInit = {}
-  ): Promise<Response | null> => {
-    if (!tokens?.access_token) {
-      return null
-    }
-
-    const requestWithToken = async (accessToken: string) => {
-      return fetch(endpoint, {
-        ...init,
-        headers: {
-          'Content-Type': 'application/json',
-          ...(init.headers ?? {}),
-          Authorization: `Bearer ${accessToken}`,
-        },
-      })
-    }
-
-    let accessToken = tokens.access_token
-    let response = await requestWithToken(accessToken)
-
-    if (response.status === 401 || response.status === 403) {
-      const refreshedAccessToken = await refreshAccessToken()
-      if (!refreshedAccessToken) {
-        return response
-      }
-
-      accessToken = refreshedAccessToken
-      response = await requestWithToken(accessToken)
-    }
-
-    return response
-  }
-
-  const readResponseBody = async (response: Response) => {
-    const responseText = await response.text()
-    if (!responseText) {
-      return {}
-    }
-
-    try {
-      return JSON.parse(responseText)
-    } catch {
-      return { message: responseText }
-    }
-  }
-
   const loadBilling = useCallback(
-    async ({ isRefresh = false }: { isRefresh?: boolean } = {}) => {
+    async ({ isRefresh = false }: { isRefresh?: boolean } = {}): Promise<PlatformBillingRecord | null> => {
       if (!isOwner) {
         setErrorMessage('Only gym owners can view platform billing.')
         setBilling(null)
         setLoading(false)
         setRefreshing(false)
-        return
+        return null
       }
 
       if (!user?.gym_id || !tokens?.access_token) {
@@ -190,7 +231,7 @@ const PlatformBillingScreen = ({ navigation }: { navigation: { goBack: () => voi
         setBilling(null)
         setLoading(false)
         setRefreshing(false)
-        return
+        return null
       }
 
       if (isRefresh) {
@@ -204,28 +245,34 @@ const PlatformBillingScreen = ({ navigation }: { navigation: { goBack: () => voi
       const endpoint = `${webServer}/api/v1/gyms/${user.gym_id}/platform-billing`
 
       try {
-        let response = await performAuthenticatedRequest(endpoint, { method: 'GET' })
+        let response = await performAuthenticatedRequest(
+          { tokens, setTokens, webServer },
+          endpoint,
+          { method: 'GET' }
+        )
         if (!response) {
           setErrorMessage('Please sign in again to view platform billing.')
           setBilling(null)
-          return
+          return null
         }
 
-        let responseBody = await readResponseBody(response)
+        let responseBody = await readResponseBody<PlatformBillingResponse>(response)
 
         if (response.status === 404) {
-          const initializeResponse = await performAuthenticatedRequest(endpoint, {
-            method: 'POST',
-          })
+          const initializeResponse = await performAuthenticatedRequest(
+            { tokens, setTokens, webServer },
+            endpoint,
+            { method: 'POST' }
+          )
 
           if (!initializeResponse) {
             setErrorMessage('Unable to initialize platform billing. Please sign in again.')
             setBilling(null)
-            return
+            return null
           }
 
           response = initializeResponse
-          responseBody = await readResponseBody(response)
+          responseBody = await readResponseBody<PlatformBillingResponse>(response)
         }
 
         if (response.status !== 200 && response.status !== 201) {
@@ -237,18 +284,19 @@ const PlatformBillingScreen = ({ navigation }: { navigation: { goBack: () => voi
             description: message,
             type: 'danger',
           })
-          return
+          return null
         }
 
         const nextBilling = responseBody?.billing ?? null
         if (!nextBilling) {
           setErrorMessage('Platform billing data is not available yet.')
           setBilling(null)
-          return
+          return null
         }
 
         setBilling(nextBilling)
-      } catch (error) {
+        return nextBilling
+      } catch {
         const message = 'Failed to load platform billing.'
         setErrorMessage(message)
         setBilling(null)
@@ -257,13 +305,39 @@ const PlatformBillingScreen = ({ navigation }: { navigation: { goBack: () => voi
           description: message,
           type: 'danger',
         })
+        return null
       } finally {
         setLoading(false)
         setRefreshing(false)
       }
     },
-    [isOwner, tokens?.access_token, user?.gym_id, webServer, setTokens]
+    [isOwner, setTokens, tokens, user?.gym_id, webServer]
   )
+
+  const loadGymStripeAccountContext = useCallback(async () => {
+    if (!user?.gym_id || !tokens?.access_token) {
+      setGymStripeAccountId(null)
+      return
+    }
+
+    const response = await performAuthenticatedRequest(
+      { tokens, setTokens, webServer },
+      `${webServer}/api/v1/gyms/${user.gym_id}/stripe/account-context`,
+      { method: 'GET' }
+    )
+
+    if (!response || (response.status !== 200 && response.status !== 201)) {
+      setGymStripeAccountId(null)
+      return
+    }
+
+    const responseBody = await readResponseBody<{
+      account?: {
+        stripe_account_id?: string | null
+      } | null
+    }>(response)
+    setGymStripeAccountId(String(responseBody?.account?.stripe_account_id ?? '').trim() || null)
+  }, [setTokens, tokens, user?.gym_id, webServer])
 
   const onRefresh = useCallback(() => {
     void loadBilling({ isRefresh: true })
@@ -272,12 +346,241 @@ const PlatformBillingScreen = ({ navigation }: { navigation: { goBack: () => voi
   useFocusEffect(
     useCallback(() => {
       void loadBilling()
-    }, [loadBilling])
+      void loadGymStripeAccountContext()
+    }, [loadBilling, loadGymStripeAccountContext])
   )
+
+  useEffect(() => {
+    if (!paymentNotice) {
+      return
+    }
+
+    const previousBaseline = paymentAttemptBaselineRef.current
+    const nextBaseline = {
+      paid_through_at: billing?.paid_through_at ?? null,
+      status: billing?.status ?? null,
+      current_period_end: billing?.current_period_end ?? null,
+    }
+
+    if (
+      previousBaseline &&
+      (nextBaseline.paid_through_at !== previousBaseline.paid_through_at ||
+        nextBaseline.status !== previousBaseline.status ||
+        nextBaseline.current_period_end !== previousBaseline.current_period_end)
+    ) {
+      setPaymentNotice(null)
+      paymentAttemptKeyRef.current = null
+    }
+  }, [billing?.current_period_end, billing?.paid_through_at, billing?.status, paymentNotice])
+
+  const startManualPayment = useCallback(async () => {
+    if (!billing || billing.billing_mode !== 'manual') {
+      return
+    }
+
+    if (isProcessingPayment || paymentAttemptInFlightRef.current) {
+      return
+    }
+
+    if (!user?.gym_id) {
+      showMessage({
+        message: 'Payment unavailable',
+        description: 'Please sign in again to continue.',
+        type: 'danger',
+      })
+      return
+    }
+
+    if (!stripePublishableKey || stripePublishableKey === 'pk_test_placeholder') {
+      showMessage({
+        message: 'Payment unavailable',
+        description: 'Stripe configuration is not available.',
+        type: 'danger',
+      })
+      return
+    }
+
+    if (!gymStripeAccountId) {
+      showMessage({
+        message: 'Payment unavailable',
+        description: 'The gym Stripe account is not available right now.',
+        type: 'danger',
+      })
+      return
+    }
+
+    if (!paymentAttemptKeyRef.current) {
+      paymentAttemptKeyRef.current = createPlatformBillingPaymentIdempotencyKey(user.gym_id)
+    }
+
+    paymentAttemptInFlightRef.current = true
+    paymentAttemptBaselineRef.current = {
+      paid_through_at: billing.paid_through_at ?? null,
+      status: billing.status ?? null,
+      current_period_end: billing.current_period_end ?? null,
+    }
+    setPaymentNotice(null)
+    setIsProcessingPayment(true)
+    setPaymentFlowStatusText('Opening Classy Fit payment sheet...')
+
+    let paymentOutcome: 'success' | 'cancelled' | 'error' = 'error'
+    let paymentErrorMessage = 'Unable to start platform billing payment.'
+    let didCancelPayment = false
+    let restoreErrorMessage: string | null = null
+
+    try {
+      await initStripe({
+        publishableKey: stripePublishableKey,
+        urlScheme: PLATFORM_BILLING_URL_SCHEME,
+      })
+
+      setPaymentFlowStatusText('Creating payment request...')
+      const paymentIntentResponse = await performAuthenticatedRequest(
+        { tokens, setTokens, webServer },
+        `${webServer}/api/v1/gyms/${user.gym_id}/platform-billing/payment-intent`,
+        {
+          method: 'POST',
+          headers: {
+            'Idempotency-Key': paymentAttemptKeyRef.current,
+          },
+          body: JSON.stringify({}),
+        }
+      )
+
+      if (!paymentIntentResponse) {
+        paymentOutcome = 'error'
+        paymentErrorMessage = 'Please sign in again to continue.'
+        return
+      }
+
+      const paymentIntentBody = await readResponseBody<PlatformBillingPaymentIntentResponse>(paymentIntentResponse)
+
+      if (paymentIntentResponse.status !== 200 && paymentIntentResponse.status !== 201) {
+        paymentOutcome = 'error'
+        paymentErrorMessage = paymentIntentBody?.message || 'Unable to start platform billing payment.'
+        return
+      }
+
+      const clientSecret = paymentIntentBody?.payment?.payment_intent?.client_secret ?? null
+      if (!clientSecret) {
+        paymentOutcome = 'error'
+        paymentErrorMessage = 'Payment initialization failed. Please try again.'
+        return
+      }
+
+      setPaymentFlowStatusText('Presenting payment sheet...')
+      const { error: initError } = await initPaymentSheet({
+        paymentIntentClientSecret: clientSecret,
+        merchantDisplayName: 'Classy Fit',
+        style: 'alwaysDark',
+        returnURL: 'classyfit://stripe-redirect',
+      })
+
+      if (initError) {
+        paymentOutcome = 'error'
+        paymentErrorMessage = initError.message || 'Unable to initialize payment sheet.'
+        return
+      }
+
+      const { error: presentError, didCancel } = await presentPaymentSheet()
+      if (didCancel || presentError?.code === 'Canceled') {
+        didCancelPayment = true
+        return
+      }
+
+      if (presentError) {
+        paymentOutcome = 'error'
+        paymentErrorMessage = presentError.message || 'The payment could not be processed.'
+        return
+      }
+
+      paymentOutcome = 'success'
+    } catch (error) {
+      paymentOutcome = 'error'
+      paymentErrorMessage = error instanceof Error ? error.message : 'An unexpected payment error occurred.'
+    } finally {
+      try {
+        await initStripe({
+          publishableKey: stripePublishableKey,
+          stripeAccountId: gymStripeAccountId,
+          urlScheme: PLATFORM_BILLING_URL_SCHEME,
+        })
+      } catch (restoreError) {
+        restoreErrorMessage =
+          restoreError instanceof Error
+            ? restoreError.message
+            : 'Unable to restore the gym Stripe configuration.'
+      }
+    }
+
+    paymentAttemptInFlightRef.current = false
+    setIsProcessingPayment(false)
+
+    if (restoreErrorMessage) {
+      showMessage({
+        message: 'Stripe configuration unavailable',
+        description: restoreErrorMessage,
+        type: 'danger',
+      })
+      return
+    }
+
+    if (didCancelPayment) {
+      return
+    }
+
+    if (paymentOutcome === 'error') {
+      showMessage({
+        message: 'Payment failed',
+        description: paymentErrorMessage,
+        type: 'danger',
+      })
+      return
+    }
+
+    showMessage({
+      message: 'Payment submitted',
+      description: 'Your platform billing payment is being confirmed by Stripe.',
+      type: 'success',
+    })
+
+    setPaymentNotice('Payment submitted. Waiting for Stripe confirmation...')
+    const refreshedBilling = await loadBilling({ isRefresh: true })
+    const previousBaseline = paymentAttemptBaselineRef.current
+    const nextBaseline = {
+      paid_through_at: refreshedBilling?.paid_through_at ?? null,
+      status: refreshedBilling?.status ?? null,
+      current_period_end: refreshedBilling?.current_period_end ?? null,
+    }
+
+    if (
+      previousBaseline &&
+      (nextBaseline.paid_through_at !== previousBaseline.paid_through_at ||
+        nextBaseline.status !== previousBaseline.status ||
+        nextBaseline.current_period_end !== previousBaseline.current_period_end)
+    ) {
+      setPaymentNotice(null)
+      paymentAttemptKeyRef.current = null
+    }
+  }, [
+    billing,
+    gymStripeAccountId,
+    initPaymentSheet,
+    isProcessingPayment,
+    loadBilling,
+    paymentFlowStatusText,
+    presentPaymentSheet,
+    setTokens,
+    stripePublishableKey,
+    tokens,
+    user?.gym_id,
+    webServer,
+  ])
 
   const billingMode = formatLabel(billing?.billing_mode)
   const billingStatus = formatLabel(billing?.status)
   const hasBilling = billing !== null
+  const showManualPayment = hasBilling && String(billing?.billing_mode ?? '').trim().toLowerCase() === 'manual'
 
   return (
     <SafeAreaView style={styles.container}>
@@ -321,6 +624,13 @@ const PlatformBillingScreen = ({ navigation }: { navigation: { goBack: () => voi
           </View>
         ) : (
           <View style={styles.list}>
+            {paymentNotice ? (
+              <View style={styles.noticeCard}>
+                <Feather name="clock" color={AppColors.blue} size={18} />
+                <Text style={styles.noticeText}>{paymentNotice}</Text>
+              </View>
+            ) : null}
+
             <View style={styles.card}>
               <View style={styles.cardHeader}>
                 <View style={styles.cardHeaderText}>
@@ -360,15 +670,47 @@ const PlatformBillingScreen = ({ navigation }: { navigation: { goBack: () => voi
                 </View>
               </View>
 
+              {showManualPayment ? (
+                <View style={styles.paymentSection}>
+                  <Text style={styles.paymentSectionTitle}>Manual payment required</Text>
+                  <Text style={styles.paymentSectionText}>
+                    Pay the current $10.00 platform fee to Classy Fit using the platform Stripe account.
+                  </Text>
+
+                  <TouchableOpacity
+                    style={[styles.payBtn, (isProcessingPayment || !gymStripeAccountId) && styles.payBtnDisabled]}
+                    onPress={startManualPayment}
+                    disabled={isProcessingPayment || !gymStripeAccountId}
+                    activeOpacity={isProcessingPayment || !gymStripeAccountId ? 1 : 0.85}
+                  >
+                    {isProcessingPayment ? (
+                      <ActivityIndicator color={AppColors.white} />
+                    ) : (
+                      <Text style={styles.payBtnText}>Pay $10.00</Text>
+                    )}
+                  </TouchableOpacity>
+                </View>
+              ) : null}
+
               <View style={styles.noteBox}>
                 <Text style={styles.noteText}>
-                  This screen only shows the current platform-billing state. Payment actions are added in a later milestone.
+                  This screen shows the current platform-billing state. Payment updates are confirmed by Stripe webhooks.
                 </Text>
               </View>
             </View>
           </View>
         )}
       </ScrollView>
+
+      {isProcessingPayment ? (
+        <View style={styles.paymentOverlay} pointerEvents="auto">
+          <View style={styles.paymentOverlayCard}>
+            <ActivityIndicator size="large" color={AppColors.blue} />
+            <Text style={styles.paymentOverlayTitle}>Starting payment</Text>
+            <Text style={styles.paymentOverlayText}>{paymentFlowStatusText}</Text>
+          </View>
+        </View>
+      ) : null}
     </SafeAreaView>
   )
 }
@@ -471,6 +813,22 @@ const styles = StyleSheet.create({
   list: {
     gap: 14,
   },
+  noticeCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: '#F3F8FF',
+    borderColor: '#D6E7FF',
+    borderWidth: 1,
+    borderRadius: 16,
+    padding: 14,
+  },
+  noticeText: {
+    flex: 1,
+    color: AppColors.blue,
+    fontSize: 14,
+    lineHeight: 20,
+  },
   card: {
     backgroundColor: AppColors.white,
     borderRadius: 18,
@@ -518,42 +876,112 @@ const styles = StyleSheet.create({
   badgeText: {
     color: AppColors.white,
     fontSize: 12,
-    fontFamily: 'Montserrat',
-    textTransform: 'capitalize',
   },
   metaRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
     gap: 12,
-    marginTop: 16,
+    marginTop: 10,
   },
   metaItem: {
-    flexBasis: '48%',
-    backgroundColor: AppColors.grey,
-    borderRadius: 14,
-    padding: 12,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: 16,
   },
   metaLabel: {
+    flex: 1,
+    fontSize: 13,
     color: AppColors.grey3,
-    fontSize: 12,
-    marginBottom: 4,
-    textTransform: 'uppercase',
   },
   metaValue: {
+    flex: 1,
+    fontSize: 13,
     color: AppColors.blue,
-    fontSize: 14,
+    textAlign: 'right',
+  },
+  paymentSection: {
+    marginTop: 18,
+    padding: 16,
+    borderRadius: 16,
+    backgroundColor: '#F8FAFF',
+    borderWidth: 1,
+    borderColor: '#D6E7FF',
+    gap: 10,
+  },
+  paymentSectionTitle: {
+    color: AppColors.blue,
     fontFamily: 'Montserrat',
+    fontSize: 16,
+  },
+  paymentSectionText: {
+    color: AppColors.grey3,
+    fontSize: 14,
     lineHeight: 20,
   },
+  payBtn: {
+    marginTop: 4,
+    backgroundColor: AppColors.blue,
+    borderRadius: 999,
+    alignSelf: 'flex-start',
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    minWidth: 136,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  payBtnDisabled: {
+    opacity: 0.7,
+  },
+  payBtnText: {
+    color: AppColors.white,
+    fontFamily: 'Montserrat',
+    fontSize: 14,
+  },
   noteBox: {
-    marginTop: 16,
-    backgroundColor: AppColors.grey,
+    marginTop: 18,
+    backgroundColor: '#F6F6F6',
     borderRadius: 14,
-    padding: 12,
+    padding: 14,
   },
   noteText: {
-    color: AppColors.primary,
+    color: AppColors.grey3,
     fontSize: 13,
-    lineHeight: 18,
+    lineHeight: 19,
+  },
+  paymentOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(255,255,255,0.72)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+  },
+  paymentOverlayCard: {
+    width: '100%',
+    maxWidth: 320,
+    backgroundColor: AppColors.white,
+    borderRadius: 20,
+    paddingVertical: 24,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: AppColors.grey,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 6,
+  },
+  paymentOverlayTitle: {
+    marginTop: 14,
+    color: AppColors.blue,
+    fontFamily: 'Montserrat',
+    fontSize: 16,
+    textAlign: 'center',
+  },
+  paymentOverlayText: {
+    marginTop: 8,
+    color: AppColors.grey3,
+    fontSize: 14,
+    textAlign: 'center',
+    lineHeight: 20,
   },
 })
