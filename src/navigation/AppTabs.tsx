@@ -40,6 +40,7 @@ import MembershipPurchaseSuccessScreen from '../screens/app/MembershipPurchaseSu
 import MembershipPlanManagementScreen from '../screens/app/MembershipPlanManagementScreen'
 import AddMembershipPlanScreen from '../screens/app/AddMembershipPlanScreen'
 import EditMembershipPlanScreen from '../screens/app/EditMembershipPlanScreen'
+import PlatformBillingScreen from '../screens/app/PlatformBillingScreen'
 import MyMembershipScreen from '../screens/app/MyMembershipScreen'
 import PersonalTrainingBookingSuccessScreen from '../screens/app/PersonalTrainingBookingSuccessScreen'
 import MyPersonalTrainingBookingsScreen from '../screens/app/MyPersonalTrainingBookingsScreen'
@@ -189,6 +190,7 @@ function ProfileStackScreen() {
       <ProfileStack.Screen name="MembershipPlanManagementScreen" component={MembershipPlanManagementScreen} />
       <ProfileStack.Screen name="AddMembershipPlanScreen" component={AddMembershipPlanScreen} />
       <ProfileStack.Screen name="EditMembershipPlanScreen" component={EditMembershipPlanScreen} />
+      <ProfileStack.Screen name="PlatformBillingScreen" component={PlatformBillingScreen} />
     </ProfileStack.Navigator>
   )
 }
