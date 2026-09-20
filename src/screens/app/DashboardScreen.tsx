@@ -77,7 +77,7 @@ const DashboardScreen = ({ navigation, route }) => {
                 <View style={styles.whiteSquare}>
                   <FontAwesome5 name="credit-card" size={28} color={AppColors.blue} />
                 </View>
-                <Text style={styles.squareLabel}>Membership {'\n'}Plans</Text>
+                <Text style={styles.squareLabel}>Membership</Text>
               </TouchableOpacity>
               {isOwner ? (
                 <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('ContractorsScreen')}>
