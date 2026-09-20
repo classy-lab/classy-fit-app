@@ -234,12 +234,13 @@ const styles = StyleSheet.create({
     marginTop: 8,
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
-    rowGap: 16,
+    rowGap: 12,
     columnGap: 12,
-    width: '100%',
-    paddingBottom: 96
+    // width: '100%',
+    width: 'auto',
+    // paddingBottom: 96,
   },
   greySquare: {
     backgroundColor: AppColors.grey,
