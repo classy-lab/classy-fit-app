@@ -265,6 +265,10 @@ const PlatformBillingScreen = ({ navigation }: { navigation: { goBack: () => voi
     [isOwner, tokens?.access_token, user?.gym_id, webServer, setTokens]
   )
 
+  const onRefresh = useCallback(() => {
+    void loadBilling({ isRefresh: true })
+  }, [loadBilling])
+
   useFocusEffect(
     useCallback(() => {
       void loadBilling()
@@ -288,7 +292,9 @@ const PlatformBillingScreen = ({ navigation }: { navigation: { goBack: () => voi
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => void loadBilling({ isRefresh: true })} tintColor={AppColors.blue} />}
+        alwaysBounceVertical
+        bounces
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={AppColors.blue} />}
       >
         <View style={styles.headingContainer}>
           <Text style={styles.title}>Platform Billing</Text>
@@ -390,6 +396,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
+    flexGrow: 1,
     paddingHorizontal: 16,
     paddingVertical: 16,
     paddingBottom: 28,
