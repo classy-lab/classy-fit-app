@@ -9,6 +9,8 @@ import { setCustomText, setCustomTextInput } from "react-native-global-props";
 import { UserContext } from "./src/context/UserContext";
 import { CartProvider } from "./src/context/CartContext";
 import FlashMessage from "react-native-flash-message";
+import { getOnboardingCompleted, markOnboardingCompleted } from "./src/utils/onboardingStorage";
+import OnboardingStack from "./src/navigation/OnboardingStack";
 
 // Apply Montserrat to Text components that do not set a font explicitly.
 const customTextProps = {
@@ -55,6 +57,8 @@ export default function App() {
     require("./app.json").expo.extra.stripePublishableKey || "pk_test_placeholder",
   );
   const [stripeAccountId, setStripeAccountId] = useState<string | undefined>();
+  const [isOnboardingComplete, setIsOnboardingComplete] = useState(false);
+  const [isOnboardingReady, setIsOnboardingReady] = useState(false);
 
   useEffect(() => {
     if (!fontsLoaded) {
@@ -65,6 +69,51 @@ export default function App() {
     setCustomText(customTextProps);
     setCustomTextInput(customTextInputProps);
   }, [fontsLoaded]);
+
+  useEffect(() => {
+    if (!fontsLoaded || isLoggedIn) {
+      return;
+    }
+
+    let isMounted = true;
+
+    const loadOnboardingState = async () => {
+      try {
+        const onboardingComplete = await getOnboardingCompleted();
+
+        if (!isMounted) {
+          return;
+        }
+
+        setIsOnboardingComplete(onboardingComplete);
+      } catch (error) {
+        console.error("Failed to load onboarding state:", error);
+        if (!isMounted) {
+          return;
+        }
+      } finally {
+        if (isMounted) {
+          setIsOnboardingReady(true);
+        }
+      }
+    };
+
+    loadOnboardingState();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [fontsLoaded, isLoggedIn]);
+
+  const completeOnboarding = async () => {
+    try {
+      await markOnboardingCompleted();
+    } catch (error) {
+      console.error("Failed to persist onboarding completion:", error);
+    } finally {
+      setIsOnboardingComplete(true);
+    }
+  };
 
   useEffect(() => {
     if (!user?.gym_id || !tokens?.access_token) {
@@ -110,6 +159,10 @@ export default function App() {
     return null;
   }
 
+  if (!isLoggedIn && !isOnboardingReady) {
+    return null;
+  }
+
   return (
     // Share auth and API state across the app tree.
     <UserContext.Provider
@@ -134,7 +187,13 @@ export default function App() {
             linking={linking}
             fallback={<></>}
           >
-            {isLoggedIn ? <AppTabs /> : <AuthStack />}
+            {isLoggedIn ? (
+              <AppTabs />
+            ) : isOnboardingComplete ? (
+              <AuthStack />
+            ) : (
+              <OnboardingStack onComplete={completeOnboarding} />
+            )}
           </NavigationContainer>
           <FlashMessage position={"top"} />
         </CartProvider>
