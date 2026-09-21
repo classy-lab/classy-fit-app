@@ -64,6 +64,7 @@ const RegisterForm = () => {
   const [website, setWebsite] = useState("");
   const { webServer } = useContext(UserContext);
   const preselectedGymId = route.params?.gymId || "";
+  const [profilePicAPIImage, setProfilePicAPIImage] = useState<string>("");
 
   const selectImage = async (onChange: (value: any) => void) => {
     try {
@@ -326,7 +327,11 @@ const RegisterForm = () => {
             control={control}
             name="profilePic"
             render={({ field: { onChange, value } }) => {
-              const selectedProfilePicUri = (value as any)?.path || (value as any)?.uri || "";
+              const selectedProfilePicUri =
+                (value as any)?.path ||
+                (value as any)?.uri ||
+                profilePicAPIImage ||
+                "";
 
               return (
                 <View style={styles.imageContainer}>
