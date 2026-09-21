@@ -1,11 +1,11 @@
 // @ts-nocheck
 import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, ActivityIndicator, useWindowDimensions } from 'react-native'
 import { useState, useCallback, useContext } from 'react'
+import { Alert, Linking } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { useFocusEffect } from '@react-navigation/native'
-import { WebView } from 'react-native-webview'
 import RenderHtml from 'react-native-render-html'
 import { AppColors } from '../../styles/colors'
 import { UserContext } from '../../context/UserContext'
@@ -17,21 +17,6 @@ const resolveEquipmentImageUri = (webServer, imageUrl) => {
     return normalized;
   }
   return `${webServer}/api/${normalized.replace(/^\/?(api\/)?/, '')}`;
-};
-
-const extractYouTubeVideoId = (url: string): string | null => {
-  if (!url) return null;
-  const patterns = [
-    /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([^&]+)/,
-    /(?:https?:\/\/)?(?:www\.)?youtu\.be\/([^?]+)/,
-    /^([a-zA-Z0-9_-]{11})$/,
-  ];
-  
-  for (const pattern of patterns) {
-    const match = url.match(pattern);
-    if (match && match[1]) return match[1];
-  }
-  return null;
 };
 
 const buildImageSlots = (images = [], webServer) => {
@@ -143,6 +128,7 @@ const EquipmentDetailScreen = ({ navigation, route }) => {
     webServer,
     imageSlots[selectedImageIndex]?.source?.uri || imageSlots[0]?.source?.uri
   );
+  const usageVideoUrl = String(equipment?.usage_video_url ?? '').trim();
 
   const detailRows = [
     { label: 'Category', value: equipment?.equipment_category_name },
@@ -244,21 +230,20 @@ const EquipmentDetailScreen = ({ navigation, route }) => {
               <View style={styles.content}>
                 <Text style={styles.equipmentTitle}>{equipment?.title ?? 'Untitled Equipment'}</Text>
 
-                {equipment?.usage_video_url ? (
+                {usageVideoUrl ? (
                   <View style={styles.videoBlock}>
-                    <Text style={styles.formLabel}>Usage Guide Video:</Text>
-                    <View style={styles.videoContainer}>
-                      <WebView
-                        source={{
-                          uri: `https://www.youtube.com/embed/${extractYouTubeVideoId(equipment.usage_video_url)}?autoplay=0&controls=1&modestbranding=1&fs=1&iv_load_policy=3&rel=0`,
-                        }}
-                        style={styles.videoPlayer}
-                        allowsFullscreenVideo={true}
-                        javaScriptEnabled={true}
-                        domStorageEnabled={true}
-                        startInLoadingState={true}
-                      />
-                    </View>
+                    <TouchableOpacity
+                      style={styles.videoActionButton}
+                      activeOpacity={0.85}
+                      onPress={() => {
+                        Linking.openURL(usageVideoUrl).catch(() => {
+                          Alert.alert('Unable to open video', 'Please check the video URL and try again.')
+                        })
+                      }}
+                    >
+                      <MaterialCommunityIcons name="play-circle-outline" size={18} color={AppColors.white} />
+                      <Text style={styles.videoActionText}>Watch Video</Text>
+                    </TouchableOpacity>
                   </View>
                 ) : null}
 
@@ -458,17 +443,20 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 16,
   },
-  videoContainer: {
-    width: '100%',
-    height: 240,
+  videoActionButton: {
     marginTop: 8,
-    borderRadius: 8,
-    overflow: 'hidden',
-    backgroundColor: '#000',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: AppColors.blue,
+    borderRadius: 10,
+    paddingVertical: 12,
   },
-  videoPlayer: {
-    width: '100%',
-    height: '100%',
+  videoActionText: {
+    color: AppColors.white,
+    fontSize: 15,
+    fontWeight: '600',
+    marginLeft: 8,
   },
   formLabel: {
     marginBottom: 8,
