@@ -90,10 +90,9 @@ const addEquipmentSchema = yup.object({
   usage_video_url: yup
     .string()
     .nullable()
-    .test('valid-youtube-url', 'Invalid YouTube URL format', (value) => {
+    .test('valid-video-url', 'Invalid Video URL format', (value) => {
       if (!value || String(value).trim() === '') return true
-      const youtubeRegex = /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/\S+$/i
-      return youtubeRegex.test(value)
+      return /^https?:\/\/\S+$/i.test(String(value).trim())
     }),
   brand: yup.string().trim().required("Brand is required").nullable(),
   model: yup.string().trim()
@@ -702,9 +701,9 @@ const AddEquipmentScreen = ({ navigation }) => {
 
             {renderTextField(
               'usage_video_url',
-              'Usage Video (YouTube URL):',
-              'https://www.youtube.com/watch?v=...',
-              { autoCapitalize: 'none' }
+              'Video URL (Optional):',
+              'https://www.youtube.com/watch?v=... or https://example.com/video.mp4',
+              { autoCapitalize: 'none', keyboardType: 'url' }
             )}
 
             {renderSelectField(
