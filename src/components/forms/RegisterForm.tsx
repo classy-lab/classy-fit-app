@@ -203,17 +203,17 @@ const RegisterForm = () => {
         type: "image/png",
         isLocalAvatar: true,
       },
-      email: "test.user1+reg@classyfit.dev",
-      password: "TestPass12345",
-      confirmPassword: "TestPass12345",
+      email: "",
+      password: "",
+      confirmPassword: "",
       role: normalizeRole("2"),
-      fname: "Ava",
-      lname: "Thompson",
-      dateOfBirth: "1996-04-18",
-      sex: "female",
-      phoneNumber: "+15185551234",
-      whatsappNumber: "+15185557654",
-      preferredContact: "Phone",
+      fname: "",
+      lname: "",
+      dateOfBirth: "",
+      sex: "",
+      phoneNumber: "",
+      whatsappNumber: "",
+      preferredContact: "",
       gymId: preselectedGymId || "1",
     },
   });
@@ -346,31 +346,31 @@ const RegisterForm = () => {
                   >
                     {localAvatarOptions.map((avatar) => {
                       const isSelectedAvatar =
-                       Boolean((value as any)?.isLocalAvatar) &&
-                       (value as any)?.filename === avatar.name;
+                        Boolean((value as any)?.isLocalAvatar) &&
+                        (value as any)?.filename === avatar.name;
 
                       return (
-                       <TouchableOpacity
-                         key={avatar.key}
-                         onPress={() => selectLocalAvatar(avatar, onChange)}
-                         style={[
-                           styles.avatarOption,
-                           avatarOptionStyle,
-                           isSelectedAvatar && {
-                             borderColor: AppColors.blue,
-                             transform: [{ scale: 1.03 }],
-                           },
-                         ]}
-                       >
-                         <Image
-                           source={avatar.asset}
-                           style={[
-                             styles.avatarOptionImage,
-                             avatarOptionImageStyle,
-                           ]}
-                           resizeMode="cover"
-                         />
-                       </TouchableOpacity>
+                        <TouchableOpacity
+                          key={avatar.key}
+                          onPress={() => selectLocalAvatar(avatar, onChange)}
+                          style={[
+                            styles.avatarOption,
+                            avatarOptionStyle,
+                            isSelectedAvatar && {
+                              borderColor: AppColors.blue,
+                              transform: [{ scale: 1.03 }],
+                            },
+                          ]}
+                        >
+                          <Image
+                            source={avatar.asset}
+                            style={[
+                              styles.avatarOptionImage,
+                              avatarOptionImageStyle,
+                            ]}
+                            resizeMode="cover"
+                          />
+                        </TouchableOpacity>
                       );
                     })}
                   </ScrollView>
