@@ -9,6 +9,7 @@ import {
   Text,
   TouchableOpacity,
   TextInput,
+  ScrollView,
   Alert,
   Linking,
   Platform,
@@ -141,6 +142,21 @@ const RegisterForm = () => {
   const [phoneCountryCode, setPhoneCountryCode] = useState("US");
   const [whatsappCountryCode, setWhatsappCountryCode] = useState("US");
   const defaultAvatar = Image.resolveAssetSource(localAvatarOptions[0].asset);
+  const avatarGridStyle = {
+    flexDirection: "row",
+    flexWrap: "nowrap",
+    alignItems: "center",
+    gap: 8,
+  };
+  const avatarOptionStyle = {
+    margin: 0,
+  };
+  const avatarOptionImageStyle = {
+    width: 56,
+    height: 56,
+    borderColor: AppColors.grey2,
+    margin: 2,
+  };
 
   // This is the "onChange" logic for GymList
   const handleSelectionChange = (val) => {
@@ -306,17 +322,21 @@ const RegisterForm = () => {
                     )}
                   </TouchableOpacity>
                   <Text style={styles.helperText}>Choose a photo from your gallery or pick one of the local avatars below.</Text>
-                  <View style={styles.avatarGrid}>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={[styles.avatarGrid, avatarGridStyle]}
+                  >
                     {localAvatarOptions.map((avatar) => (
                       <TouchableOpacity
-                        key={avatar.key}
-                        onPress={() => selectLocalAvatar(avatar, onChange)}
-                        style={styles.avatarOption}
+                       key={avatar.key}
+                       onPress={() => selectLocalAvatar(avatar, onChange)}
+                       style={[styles.avatarOption, avatarOptionStyle]}
                       >
-                        <Image source={avatar.asset} style={styles.avatarOptionImage} resizeMode="cover" />
+                       <Image source={avatar.asset} style={[styles.avatarOptionImage, avatarOptionImageStyle]} resizeMode="cover" />
                       </TouchableOpacity>
                     ))}
-                  </View>
+                  </ScrollView>
                 </View>
               );
             }}
