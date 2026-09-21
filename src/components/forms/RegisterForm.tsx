@@ -146,16 +146,33 @@ const RegisterForm = () => {
     flexDirection: "row",
     flexWrap: "nowrap",
     alignItems: "center",
-    gap: 8,
+    gap: 12,
+    paddingVertical: 4,
+    paddingHorizontal: 2,
   };
   const avatarOptionStyle = {
     margin: 0,
+    borderRadius: 18,
+    overflow: "hidden",
+    backgroundColor: AppColors.white,
   };
   const avatarOptionImageStyle = {
-    width: 56,
-    height: 56,
+    width: 60,
+    height: 60,
+    borderRadius: 16,
     borderColor: AppColors.grey2,
-    margin: 2,
+    margin: 0,
+  };
+  const submitBtnStyle = {
+    width: "100%",
+    maxWidth: 360,
+    alignSelf: "center",
+    marginTop: 8,
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 2,
   };
 
   // This is the "onChange" logic for GymList
@@ -327,15 +344,35 @@ const RegisterForm = () => {
                     showsHorizontalScrollIndicator={false}
                     contentContainerStyle={[styles.avatarGrid, avatarGridStyle]}
                   >
-                    {localAvatarOptions.map((avatar) => (
-                      <TouchableOpacity
-                       key={avatar.key}
-                       onPress={() => selectLocalAvatar(avatar, onChange)}
-                       style={[styles.avatarOption, avatarOptionStyle]}
-                      >
-                       <Image source={avatar.asset} style={[styles.avatarOptionImage, avatarOptionImageStyle]} resizeMode="cover" />
-                      </TouchableOpacity>
-                    ))}
+                    {localAvatarOptions.map((avatar) => {
+                      const isSelectedAvatar =
+                       Boolean((value as any)?.isLocalAvatar) &&
+                       (value as any)?.filename === avatar.name;
+
+                      return (
+                       <TouchableOpacity
+                         key={avatar.key}
+                         onPress={() => selectLocalAvatar(avatar, onChange)}
+                         style={[
+                           styles.avatarOption,
+                           avatarOptionStyle,
+                           isSelectedAvatar && {
+                             borderColor: AppColors.blue,
+                             transform: [{ scale: 1.03 }],
+                           },
+                         ]}
+                       >
+                         <Image
+                           source={avatar.asset}
+                           style={[
+                             styles.avatarOptionImage,
+                             avatarOptionImageStyle,
+                           ]}
+                           resizeMode="cover"
+                         />
+                       </TouchableOpacity>
+                      );
+                    })}
                   </ScrollView>
                 </View>
               );
@@ -699,11 +736,11 @@ const RegisterForm = () => {
         </Text>
         <View style={styles.loginBtnContainer}>
           <TouchableOpacity
-            style={styles.loginBtn}
+            style={[styles.loginBtn, submitBtnStyle]}
             title="loginSubmit"
             onPress={handleSubmit(registerUser)}
           >
-            <Text style={styles.loginBtnText}>Create Account</Text>
+            <Text style={[styles.loginBtnText, { fontFamily: "Montserrat-Bold", letterSpacing: 0.2 }]}>Create Account</Text>
           </TouchableOpacity>
         </View>
       </View>
