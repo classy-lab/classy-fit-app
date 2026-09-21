@@ -107,17 +107,83 @@ const ViewCartScreen = () => {
     }
   }
 
-  const submitOrder = async () => {
-    if (!canCheckout) {
-      return
-    }
-
+  const submitOrderRequest = async (payload: any) => {
     if (!user?.gym_id || !tokens?.access_token) {
       showMessage({
         message: 'Checkout unavailable',
         description: 'Missing gym or login session. Please sign in again.',
         type: 'danger',
       })
+      return null
+    }
+
+    if (!Number.isFinite(payload.user_uid) || payload.user_uid <= 0) {
+      showMessage({
+        message: 'Checkout unavailable',
+        description: 'Invalid user id in session. Please sign in again.',
+        type: 'danger',
+      })
+      return null
+    }
+
+    if (payload.items.some((item) => !Number.isFinite(item.product_uid) || item.product_uid <= 0)) {
+      showMessage({
+        message: 'Checkout unavailable',
+        description: 'One or more cart items have invalid product ids.',
+        type: 'danger',
+      })
+      return null
+    }
+
+    const endpoint = `${webServer}/api/v1/gyms/${user.gym_id}/checkout/payment-intent`
+
+    let accessToken = tokens.access_token
+    let response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(payload),
+    })
+
+    if (response.status === 401 || response.status === 403) {
+      const refreshedAccessToken = await refreshAccessToken()
+      if (!refreshedAccessToken) {
+        showMessage({
+          message: 'Session expired',
+          description: 'Please sign in again.',
+          type: 'danger',
+        })
+        return null
+      }
+
+      accessToken = refreshedAccessToken
+      response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(payload),
+      })
+    }
+
+    const text = await response.text()
+    let responseBody: any = {}
+    if (text) {
+      try {
+        responseBody = JSON.parse(text)
+      } catch (parseError) {
+        responseBody = { message: text }
+      }
+    }
+
+    return { response, responseBody }
+  }
+
+  const submitOrder = async () => {
+    if (!canCheckout) {
       return
     }
 
@@ -134,85 +200,22 @@ const ViewCartScreen = () => {
 
     try {
       const payload = buildCreateOrderPayload()
-      if (!Number.isFinite(payload.user_uid) || payload.user_uid <= 0) {
-        showMessage({
-          message: 'Checkout unavailable',
-          description: 'Invalid user id in session. Please sign in again.',
-          type: 'danger',
-        })
-        setIsSubmittingOrder(false)
+      const initialCheckoutResult = await submitOrderRequest(payload)
+      if (!initialCheckoutResult) {
         return
       }
 
-      if (payload.items.some((item) => !Number.isFinite(item.product_uid) || item.product_uid <= 0)) {
-        showMessage({
-          message: 'Checkout unavailable',
-          description: 'One or more cart items have invalid product ids.',
-          type: 'danger',
-        })
-        setIsSubmittingOrder(false)
-        return
-      }
+      let { response, responseBody } = initialCheckoutResult
 
-      // Call payment-intent endpoint instead of order endpoint
-      const endpoint = `${webServer}/api/v1/gyms/${user.gym_id}/checkout/payment-intent`
-
-      let accessToken = tokens.access_token
-      let response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(payload),
-      })
-
-      // Handle token expiration and retry
-      if (response.status === 401 || response.status === 403) {
-        const refreshedAccessToken = await refreshAccessToken()
-        if (refreshedAccessToken) {
-          accessToken = refreshedAccessToken
-          response = await fetch(endpoint, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${refreshedAccessToken}`,
-            },
-            body: JSON.stringify(payload),
-          })
-        } else {
-          showMessage({
-            message: 'Session expired',
-            description: 'Please sign in again.',
-            type: 'danger',
-          })
-          setIsSubmittingOrder(false)
-          return
-        }
-      }
-
-      const text = await response.text()
-      let responseBody = {}
-      if (text) {
-        try {
-          responseBody = JSON.parse(text)
-        } catch (parseError) {
-          responseBody = { message: text }
-        }
-      }
-
-      // Check for success response
       if (response.status !== 200 && response.status !== 201) {
         showMessage({
           message: responseBody?.message || 'Checkout failed',
           description: Array.isArray(responseBody?.errors) ? responseBody.errors.join('\n') : 'Please try again.',
           type: 'danger',
         })
-        setIsSubmittingOrder(false)
         return
       }
 
-      // Extract client secret from response
       const clientSecret = responseBody?.payment_intent?.client_secret
       if (!clientSecret) {
         showMessage({
@@ -220,17 +223,14 @@ const ViewCartScreen = () => {
           description: 'Payment initialization failed. Please try again.',
           type: 'danger',
         })
-        setIsSubmittingOrder(false)
         return
       }
 
-      // Store order info for thank you screen
       const orderInfo = {
         order_uid: responseBody?.order_uid,
         order_number: responseBody?.order_number,
       }
 
-      // Initialize Payment Sheet with client secret
       const { error: initError } = await initPaymentSheet({
         paymentIntentClientSecret: clientSecret,
         merchantDisplayName: 'Classy Fit',
@@ -245,18 +245,13 @@ const ViewCartScreen = () => {
           description: 'Unable to initialize payment sheet. Please try again.',
           type: 'danger',
         })
-        setIsSubmittingOrder(false)
         return
       }
 
-      // Present Payment Sheet to user
       const { error: presentError } = await presentPaymentSheet()
 
       if (presentError) {
-        // Check if user cancelled or actual error
         if (presentError.code === 'Canceled') {
-          // User cancelled - just restore UI state
-          setIsSubmittingOrder(false)
           return
         }
 
@@ -266,20 +261,45 @@ const ViewCartScreen = () => {
           description: presentError.message || 'The payment could not be processed. Please try again.',
           type: 'danger',
         })
-        setIsSubmittingOrder(false)
         return
       }
 
-      // Payment succeeded
+      const reconciliationResult = await submitOrderRequest(payload)
+      if (!reconciliationResult) {
+        return
+      }
+
+      if (reconciliationResult.response.status === 200 || reconciliationResult.response.status === 201) {
+        response = reconciliationResult.response
+        responseBody = reconciliationResult.responseBody
+      }
+
+      const reconciledOrderStatus = String(responseBody?.order_status ?? '').toLowerCase()
+      const reconciledPaymentStatus = String(responseBody?.payment_status ?? '').toLowerCase()
+      const isConfirmed = reconciledOrderStatus === 'confirmed' || reconciledPaymentStatus === 'paid'
+
+      if (!isConfirmed) {
+        showMessage({
+          message: 'Payment processing',
+          description: 'Your payment was submitted and is being confirmed.',
+          type: 'info',
+        })
+        return
+      }
+
       clearCart()
       showMessage({
         message: 'Payment successful',
-        description: `Order #${orderInfo.order_number} has been placed.`,
+        description: `Order #${responseBody?.order_number ?? orderInfo.order_number} has been placed.`,
         type: 'success',
       })
-      
-      // Navigate to thank you screen
-      navigation.navigate('ThankYouScreen', { orderInfo })
+
+      navigation.navigate('ThankYouScreen', {
+        orderInfo: {
+          order_uid: responseBody?.order_uid ?? orderInfo.order_uid,
+          order_number: responseBody?.order_number ?? orderInfo.order_number,
+        },
+      })
     } catch (error) {
       console.log('Checkout error:', error)
       showMessage({
