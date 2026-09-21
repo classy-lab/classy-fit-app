@@ -22,8 +22,8 @@ const RegisterScreen = () => {
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.headingContainer}>
             <Text style={styles.title}>Register</Text>
-            <Text style={styles.subHead}>Create an account to start.</Text>
-            {selectedGym ? <Text style={styles.selectedGym}>Selected gym: {selectedGym}</Text> : null}
+            {/* <Text style={styles.subHead}>Create an account to start.</Text> */}
+            {selectedGym ? <Text style={styles.selectedGym}>{selectedGym}</Text> : null}
           </View>
           <View style={styles.body}>
             <RegisterForm />
