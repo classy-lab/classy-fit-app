@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { StyleSheet, Text, View, ScrollView } from 'react-native'
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native'
 import { AppColors } from '../../styles/colors'
 import { useNavigation, useRoute } from '@react-navigation/native'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -16,16 +16,20 @@ const RegisterScreen = () => {
     <>
       <SafeAreaView style={styles.container}>
         <View style={styles.navs}>
-          <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
-          <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} onPress={() => navigation.openDrawer()} />
+          <TouchableOpacity onPress={() => { navigation.goBack() }} hitSlop={10} accessibilityRole="button" accessibilityLabel="Go back">
+            <Feather name="arrow-left" color={AppColors.blue} size={36} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.openDrawer()} hitSlop={10} accessibilityRole="button" accessibilityLabel="Open menu">
+            <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} />
+          </TouchableOpacity>
         </View>
-        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           <View style={styles.headingContainer}>
             <Text style={styles.title}>Register</Text>
-            {/* <Text style={styles.subHead}>Create an account to start.</Text> */}
+            <Text style={styles.subHead}>Create your account to book classes, shop products, and manage your membership.</Text>
             {selectedGym ? <Text style={styles.selectedGym}>{selectedGym}</Text> : null}
           </View>
-          <View style={styles.body}>
+          <View style={styles.formCard}>
             <RegisterForm />
           </View>
           <View style={styles.imageContainer}>
@@ -42,69 +46,66 @@ export default RegisterScreen
 const styles = StyleSheet.create({
   container: {
     backgroundColor: AppColors.white,
+    flex: 1,
   },
   navs: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingLeft: 24,
     paddingRight: 24,
-  },
-  signOut: {
-    flexDirection: 'row',
     alignItems: 'center',
-  },
-  signOutText: {
-    marginLeft: 10,
-    marginRight: 4,
-    color: AppColors.blue,
-    fontSize: 14
-  },
-  circle: {
-    width: 30,
-    height: 30,
-    borderRadius: '50%',
-    backgroundColor: AppColors.blue,
-    justifyContent: 'center',
-    alignItems: 'center',
+    marginTop: 8,
   },
   headingContainer: {
     alignItems: 'center',
-    marginBottom: 20
+    marginBottom: 18,
+    paddingHorizontal: 16,
   },
   title: {
     color: AppColors.blue,
     fontFamily: 'Montserrat',
     fontSize: 32,
-    marginTop: 60,
-  },
-  pinkLeaf: {
-    position: 'relative',
-    zIndex: -1,
-    top: -68,
-    right: -40
-  },
-  body: {
-    paddingLeft: 24,
-    paddingRight: 24,
+    marginTop: 34,
     marginBottom: 8,
-    flex: 1,
-    // height: windowHeight,
-    // borderWidth: 1, borderColor: 'red',
-  },
-  imageContainer: {
-    marginBottom: 40,
-    alignItems: 'center',
   },
   subHead: {
     fontFamily: 'Montserrat',
-    fontSize: 20,
-    lineHeight: 24
+    fontSize: 16,
+    lineHeight: 24,
+    color: AppColors.primary,
+    textAlign: 'center',
   },
   selectedGym: {
-    marginTop: 8,
+    marginTop: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 999,
+    backgroundColor: '#EEF2FF',
     fontFamily: 'Montserrat',
-    fontSize: 14,
+    fontSize: 13,
     color: AppColors.blue,
+    overflow: 'hidden',
+  },
+  scrollContent: {
+    paddingHorizontal: 24,
+    paddingBottom: 28,
+  },
+  formCard: {
+    backgroundColor: AppColors.white,
+    borderRadius: 24,
+    paddingHorizontal: 18,
+    paddingTop: 16,
+    paddingBottom: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 3,
+  },
+  imageContainer: {
+    marginTop: 16,
+    marginBottom: 24,
+    alignItems: 'center',
   },
   scrollView: {}
 })
