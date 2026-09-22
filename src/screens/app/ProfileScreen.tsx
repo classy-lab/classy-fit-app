@@ -70,6 +70,17 @@ const ProfileScreen = () => {
               <TouchableOpacity
                 style={styles.menuButton}
                 activeOpacity={0.85}
+                onPress={() => navigation.navigate('HomeTab', { screen: 'AllEarnings' })}
+              >
+                <Feather name="bar-chart-2" color={AppColors.blue} size={20} />
+                <Text style={styles.menuButtonText}>Earnings</Text>
+                <Feather name="chevron-right" color={AppColors.blue} size={20} />
+              </TouchableOpacity>
+            ) : null}
+            {isOwner ? (
+              <TouchableOpacity
+                style={styles.menuButton}
+                activeOpacity={0.85}
                 onPress={() => navigation.navigate('PlatformBillingScreen')}
               >
                 <Feather name="credit-card" color={AppColors.blue} size={20} />
