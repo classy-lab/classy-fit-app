@@ -20,6 +20,19 @@ const GymScreenScrollViewOne = () => {
         horizontal={true}
         showsHorizontalScrollIndicator={false}
       >
+        {isOwner ? (
+          <View style={gymScreenStyles.greySquareContainer}>
+            <TouchableOpacity
+              style={gymScreenStyles.greySquare}
+              onPress={() => navigation.navigate('ClassManagementScreen')}
+            >
+              <View style={gymScreenStyles.whiteSquare}>
+                <Feather name="settings" color={AppColors.blue} size={28} />
+              </View>
+            </TouchableOpacity>
+            <Text style={gymScreenStyles.cardText}>Manage Classes</Text>
+          </View>
+        ) : null}
         <View style={gymScreenStyles.greySquareContainer}>
           <TouchableOpacity
             style={gymScreenStyles.greySquare}
@@ -33,19 +46,6 @@ const GymScreenScrollViewOne = () => {
           </TouchableOpacity>
           <Text style={gymScreenStyles.cardText}>Classes</Text>
         </View>
-        {isOwner ? (
-          <View style={gymScreenStyles.greySquareContainer}>
-            <TouchableOpacity
-              style={gymScreenStyles.greySquare}
-              onPress={() => navigation.navigate('ClassManagementScreen')}
-            >
-              <View style={gymScreenStyles.whiteSquare}>
-                <Feather name="settings" color={AppColors.blue} size={28} />
-              </View>
-            </TouchableOpacity>
-            <Text style={gymScreenStyles.cardText}>Manage {'\n'}Classes</Text>
-          </View>
-        ) : null}
         <View style={gymScreenStyles.greySquareContainer}>
           <TouchableOpacity
             style={gymScreenStyles.greySquare}
@@ -55,7 +55,7 @@ const GymScreenScrollViewOne = () => {
               <Feather name="calendar" color={AppColors.blue} size={28} />
             </View>
           </TouchableOpacity>
-          <Text style={gymScreenStyles.cardText}>My Class {'\n'}Bookings</Text>
+          <Text style={gymScreenStyles.cardText}>My Bookings</Text>
         </View>
       </ScrollView>
     </>
