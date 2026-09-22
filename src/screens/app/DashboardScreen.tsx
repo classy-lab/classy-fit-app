@@ -45,16 +45,18 @@ const DashboardScreen = ({ navigation, route }) => {
                 </View>
                 <Feather style={styles.arrow} name="arrow-right" size={24} color={AppColors.white} />
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.primaryCard, styles.secondaryCard]} onPress={() => { navigation.navigate('EarningsScreen') }}>
-                <View style={styles.primaryCardLeft}>
-                  <MaterialCommunityIcons name="chart-line" size={32} color={AppColors.white} />
-                  <View style={styles.primaryCardTextContainer}>
-                    <Text style={styles.primaryCardTitle}>Earnings</Text>
-                    <Text style={styles.primaryCardSubtitle}>View your revenue</Text>
+              {isOwner ? (
+                <TouchableOpacity style={[styles.primaryCard, styles.secondaryCard]} onPress={() => { navigation.navigate('AllEarnings') }}>
+                  <View style={styles.primaryCardLeft}>
+                    <MaterialCommunityIcons name="chart-line" size={32} color={AppColors.white} />
+                    <View style={styles.primaryCardTextContainer}>
+                      <Text style={styles.primaryCardTitle}>Earnings</Text>
+                      <Text style={styles.primaryCardSubtitle}>View your revenue</Text>
+                    </View>
                   </View>
-                </View>
-                <Feather style={styles.arrow} name="arrow-right" size={24} color={AppColors.white} />
-              </TouchableOpacity>
+                  <Feather style={styles.arrow} name="arrow-right" size={24} color={AppColors.white} />
+                </TouchableOpacity>
+              ) : null}
 
             </View>
             {/* <View style={styles.sectionHeader}>
