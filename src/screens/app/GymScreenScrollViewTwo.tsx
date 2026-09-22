@@ -16,7 +16,7 @@ const GymScreenScrollViewTwo = () => {
 
   return (
     <>
-      <Text style={gymScreenStyles.sectionTitle}>Equipment</Text>
+      <Text style={gymScreenStyles.sectionTitle}>Gym Equipment</Text>
       <ScrollView
         style={gymScreenStyles.greySquares}
         horizontal={true}
@@ -33,7 +33,7 @@ const GymScreenScrollViewTwo = () => {
               <FontAwesome5 name="dumbbell" color={AppColors.blue} size={26} />
             </View>
           </TouchableOpacity>
-          <Text style={gymScreenStyles.cardText}>Gym {'\n'}Equipment</Text>
+          <Text style={gymScreenStyles.cardText}>Gym Equipment</Text>
         </View>
         {isOwner ? (
           <View style={gymScreenStyles.greySquareContainer}>
@@ -47,7 +47,7 @@ const GymScreenScrollViewTwo = () => {
                 <Feather name="plus-circle" color={AppColors.blue} size={28} />
               </View>
             </TouchableOpacity>
-            <Text style={gymScreenStyles.cardText}>Add {'\n'}Equipment</Text>
+            <Text style={gymScreenStyles.cardText}>Add Equipment</Text>
           </View>
         ) : null}
       </ScrollView>
