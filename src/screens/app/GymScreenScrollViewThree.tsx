@@ -21,6 +21,19 @@ const GymScreenScrollViewThree = () => {
         horizontal={true}
         showsHorizontalScrollIndicator={false}
       >
+        {isOwner ? (
+          <View style={gymScreenStyles.greySquareContainer}>
+            <TouchableOpacity
+              style={gymScreenStyles.greySquare}
+              onPress={() => navigation.navigate('PersonalTrainingManagementScreen')}
+            >
+              <View style={gymScreenStyles.whiteSquare}>
+                <Feather name="settings" color={AppColors.blue} size={28} />
+              </View>
+            </TouchableOpacity>
+            <Text style={gymScreenStyles.cardText}>Manage PT</Text>
+          </View>
+        ) : null}
         <View style={gymScreenStyles.greySquareContainer}>
           <TouchableOpacity
             style={gymScreenStyles.greySquare}
@@ -32,21 +45,8 @@ const GymScreenScrollViewThree = () => {
               <PersonalTrainingSvg />
             </View>
           </TouchableOpacity>
-          <Text style={gymScreenStyles.cardText}>Personal {'\n'}Training</Text>
+          <Text style={gymScreenStyles.cardText}>PT Sessions</Text>
         </View>
-        {isOwner ? (
-          <View style={gymScreenStyles.greySquareContainer}>
-            <TouchableOpacity
-              style={gymScreenStyles.greySquare}
-              onPress={() => navigation.navigate('PersonalTrainingManagementScreen')}
-            >
-              <View style={gymScreenStyles.whiteSquare}>
-                <Feather name="settings" color={AppColors.blue} size={28} />
-              </View>
-            </TouchableOpacity>
-            <Text style={gymScreenStyles.cardText}>Manage Personal {'\n'}Training</Text>
-          </View>
-        ) : null}
         <View style={gymScreenStyles.greySquareContainer}>
           <TouchableOpacity
             style={gymScreenStyles.greySquare}
@@ -58,7 +58,7 @@ const GymScreenScrollViewThree = () => {
               <Feather name="calendar" color={AppColors.blue} size={28} />
             </View>
           </TouchableOpacity>
-          <Text style={gymScreenStyles.cardText}>My PT {'\n'}Bookings</Text>
+          <Text style={gymScreenStyles.cardText}>My Bookings</Text>
         </View>
       </ScrollView>
     </>
