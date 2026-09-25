@@ -1,7 +1,6 @@
 // @ts-nocheck
-import React, { useState, useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { AppColors } from "../styles/colors";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import {
   DrawerContentScrollView,
@@ -9,7 +8,7 @@ import {
   createDrawerNavigator,
 } from "@react-navigation/drawer";
 import { DrawerActions, useNavigation } from "@react-navigation/native";
-
+import { AppColors } from "../styles/colors";
 import StartScreen from "../screens/auth/StartScreen";
 import About from "../screens/auth/About";
 import Contact from "../screens/auth/Contact";
@@ -19,92 +18,172 @@ import RegisterComplete from "../screens/auth/RegisterComplete";
 import TemplateScreen from "../screens/auth/TemplateScreen";
 import LoginScreen from "../screens/auth/LoginScreen";
 import ThankYouScreen from "../screens/app/ThankYouScreen";
+import CreateGymScreen from "../screens/app/CreateGymScreen";
 import { GymContext } from "../context/GymContext";
+import { UserContext } from "../context/UserContext";
 
 const screenOptionsStyle = {
   overlayColor: "rgba(255, 255, 255, 0.3)",
   drawerStyle: {
     backgroundColor: AppColors.grey,
     width: 320,
-    borderTopRightRadius: 40, // Apply top-right border radius
-    borderBottomRightRadius: 40, // Apply bottom-right border radius
+    borderTopRightRadius: 40,
+    borderBottomRightRadius: 40,
   },
   headerShown: false,
-  drawerActiveTintColor: AppColors.blue, // Active text/icon color
-  drawerInactiveTintColor: AppColors.blue, // Inactive text/icon color
-  drawerActiveBackgroundColor: AppColors.grey, // Active background color
-  drawerItemStyle: { marginVertical: 4 }, // Apply a style to all items
+  drawerActiveTintColor: AppColors.blue,
+  drawerInactiveTintColor: AppColors.blue,
+  drawerActiveBackgroundColor: AppColors.grey,
+  drawerItemStyle: { marginVertical: 4 },
   drawerLabelStyle: {
     fontSize: 20,
   },
 };
 
+const buildContactBody = (gym: any) => {
+  const lines = [
+    gym?.address_line_1 || gym?.address1,
+    gym?.address_line_2 || gym?.address2,
+    [gym?.city, gym?.state, gym?.postal_code || gym?.zip].filter(Boolean).join(", "),
+    gym?.country,
+    gym?.email,
+    gym?.phone,
+    gym?.website_url,
+  ].filter(Boolean);
+
+  return lines.join("\n");
+};
+
+const formatGymHours = (gymHours: any) => {
+  if (!gymHours) {
+    return "";
+  }
+
+  if (typeof gymHours === "string") {
+    return gymHours;
+  }
+
+  if (Array.isArray(gymHours)) {
+    return gymHours
+      .map((entry) => {
+        if (entry && typeof entry === "object") {
+          const day = entry.day || entry.name || "";
+          const open = entry.open || entry.opens || "";
+          const close = entry.close || entry.closes || "";
+          const label = [day, open && close ? `${open} - ${close}` : open || close].filter(Boolean).join(" ");
+          return label || JSON.stringify(entry);
+        }
+
+        return String(entry);
+      })
+      .join("\n");
+  }
+
+  if (typeof gymHours === "object") {
+    return Object.entries(gymHours)
+      .map(([key, value]) => {
+        if (Array.isArray(value)) {
+          return `${key}: ${value.join(", ")}`;
+        }
+
+        if (value && typeof value === "object") {
+          const open = value.open || value.opens || "";
+          const close = value.close || value.closes || "";
+          return `${key}: ${[open, close].filter(Boolean).join(" - ")}`;
+        }
+
+        return `${key}: ${String(value)}`;
+      })
+      .join("\n");
+  }
+
+  return String(gymHours);
+};
+
+const buildGymContextList = (gyms: any[]) => {
+  const nextGymsInfo: any[] = [];
+
+  gyms.forEach((gym) => {
+    const gymId = Number(gym?.gym_id);
+    if (!Number.isFinite(gymId) || gymId <= 0) {
+      return;
+    }
+
+    nextGymsInfo[gymId] = {
+      gym_id: gymId,
+      gym_name: gym?.gym_name ?? "",
+      city: gym?.city ?? "",
+      About: {
+        title: "About Us",
+        body: (gym?.about ?? "").trim() || "About information is not available yet.",
+      },
+      Contact: {
+        title: "Contact Us",
+        body: buildContactBody(gym) || "Contact information is not available yet.",
+      },
+      GymHours: {
+        title: "Gym Hours",
+        body: formatGymHours(gym?.gym_hours) || "Gym hours are not available yet.",
+      },
+    };
+  });
+
+  return nextGymsInfo;
+};
+
 const AuthStack = () => {
   const navigation = useNavigation();
   const Drawer = createDrawerNavigator();
-  const gyms = [
-    {},
-    {
-      About: {
-        title: "About Us",
-        body: `At Classy Fitness, Our facility offers plenty of room to move, clean and well-maintained equipment, and a supportive community to help you achieve your fitness goals.\n\n Get started today and experience the difference at Classy Fitness!`,
-      },
-      Contact: {
-        title: "Contact Us",
-        body: `Your journey to a better you starts here at Classy Fitness! \n\n Address: \n 3143 US Route 9  \n Suite #4 \n Valatie, NY 12184 \n info@classyfitnessny.com \n\n Phone: \n (518) 610-8009`,
-      },
-      GymHours: {
-        title: "Gym Hours",
-        body: `Weekdays\n 5:30am - 9:00pm\n\n Saturday\n 7:00am - 7:00pm\n\n Sunday\n 8:00am - 5:00pm`,
-      },
-    },
-    {
-      About: {
-        title: "About Us",
-        body: `Welcome to VENT.\n\nVENT Fitness is the Capital District's premier, locally-owned full-service health club with equipment, classes, programs and amenities for every stage of your reinVENTion. With four full-service health clubs, VENT Fitness offers a welcoming fitness environment for everyone. Wherever you are on your fitness journey — a beginner or long-time enthusiast — our team of professional, fun and approachable staff are here to help you every step of the way.`,
-      },
-      Contact: {
-        title: "Contact Us",
-        body: `VENT Clifton Park \n\nAddress: \n 1220 Route 146  \nClifton Park, NY 12065 \nventcliftonpark@ventfitness.com \n\nPhone: \n (518) 348-1500`,
-      },
-      GymHours: {
-        title: "Gym Hours",
-        body: `Monday - Thursday\n5:00am - 10:00pm\n\nFriday\n5:00am - 9:00pm\n\nSaturday - Sunday\n7:00am - 7:00pm`,
-      },
-    },
-    {
-      About: {
-        title: "About Us",
-        body: `The Bodyshop GYM is A FITNESS FAMILY, WITH SOMETHING FOR EVERYONE!\nAt ABC Sports and Fitness for one low monthly price you can get absolutely everything you need to reach your fitness goals all in one place! Stop by the all new ABC Sports and Fitness today and see why we are the premier gym in the capital district!`,
-      },
-      Contact: {
-        title: "Contact Us",
-        body: `Address:\n3 Johnson Rd\nLatham, NY 12110\n\nPhone:\n(518) 783-0705`,
-      },
-      GymHours: {
-        title: "Gym Hours",
-        body: `Flexible Schedule\n\nWeekdays Hours\n Opens Monday at 5:00am\n 24 Hours through Thursday\nCloses Friday at 11:00pm\n\nWeekend Hours\nSaturday - 7:00am to 7:00pm\nSunday - 7:00am to 7:00pm\n\nPlease check our Google listing for any special hours on holidays.`,
-      },
-    },
-    {
-      About: {
-        title: "About Us",
-        body: `At Sarah's Gym in Cobleskill, Our facility offers plenty of room to move, clean and well-maintained equipment, and a supportive community to help you achieve your fitness goals.\n\n Get started today and experience the difference at Classy Fitness!`,
-      },
-      Contact: {
-        title: "Contact Us",
-        body: `Your journey to a better you starts here at Sarah's Gym! \n\n Address: \n 3143 US Route 7  \n Suite #4 \n Cobleskill, NY 12184 \n info@sarahsgym.com \n\n Phone: \n (518) 610-8009`,
-      },
-      GymHours: {
-        title: "Gym Hours",
-        body: `Weekdays\n 5:30am - 9:00pm\n\n Saturday\n 7:00am - 7:00pm\n\n Sunday\n 8:00am - 5:00pm`,
-      },
-    },
-  ];
+  const { webServer } = useContext(UserContext);
   const [gymID, setGymID] = useState(null);
-  const [gymsInfo, setGymsInfo] = useState(gyms);
+  const [gymsInfo, setGymsInfo] = useState<any[]>([]);
+  const [gymsLoading, setGymsLoading] = useState(true);
+  const [gymsError, setGymsError] = useState("");
   const [navOpacity, setNavOpacity] = useState(0);
-  // console.log(gymsInfo[0].About);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadGyms = async () => {
+      setGymsLoading(true);
+      setGymsError("");
+
+      try {
+        const response = await fetch(`${webServer}/api/v1/public/gyms`);
+        const body = await response.json().catch(() => ({}));
+
+        if (!isMounted) {
+          return;
+        }
+
+        if (response.status !== 200) {
+          setGymsInfo([]);
+          setGymsError(body?.message || "Unable to load gyms.");
+          return;
+        }
+
+        setGymsInfo(buildGymContextList(Array.isArray(body?.gyms) ? body.gyms : []));
+      } catch (error) {
+        if (!isMounted) {
+          return;
+        }
+
+        setGymsInfo([]);
+        setGymsError("Unable to load gyms.");
+        console.error("Failed to load public gyms:", error);
+      } finally {
+        if (isMounted) {
+          setGymsLoading(false);
+        }
+      }
+    };
+
+    loadGyms();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [webServer]);
 
   function CustomDrawerContent(props) {
     return (
@@ -122,14 +201,21 @@ const AuthStack = () => {
           <Text style={styles.headerText}>Navigation</Text>
         </View>
         <DrawerItemList style={styles.drawerItemList} {...props} />
-        {/* Add custom items or dividers here */}
       </DrawerContentScrollView>
     );
   }
 
   return (
     <GymContext.Provider
-      value={{ gymsInfo, gymID, setGymID, navOpacity, setNavOpacity }}
+      value={{
+        gymsInfo,
+        gymID,
+        setGymID,
+        navOpacity,
+        setNavOpacity,
+        gymsLoading,
+        gymsError,
+      }}
     >
       <Drawer.Navigator
         screenOptions={screenOptionsStyle}
@@ -151,7 +237,11 @@ const AuthStack = () => {
           component={GymHours}
           options={{ title: "Gym Hours" }}
         />
-
+        <Drawer.Screen
+          name="CreateGymScreen"
+          component={CreateGymScreen}
+          options={{ drawerItemStyle: { display: "none" } }}
+        />
         <Drawer.Screen
           name="StartScreen"
           options={{ drawerItemStyle: { display: "none" } }}
@@ -182,11 +272,6 @@ const AuthStack = () => {
           options={{ drawerItemStyle: { display: "none" } }}
           component={ThankYouScreen}
         />
-        {/* <Drawer.Screen
-        name="ThankYouScreen"
-        options={{ drawerItemStyle: { display: "none" } }}
-        component={ThankYouScreen}
-      /> */}
       </Drawer.Navigator>
     </GymContext.Provider>
   );
