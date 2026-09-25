@@ -14,6 +14,7 @@ import { showMessage } from 'react-native-flash-message'
 import Feather from '@expo/vector-icons/Feather'
 import { AppColors } from '../../styles/colors'
 import { UserContext } from '../../context/UserContext'
+import { performAuthenticatedRequest as performAuthenticatedRequestWithRefresh } from '../../utils/authenticatedRequest'
 
 type RefreshTokens = {
   access_token?: string
@@ -112,36 +113,6 @@ const MyMembershipScreen = ({ navigation }: { navigation: MyMembershipNavigation
   const [refreshing, setRefreshing] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
 
-  const refreshAccessToken = async () => {
-    if (!tokens?.refresh_token) {
-      return null
-    }
-
-    const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
-      method: 'POST',
-      body: JSON.stringify({
-        token: tokens.refresh_token,
-      }),
-    })
-
-    if (refreshResponse.status !== 200) {
-      return null
-    }
-
-    const refreshObj = await refreshResponse.json()
-    if (!refreshObj?.access_token || !refreshObj?.refresh_token) {
-      return null
-    }
-
-    setTokens((prev) => ({
-      ...(prev ?? {}),
-      access_token: refreshObj.access_token,
-      refresh_token: refreshObj.refresh_token,
-    }))
-
-    return refreshObj.access_token
-  }
-
   const loadMemberships = useCallback(
     async ({ isRefresh = false }: { isRefresh?: boolean } = {}) => {
       if (!tokens?.access_token) {
@@ -162,28 +133,19 @@ const MyMembershipScreen = ({ navigation }: { navigation: MyMembershipNavigation
 
       const endpoint = `${webServer}/api/v1/memberships`
 
-      const performRequest = async (accessToken: string): Promise<Response> => {
-        return fetch(endpoint, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        })
-      }
-
       try {
-        let accessToken = tokens.access_token
-        let response = await performRequest(accessToken)
+        const response = await performAuthenticatedRequestWithRefresh({
+          endpoint,
+          accessToken: tokens.access_token ?? null,
+          refreshToken: tokens.refresh_token ?? null,
+          webServer,
+          setTokens,
+        })
 
-        if (response.status === 401 || response.status === 403) {
-          const refreshedAccessToken = await refreshAccessToken()
-          if (refreshedAccessToken) {
-            accessToken = refreshedAccessToken
-            response = await performRequest(accessToken)
-          } else {
-            setErrorMessage('Your session expired. Please sign in again.')
-            setMemberships([])
-            return
-          }
+        if (!response) {
+          setErrorMessage('Your session expired. Please sign in again.')
+          setMemberships([])
+          return
         }
 
         const responseText = await response.text()

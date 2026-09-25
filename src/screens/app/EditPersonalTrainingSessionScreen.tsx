@@ -20,6 +20,7 @@ import { AppColors } from '../../styles/colors'
 import { UserContext } from '../../context/UserContext'
 import DateOfBirthField from '../../components/forms/input_fields/DateOfBirthField'
 import TimePickerField from '../../components/forms/input_fields/TimePickerField'
+import { performAuthenticatedRequest as performAuthenticatedRequestWithRefresh } from '../../utils/authenticatedRequest'
 
 type RefreshTokens = {
   access_token?: string
@@ -249,69 +250,18 @@ const EditPersonalTrainingSessionScreen = ({
 
   const statusValue = watch('status')
 
-  const refreshAccessToken = async (): Promise<string | null> => {
-    if (!tokens?.refresh_token) {
-      return null
-    }
-
-    const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
-      method: 'POST',
-      body: JSON.stringify({
-        token: tokens.refresh_token,
-      }),
-    })
-
-    if (refreshResponse.status !== 200) {
-      return null
-    }
-
-    const refreshObj = await refreshResponse.json()
-    if (!refreshObj?.access_token || !refreshObj?.refresh_token) {
-      return null
-    }
-
-    setTokens((prev) => ({
-      ...prev,
-      access_token: refreshObj.access_token,
-      refresh_token: refreshObj.refresh_token,
-    }))
-
-    return refreshObj.access_token
-  }
-
   const performAuthenticatedRequest = async (
     endpoint: string,
     init: RequestInit = {}
   ): Promise<Response | null> => {
-    if (!tokens?.access_token) {
-      return null
-    }
-
-    const requestWithToken = async (accessToken: string) => {
-      return fetch(endpoint, {
-        ...init,
-        headers: {
-          'Content-Type': 'application/json',
-          ...(init.headers ?? {}),
-          Authorization: `Bearer ${accessToken}`,
-        },
-      })
-    }
-
-    let accessToken = tokens.access_token
-    let response = await requestWithToken(accessToken)
-
-    if (response.status === 401 || response.status === 403) {
-      const refreshedAccessToken = await refreshAccessToken()
-      if (!refreshedAccessToken) {
-        return response
-      }
-
-      accessToken = refreshedAccessToken
-      response = await requestWithToken(accessToken)
-    }
-
-    return response
+    return performAuthenticatedRequestWithRefresh({
+      endpoint,
+      init,
+      accessToken: tokens?.access_token ?? null,
+      refreshToken: tokens?.refresh_token ?? null,
+      webServer,
+      setTokens,
+    })
   }
 
   useEffect(() => {

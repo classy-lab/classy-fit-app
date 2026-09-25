@@ -15,6 +15,7 @@ import { showMessage } from 'react-native-flash-message'
 import { AppColors } from '../../styles/colors'
 import { UserContext } from '../../context/UserContext'
 import { Feather } from '@expo/vector-icons'
+import { shouldRefreshAuthResponse } from '../../utils/authenticatedRequest'
 
 const MyClassBookingsScreen = ({ navigation }) => {
   const { user, tokens, setTokens, webServer } = useContext(UserContext)
@@ -85,7 +86,7 @@ const MyClassBookingsScreen = ({ navigation }) => {
       let accessToken = tokens.access_token
       let response = await performRequest(accessToken)
 
-      if (response.status === 401 || response.status === 403) {
+      if (await shouldRefreshAuthResponse(response)) {
         const refreshedAccessToken = await refreshAccessToken()
         if (refreshedAccessToken) {
           accessToken = refreshedAccessToken

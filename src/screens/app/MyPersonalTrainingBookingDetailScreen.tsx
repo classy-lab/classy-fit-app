@@ -15,6 +15,7 @@ import { Feather } from '@expo/vector-icons'
 import { AppColors } from '../../styles/colors'
 import { UserContext } from '../../context/UserContext'
 import { getMemberPersonalTrainingTitle } from '../../components/utils/personalTrainingDisplay'
+import { shouldRefreshAuthResponse } from '../../utils/authenticatedRequest'
 
 const parseDate = (value) => {
   if (!value) return null
@@ -116,7 +117,7 @@ const MyPersonalTrainingBookingDetailScreen = ({ navigation, route }) => {
       let accessToken = tokens.access_token
       let response = await performRequest(accessToken)
 
-      if (response.status === 401 || response.status === 403) {
+      if (await shouldRefreshAuthResponse(response)) {
         const refreshedAccessToken = await refreshAccessToken()
         if (refreshedAccessToken) {
           accessToken = refreshedAccessToken
@@ -179,7 +180,7 @@ const MyPersonalTrainingBookingDetailScreen = ({ navigation, route }) => {
 
       let response = await performRequest(accessToken)
 
-      if (response.status === 401 || response.status === 403) {
+      if (await shouldRefreshAuthResponse(response)) {
         const refreshedAccessToken = await refreshAccessToken()
         if (refreshedAccessToken) {
           accessToken = refreshedAccessToken

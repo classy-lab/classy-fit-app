@@ -15,6 +15,7 @@ import { useStripe } from '@stripe/stripe-react-native'
 import { showMessage } from 'react-native-flash-message'
 import { AppColors } from '../../styles/colors'
 import { UserContext } from '../../context/UserContext'
+import { shouldRefreshAuthResponse } from '../../utils/authenticatedRequest'
 import { getMemberPersonalTrainingTitle } from '../../components/utils/personalTrainingDisplay'
 
 type RefreshTokens = {
@@ -208,7 +209,7 @@ const PersonalTrainingSessionScreen = ({
       let accessToken = tokens.access_token
       let response = await performRequest(accessToken)
 
-      if (response.status === 401 || response.status === 403) {
+      if (await shouldRefreshAuthResponse(response)) {
         const refreshedAccessToken = await refreshAccessToken()
         if (refreshedAccessToken) {
           accessToken = refreshedAccessToken
@@ -338,7 +339,7 @@ const PersonalTrainingSessionScreen = ({
       let accessToken = tokens.access_token
       let response = await performRequest(accessToken)
 
-      if (response.status === 401 || response.status === 403) {
+      if (await shouldRefreshAuthResponse(response)) {
         const refreshedAccessToken = await refreshAccessToken()
         if (refreshedAccessToken) {
           accessToken = refreshedAccessToken

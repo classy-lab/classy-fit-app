@@ -14,6 +14,7 @@ import { useStripe } from '@stripe/stripe-react-native'
 import { showMessage } from 'react-native-flash-message'
 import { AppColors } from '../../styles/colors'
 import { UserContext } from '../../context/UserContext'
+import { refreshAccessToken as refreshAccessTokenWithRefresh, shouldRefreshAuthResponse } from '../../utils/authenticatedRequest'
 
 const parseDate = (value) => {
   if (!value) return null
@@ -72,33 +73,11 @@ const ClassSessionScreen = ({ navigation, route }) => {
     : `${price.toFixed(2)} ${String(session?.currency_code ?? '').toUpperCase()}`
 
   const refreshAccessToken = async () => {
-    if (!tokens?.refresh_token) {
-      return null
-    }
-
-    const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
-      method: 'POST',
-      body: JSON.stringify({
-        token: tokens.refresh_token,
-      }),
+    return refreshAccessTokenWithRefresh({
+      refreshToken: tokens?.refresh_token ?? null,
+      webServer,
+      setTokens,
     })
-
-    if (refreshResponse.status !== 200) {
-      return null
-    }
-
-    const refreshObj = await refreshResponse.json()
-    if (!refreshObj?.access_token || !refreshObj?.refresh_token) {
-      return null
-    }
-
-    setTokens((prev: any) => ({
-      ...prev,
-      access_token: refreshObj.access_token,
-      refresh_token: refreshObj.refresh_token,
-    }))
-
-    return refreshObj.access_token
   }
 
   const sessionSummary = useMemo(() => {
@@ -170,7 +149,7 @@ const ClassSessionScreen = ({ navigation, route }) => {
       let accessToken = tokens.access_token
       let response = await performRequest(accessToken)
 
-      if (response.status === 401 || response.status === 403) {
+      if (await shouldRefreshAuthResponse(response)) {
         const refreshedAccessToken = await refreshAccessToken()
         if (refreshedAccessToken) {
           accessToken = refreshedAccessToken

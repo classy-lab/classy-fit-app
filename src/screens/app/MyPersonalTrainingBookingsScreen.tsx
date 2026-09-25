@@ -15,6 +15,7 @@ import { Feather } from '@expo/vector-icons'
 import { AppColors } from '../../styles/colors'
 import { UserContext } from '../../context/UserContext'
 import { getMemberPersonalTrainingTitle } from '../../components/utils/personalTrainingDisplay'
+import { shouldRefreshAuthResponse } from '../../utils/authenticatedRequest'
 
 type RefreshTokens = {
   access_token?: string
@@ -143,7 +144,7 @@ const MyPersonalTrainingBookingsScreen = ({ navigation }: { navigation: MyPerson
       let accessToken = tokens.access_token
       let response = await performRequest(accessToken)
 
-      if (response.status === 401 || response.status === 403) {
+      if (await shouldRefreshAuthResponse(response)) {
         const refreshedAccessToken = await refreshAccessToken()
         if (refreshedAccessToken) {
           accessToken = refreshedAccessToken

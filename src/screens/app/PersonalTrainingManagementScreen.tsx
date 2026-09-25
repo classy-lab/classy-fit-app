@@ -16,6 +16,7 @@ import { showMessage } from 'react-native-flash-message'
 import { AppColors } from '../../styles/colors'
 import { UserContext } from '../../context/UserContext'
 import { getOwnerPersonalTrainingTitle } from '../../components/utils/personalTrainingDisplay'
+import { performAuthenticatedRequest as performAuthenticatedRequestWithRefresh } from '../../utils/authenticatedRequest'
 
 type RefreshTokens = {
   access_token?: string
@@ -117,65 +118,15 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
 
   const isOwner = String(user?.role ?? '').trim().toLowerCase() === 'owner'
 
-  const refreshAccessToken = async (): Promise<string | null> => {
-    if (!tokens?.refresh_token) {
-      return null
-    }
-
-    const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
-      method: 'POST',
-      body: JSON.stringify({
-        token: tokens.refresh_token,
-      }),
+  const performAuthenticatedRequest = async (endpoint: string, init: RequestInit = {}) => {
+    return performAuthenticatedRequestWithRefresh({
+      endpoint,
+      init,
+      accessToken: tokens?.access_token ?? null,
+      refreshToken: tokens?.refresh_token ?? null,
+      webServer,
+      setTokens,
     })
-
-    if (refreshResponse.status !== 200) {
-      return null
-    }
-
-    const refreshObj = await refreshResponse.json()
-    if (!refreshObj?.access_token || !refreshObj?.refresh_token) {
-      return null
-    }
-
-    setTokens((prev) => ({
-      ...prev,
-      access_token: refreshObj.access_token,
-      refresh_token: refreshObj.refresh_token,
-    }))
-
-    return refreshObj.access_token
-  }
-
-  const performAuthenticatedRequest = async (endpoint: string, init: RequestInit = {}): Promise<Response | null> => {
-    if (!tokens?.access_token) {
-      return null
-    }
-
-    const requestWithToken = async (accessToken: string) => {
-      return fetch(endpoint, {
-        ...init,
-        headers: {
-          ...(init.headers ?? {}),
-          Authorization: `Bearer ${accessToken}`,
-        },
-      })
-    }
-
-    let accessToken = tokens.access_token
-    let response = await requestWithToken(accessToken)
-
-    if (response.status === 401 || response.status === 403) {
-      const refreshedAccessToken = await refreshAccessToken()
-      if (!refreshedAccessToken) {
-        return response
-      }
-
-      accessToken = refreshedAccessToken
-      response = await requestWithToken(accessToken)
-    }
-
-    return response
   }
 
   const loadSessions = useCallback(
@@ -196,13 +147,11 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
 
       setErrorMessage('')
 
-      const endpoint = `${webServer}/api/v1/personal-training/management/sessions`
-
       try {
-        const response = await performAuthenticatedRequest(endpoint)
-        if (!response) {
-          setErrorMessage('Please sign in again to view personal training sessions.')
-          setSessions([])
+          const response = await performAuthenticatedRequest(`${webServer}/api/v1/personal-training/management/sessions`)
+          if (!response) {
+            setErrorMessage('Please sign in again to view personal training sessions.')
+            setSessions([])
           return
         }
 

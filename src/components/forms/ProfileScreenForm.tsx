@@ -34,6 +34,11 @@ import FlashMessage, {
   showMessage,
   hideMessage,
 } from "react-native-flash-message";
+import {
+  logGymRequestDiagnostics,
+  logGymRequestResponse,
+  logGymRefreshResponse,
+} from "../../utils/devGymRequestDiagnostics";
 
 const normalizePhoneFieldForApi = (value: unknown) => {
   const phone = String(value ?? "").trim();
@@ -69,6 +74,17 @@ const normalizeSexValue = (value: unknown) => {
   if (raw === "3") return "other";
 
   return raw;
+};
+
+const normalizeDateOfBirthValue = (value: unknown) => {
+  const raw = String(value ?? "").trim();
+
+  if (raw === "") {
+    return "";
+  }
+
+  const dateMatch = /^(\d{4}-\d{2}-\d{2})/.exec(raw);
+  return dateMatch ? dateMatch[1] : raw;
 };
 
 // ============================================================================
@@ -157,7 +173,7 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
       role: normalizeRole(user?.role),
       fname: user?.given_name,
       lname: user?.family_name,
-      dateOfBirth: '',
+      dateOfBirth: user?.date_of_birth,
       sex: user?.gender,
       phoneNumber: '',
       whatsappNumber: '',
@@ -172,28 +188,45 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
   // Reset the timer if the user navigates back to this screen
   useEffect(() => {
     formLoadTime.current = Date.now();
-    const fetchUserData = async () => {
-      if (!user?.sub || !tokens?.access_token) {
+    const fetchUserData = async (accessToken = tokens?.access_token, isRetry = false) => {
+      if (!user?.sub || !accessToken) {
         return;
       }
 
+      const requestContext = {
+        screen: "ProfileScreenForm",
+        endpoint: `/api/v1/gyms/${user?.gym_id}/users/${user?.sub}`,
+        gymId: user?.gym_id,
+        userId: user?.sub,
+      };
+
       try {
+        logGymRequestDiagnostics(requestContext, "request", {
+          refreshAttempted: false,
+          originalRequestRetried: isRetry,
+        });
+
         const response = await fetch(`${webServer}/api/v1/gyms/${user?.gym_id}/users/${user?.sub}`, {
           headers: {
-            Authorization: "Bearer " + tokens.access_token,
+            Authorization: "Bearer " + accessToken,
           },
         });
         const json = await response.text();
+        logGymRequestResponse(requestContext, response.status, json, {
+          refreshAttempted: false,
+          originalRequestRetried: isRetry,
+        });
         const obj = json ? JSON.parse(json) : {};
-        console.log("Fetched user data:", obj.data);
+        const payload = obj?.data ?? obj?.profile_fields ?? obj?.profileFields ?? null;
+        console.log("Fetched user data:", payload);
 
         if (response.status == 200) {
-          const payload = obj?.data;
-          const fetchedPhone = String(payload?.phone);
-          const fetchedWhatsapp = String(payload?.whatsapp);
+          const fetchedPhone = String(payload?.phone ?? "");
+          const fetchedWhatsapp = String(payload?.whatsapp ?? "");
           const fetchedSex = normalizeSexValue(payload?.sex);
           const fetchedPreferredContact = normalizePreferredContact(payload?.preferred_contact);
           const profilePicturePath = payload?.user_picture_url;
+          const fetchedDateOfBirth = normalizeDateOfBirthValue(payload?.date_of_birth);
 
           reset({
             profilePic: profilePicturePath ? { path: `${webServer}/api/${profilePicturePath}` } : undefined,
@@ -203,7 +236,7 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
             role: normalizeRole(user?.role),
             fname: user?.given_name ?? "",
             lname: user?.family_name ?? "",
-            dateOfBirth: payload?.date_of_birth ?? "",
+            dateOfBirth: fetchedDateOfBirth,
             sex: fetchedSex,
             phoneNumber: fetchedPhone,
             whatsappNumber: fetchedWhatsapp,
@@ -212,10 +245,22 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
           });
           setPhoneDefaultValue(fetchedPhone);
           setWhatsappDefaultValue(fetchedWhatsapp);
+          setValue("dateOfBirth", fetchedDateOfBirth, { shouldDirty: false, shouldValidate: false });
           setValue("phoneNumber", fetchedPhone, { shouldDirty: false, shouldValidate: false });
           setValue("whatsappNumber", fetchedWhatsapp, { shouldDirty: false, shouldValidate: false });
           setProfilePicAPIImage(profilePicturePath ? `${webServer}/api/${profilePicturePath}` : "");
-        } else {
+          return;
+        }
+
+        const responseMessage = String(obj?.message || obj?.error || "").trim();
+
+        if (response.status === 401 && /expired|invalid/i.test(responseMessage) && tokens?.refresh_token) {
+          logGymRequestDiagnostics(requestContext, "response", {
+            refreshAttempted: true,
+            originalRequestRetried: isRetry,
+            tokenRefreshAttempted: true,
+          });
+
           const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
             method: "POST",
             body: JSON.stringify({
@@ -224,6 +269,11 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
           });
 
           const refreshJson = await refreshResponse.text();
+          logGymRefreshResponse(requestContext, refreshResponse.status, refreshJson, {
+            tokenRefreshAttempted: true,
+            tokenRefreshSucceeded: refreshResponse.status === 200,
+            originalRequestRetried: isRetry,
+          });
           const refreshObj = refreshJson ? JSON.parse(refreshJson) : {};
 
           if (refreshResponse.status == 200) {
@@ -232,8 +282,16 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
               access_token: refreshObj.access_token,
               refresh_token: refreshObj.refresh_token,
             });
+            await fetchUserData(refreshObj.access_token, true);
           }
+          return;
         }
+
+        logGymRequestDiagnostics(requestContext, "response", {
+          refreshAttempted: false,
+          originalRequestRetried: isRetry,
+        });
+        console.log("Failed to fetch profile data:", responseMessage || `status ${response.status}`);
       } catch (error) {
         console.log("Failed to fetch user data", error);
       }

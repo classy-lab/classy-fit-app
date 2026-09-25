@@ -11,6 +11,7 @@ import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useCallback, useContext, useState } from 'react'
 import { UserContext } from '../../context/UserContext'
+import { logGymRequestDiagnostics, logGymRequestResponse, logGymRefreshResponse } from '../../utils/devGymRequestDiagnostics'
 
 const defaultProfileImage = require("../../assets/images/avatars/profile-img.png");
 
@@ -96,6 +97,13 @@ const MembersScreen = ({ navigation }: { navigation: any }) => {
       let isActive = true;
 
       const fetchStaffData = async () => {
+        const requestContext = {
+          screen: 'MembersScreen',
+          endpoint: `/api/v1/gyms/${user?.gym_id}/members`,
+          gymId: user?.gym_id,
+          userId: user?.sub,
+        };
+
         if (!user?.gym_id || !tokens?.access_token) {
           if (isActive) {
             setMembers({});
@@ -105,6 +113,10 @@ const MembersScreen = ({ navigation }: { navigation: any }) => {
 
         try {
           console.log("Fetching members data from server at ", new Date().toLocaleTimeString());
+          logGymRequestDiagnostics(requestContext, 'request', {
+            refreshAttempted: false,
+            originalRequestRetried: false,
+          });
 
           const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/members`, {
             headers: {
@@ -113,7 +125,11 @@ const MembersScreen = ({ navigation }: { navigation: any }) => {
           });
 
           const json = await response.text();
-          const obj = JSON.parse(json);
+          logGymRequestResponse(requestContext, response.status, json, {
+            refreshAttempted: false,
+            originalRequestRetried: false,
+          });
+          const obj = json ? JSON.parse(json) : {};
 
           if (response.status === 200) {
             if (isActive) {
@@ -122,19 +138,28 @@ const MembersScreen = ({ navigation }: { navigation: any }) => {
             }
           }
           else {
-            console.log("Access token expired, requesting new one - useFocusEffect()");
+            logGymRequestDiagnostics(requestContext, 'response', {
+              refreshAttempted: true,
+              originalRequestRetried: false,
+              tokenRefreshAttempted: true,
+            });
 
-            const response = await fetch(`${webServer}/api/v1/refresh`, {
+            const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
               method: "POST",
               body: JSON.stringify({
                 token: tokens.refresh_token,
               }),
             });
 
-            const json = await response.text();
-            const obj = JSON.parse(json);
+            const refreshJson = await refreshResponse.text();
+            logGymRefreshResponse(requestContext, refreshResponse.status, refreshJson, {
+              tokenRefreshAttempted: true,
+              tokenRefreshSucceeded: refreshResponse.status === 200,
+              originalRequestRetried: false,
+            });
+            const obj = refreshJson ? JSON.parse(refreshJson) : {};
 
-            if (response.status === 200) {
+            if (refreshResponse.status === 200) {
               console.log("Got new access token and refresh token");
               setTokens((prev: any) => ({
                 ...prev,

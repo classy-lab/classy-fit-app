@@ -11,6 +11,7 @@ import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useCallback, useContext, useState } from 'react'
 import { UserContext } from '../../context/UserContext'
+import { logGymRequestDiagnostics, logGymRequestResponse, logGymRefreshResponse } from '../../utils/devGymRequestDiagnostics'
 
 type StaffContact = {
   contact_id?: string | number;
@@ -93,11 +94,23 @@ const ContractorsScreen = ({ navigation }: { navigation: any }) => {
   useFocusEffect(
     useCallback(() => {
       const fetchStaffData = async () => {
+        const requestContext = {
+          screen: 'ContractorsScreen',
+          endpoint: `/api/v1/gyms/${user?.gym_id}/contacts`,
+          gymId: user?.gym_id,
+          userId: user?.sub,
+        };
+
         if (!user?.gym_id || !tokens?.access_token) {
           return;
         }
 
         try {
+          logGymRequestDiagnostics(requestContext, 'request', {
+            refreshAttempted: false,
+            originalRequestRetried: false,
+          });
+
           const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/contacts`, {
             headers: {
               Authorization: "Bearer " + tokens.access_token,
@@ -105,26 +118,39 @@ const ContractorsScreen = ({ navigation }: { navigation: any }) => {
           });
 
           const json = await response.text();
-          const obj = JSON.parse(json);
+          logGymRequestResponse(requestContext, response.status, json, {
+            refreshAttempted: false,
+            originalRequestRetried: false,
+          });
+          const obj = json ? JSON.parse(json) : {};
 
           if (response.status === 200) {
             setContacts(obj.data);
             setImageCacheKey(Date.now());
           }
           else {
-            console.log("Access token expired, requesting new one - useFocusEffect()");
+            logGymRequestDiagnostics(requestContext, 'response', {
+              refreshAttempted: true,
+              originalRequestRetried: false,
+              tokenRefreshAttempted: true,
+            });
 
-            const response = await fetch(`${webServer}/api/v1/refresh`, {
+            const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
               method: "POST",
               body: JSON.stringify({
                 token: tokens.refresh_token,
               }),
             });
 
-            const json = await response.text();
-            const obj = JSON.parse(json);
+            const refreshJson = await refreshResponse.text();
+            logGymRefreshResponse(requestContext, refreshResponse.status, refreshJson, {
+              tokenRefreshAttempted: true,
+              tokenRefreshSucceeded: refreshResponse.status === 200,
+              originalRequestRetried: false,
+            });
+            const obj = refreshJson ? JSON.parse(refreshJson) : {};
 
-            if (response.status == 200) {
+            if (refreshResponse.status == 200) {
               console.log("Got new access token and refresh token");
               setTokens((prev: any) => ({
                 ...prev,
