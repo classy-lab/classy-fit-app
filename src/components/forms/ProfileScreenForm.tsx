@@ -345,8 +345,7 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
   };
 
   // 3. Define the submit handler
-  const updateUser = async (data: any, userUid?: string | number) => {
-    console.log('data: ' + JSON.stringify(data));
+  const updateUser = async (data: any) => {
     const totalTimeElapsed = Date.now() - formLoadTime.current;
     const formData = new FormData();
 
@@ -400,7 +399,20 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
       return;
     }
 
-    formData.append("gym_id", data.gymId);
+    const authenticatedUserId = String(user?.sub ?? user?.uid ?? user?.id ?? '').trim();
+    const authenticatedGymId = String(user?.gym_id ?? data.gymId ?? '').trim();
+
+    if (!authenticatedUserId || !authenticatedGymId) {
+      showMessage({
+        message: "Action Failed",
+        description: "Unable to determine the authenticated user or gym.",
+        type: "danger",
+        icon: "danger",
+      });
+      return;
+    }
+
+    formData.append("gym_id", authenticatedGymId);
     formData.append("email", data.email);
     formData.append("password", data.password);
     formData.append("data.confirmPassword", data.confirmPassword);
@@ -419,7 +431,7 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
     } as any);
 
     const response = await fetch(
-      `${webServer}/api/v1/gyms/${data.gymId}/users/${user.sub}`,
+      `${webServer}/api/v1/gyms/${authenticatedGymId}/users/${authenticatedUserId}`,
       {
         method: "POST",
         headers: {
@@ -430,9 +442,14 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
     );
 
     const json = await response.text();
-    const obj = JSON.parse(json);
-
-    console.log("response status: ", response.status);
+    let obj: any = {};
+    if (json) {
+      try {
+        obj = JSON.parse(json);
+      } catch {
+        obj = { message: json };
+      }
+    }
 
     if (response.ok) {
       showMessage({
@@ -441,28 +458,52 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
         autoHide: true, // prevents the message from disappearing automatically
         onPress: () => hideMessage(), // closes the message when pressed
       });
-    } else {
-      console.log("Access token expired, requesting new one - updateUser()");
+      return;
+    }
 
-      const response = await fetch(`${webServer}/api/v1/refresh`, {
+    const responseMessage = String(obj?.message || obj?.error || 'Unable to update profile.').trim();
+
+    if (response.status === 401 && /expired|invalid/i.test(responseMessage)) {
+      const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
         method: "POST",
         body: JSON.stringify({
           token: tokens.refresh_token,
         }),
       });
 
-      const json = await response.text();
-      const obj = JSON.parse(json);
+      const refreshJson = await refreshResponse.text();
+      let refreshObj: any = {};
+      if (refreshJson) {
+        try {
+          refreshObj = JSON.parse(refreshJson);
+        } catch {
+          refreshObj = {};
+        }
+      }
 
-      if (response.status == 200) {
-        console.log("Got new access token and refresh token");
+      if (refreshResponse.status == 200) {
         setTokens({
           ...tokens,
-          access_token: obj.access_token,
-          refresh_token: obj.refresh_token,
+          access_token: refreshObj.access_token,
+          refresh_token: refreshObj.refresh_token,
         });
+        showMessage({
+          message: "Session refreshed",
+          description: "Please try saving your profile again.",
+          type: "info",
+          autoHide: true,
+        });
+        return;
       }
     }
+
+    showMessage({
+      message: response.status === 403 ? "Forbidden" : "Action Failed",
+      description: responseMessage,
+      type: "danger",
+      icon: "danger",
+      autoHide: false,
+    });
   };
 
   return (
@@ -855,7 +896,7 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
         <View style={globalStyles.loginBtnContainer}>
           <TouchableOpacity
             style={globalStyles.registerBtn}
-            onPress={handleSubmit((data) => updateUser(data, user?.uid))}
+            onPress={handleSubmit((data) => updateUser(data))}
           >
             <Text style={globalStyles.registerBtnText}>Save Profile</Text>
           </TouchableOpacity>
