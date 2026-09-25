@@ -83,14 +83,14 @@ const createGymSchema = yup.object({
   gym_name: yup.string().trim().required('Gym name is required').max(255, 'Gym name must be 255 characters or fewer'),
   contact_name: yup.string().trim().required('Owner / contact full name is required').max(255, 'Owner / contact full name must be 255 characters or fewer'),
   gym_type: yup.string().trim().required('Gym type is required').max(100, 'Gym type must be 100 characters or fewer'),
-  phone: yup.string().trim().required('Phone is required').max(50, 'Phone must be 50 characters or fewer'),
+  phone: yup.string().trim().required('Phone is required').max(30, 'Phone must be 30 characters or fewer'),
   email: yup
     .string()
     .trim()
     .required('Business email address is required')
     .max(255, 'Email must be 255 characters or fewer')
     .test('email-format', 'Email must be a valid email address', (value) => !value || yup.string().email().isValidSync(value)),
-  address_line_1: yup.string().trim().required('Address line 1 is required').max(255, 'Address line 1 must be 255 characters or fewer'),
+  address_line_1: yup.string().trim().required('Address line 1 is required').max(256, 'Address line 1 must be 256 characters or fewer'),
   address_line_2: yup.string().trim().max(255, 'Address line 2 must be 255 characters or fewer'),
   city: yup.string().trim().required('City is required').max(100, 'City must be 100 characters or fewer'),
   state: yup.string().trim().required('State / province is required').max(100, 'State / province must be 100 characters or fewer'),
@@ -312,7 +312,7 @@ const CreateGymScreen = ({ navigation }: { navigation: CreateGymNavigation }) =>
           <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
             <View style={styles.headingContainer}>
               <Text style={styles.title}>Create Gym</Text>
-              <Text style={styles.subHead}>Submit a gym registration request. Fields marked with * are required.</Text>
+              <Text style={styles.subHead}>Submit a gym registration request. {'\n'}Fields marked with * are required.</Text>
             </View>
 
             {feedback ? (
