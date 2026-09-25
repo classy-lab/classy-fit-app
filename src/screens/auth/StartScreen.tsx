@@ -1,40 +1,53 @@
 // @ts-nocheck
-import React, { useState, useEffect, useRef, useContext } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import {
+  ActivityIndicator,
+  ScrollView,
   StyleSheet,
   Text,
-  View,
   TouchableOpacity,
-  ScrollView,
+  View,
 } from "react-native";
 import { SelectList } from "react-native-dropdown-select-list";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { AppColors } from "../../styles/colors";
-import VectorImageSvg from "../../components/svg/VectorImageSvg";
 import PinkLeafSvg from "../../assets/svg/PinkLeafSvg";
 import { GymContext } from "../../context/GymContext";
 
 const StartScreen = () => {
   const navigation = useNavigation();
-  const gyms = [
-    { key: "1", value: "Classy Gym, Cobleskill, NY" },
-    { key: "2", value: "Vent Fitness, Clifton Park, NY" },
-    { key: "3", value: "The Bodyshop Gym, Cobleskill, NY" },
-    { key: "4", value: "Sarah's Gym, Cobleskill, NY" },
-  ];
-  // GymContext variables
-  const { gymID, setGymID } = useContext(GymContext);
-  const { gymsInfo } = useContext(GymContext);
+  const gymContext = useContext(GymContext);
+  const { gymID, setGymID, gymsInfo, gymsLoading, gymsError } = gymContext;
   const [navOpacity, setNavOpacity] = useState(0);
-  const selectedGym = gyms.find((item) => item.key === String(gymID));
+
+  const gymOptions = useMemo(() => {
+    if (!Array.isArray(gymsInfo)) {
+      return [];
+    }
+
+    return gymsInfo
+      .map((gym, index) => {
+        if (!gym || index === 0) {
+          return null;
+        }
+
+        const label = [gym.gym_name, gym.city].filter(Boolean).join(", ");
+        return {
+          key: String(gym.gym_id ?? index),
+          value: label || `Gym ${gym.gym_id ?? index}`,
+        };
+      })
+      .filter(Boolean);
+  }, [gymsInfo]);
+
+  const selectedGym = gymID ? gymsInfo?.[gymID] : null;
 
   useEffect(() => {
     setGymID(null);
     setNavOpacity(0);
-    console.log("setting gymID to null");
-  }, []);
+  }, [setGymID]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -47,63 +60,61 @@ const StartScreen = () => {
         />
       </View>
 
-      <ScrollView
-        style={styles.scrollView}
-        showsVerticalScrollIndicator={false}
-      >
-        <TouchableOpacity>
-          <View style={styles.headingContainer}>
-            <Text style={styles.title}>Classy Fit</Text>
-            <PinkLeafSvg style={styles.pinkLeaf} />
-            <Text style={styles.subTitle}>{selectedGym?.value || ""}</Text>
-          </View>
-        </TouchableOpacity>
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <View style={styles.headingContainer}>
+          <Text style={styles.title}>Classy Fit</Text>
+          <PinkLeafSvg style={styles.pinkLeaf} />
+          <Text style={styles.subTitle}>
+            {selectedGym?.gym_name
+              ? `${selectedGym.gym_name}${selectedGym.city ? `, ${selectedGym.city}` : ""}`
+              : "Select a gym to continue"}
+          </Text>
+        </View>
 
         <View style={styles.body}>
           <View style={styles.row}>
-            <TouchableOpacity>
-              <View style={styles.box}>
-                <Text style={styles.boxText}>Gyms</Text>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity>
-              <View style={styles.box}>
-                <Text style={styles.boxText}>Classes</Text>
-              </View>
-            </TouchableOpacity>
+            <View style={styles.box}>
+              <Text style={styles.boxText}>Gyms</Text>
+            </View>
+            <View style={styles.box}>
+              <Text style={styles.boxText}>Classes</Text>
+            </View>
           </View>
           <View style={styles.row}>
-            <TouchableOpacity>
-              <View style={styles.box}>
-                <Text style={styles.boxText}>Training</Text>
-              </View>
-            </TouchableOpacity>
+            <View style={styles.box}>
+              <Text style={styles.boxText}>Training</Text>
+            </View>
           </View>
-          <TouchableOpacity>
-            <Text style={styles.subTitle}>
-              Built for the modern gym experience
-            </Text>
-          </TouchableOpacity>
+
+          <Text style={styles.subTitle}>Built for the modern gym experience</Text>
 
           <View style={styles.fieldset}>
             <View style={styles.field}>
               <View style={styles.highlightedFieldBox}>
                 <Text style={styles.formLabel}>Select a Gym to Continue</Text>
-                {!selectedGym ? (
+                {gymsLoading ? (
+                  <View style={styles.loadingRow}>
+                    <ActivityIndicator color={AppColors.blue} />
+                    <Text style={styles.helperText}>Loading gyms...</Text>
+                  </View>
+                ) : gymsError ? (
+                  <Text style={styles.errorText}>{gymsError}</Text>
+                ) : !selectedGym ? (
                   <Text style={styles.helperText}>
                     Select a gym first to enable Register and Login
                   </Text>
                 ) : null}
               </View>
+
               <SelectList
                 name="gym"
                 setSelected={(val) => {
-                  setGymID(val);
+                  setGymID(Number(val));
                   setNavOpacity(100);
-                }} // Send selection to hook-form
-                data={gyms}
+                }}
+                data={gymOptions}
                 save="key"
-                placeholder="Select Category"
+                placeholder={gymsLoading ? "Loading gyms..." : "Select a gym"}
                 boxStyles={{
                   borderColor: AppColors.grey,
                   borderWidth: 1,
@@ -115,8 +126,6 @@ const StartScreen = () => {
                   marginTop: 8,
                   backgroundColor: "white",
                 }}
-              // If you need to force the value from the parent (e.g., reset)
-              // defaultOption={data.find(item => item.value === value)}
               />
             </View>
           </View>
@@ -127,11 +136,10 @@ const StartScreen = () => {
                 style={[styles.registerBtn, !selectedGym && styles.disabledBtn]}
                 disabled={!selectedGym}
                 activeOpacity={selectedGym ? 0.8 : 1}
-                // title="Register"
                 onPress={() => {
                   navigation.navigate("RegisterScreen", {
-                    gym: selectedGym?.value || "",
-                    gymId: Number(selectedGym?.key) || "",
+                    gym: selectedGym?.gym_name || "",
+                    gymId: Number(selectedGym?.gym_id) || "",
                   });
                 }}
               >
@@ -141,24 +149,27 @@ const StartScreen = () => {
                 style={[styles.loginBtn, !selectedGym && styles.disabledBtn]}
                 disabled={!selectedGym}
                 activeOpacity={selectedGym ? 0.8 : 1}
-                // title="Login"
                 onPress={() => {
                   navigation.navigate("LoginScreen", {
-                    gym: selectedGym?.value || "",
-                    gymId: selectedGym?.key || "",
+                    gym: selectedGym?.gym_name || "",
+                    gymId: String(selectedGym?.gym_id || ""),
                   });
                 }}
               >
                 <Text style={styles.loginBtnText}>Login</Text>
               </TouchableOpacity>
             </View>
+
+            <TouchableOpacity
+              style={styles.createGymLink}
+              activeOpacity={0.85}
+              onPress={() => navigation.navigate("CreateGymScreen")}
+            >
+              <Text style={styles.createGymLinkText}>Register a New Gym</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
-
-      <View style={styles.imageContainer}>
-        {/* <VectorImageSvg /> */}
-      </View>
     </SafeAreaView>
   );
 };
@@ -210,11 +221,54 @@ const styles = StyleSheet.create({
     marginTop: 16,
     flex: 1,
   },
-  bodyText: {
-    fontSize: 16,
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    marginBottom: 10,
+  },
+  box: {
+    width: 96,
+    aspectRatio: 1,
+    borderRadius: 32,
+    backgroundColor: "#EEF2FF",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  boxText: {
+    color: AppColors.blue,
     fontFamily: "Montserrat",
-    lineHeight: 24,
+  },
+  fieldset: {},
+  field: {},
+  highlightedFieldBox: {
+    backgroundColor: "#F7F9FC",
+    borderRadius: 18,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    marginBottom: 10,
+  },
+  formLabel: {
+    color: AppColors.blue,
+    fontFamily: "Montserrat",
+    fontSize: 14,
+    marginBottom: 6,
+  },
+  helperText: {
     color: AppColors.primary,
+    fontFamily: "Montserrat",
+    fontSize: 13,
+    lineHeight: 18,
+  },
+  errorText: {
+    color: "#B91C1C",
+    fontFamily: "Montserrat",
+    fontSize: 13,
+    lineHeight: 18,
+  },
+  loadingRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
   },
   registerBtn: {
     backgroundColor: AppColors.blue,
@@ -245,59 +299,15 @@ const styles = StyleSheet.create({
     color: AppColors.blue,
     fontSize: 16,
   },
-  imageContainer: {
-    marginBottom: 8,
-    // borderWidth: 1, borderColor: 'red',
-    zIndex: -1,
-  },
-  row: {
-    flexDirection: "row",
-    justifyContent: "space-evenly",
-    marginBottom: 10,
-  },
-  fieldset: {},
-  chooseText: {
-    marginTop: 8,
-    marginBottom: 8,
-    color: AppColors.blue,
-  },
-  formLabel: {
-    fontWeight: "bold",
-    marginBottom: 4,
-    color: AppColors.blue,
-    fontSize: 16,
-  },
-  helperText: {
-    color: AppColors.primary,
-    fontSize: 13,
-    marginBottom: 8,
-  },
-  highlightedFieldBox: {
-    backgroundColor: AppColors.grey,
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: AppColors.blue,
-  },
-  field: {
-    marginBottom: 16,
-    width: 320,
+  createGymLink: {
+    marginTop: 16,
     alignSelf: "center",
   },
-  box: {
-    backgroundColor: AppColors.grey,
-    width: 90,
-    height: 90,
-    borderRadius: 30,
-    justifyContent: "center",
-    alignItems: "center",
+  createGymLinkText: {
+    color: AppColors.blue,
+    fontFamily: "Montserrat",
+    textDecorationLine: "underline",
+    fontSize: 15,
   },
-  boxText: {
-    fontSize: 16,
-  },
-  scrollView: {
-    flex: 1,
-  },
+  scrollView: {},
 });
