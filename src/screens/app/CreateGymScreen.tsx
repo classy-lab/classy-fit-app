@@ -51,8 +51,12 @@ type GymFormValues = {
   country: string
   photo_url: string
   website_url: string
-  gym_hours: string
   about: string
+}
+
+type GymTypeOption = {
+  key: string
+  value: string
 }
 
 type CreateGymResponse = {
@@ -78,15 +82,15 @@ type FieldConfig = {
 const createGymSchema = yup.object({
   gym_name: yup.string().trim().required('Gym name is required').max(255, 'Gym name must be 255 characters or fewer'),
   contact_name: yup.string().trim().required('Owner / contact full name is required').max(255, 'Owner / contact full name must be 255 characters or fewer'),
-  gym_type: yup.string().trim().max(100, 'Gym type must be 100 characters or fewer'),
-  phone: yup.string().trim().max(50, 'Phone must be 50 characters or fewer'),
+  gym_type: yup.string().trim().required('Gym type is required').max(100, 'Gym type must be 100 characters or fewer'),
+  phone: yup.string().trim().required('Phone is required').max(50, 'Phone must be 50 characters or fewer'),
   email: yup
     .string()
     .trim()
     .required('Business email address is required')
     .max(255, 'Email must be 255 characters or fewer')
     .test('email-format', 'Email must be a valid email address', (value) => !value || yup.string().email().isValidSync(value)),
-  address_line_1: yup.string().trim().max(255, 'Address line 1 must be 255 characters or fewer'),
+  address_line_1: yup.string().trim().required('Address line 1 is required').max(255, 'Address line 1 must be 255 characters or fewer'),
   address_line_2: yup.string().trim().max(255, 'Address line 2 must be 255 characters or fewer'),
   city: yup.string().trim().required('City is required').max(100, 'City must be 100 characters or fewer'),
   state: yup.string().trim().required('State / province is required').max(100, 'State / province must be 100 characters or fewer'),
@@ -102,23 +106,31 @@ const createGymSchema = yup.object({
     .trim()
     .max(255, 'Website URL must be 255 characters or fewer')
     .test('website-url-format', 'Website URL must be a valid URL', (value) => !value || yup.string().url().isValidSync(value)),
-  gym_hours: yup.string().trim().max(10000, 'Gym hours must be 10000 characters or fewer'),
   about: yup.string().trim().required('About is required').max(5000, 'About must be 5000 characters or fewer'),
 })
 
 const fieldConfigs: FieldConfig[] = [
   { name: 'gym_name', label: 'Gym Name', placeholder: 'Classy Fit', required: true, autoCapitalize: 'words' },
   { name: 'contact_name', label: 'Owner / Contact Full Name', placeholder: 'Jordan Smith', required: true, autoCapitalize: 'words' },
-  { name: 'gym_type', label: 'Gym Type', placeholder: 'Strength, Fitness, CrossFit', autoCapitalize: 'words' },
-  { name: 'phone', label: 'Phone', placeholder: '(518) 610-8009', keyboardType: 'phone-pad' },
+  { name: 'phone', label: 'Phone', placeholder: '(518) 610-8009', required: true, keyboardType: 'phone-pad' },
   { name: 'email', label: 'Business Email Address', placeholder: 'hello@example.com', required: true, keyboardType: 'email-address', autoCapitalize: 'none' },
-  { name: 'address_line_1', label: 'Address Line 1', placeholder: '3143 US Route 9', autoCapitalize: 'words' },
+  { name: 'address_line_1', label: 'Address Line 1', placeholder: '3143 US Route 9', required: true, autoCapitalize: 'words' },
   { name: 'address_line_2', label: 'Address Line 2', placeholder: 'Suite #4', autoCapitalize: 'words' },
   { name: 'city', label: 'City', placeholder: 'Valatie', required: true, autoCapitalize: 'words' },
   { name: 'postal_code', label: 'Postal Code', placeholder: '12184' },
   { name: 'photo_url', label: 'Gym Photo/Logo URL', placeholder: 'https://example.com/logo.png', keyboardType: 'url', autoCapitalize: 'none' },
   { name: 'website_url', label: 'Website URL', placeholder: 'https://example.com', keyboardType: 'url', autoCapitalize: 'none' },
   { name: 'about', label: 'About', placeholder: 'Tell people about your gym', required: true, multiline: true, numberOfLines: 5, autoCapitalize: 'sentences' },
+]
+
+const GYM_TYPE_OPTIONS: GymTypeOption[] = [
+  { key: 'Commercial / Fitness Gym', value: 'Commercial / Fitness Gym' },
+  { key: 'Boutique Fitness Studio', value: 'Boutique Fitness Studio' },
+  { key: 'Personal Training Studio', value: 'Personal Training Studio' },
+  { key: 'CrossFit / Functional Fitness', value: 'CrossFit / Functional Fitness' },
+  { key: 'Yoga / Pilates Studio', value: 'Yoga / Pilates Studio' },
+  { key: 'Martial Arts / Boxing Gym', value: 'Martial Arts / Boxing Gym' },
+  { key: 'Other', value: 'Other' },
 ]
 
 const US_STATE_OPTIONS = [
@@ -189,7 +201,6 @@ const defaultValues: GymFormValues = {
   country: 'United States',
   photo_url: '',
   website_url: '',
-  gym_hours: '',
   about: '',
 }
 
@@ -226,12 +237,17 @@ const CreateGymScreen = ({ navigation }: { navigation: CreateGymNavigation }) =>
     setFeedback(null)
 
     try {
+      const payload = {
+        ...formData,
+        gym_type: formData.gym_type.trim() ? formData.gym_type.trim() : null,
+      }
+
       const response = await fetch(`${webServer}/api/v1/gyms`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       })
 
       const responseText = await response.text()
@@ -354,6 +370,43 @@ const CreateGymScreen = ({ navigation }: { navigation: CreateGymNavigation }) =>
               ))}
 
               <View style={styles.field}>
+                <Text style={styles.label}>Gym Type *</Text>
+                <Controller
+                  control={control}
+                  name="gym_type"
+                  render={({ field: { onChange, value } }) => {
+                    const selectedGymType = GYM_TYPE_OPTIONS.find((option) => option.value === value)
+
+                    return (
+                      <SelectList
+                        setSelected={(selectedValue) => onChange(String(selectedValue))}
+                        data={GYM_TYPE_OPTIONS}
+                        save="value"
+                        placeholder="Select gym type"
+                        defaultOption={
+                          selectedGymType
+                            ? { key: selectedGymType.key, value: selectedGymType.value }
+                            : undefined
+                        }
+                        boxStyles={{
+                          borderColor: AppColors.grey,
+                          borderWidth: 1,
+                          paddingHorizontal: 8,
+                        }}
+                        dropdownStyles={{
+                          borderColor: AppColors.grey2,
+                          borderWidth: 1,
+                          marginTop: 8,
+                          backgroundColor: 'white',
+                        }}
+                      />
+                    )
+                  }}
+                />
+                {fieldErrors.gym_type?.message ? <Text style={styles.errorText}>{fieldErrors.gym_type.message}</Text> : null}
+              </View>
+
+              <View style={styles.field}>
                 <Text style={styles.label}>State / Province *</Text>
                 <Controller
                   control={control}
@@ -396,30 +449,6 @@ const CreateGymScreen = ({ navigation }: { navigation: CreateGymNavigation }) =>
                   pointerEvents="none"
                 />
                 {fieldErrors.country?.message ? <Text style={styles.errorText}>{fieldErrors.country.message}</Text> : null}
-              </View>
-
-              <View style={styles.field}>
-                <Text style={styles.label}>Gym Hours (JSON)</Text>
-                <Controller
-                  control={control}
-                  name="gym_hours"
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <TextInput
-                      style={[styles.input, styles.textArea, fieldErrors.gym_hours?.message ? styles.inputError : null]}
-                      placeholder='{"monday":{"open":"5:30am","close":"9:00pm"}}'
-                      placeholderTextColor={AppColors.grey3}
-                      onBlur={onBlur}
-                      onChangeText={onChange}
-                      value={value}
-                      autoCapitalize="none"
-                      multiline
-                      numberOfLines={5}
-                      textAlignVertical="top"
-                    />
-                  )}
-                />
-                <Text style={styles.helperText}>Optional. Enter valid JSON if you want to include gym hours now.</Text>
-                {fieldErrors.gym_hours?.message ? <Text style={styles.errorText}>{fieldErrors.gym_hours.message}</Text> : null}
               </View>
 
               <TouchableOpacity
