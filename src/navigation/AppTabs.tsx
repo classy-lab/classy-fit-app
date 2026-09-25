@@ -14,6 +14,7 @@ import StaffScreen from '../screens/app/StaffScreen'
 import MembersScreen from '../screens/app/MembersScreen'
 import ProductsScreen from '../screens/app/ProductsScreen'
 import ProfileScreen from '../screens/app/ProfileScreen'
+import CreateGymScreen from '../screens/app/CreateGymScreen'
 import ClassManagementScreen from '../screens/app/ClassManagementScreen'
 import AddClassScreen from '../screens/app/AddClassScreen'
 import EditClassScreen from '../screens/app/EditClassScreen'
@@ -176,6 +177,7 @@ function ProfileStackScreen() {
   return (
     <ProfileStack.Navigator screenOptions={screenOptions}>
       <ProfileStack.Screen name="ProfileScreen" component={ProfileScreen} />
+      <ProfileStack.Screen name="CreateGymScreen" component={CreateGymScreen} />
       <ProfileStack.Screen name="MyClassBookingsScreen" component={MyClassBookingsScreen} />
       <ProfileStack.Screen name="MyClassBookingDetailScreen" component={MyClassBookingDetailScreen} />
       <ProfileStack.Screen name="MyPersonalTrainingBookingsScreen" component={MyPersonalTrainingBookingsScreen} />
