@@ -1,59 +1,121 @@
-import React, { useContext } from "react";
-import { StyleSheet } from "react-native";
-import { SelectList } from "react-native-dropdown-select-list";
-import { AppColors } from "../styles/colors";
-import { UserContext } from "../context/UserContext";
+import React, { useContext, useEffect, useMemo, useState } from 'react';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { SelectList } from 'react-native-dropdown-select-list';
+import { AppColors } from '../styles/colors';
+import { UserContext } from '../context/UserContext';
 
-const GymList = ({ onSelectValue, initialValue }: { onSelectValue: (value: any) => void; initialValue?: any }) => {
-  // 1. Parent controls the selected value
-  const gymData = [
-    { key: "1", value: "Classy Gym, Cobleskill, NY" },
-    { key: "2", value: "Vent Fitness, Clifton Park, NY" },
-    { key: "3", value: "The Bodyshop Gym, Cobleskill, NY" },
-    { key: "4", value: "Sarah's Gym, Cobleskill, NY" },
-  ];
-  const { user } = useContext(UserContext);
-  const resolvedInitialValue = initialValue ?? user?.gym_id;
-  const selectedGym = gymData.find((gym) => gym.key === String(resolvedInitialValue || ""));
+type GymListProps = {
+  onSelectValue: (value: any) => void;
+  initialValue?: any;
+};
+
+type GymOption = {
+  key: string;
+  value: string;
+};
+
+const GymList = ({ onSelectValue, initialValue }: GymListProps) => {
+  const authContext = useContext(UserContext) as { webServer?: string; user?: { gym_id?: number | string } } | null;
+  const webServer = authContext?.webServer ?? '';
+  const resolvedInitialValue = initialValue ?? authContext?.user?.gym_id;
+  const [gymData, setGymData] = useState<GymOption[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadGyms = async () => {
+      if (!webServer) {
+        setGymData([]);
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+
+      try {
+        const response = await fetch(`${webServer}/api/v1/public/gyms`);
+        const body = await response.json().catch(() => ({}));
+
+        if (!isMounted) {
+          return;
+        }
+
+        if (response.status !== 200) {
+          setGymData([]);
+          return;
+        }
+
+        const gyms = Array.isArray(body?.gyms) ? body.gyms : [];
+        setGymData(
+          gyms
+            .filter((gym: any) => Number(gym?.gym_id) > 0)
+            .map((gym: any) => ({
+              key: String(gym.gym_id),
+              value: [gym.gym_name, gym.city].filter(Boolean).join(', ') || `Gym ${gym.gym_id}`,
+            }))
+        );
+      } catch (error) {
+        if (isMounted) {
+          setGymData([]);
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadGyms();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [webServer]);
+
+  const selectedGym = useMemo(
+    () => gymData.find((gym) => gym.key === String(resolvedInitialValue || '')),
+    [gymData, resolvedInitialValue]
+  );
 
   return (
-    <SelectList
-      setSelected={onSelectValue} // Updates the parent state directly
-      data={gymData}
-      save="key"
-      placeholder="Select Category"
-      defaultOption={
-        selectedGym
-          ? {
-            key: selectedGym.key,
-            value: selectedGym.value,
-          }
-          : undefined
-      }
-      boxStyles={{
-        borderColor: AppColors.grey,
-        borderWidth: 1,
-        paddingHorizontal: 8,
-      }}
-      dropdownStyles={{
-        borderColor: AppColors.grey2,
-        borderWidth: 1,
-        marginTop: 8,
-        backgroundColor: "white",
-      }}
-    // If you need to force the value from the parent (e.g., reset)
-    // defaultOption={data.find(item => item.value === value)}
-    />
+    <View>
+      {loading ? (
+        <ActivityIndicator color={AppColors.blue} style={styles.loading} />
+      ) : null}
+      <SelectList
+        setSelected={onSelectValue}
+        data={gymData}
+        save="key"
+        placeholder="Select Gym"
+        defaultOption={
+          selectedGym
+            ? {
+                key: selectedGym.key,
+                value: selectedGym.value,
+              }
+            : undefined
+        }
+        boxStyles={{
+          borderColor: AppColors.grey,
+          borderWidth: 1,
+          paddingHorizontal: 8,
+        }}
+        dropdownStyles={{
+          borderColor: AppColors.grey2,
+          borderWidth: 1,
+          marginTop: 8,
+          backgroundColor: 'white',
+        }}
+      />
+    </View>
   );
 };
 
 export default GymList;
 
 const styles = StyleSheet.create({
-  formLabel: {
-    fontSize: 12,
-    marginTop: 16,
-    marginBottom: 4,
+  loading: {
+    marginBottom: 8,
   },
-  field: {},
 });
