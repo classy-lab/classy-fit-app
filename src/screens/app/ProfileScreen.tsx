@@ -47,15 +47,6 @@ const ProfileScreen = () => {
             <Text style={styles.subHead}>{normalizeRole(user?.role)}</Text>
           </View>
           <View style={styles.body}>
-            <TouchableOpacity
-              style={styles.menuButton}
-              activeOpacity={0.85}
-              onPress={() => navigation.navigate('CreateGymScreen')}
-            >
-              <Feather name="plus-circle" color={AppColors.blue} size={20} />
-              <Text style={styles.menuButtonText}>Create Gym</Text>
-              <Feather name="chevron-right" color={AppColors.blue} size={20} />
-            </TouchableOpacity>
             <ProfileScreenForm />
             <TouchableOpacity
               style={styles.menuButton}
