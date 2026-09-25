@@ -1,24 +1,25 @@
 import React, { useContext, useMemo, useState } from 'react'
+import * as yup from 'yup'
+import { useForm, Controller } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
 import {
+  View,
+  Text,
+  TouchableOpacity,
+  TextInput,
+  ScrollView,
+  Platform,
   ActivityIndicator,
   KeyboardAvoidingView,
-  Platform,
-  ScrollView,
   StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
 } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { Controller, useForm } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup'
-import * as yup from 'yup'
-import Feather from '@expo/vector-icons/Feather'
-import { showMessage } from 'react-native-flash-message'
 import { AppColors } from '../../styles/colors'
+import { useNavigation } from '@react-navigation/native'
 import { UserContext } from '../../context/UserContext'
-import SignOut from '../../components/utils/SignOut'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import Feather from '@expo/vector-icons/Feather'
+import Ionicons from '@expo/vector-icons/Ionicons'
+import { showMessage } from 'react-native-flash-message'
 
 type RefreshTokens = {
   access_token?: string
@@ -26,15 +27,13 @@ type RefreshTokens = {
 }
 
 type UserContextValue = {
-  setUser: (value: Record<string, any> | null | ((prev: Record<string, any> | null) => Record<string, any> | null)) => void
-  tokens?: RefreshTokens | null
-  setTokens: (value: RefreshTokens | null | ((prev: RefreshTokens | null) => RefreshTokens | null)) => void
   webServer: string
 }
 
 type CreateGymNavigation = {
   navigate: (screen: string, params?: Record<string, any>) => void
   goBack: () => void
+  getParent?: () => { openDrawer?: () => void } | null
 }
 
 type GymFormValues = {
@@ -49,7 +48,9 @@ type GymFormValues = {
   postal_code: string
   country: string
   timezone: string
+  photo_url: string
   website_url: string
+  gym_hours: string
   about: string
 }
 
@@ -88,11 +89,17 @@ const createGymSchema = yup.object({
   postal_code: yup.string().trim().max(20, 'Postal code must be 20 characters or fewer'),
   country: yup.string().trim().max(100, 'Country must be 100 characters or fewer'),
   timezone: yup.string().trim().max(100, 'Timezone must be 100 characters or fewer'),
+  photo_url: yup
+    .string()
+    .trim()
+    .max(255, 'Photo URL must be 255 characters or fewer')
+    .test('photo-url-format', 'Photo URL must be a valid URL', (value) => !value || yup.string().url().isValidSync(value)),
   website_url: yup
     .string()
     .trim()
     .max(255, 'Website URL must be 255 characters or fewer')
     .test('website-url-format', 'Website URL must be a valid URL', (value) => !value || yup.string().url().isValidSync(value)),
+  gym_hours: yup.string().trim().max(10000, 'Gym hours must be 10000 characters or fewer'),
   about: yup.string().trim().max(5000, 'About must be 5000 characters or fewer'),
 })
 
@@ -108,7 +115,9 @@ const fieldConfigs: FieldConfig[] = [
   { name: 'postal_code', label: 'Postal Code', placeholder: '12184' },
   { name: 'country', label: 'Country', placeholder: 'United States', autoCapitalize: 'words' },
   { name: 'timezone', label: 'Timezone', placeholder: 'America/New_York', autoCapitalize: 'none' },
+  { name: 'photo_url', label: 'Gym Photo/Logo URL', placeholder: 'https://example.com/logo.png', keyboardType: 'url', autoCapitalize: 'none' },
   { name: 'website_url', label: 'Website URL', placeholder: 'https://example.com', keyboardType: 'url', autoCapitalize: 'none' },
+  { name: 'gym_hours', label: 'Gym Hours (JSON)', placeholder: '{"monday":{"open":"5:30am","close":"9:00pm"}}', multiline: true, numberOfLines: 5, autoCapitalize: 'none' },
   { name: 'about', label: 'About', placeholder: 'Tell people about your gym', multiline: true, numberOfLines: 5, autoCapitalize: 'sentences' },
 ]
 
@@ -124,20 +133,29 @@ const defaultValues: GymFormValues = {
   postal_code: '',
   country: '',
   timezone: '',
+  photo_url: '',
   website_url: '',
+  gym_hours: '',
   about: '',
 }
 
 const CreateGymScreen = ({ navigation }: { navigation: CreateGymNavigation }) => {
-  const { setUser, tokens, setTokens, webServer } = useContext(UserContext) as UserContextValue
+  const { webServer } = useContext(UserContext) as UserContextValue
   const [submitting, setSubmitting] = useState(false)
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
 
   const formDefaults = useMemo(() => defaultValues, [])
+  const handleOpenDrawer = () => {
+    const parent = (navigation as any).getParent?.()
+    if (typeof parent?.openDrawer === 'function') {
+      parent.openDrawer()
+    }
+  }
 
   const {
     control,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<GymFormValues>({
     resolver: yupResolver(createGymSchema) as any,
@@ -145,74 +163,8 @@ const CreateGymScreen = ({ navigation }: { navigation: CreateGymNavigation }) =>
     mode: 'onSubmit',
   })
 
-  const refreshAccessToken = async (): Promise<string | null> => {
-    if (!tokens?.refresh_token) {
-      return null
-    }
-
-    const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
-      method: 'POST',
-      body: JSON.stringify({
-        token: tokens.refresh_token,
-      }),
-    })
-
-    if (refreshResponse.status !== 200) {
-      return null
-    }
-
-    const refreshObj = await refreshResponse.json()
-    if (!refreshObj?.access_token || !refreshObj?.refresh_token) {
-      return null
-    }
-
-    setTokens((prev) => ({
-      ...prev,
-      access_token: refreshObj.access_token,
-      refresh_token: refreshObj.refresh_token,
-    }))
-
-    return refreshObj.access_token
-  }
-
-  const performAuthenticatedRequest = async (endpoint: string, init: RequestInit = {}): Promise<Response | null> => {
-    if (!tokens?.access_token) {
-      return null
-    }
-
-    const requestWithToken = async (accessToken: string) =>
-      fetch(endpoint, {
-        ...init,
-        headers: {
-          'Content-Type': 'application/json',
-          ...(init.headers ?? {}),
-          Authorization: `Bearer ${accessToken}`,
-        },
-      })
-
-    let response = await requestWithToken(tokens.access_token)
-
-    if (response.status === 401 || response.status === 403) {
-      const refreshedAccessToken = await refreshAccessToken()
-      if (!refreshedAccessToken) {
-        return response
-      }
-
-      response = await requestWithToken(refreshedAccessToken)
-    }
-
-    return response
-  }
-
   const onSubmit = async (formData: GymFormValues) => {
     if (submitting) {
-      return
-    }
-
-    if (!tokens?.access_token) {
-      const message = 'Please sign in again to create a gym.'
-      setFeedback({ type: 'error', message })
-      showMessage({ message: 'Create failed', description: message, type: 'danger' })
       return
     }
 
@@ -220,17 +172,13 @@ const CreateGymScreen = ({ navigation }: { navigation: CreateGymNavigation }) =>
     setFeedback(null)
 
     try {
-      const response = await performAuthenticatedRequest(`${webServer}/api/v1/gyms`, {
+      const response = await fetch(`${webServer}/api/v1/gyms`, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify(formData),
       })
-
-      if (!response) {
-        const message = 'Please sign in again to create a gym.'
-        setFeedback({ type: 'error', message })
-        showMessage({ message: 'Create failed', description: message, type: 'danger' })
-        return
-      }
 
       const responseText = await response.text()
       let responseBody: CreateGymResponse = {}
@@ -242,36 +190,20 @@ const CreateGymScreen = ({ navigation }: { navigation: CreateGymNavigation }) =>
         }
       }
 
-      if (response.status === 200 || response.status === 201) {
-        const nextUser = responseBody?.user
-        const nextGym = responseBody?.gym
-
-        if (nextUser) {
-          setUser((prev) => ({
-            ...(prev ?? {}),
-            ...nextUser,
-          }))
-        } else if (nextGym) {
-          setUser((prev) => ({
-            ...(prev ?? {}),
-            gym_id: nextGym.gym_id,
-            gym_name: nextGym.gym_name,
-            role: 'owner',
-          }))
-        }
-
+      if (response.status === 200 || response.status === 201 || response.status === 202) {
         const message = responseBody?.message || 'Gym created successfully.'
         setFeedback({ type: 'success', message })
         showMessage({
-          message: 'Gym created',
+          message: 'Gym registration received',
           description: message,
           type: 'success',
         })
-        navigation.navigate('HomeTab', { screen: 'DashboardScreen' })
+        reset(defaultValues)
+        navigation.goBack()
         return
       }
 
-      const message = responseBody?.message || responseBody?.errors?.[0] || 'Unable to create gym.'
+      const message = responseBody?.message || responseBody?.errors?.[0] || 'Unable to submit gym registration.'
       setFeedback({ type: 'error', message })
       showMessage({
         message: 'Create failed',
@@ -279,7 +211,7 @@ const CreateGymScreen = ({ navigation }: { navigation: CreateGymNavigation }) =>
         type: 'danger',
       })
     } catch (error) {
-      const message = 'Unable to create gym right now.'
+      const message = 'Unable to submit gym registration right now.'
       setFeedback({ type: 'error', message })
       showMessage({
         message: 'Create failed',
@@ -295,144 +227,226 @@ const CreateGymScreen = ({ navigation }: { navigation: CreateGymNavigation }) =>
   const fieldErrors = errors as Record<string, { message?: string } | undefined>
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.navs}>
-        <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => navigation.goBack()} />
-        <SignOut />
-      </View>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.flex}>
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-          <View style={styles.headingContainer}>
-            <Text style={styles.title}>Create Gym</Text>
-            <Text style={styles.subtitle}>Create a new gym and switch your account context right away.</Text>
-          </View>
+    <>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.navs}>
+          <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={10} accessibilityRole="button" accessibilityLabel="Go back">
+            <Feather name="arrow-left" color={AppColors.blue} size={36} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleOpenDrawer} hitSlop={10} accessibilityRole="button" accessibilityLabel="Open menu">
+            <Ionicons color={AppColors.hamburgerIconColor} name="menu" size={40} />
+          </TouchableOpacity>
+        </View>
 
-          {feedback ? (
-            <View
-              style={[
-                styles.feedbackBox,
-                feedback.type === 'success' ? styles.feedbackSuccess : styles.feedbackError,
-              ]}
-            >
-              <Text
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.flex}>
+          <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+            <View style={styles.headingContainer}>
+              <Text style={styles.title}>Create Gym</Text>
+              <Text style={styles.subHead}>Create a new gym and switch your account context right away.</Text>
+            </View>
+
+            {feedback ? (
+              <View
                 style={[
-                  styles.feedbackText,
-                  feedback.type === 'success' ? styles.feedbackSuccessText : styles.feedbackErrorText,
+                  styles.feedbackBox,
+                  feedback.type === 'success' ? styles.feedbackSuccess : styles.feedbackError,
                 ]}
               >
-                {feedback.message}
-              </Text>
-            </View>
-          ) : null}
-
-          <View style={styles.form}>
-            {fieldConfigs.map((field) => (
-              <View key={field.name} style={styles.field}>
-                <Text style={styles.label}>
-                  {field.label}
-                  {field.name === 'gym_name' ? ' *' : ''}
+                <Text
+                  style={[
+                    styles.feedbackText,
+                    feedback.type === 'success' ? styles.feedbackSuccessText : styles.feedbackErrorText,
+                  ]}
+                >
+                  {feedback.message}
                 </Text>
-                <Controller
-                  control={control}
-                  name={field.name}
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <TextInput
-                      style={[
-                        styles.input,
-                        field.multiline && styles.textArea,
-                        fieldErrors[field.name]?.message ? styles.inputError : null,
-                      ]}
-                      placeholder={field.placeholder}
-                      placeholderTextColor={AppColors.grey3}
-                      onBlur={onBlur}
-                      onChangeText={onChange}
-                      value={value}
-                      keyboardType={field.keyboardType}
-                      autoCapitalize={field.autoCapitalize ?? 'none'}
-                      multiline={field.multiline}
-                      numberOfLines={field.numberOfLines}
-                      textAlignVertical={field.multiline ? 'top' : 'center'}
-                    />
-                  )}
-                />
-                {fieldErrors[field.name]?.message ? (
-                  <Text style={styles.errorText}>{fieldErrors[field.name]?.message}</Text>
-                ) : null}
               </View>
-            ))}
+            ) : null}
 
-            <TouchableOpacity
-              style={[styles.submitButton, submitting && styles.submitButtonDisabled]}
-              onPress={handleSubmit(onSubmit as any)}
-              disabled={submitting}
-              activeOpacity={0.85}
-            >
-              {submitting ? (
-                <ActivityIndicator color={AppColors.white} />
-              ) : (
-                <Text style={styles.submitButtonText}>Create Gym</Text>
-              )}
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+            <View style={styles.formCard}>
+              {fieldConfigs.map((field) => (
+                <View key={field.name} style={styles.field}>
+                  <Text style={styles.label}>
+                    {field.label}
+                    {field.name === 'gym_name' ? ' *' : ''}
+                  </Text>
+                  <Controller
+                    control={control}
+                    name={field.name}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                      <TextInput
+                        style={[
+                          styles.input,
+                          field.multiline && styles.textArea,
+                          fieldErrors[field.name]?.message ? styles.inputError : null,
+                        ]}
+                        placeholder={field.placeholder}
+                        placeholderTextColor={AppColors.grey3}
+                        onBlur={onBlur}
+                        onChangeText={onChange}
+                        value={value}
+                        keyboardType={field.keyboardType}
+                        autoCapitalize={field.autoCapitalize ?? 'none'}
+                        multiline={field.multiline}
+                        numberOfLines={field.numberOfLines}
+                        textAlignVertical={field.multiline ? 'top' : 'center'}
+                      />
+                    )}
+                  />
+                  {field.name === 'gym_hours' ? (
+                    <Text style={styles.helperText}>Enter valid JSON, for example: {"{\"monday\":{\"open\":\"5:30am\",\"close\":\"9:00pm\"}}"}</Text>
+                  ) : null}
+                  {fieldErrors[field.name]?.message ? (
+                    <Text style={styles.errorText}>{fieldErrors[field.name]?.message}</Text>
+                  ) : null}
+                </View>
+              ))}
+
+              <TouchableOpacity
+                style={[styles.submitButton, submitting && styles.submitButtonDisabled]}
+                onPress={handleSubmit(onSubmit as any)}
+                disabled={submitting}
+                activeOpacity={0.85}
+              >
+                {submitting ? (
+                  <ActivityIndicator color={AppColors.white} />
+                ) : (
+                  <Text style={styles.submitButtonText}>Create Gym</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </>
   )
 }
 
 export default CreateGymScreen
 
 const styles = StyleSheet.create({
-  flex: {
-    flex: 1,
-  },
   container: {
-    flex: 1,
     backgroundColor: AppColors.white,
+    flex: 1,
   },
   navs: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    paddingLeft: 24,
+    paddingRight: 24,
     alignItems: 'center',
-    paddingHorizontal: 24,
+    marginTop: 8,
   },
-  scrollContent: {
-    paddingBottom: 32,
+  flex: {
+    flex: 1,
   },
   headingContainer: {
-    paddingHorizontal: 24,
-    marginTop: 12,
-    marginBottom: 16,
+    alignItems: 'center',
+    marginBottom: 18,
+    paddingHorizontal: 16,
   },
   title: {
     color: AppColors.blue,
     fontFamily: 'Montserrat',
     fontSize: 32,
+    marginTop: 34,
+    marginBottom: 8,
+  },
+  subHead: {
+    fontFamily: 'Montserrat',
+    fontSize: 16,
+    lineHeight: 24,
+    color: AppColors.primary,
     textAlign: 'center',
   },
-  subtitle: {
-    color: AppColors.primary,
+  scrollContent: {
+    paddingHorizontal: 24,
+    paddingBottom: 28,
+  },
+  scrollView: {},
+  formCard: {
+    backgroundColor: AppColors.white,
+    borderRadius: 24,
+    paddingHorizontal: 18,
+    paddingTop: 16,
+    paddingBottom: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 3,
+  },
+  field: {
+    marginBottom: 14,
+  },
+  label: {
+    color: AppColors.blue,
+    fontFamily: 'Montserrat',
     fontSize: 14,
-    lineHeight: 22,
-    textAlign: 'center',
+    marginBottom: 6,
+  },
+  input: {
+    borderColor: AppColors.grey,
+    borderWidth: 1,
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontFamily: 'Montserrat',
+    color: AppColors.primary,
+    backgroundColor: AppColors.white,
+    minHeight: 48,
+  },
+  textArea: {
+    minHeight: 110,
+    paddingTop: 12,
+  },
+  inputError: {
+    borderColor: '#B91C1C',
+  },
+  errorText: {
+    marginTop: 4,
+    color: '#B91C1C',
+    fontSize: 12,
+    fontFamily: 'Montserrat',
+  },
+  helperText: {
+    marginTop: 4,
+    color: AppColors.primary,
+    fontSize: 12,
+    lineHeight: 18,
+    fontFamily: 'Montserrat',
+  },
+  submitButton: {
     marginTop: 8,
+    backgroundColor: AppColors.blue,
+    borderRadius: 999,
+    minHeight: 52,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  submitButtonDisabled: {
+    opacity: 0.75,
+  },
+  submitButtonText: {
+    color: AppColors.white,
+    fontSize: 16,
     fontFamily: 'Montserrat',
   },
   feedbackBox: {
-    marginHorizontal: 24,
     marginBottom: 16,
-    borderRadius: 12,
-    paddingHorizontal: 16,
+    borderRadius: 16,
+    paddingHorizontal: 14,
     paddingVertical: 12,
-    borderWidth: 1,
   },
   feedbackSuccess: {
-    backgroundColor: '#eef8f1',
-    borderColor: '#8ad19b',
+    backgroundColor: '#ECFDF5',
+    borderWidth: 1,
+    borderColor: '#10B981',
   },
   feedbackError: {
-    backgroundColor: '#fceff0',
-    borderColor: '#f4a3aa',
+    backgroundColor: '#FEF2F2',
+    borderWidth: 1,
+    borderColor: '#F87171',
   },
   feedbackText: {
     fontFamily: 'Montserrat',
@@ -440,61 +454,9 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   feedbackSuccessText: {
-    color: '#1f7a3b',
+    color: '#065F46',
   },
   feedbackErrorText: {
-    color: '#a61d24',
-  },
-  form: {
-    paddingHorizontal: 24,
-    gap: 14,
-  },
-  field: {
-    gap: 8,
-  },
-  label: {
-    color: AppColors.primary,
-    fontSize: 14,
-    fontFamily: 'Montserrat',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: AppColors.grey2,
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    color: AppColors.primary,
-    fontSize: 14,
-    fontFamily: 'Montserrat',
-    backgroundColor: AppColors.white,
-    minHeight: 48,
-  },
-  textArea: {
-    minHeight: 120,
-    paddingTop: 12,
-  },
-  inputError: {
-    borderColor: '#d14343',
-  },
-  errorText: {
-    color: '#d14343',
-    fontSize: 12,
-    fontFamily: 'Montserrat',
-  },
-  submitButton: {
-    marginTop: 8,
-    backgroundColor: AppColors.blue,
-    borderRadius: 40,
-    minHeight: 52,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  submitButtonDisabled: {
-    opacity: 0.7,
-  },
-  submitButtonText: {
-    color: AppColors.white,
-    fontSize: 16,
-    fontFamily: 'Montserrat',
+    color: '#991B1B',
   },
 })
