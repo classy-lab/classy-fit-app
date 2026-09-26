@@ -50,6 +50,36 @@ const GymScreenScrollViewFour = () => {
             <Text style={gymScreenStyles.cardText}>Manage Membership Plans</Text>
           </View>
         ) : null}
+        {!isOwner ? (
+          <View style={gymScreenStyles.greySquareContainer}>
+            <TouchableOpacity
+              style={gymScreenStyles.greySquare}
+              activeOpacity={0.8}
+              hitSlop={8}
+              onPress={() => navigation.navigate('ProfileTab', { screen: 'MyMembershipScreen' })}
+            >
+              <View style={gymScreenStyles.whiteSquare}>
+                <Feather name="user" color={AppColors.blue} size={28} />
+              </View>
+            </TouchableOpacity>
+            <Text style={gymScreenStyles.cardText}>My Membership</Text>
+          </View>
+        ) : null}
+        {!isOwner ? (
+          <View style={gymScreenStyles.greySquareContainer}>
+            <TouchableOpacity
+              style={gymScreenStyles.greySquare}
+              activeOpacity={0.8}
+              hitSlop={8}
+              onPress={() => navigation.navigate('GymTab', { screen: 'MyPersonalTrainingBookingsScreen' })}
+            >
+              <View style={gymScreenStyles.whiteSquare}>
+                <Feather name="calendar" color={AppColors.blue} size={28} />
+              </View>
+            </TouchableOpacity>
+            <Text style={gymScreenStyles.cardText}>My PT Bookings</Text>
+          </View>
+        ) : null}
       </ScrollView>
     </>
   )
