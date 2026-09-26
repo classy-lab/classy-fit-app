@@ -394,7 +394,7 @@ const MembershipPlansScreen = ({ navigation }: { navigation: MembershipPlansNavi
       const reconciliationResult = await submitPurchaseRequest()
       const reconciledBody =
         reconciliationResult &&
-        (reconciliationResult.response.status === 200 || reconciliationResult.response.status === 201)
+          (reconciliationResult.response.status === 200 || reconciliationResult.response.status === 201)
           ? reconciliationResult.responseBody
           : responseBody
 
@@ -436,7 +436,7 @@ const MembershipPlansScreen = ({ navigation }: { navigation: MembershipPlansNavi
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <Feather name="arrow-left" color={AppColors.blue} size={36} />
         </TouchableOpacity>
-        <Text style={styles.title}>Membership Plans</Text>
+        <Text style={styles.title}>Buy Membership</Text>
         <View style={styles.spacer} />
       </View>
 
@@ -509,7 +509,7 @@ const MembershipPlansScreen = ({ navigation }: { navigation: MembershipPlansNavi
                       <Feather name="check-circle" color={AppColors.white} size={16} />
                     )}
                     <Text style={styles.chooseButtonText}>
-                      {isPurchasing ? 'Processing...' : 'Choose Plan'}
+                      {isPurchasing ? 'Processing...' : 'Buy Now'}
                     </Text>
                   </TouchableOpacity>
                 </View>
