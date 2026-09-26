@@ -48,24 +48,6 @@ const ProfileScreen = () => {
           </View>
           <View style={styles.body}>
             <ProfileScreenForm />
-            <TouchableOpacity
-              style={styles.menuButton}
-              activeOpacity={0.85}
-              onPress={() => navigation.navigate('MyMembershipScreen')}
-            >
-              <Feather name="credit-card" color={AppColors.blue} size={20} />
-              <Text style={styles.menuButtonText}>My Membership</Text>
-              <Feather name="chevron-right" color={AppColors.blue} size={20} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.menuButton}
-              activeOpacity={0.85}
-              onPress={() => navigation.navigate('MyPersonalTrainingBookingsScreen')}
-            >
-              <Feather name="calendar" color={AppColors.blue} size={20} />
-              <Text style={styles.menuButtonText}>My Personal Training Bookings</Text>
-              <Feather name="chevron-right" color={AppColors.blue} size={20} />
-            </TouchableOpacity>
             {isOwner ? (
               <TouchableOpacity
                 style={styles.menuButton}
