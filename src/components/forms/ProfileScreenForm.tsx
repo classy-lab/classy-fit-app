@@ -356,11 +356,6 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
     }
   };
 
-  const executeGymMembershipCancellation = () => {
-    console.log("Gym Membership Cancellation API initiated.");
-    // Insert your Axios, Fetch, or Firebase deletion request here
-  };
-
   // 2. Build the confirmation modal configuration
   const handleDeletePress = () => {
     Alert.alert(
@@ -375,26 +370,6 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
         {
           text: "Delete My Account",
           onPress: () => executeProfileDeletion({ tokens, webServer, user, setTokens }),
-          style: "destructive", // Colors the font red on iOS platforms
-        },
-      ],
-      { cancelable: true }, // Allows Android users to dismiss by clicking background
-    );
-  };
-
-  const handleCancelGymMembershipPress = () => {
-    Alert.alert(
-      "Cancel Gym Membership", // Dialog Title
-      "Are you absolutely sure? You are about to cancel your gym membership", // Dialog Description
-      [
-        {
-          text: "Cancel",
-          onPress: () => console.log("Deletion cancelled"),
-          style: "cancel", // Stylizes text as a neutral cancel action
-        },
-        {
-          text: "Cancel Gym Membership",
-          onPress: () => executeGymMembershipCancellation(),
           style: "destructive", // Colors the font red on iOS platforms
         },
       ],
@@ -966,12 +941,6 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
             <Text style={globalStyles.loginBtnText}>Delete Profile</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={globalStyles.loginBtn}
-            onPress={handleCancelGymMembershipPress}
-          >
-            <Text style={globalStyles.loginBtnText}>Cancel Gym Membership</Text>
-          </TouchableOpacity>
         </View>
       </View>
     </>
