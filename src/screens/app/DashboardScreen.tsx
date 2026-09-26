@@ -33,6 +33,36 @@ const DashboardScreen = ({ navigation, route }) => {
             {/* <Text style={styles.subtitle}>Manage your gym operations</Text> */}
           </View>
           <View style={styles.body}>
+            <View style={styles.heroCard}>
+              <View style={styles.heroCardTop}>
+                <View style={styles.heroIconWrap}>
+                  <Ionicons name="sparkles" size={22} color={AppColors.white} />
+                </View>
+                <View style={styles.heroTextBlock}>
+                  <Text style={styles.heroEyebrow}>Today&apos;s hub</Text>
+                  <Text style={styles.heroTitleText}>Run your gym from one place</Text>
+                  <Text style={styles.heroDescription}>
+                    Jump into classes, personal training, members, and operations in a few taps.
+                  </Text>
+                </View>
+              </View>
+
+              <View style={styles.heroChips}>
+                <View style={styles.heroChip}>
+                  <Feather name="calendar" size={14} color={AppColors.blue} />
+                  <Text style={styles.heroChipText}>Classes</Text>
+                </View>
+                <View style={styles.heroChip}>
+                  <Feather name="users" size={14} color={AppColors.blue} />
+                  <Text style={styles.heroChipText}>Members</Text>
+                </View>
+                <View style={styles.heroChip}>
+                  <Feather name="activity" size={14} color={AppColors.blue} />
+                  <Text style={styles.heroChipText}>Training</Text>
+                </View>
+              </View>
+            </View>
+
             <View style={{ alignItems: 'center', }}>
               <TouchableOpacity style={styles.primaryCard} onPress={() => navigation.navigate('GymScreen')}>
                 <View style={styles.primaryCardLeft}>
@@ -40,7 +70,7 @@ const DashboardScreen = ({ navigation, route }) => {
                   <MaterialCommunityIcons name="dumbbell" size={32} color={AppColors.white} />
                   <View style={styles.primaryCardTextContainer}>
                     <Text style={styles.primaryCardTitle}>Gym</Text>
-                    <Text style={styles.primaryCardSubtitle}>Classes, Personal Training, etc</Text>
+                    <Text style={styles.primaryCardSubtitle}>Classes, personal training, memberships</Text>
                   </View>
                 </View>
                 <Feather style={styles.arrow} name="arrow-right" size={24} color={AppColors.white} />
@@ -59,21 +89,23 @@ const DashboardScreen = ({ navigation, route }) => {
               ) : null}
 
             </View>
-            {/* <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Management</Text>
-            </View> */}
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Quick actions</Text>
+            </View>
             <View style={styles.greySquares}>
               <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('StaffScreen')}>
                 <View style={styles.whiteSquare}>
                   <FontAwesome5 name="user-friends" size={28} color={AppColors.blue} />
                 </View>
                 <Text style={styles.squareLabel}>Staff</Text>
+                <Text style={styles.squareSubtitle}>Team access</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('MembersScreen')}>
                 <View style={styles.whiteSquare}>
                   <FontAwesome5 name="users" size={28} color={AppColors.blue} />
                 </View>
                 <Text style={styles.squareLabel}>Members</Text>
+                <Text style={styles.squareSubtitle}>Client list</Text>
               </TouchableOpacity>
               {isOwner ? (
                 <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('ContractorsScreen')}>
@@ -81,6 +113,7 @@ const DashboardScreen = ({ navigation, route }) => {
                     <FontAwesome5 name="user-tie" size={28} color={AppColors.blue} />
                   </View>
                   <Text style={styles.squareLabel}>Contractors</Text>
+                  <Text style={styles.squareSubtitle}>Manage partners</Text>
                 </TouchableOpacity>
               ) : null}
               <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('ProductsScreen')}>
@@ -88,12 +121,14 @@ const DashboardScreen = ({ navigation, route }) => {
                   <MaterialCommunityIcons name="shopping" size={28} color={AppColors.blue} />
                 </View>
                 <Text style={styles.squareLabel}>Products</Text>
+                <Text style={styles.squareSubtitle}>Sell items</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('ContractorsScreen')}>
                 <View style={styles.whiteSquare}>
                   <FontAwesome5 name="user-tie" size={28} color={AppColors.blue} />
                 </View>
                 <Text style={styles.squareLabel}>Gym Videos</Text>
+                <Text style={styles.squareSubtitle}>Content library</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -160,6 +195,74 @@ const styles = StyleSheet.create({
     paddingLeft: 24,
     paddingRight: 24,
     marginBottom: 8,
+  },
+  heroCard: {
+    backgroundColor: AppColors.blue,
+    borderRadius: 24,
+    padding: 20,
+    marginBottom: 18,
+    shadowColor: AppColors.blue,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.18,
+    shadowRadius: 12,
+    elevation: 5,
+  },
+  heroCardTop: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  heroIconWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 14,
+  },
+  heroTextBlock: {
+    flex: 1,
+  },
+  heroEyebrow: {
+    color: AppColors.white,
+    fontSize: 12,
+    fontFamily: 'Montserrat',
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+    opacity: 0.85,
+  },
+  heroTitleText: {
+    color: AppColors.white,
+    fontSize: 22,
+    fontFamily: 'Montserrat',
+    marginTop: 4,
+  },
+  heroDescription: {
+    color: AppColors.white,
+    opacity: 0.9,
+    fontSize: 14,
+    lineHeight: 20,
+    marginTop: 8,
+  },
+  heroChips: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+    marginTop: 16,
+  },
+  heroChip: {
+    backgroundColor: AppColors.white,
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  heroChipText: {
+    color: AppColors.blue,
+    fontSize: 13,
+    fontFamily: 'Montserrat',
   },
 
   primaryCard: {
@@ -235,6 +338,7 @@ const styles = StyleSheet.create({
     // flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 10,
   },
   whiteSquare: {
     backgroundColor: AppColors.white,
@@ -256,6 +360,7 @@ const styles = StyleSheet.create({
     fontSize: 11,
     marginTop: 2,
     fontFamily: 'Montserrat',
+    textAlign: 'center',
   },
   signOut: {
     flexDirection: 'row',
