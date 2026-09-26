@@ -594,13 +594,14 @@ const styles = StyleSheet.create({
   filterBar: {
     flexDirection: 'row',
     gap: 12,
-    marginBottom: 16,
+    marginTop: 8,
+    marginBottom: 6,
   },
   filterButton: {
     flex: 1,
     borderWidth: 1,
     borderColor: AppColors.grey,
-    borderRadius: 12,
+    borderRadius: 999,
     paddingVertical: 12,
     alignItems: 'center',
     backgroundColor: AppColors.white,
@@ -610,8 +611,7 @@ const styles = StyleSheet.create({
     borderColor: AppColors.blue,
   },
   filterButtonText: {
-    color: AppColors.blue,
-    fontFamily: 'Montserrat',
+    color: AppColors.primary,
     fontSize: 14,
   },
   filterButtonTextActive: {
