@@ -115,6 +115,7 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
   const [refreshing, setRefreshing] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [deletingSessionUid, setDeletingSessionUid] = useState<number | null>(null)
+  const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming')
 
   const isOwner = String(user?.role ?? '').trim().toLowerCase() === 'owner'
 
@@ -335,6 +336,20 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
     return `${price.toFixed(2)} ${currency}`.trim()
   }
 
+  const isUpcomingSession = (session: ManagedPersonalTrainingSession) => {
+    const sessionDate = parseDate(session?.start_at)
+    if (!sessionDate) {
+      return false
+    }
+
+    return sessionDate.getTime() > Date.now()
+  }
+
+  const upcomingSessions = sessions.filter(isUpcomingSession)
+  const pastSessions = sessions.filter((session) => !isUpcomingSession(session))
+  const visibleSessions = activeTab === 'upcoming' ? upcomingSessions : pastSessions
+  const activeSessionsLabel = activeTab === 'upcoming' ? 'Upcoming' : 'Past'
+
   const sessionCount = sessions.length
 
   if (!isOwner) {
@@ -402,93 +417,128 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
             <Text style={styles.stateText}>Use the backend to create sessions and they will appear here.</Text>
           </View>
         ) : (
-          <View style={styles.list}>
-            {sessions.map((session, index) => {
-              const sessionUid = Number(session?.uid ?? session?.session_uid ?? 0)
-              const priceLabel = renderPrice(session)
-              const status = String(session?.status ?? 'scheduled').trim().toLowerCase()
-              const location = String(session?.location ?? '').trim()
-              const notes = String(session?.additional_notes ?? '').trim()
-              const trainerDisplayName = String(session?.trainer_display_name ?? '').trim()
-              const deleting = deletingSessionUid === sessionUid
-              const statusStyle =
-                status === 'cancelled'
-                  ? styles.statusCancelled
-                  : status === 'completed'
-                    ? styles.statusCompleted
-                    : styles.statusScheduled
+          <>
+            <View style={styles.filterBar}>
+              <TouchableOpacity
+                style={[styles.filterButton, activeTab === 'upcoming' && styles.filterButtonActive]}
+                onPress={() => setActiveTab('upcoming')}
+              >
+                <Text style={[styles.filterButtonText, activeTab === 'upcoming' && styles.filterButtonTextActive]}>
+                  Upcoming ({upcomingSessions.length})
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.filterButton, activeTab === 'past' && styles.filterButtonActive]}
+                onPress={() => setActiveTab('past')}
+              >
+                <Text style={[styles.filterButtonText, activeTab === 'past' && styles.filterButtonTextActive]}>
+                  Past ({pastSessions.length})
+                </Text>
+              </TouchableOpacity>
+            </View>
 
-              return (
-                <View
-                  key={sessionUid || `${session?.trainer_gym_user_id ?? 'trainer'}-${session?.start_at ?? index}`}
-                  style={styles.card}
-                >
-                  <View style={styles.cardHeader}>
-                    <View style={styles.cardHeaderText}>
-                      <Text style={styles.cardTitle}>{getOwnerPersonalTrainingTitle(trainerDisplayName)}</Text>
-                      <Text style={styles.cardSubtitle}>{priceLabel}</Text>
-                    </View>
-                    <View style={[styles.statusPill, statusStyle]}>
-                      <Text style={styles.statusText}>{renderStatusLabel(status)}</Text>
-                    </View>
-                  </View>
+            {visibleSessions.length > 0 ? (
+              <View style={styles.list}>
+                <Text style={styles.sectionTitle}>{activeSessionsLabel} sessions</Text>
+                {visibleSessions.map((session, index) => {
+                  const sessionUid = Number(session?.uid ?? session?.session_uid ?? 0)
+                  const priceLabel = renderPrice(session)
+                  const status = String(session?.status ?? 'scheduled').trim().toLowerCase()
+                  const location = String(session?.location ?? '').trim()
+                  const notes = String(session?.additional_notes ?? '').trim()
+                  const trainerDisplayName = String(session?.trainer_display_name ?? '').trim()
+                  const deleting = deletingSessionUid === sessionUid
+                  const statusStyle =
+                    status === 'cancelled'
+                      ? styles.statusCancelled
+                      : status === 'completed'
+                        ? styles.statusCompleted
+                        : styles.statusScheduled
 
-                  <View style={styles.metaGrid}>
-                    <View style={styles.metaItem}>
-                      <Text style={styles.metaLabel}>Date</Text>
-                      <Text style={styles.metaValue}>{formatDate(session?.start_at)}</Text>
-                    </View>
-                    <View style={styles.metaItem}>
-                      <Text style={styles.metaLabel}>Time</Text>
-                      <Text style={styles.metaValue}>
-                        {formatTime(session?.start_at)} - {formatTime(session?.end_at)}
-                      </Text>
-                    </View>
-                  </View>
-
-                  {location ? (
-                    <View style={styles.detailSection}>
-                      <Text style={styles.metaLabel}>Location</Text>
-                      <Text style={styles.detailValue}>{location}</Text>
-                    </View>
-                  ) : null}
-
-                  {notes ? (
-                    <View style={styles.detailSection}>
-                      <Text style={styles.metaLabel}>Additional Notes</Text>
-                      <Text style={styles.detailValue}>{notes}</Text>
-                    </View>
-                  ) : null}
-
-                  <View style={styles.cardActions}>
-                    <TouchableOpacity
-                      style={styles.editButton}
-                      activeOpacity={0.85}
-                      onPress={() => navigation.navigate('EditPersonalTrainingSessionScreen', { sessionUid })}
-                      disabled={!sessionUid || deleting}
+                  return (
+                    <View
+                      key={sessionUid || `${session?.trainer_gym_user_id ?? 'trainer'}-${session?.start_at ?? index}`}
+                      style={[styles.card, activeTab === 'past' && styles.cardPast]}
                     >
-                      <Feather name="edit-2" color={AppColors.blue} size={16} />
-                      <Text style={styles.editButtonText}>Edit</Text>
-                    </TouchableOpacity>
+                      <View style={styles.cardHeader}>
+                        <View style={styles.cardHeaderText}>
+                          <Text style={styles.cardTitle}>{getOwnerPersonalTrainingTitle(trainerDisplayName)}</Text>
+                          <Text style={styles.cardSubtitle}>{priceLabel}</Text>
+                        </View>
+                        <View style={[styles.statusPill, statusStyle]}>
+                          <Text style={styles.statusText}>{renderStatusLabel(status)}</Text>
+                        </View>
+                      </View>
 
-                    <TouchableOpacity
-                      style={[styles.deleteButton, deleting ? styles.deleteButtonDisabled : null]}
-                      activeOpacity={0.85}
-                      onPress={() => confirmDeleteSession(sessionUid, `${trainerDisplayName || 'this personal training session'}`)}
-                      disabled={!sessionUid || deleting}
-                    >
-                      {deleting ? (
-                        <ActivityIndicator size="small" color={AppColors.white} />
-                      ) : (
-                        <Feather name="trash-2" color={AppColors.white} size={16} />
-                      )}
-                      <Text style={styles.deleteButtonText}>{deleting ? 'Deleting...' : 'Delete'}</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              )
-            })}
-          </View>
+                      <View style={styles.metaGrid}>
+                        <View style={styles.metaItem}>
+                          <Text style={styles.metaLabel}>Date</Text>
+                          <Text style={styles.metaValue}>{formatDate(session?.start_at)}</Text>
+                        </View>
+                        <View style={styles.metaItem}>
+                          <Text style={styles.metaLabel}>Time</Text>
+                          <Text style={styles.metaValue}>
+                            {formatTime(session?.start_at)} - {formatTime(session?.end_at)}
+                          </Text>
+                        </View>
+                      </View>
+
+                      {location ? (
+                        <View style={styles.detailSection}>
+                          <Text style={styles.metaLabel}>Location</Text>
+                          <Text style={styles.detailValue}>{location}</Text>
+                        </View>
+                      ) : null}
+
+                      {notes ? (
+                        <View style={styles.detailSection}>
+                          <Text style={styles.metaLabel}>Additional Notes</Text>
+                          <Text style={styles.detailValue}>{notes}</Text>
+                        </View>
+                      ) : null}
+
+                      <View style={styles.cardActions}>
+                        <TouchableOpacity
+                          style={styles.editButton}
+                          activeOpacity={0.85}
+                          onPress={() => navigation.navigate('EditPersonalTrainingSessionScreen', { sessionUid })}
+                          disabled={!sessionUid || deleting}
+                        >
+                          <Feather name="edit-2" color={AppColors.blue} size={16} />
+                          <Text style={styles.editButtonText}>Edit</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                          style={[styles.deleteButton, deleting ? styles.deleteButtonDisabled : null]}
+                          activeOpacity={0.85}
+                          onPress={() =>
+                            confirmDeleteSession(sessionUid, `${trainerDisplayName || 'this personal training session'}`)
+                          }
+                          disabled={!sessionUid || deleting}
+                        >
+                          {deleting ? (
+                            <ActivityIndicator size="small" color={AppColors.white} />
+                          ) : (
+                            <Feather name="trash-2" color={AppColors.white} size={16} />
+                          )}
+                          <Text style={styles.deleteButtonText}>{deleting ? 'Deleting...' : 'Delete'}</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  )
+                })}
+              </View>
+            ) : (
+              <View style={styles.emptyCard}>
+                <Text style={styles.emptyTitle}>{activeSessionsLabel} sessions</Text>
+                <Text style={styles.stateText}>
+                  {activeTab === 'upcoming'
+                    ? 'No upcoming personal training sessions right now. Add a new session to get started.'
+                    : 'No past personal training sessions yet.'}
+                </Text>
+              </View>
+            )}
+          </>
         )}
       </ScrollView>
     </SafeAreaView>
@@ -617,6 +667,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontFamily: 'Montserrat',
   },
+  emptyCard: {
+    backgroundColor: AppColors.white,
+    borderRadius: 18,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: AppColors.grey,
+    marginTop: 16,
+  },
   errorCard: {
     backgroundColor: AppColors.white,
     borderColor: AppColors.grey,
@@ -658,6 +716,9 @@ const styles = StyleSheet.create({
     padding: 18,
     borderColor: AppColors.grey,
     borderWidth: 1,
+  },
+  cardPast: {
+    opacity: 0.7,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -734,5 +795,38 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: AppColors.primary,
     fontFamily: 'Montserrat',
+  },
+  sectionTitle: {
+    fontSize: 20,
+    color: AppColors.blue,
+    marginBottom: 14,
+    fontFamily: 'Montserrat',
+  },
+  filterBar: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 8,
+    marginBottom: 6,
+  },
+  filterButton: {
+    flex: 1,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: AppColors.grey,
+    backgroundColor: AppColors.white,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  filterButtonActive: {
+    borderColor: AppColors.blue,
+    backgroundColor: AppColors.blue,
+  },
+  filterButtonText: {
+    color: AppColors.primary,
+    fontSize: 14,
+    fontFamily: 'Montserrat',
+  },
+  filterButtonTextActive: {
+    color: AppColors.white,
   },
 })
