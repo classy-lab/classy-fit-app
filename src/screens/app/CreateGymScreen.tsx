@@ -79,6 +79,12 @@ type FieldConfig = {
   numberOfLines?: number
 }
 
+type SectionConfig = {
+  title: string
+  description: string
+  fields: Array<keyof GymFormValues>
+}
+
 const createGymSchema = yup.object({
   gym_name: yup.string().trim().required('Gym name is required').max(255, 'Gym name must be 255 characters or fewer'),
   contact_name: yup.string().trim().required('Owner / contact full name is required').max(255, 'Owner / contact full name must be 255 characters or fewer'),
@@ -121,6 +127,24 @@ const fieldConfigs: FieldConfig[] = [
   { name: 'photo_url', label: 'Gym Photo/Logo URL', placeholder: 'https://example.com/logo.png', keyboardType: 'url', autoCapitalize: 'none' },
   { name: 'website_url', label: 'Website URL', placeholder: 'https://example.com', keyboardType: 'url', autoCapitalize: 'none' },
   { name: 'about', label: 'About', placeholder: 'Tell people about your gym', required: true, multiline: true, numberOfLines: 5, autoCapitalize: 'sentences' },
+]
+
+const formSections: SectionConfig[] = [
+  {
+    title: 'Gym basics',
+    description: 'Start with the details members and partners will recognize first.',
+    fields: ['gym_name', 'contact_name', 'gym_type', 'phone', 'email'],
+  },
+  {
+    title: 'Location',
+    description: 'Add the primary address so members know where to find you.',
+    fields: ['address_line_1', 'address_line_2', 'city', 'state', 'postal_code', 'country'],
+  },
+  {
+    title: 'Brand presence',
+    description: 'Share the story and links that help your gym stand out.',
+    fields: ['photo_url', 'website_url', 'about'],
+  },
 ]
 
 const GYM_TYPE_OPTIONS: GymTypeOption[] = [
@@ -310,9 +334,43 @@ const CreateGymScreen = ({ navigation }: { navigation: CreateGymNavigation }) =>
 
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.flex}>
           <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-            <View style={styles.headingContainer}>
-              <Text style={styles.title}>Create Gym</Text>
-              <Text style={styles.subHead}>Submit a gym registration request. {'\n'}Fields marked with * are required.</Text>
+            <View style={styles.heroCard}>
+              <View style={styles.heroTopRow}>
+                <View style={styles.heroIconWrap}>
+                  <Feather name="home" color={AppColors.white} size={24} />
+                </View>
+                <View style={styles.heroCopy}>
+                  <Text style={styles.heroEyebrow}>Owner setup</Text>
+                  <Text style={styles.title}>Register your gym</Text>
+                </View>
+              </View>
+              <Text style={styles.subHead}>
+                Create a polished gym profile that helps owners get started quickly. Fields marked with * are required.
+              </Text>
+              <View style={styles.heroStatsRow}>
+                <View style={styles.heroStatPill}>
+                  <Ionicons name="shield-checkmark-outline" color={AppColors.blue} size={16} />
+                  <Text style={styles.heroStatText}>Owner-led setup</Text>
+                </View>
+                <View style={styles.heroStatPill}>
+                  <Ionicons name="location-outline" color={AppColors.blue} size={16} />
+                  <Text style={styles.heroStatText}>Location ready</Text>
+                </View>
+                <View style={styles.heroStatPill}>
+                  <Ionicons name="sparkles-outline" color={AppColors.blue} size={16} />
+                  <Text style={styles.heroStatText}>Fast submission</Text>
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.infoCard}>
+              <View style={styles.infoHeader}>
+                <Ionicons name="information-circle-outline" color={AppColors.blue} size={20} />
+                <Text style={styles.infoTitle}>What you’ll need</Text>
+              </View>
+              <Text style={styles.infoText}>
+                Have your gym name, business contact details, address, and a short description ready. A website and logo URL can be added now or later.
+              </Text>
             </View>
 
             {feedback ? (
@@ -333,137 +391,188 @@ const CreateGymScreen = ({ navigation }: { navigation: CreateGymNavigation }) =>
               </View>
             ) : null}
 
-            <View style={styles.formCard}>
-              {fieldConfigs.map((field) => (
-                <View key={field.name} style={styles.field}>
-                  <Text style={styles.label}>
-                    {field.label}
-                    {field.required ? ' *' : ''}
-                  </Text>
-                  <Controller
-                    control={control}
-                    name={field.name}
-                    render={({ field: { onChange, onBlur, value } }) => (
-                      <TextInput
-                        style={[
-                          styles.input,
-                          field.multiline && styles.textArea,
-                          fieldErrors[field.name]?.message ? styles.inputError : null,
-                        ]}
-                        placeholder={field.placeholder}
-                        placeholderTextColor={AppColors.grey3}
-                        onBlur={onBlur}
-                        onChangeText={onChange}
-                        value={value}
-                        keyboardType={field.keyboardType}
-                        autoCapitalize={field.autoCapitalize ?? 'none'}
-                        multiline={field.multiline}
-                        numberOfLines={field.numberOfLines}
-                        textAlignVertical={field.multiline ? 'top' : 'center'}
-                      />
-                    )}
-                  />
-                  {fieldErrors[field.name]?.message ? (
-                    <Text style={styles.errorText}>{fieldErrors[field.name]?.message}</Text>
-                  ) : null}
+            {formSections.map((section, index) => (
+              <View key={section.title} style={[styles.formCard, index > 0 && styles.formCardSpacer]}>
+                <View style={styles.sectionHeader}>
+                  <Text style={styles.sectionTitle}>{section.title}</Text>
+                  <Text style={styles.sectionDescription}>{section.description}</Text>
                 </View>
-              ))}
 
-              <View style={styles.field}>
-                <Text style={styles.label}>Gym Type *</Text>
-                <Controller
-                  control={control}
-                  name="gym_type"
-                  render={({ field: { onChange, value } }) => {
-                    const selectedGymType = GYM_TYPE_OPTIONS.find((option) => option.value === value)
-
+                {section.fields.map((fieldName) => {
+                  if (fieldName === 'gym_type') {
                     return (
-                      <SelectList
-                        setSelected={(selectedValue) => onChange(String(selectedValue))}
-                        data={GYM_TYPE_OPTIONS}
-                        save="value"
-                        placeholder="Select gym type"
-                        defaultOption={
-                          selectedGymType
-                            ? { key: selectedGymType.key, value: selectedGymType.value }
-                            : undefined
-                        }
-                        boxStyles={{
-                          borderColor: AppColors.grey,
-                          borderWidth: 1,
-                          paddingHorizontal: 8,
-                        }}
-                        dropdownStyles={{
-                          borderColor: AppColors.grey2,
-                          borderWidth: 1,
-                          marginTop: 8,
-                          backgroundColor: 'white',
-                        }}
-                      />
+                      <View key={fieldName} style={styles.field}>
+                        <Text style={styles.label}>Gym Type *</Text>
+                        <Controller
+                          control={control}
+                          name="gym_type"
+                          render={({ field: { onChange, value } }) => {
+                            const selectedGymType = GYM_TYPE_OPTIONS.find((option) => option.value === value)
+
+                            return (
+                              <SelectList
+                                setSelected={(selectedValue) => onChange(String(selectedValue))}
+                                data={GYM_TYPE_OPTIONS}
+                                save="value"
+                                placeholder="Select gym type"
+                                defaultOption={
+                                  selectedGymType
+                                    ? { key: selectedGymType.key, value: selectedGymType.value }
+                                    : undefined
+                                }
+                                boxStyles={{
+                                  borderColor: AppColors.textInputBorderColor,
+                                  borderWidth: 1,
+                                  borderRadius: 14,
+                                  minHeight: 48,
+                                  paddingHorizontal: 12,
+                                }}
+                                dropdownStyles={{
+                                  borderColor: AppColors.grey2,
+                                  borderWidth: 1,
+                                  marginTop: 8,
+                                  backgroundColor: 'white',
+                                  borderRadius: 14,
+                                }}
+                                inputStyles={{
+                                  color: AppColors.primary,
+                                  fontFamily: 'Montserrat',
+                                }}
+                                dropdownTextStyles={{
+                                  color: AppColors.primary,
+                                  fontFamily: 'Montserrat',
+                                }}
+                              />
+                            )
+                          }}
+                        />
+                        {fieldErrors.gym_type?.message ? <Text style={styles.errorText}>{fieldErrors.gym_type.message}</Text> : null}
+                      </View>
                     )
-                  }}
-                />
-                {fieldErrors.gym_type?.message ? <Text style={styles.errorText}>{fieldErrors.gym_type.message}</Text> : null}
-              </View>
+                  }
 
-              <View style={styles.field}>
-                <Text style={styles.label}>State / Province *</Text>
-                <Controller
-                  control={control}
-                  name="state"
-                  render={({ field: { onChange, value } }) => {
-                    const selectedState = US_STATE_OPTIONS.includes(value) ? value : undefined
-
+                  if (fieldName === 'state') {
                     return (
-                      <SelectList
-                        setSelected={(selectedValue) => onChange(String(selectedValue))}
-                        data={US_STATE_OPTIONS.map((state) => ({ key: state, value: state }))}
-                        save="value"
-                        placeholder="Select a state"
-                        defaultOption={selectedState ? { key: selectedState, value: selectedState } : undefined}
-                        boxStyles={{
-                          borderColor: AppColors.grey,
-                          borderWidth: 1,
-                          paddingHorizontal: 8,
-                        }}
-                        dropdownStyles={{
-                          borderColor: AppColors.grey2,
-                          borderWidth: 1,
-                          marginTop: 8,
-                          backgroundColor: 'white',
-                        }}
-                      />
+                      <View key={fieldName} style={styles.field}>
+                        <Text style={styles.label}>State / Province *</Text>
+                        <Controller
+                          control={control}
+                          name="state"
+                          render={({ field: { onChange, value } }) => {
+                            const selectedState = US_STATE_OPTIONS.includes(value) ? value : undefined
+
+                            return (
+                              <SelectList
+                                setSelected={(selectedValue) => onChange(String(selectedValue))}
+                                data={US_STATE_OPTIONS.map((state) => ({ key: state, value: state }))}
+                                save="value"
+                                placeholder="Select a state"
+                                defaultOption={selectedState ? { key: selectedState, value: selectedState } : undefined}
+                                boxStyles={{
+                                  borderColor: AppColors.textInputBorderColor,
+                                  borderWidth: 1,
+                                  borderRadius: 14,
+                                  minHeight: 48,
+                                  paddingHorizontal: 12,
+                                }}
+                                dropdownStyles={{
+                                  borderColor: AppColors.grey2,
+                                  borderWidth: 1,
+                                  marginTop: 8,
+                                  backgroundColor: 'white',
+                                  borderRadius: 14,
+                                }}
+                                inputStyles={{
+                                  color: AppColors.primary,
+                                  fontFamily: 'Montserrat',
+                                }}
+                                dropdownTextStyles={{
+                                  color: AppColors.primary,
+                                  fontFamily: 'Montserrat',
+                                }}
+                              />
+                            )
+                          }}
+                        />
+                        {fieldErrors.state?.message ? <Text style={styles.errorText}>{fieldErrors.state.message}</Text> : null}
+                      </View>
                     )
-                  }}
-                />
-                {fieldErrors.state?.message ? <Text style={styles.errorText}>{fieldErrors.state.message}</Text> : null}
-              </View>
+                  }
 
-              <View style={styles.field}>
-                <Text style={styles.label}>Country *</Text>
-                <TextInput
-                  style={[styles.input, styles.disabledInput]}
-                  value="United States"
-                  editable={false}
-                  selectTextOnFocus={false}
-                  pointerEvents="none"
-                />
-                {fieldErrors.country?.message ? <Text style={styles.errorText}>{fieldErrors.country.message}</Text> : null}
-              </View>
+                  if (fieldName === 'country') {
+                    return (
+                      <View key={fieldName} style={styles.field}>
+                        <Text style={styles.label}>Country *</Text>
+                        <TextInput
+                          style={[styles.input, styles.disabledInput]}
+                          value="United States"
+                          editable={false}
+                          selectTextOnFocus={false}
+                          pointerEvents="none"
+                        />
+                        {fieldErrors.country?.message ? <Text style={styles.errorText}>{fieldErrors.country.message}</Text> : null}
+                      </View>
+                    )
+                  }
 
-              <TouchableOpacity
-                style={[styles.submitButton, submitting && styles.submitButtonDisabled]}
-                onPress={handleSubmit(onSubmit as any)}
-                disabled={submitting}
-                activeOpacity={0.85}
-              >
-                {submitting ? (
-                  <ActivityIndicator color={AppColors.white} />
-                ) : (
+                  const field = fieldConfigs.find((item) => item.name === fieldName)
+                  if (!field) {
+                    return null
+                  }
+
+                  return (
+                    <View key={field.name} style={styles.field}>
+                      <Text style={styles.label}>
+                        {field.label}
+                        {field.required ? ' *' : ''}
+                      </Text>
+                      <Controller
+                        control={control}
+                        name={field.name}
+                        render={({ field: { onChange, onBlur, value } }) => (
+                          <TextInput
+                            style={[
+                              styles.input,
+                              field.multiline && styles.textArea,
+                              fieldErrors[field.name]?.message ? styles.inputError : null,
+                            ]}
+                            placeholder={field.placeholder}
+                            placeholderTextColor={AppColors.grey3}
+                            onBlur={onBlur}
+                            onChangeText={onChange}
+                            value={value}
+                            keyboardType={field.keyboardType}
+                            autoCapitalize={field.autoCapitalize ?? 'none'}
+                            multiline={field.multiline}
+                            numberOfLines={field.numberOfLines}
+                            textAlignVertical={field.multiline ? 'top' : 'center'}
+                          />
+                        )}
+                      />
+                      {fieldErrors[field.name]?.message ? (
+                        <Text style={styles.errorText}>{fieldErrors[field.name]?.message}</Text>
+                      ) : null}
+                    </View>
+                  )
+                })}
+              </View>
+            ))}
+
+            <TouchableOpacity
+              style={[styles.submitButton, submitting && styles.submitButtonDisabled]}
+              onPress={handleSubmit(onSubmit as any)}
+              disabled={submitting}
+              activeOpacity={0.85}
+            >
+              {submitting ? (
+                <ActivityIndicator color={AppColors.white} />
+              ) : (
+                <View style={styles.submitButtonContent}>
+                  <Feather name="check-circle" color={AppColors.white} size={18} />
                   <Text style={styles.submitButtonText}>Create Gym</Text>
-                )}
-              </TouchableOpacity>
-            </View>
+                </View>
+              )}
+            </TouchableOpacity>
           </ScrollView>
         </KeyboardAvoidingView>
       </SafeAreaView>
@@ -489,53 +598,147 @@ const styles = StyleSheet.create({
   flex: {
     flex: 1,
   },
-  headingContainer: {
+  heroCard: {
+    backgroundColor: AppColors.blue,
+    borderRadius: 28,
+    padding: 20,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.12,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 4,
+  },
+  heroTopRow: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 18,
-    paddingHorizontal: 16,
+    marginBottom: 12,
+  },
+  heroIconWrap: {
+    width: 48,
+    height: 48,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255,255,255,0.16)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  heroCopy: {
+    flex: 1,
+  },
+  heroEyebrow: {
+    color: 'rgba(255,255,255,0.8)',
+    fontFamily: 'Montserrat',
+    fontSize: 12,
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+    marginBottom: 2,
   },
   title: {
-    color: AppColors.blue,
+    color: AppColors.white,
     fontFamily: 'Montserrat',
     fontSize: 32,
-    marginTop: 34,
-    marginBottom: 8,
+    lineHeight: 38,
+    marginBottom: 4,
   },
   subHead: {
     fontFamily: 'Montserrat',
     fontSize: 16,
     lineHeight: 24,
-    color: AppColors.primary,
-    textAlign: 'center',
+    color: 'rgba(255,255,255,0.92)',
   },
   scrollContent: {
     paddingHorizontal: 24,
     paddingBottom: 28,
   },
   scrollView: {},
+  heroStatsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 16,
+  },
+  heroStatPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: AppColors.white,
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  heroStatText: {
+    color: AppColors.blue,
+    fontFamily: 'Montserrat',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  infoCard: {
+    backgroundColor: AppColors.grey4,
+    borderRadius: 24,
+    padding: 16,
+    marginBottom: 16,
+  },
+  infoHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  infoTitle: {
+    color: AppColors.primary,
+    fontFamily: 'Montserrat',
+    fontSize: 15,
+    fontWeight: '600',
+    marginLeft: 8,
+  },
+  infoText: {
+    color: AppColors.primary,
+    fontFamily: 'Montserrat',
+    fontSize: 14,
+    lineHeight: 21,
+  },
   formCard: {
     backgroundColor: AppColors.white,
     borderRadius: 24,
     paddingHorizontal: 18,
-    paddingTop: 16,
-    paddingBottom: 8,
+    paddingTop: 18,
+    paddingBottom: 10,
     shadowColor: '#000',
     shadowOpacity: 0.05,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: 8 },
     elevation: 3,
   },
+  formCardSpacer: {
+    marginTop: 14,
+  },
+  sectionHeader: {
+    marginBottom: 12,
+  },
+  sectionTitle: {
+    color: AppColors.primary,
+    fontFamily: 'Montserrat',
+    fontSize: 17,
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  sectionDescription: {
+    color: AppColors.grey3,
+    fontFamily: 'Montserrat',
+    fontSize: 13,
+    lineHeight: 19,
+  },
   field: {
     marginBottom: 14,
   },
   label: {
-    color: AppColors.blue,
+    color: AppColors.primary,
     fontFamily: 'Montserrat',
     fontSize: 14,
     marginBottom: 6,
   },
   input: {
-    borderColor: AppColors.grey,
+    borderColor: AppColors.textInputBorderColor,
     borderWidth: 1,
     borderRadius: 14,
     paddingHorizontal: 14,
@@ -570,20 +773,31 @@ const styles = StyleSheet.create({
     fontFamily: 'Montserrat',
   },
   submitButton: {
-    marginTop: 8,
+    marginTop: 18,
     backgroundColor: AppColors.blue,
     borderRadius: 999,
     minHeight: 52,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: AppColors.blue,
+    shadowOpacity: 0.18,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 3,
   },
   submitButtonDisabled: {
     opacity: 0.75,
+  },
+  submitButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   submitButtonText: {
     color: AppColors.white,
     fontSize: 16,
     fontFamily: 'Montserrat',
+    fontWeight: '700',
   },
   feedbackBox: {
     marginBottom: 16,
