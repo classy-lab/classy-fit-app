@@ -63,6 +63,7 @@ const ClassManagementScreen = ({ navigation }: { navigation: ClassManagementNavi
   const [refreshing, setRefreshing] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [deletingClassUids, setDeletingClassUids] = useState<Record<number, boolean>>({})
+  const [activeTab, setActiveTab] = useState<'active' | 'inactive'>('active')
 
   const isOwner = String(user?.role ?? '').trim().toLowerCase() === 'owner'
 
@@ -171,6 +172,11 @@ const ClassManagementScreen = ({ navigation }: { navigation: ClassManagementNavi
 
     return normalized.charAt(0).toUpperCase() + normalized.slice(1)
   }
+
+  const activeClasses = classes.filter((classItem) => String(classItem?.status ?? '').trim().toLowerCase() === 'active')
+  const inactiveClasses = classes.filter((classItem) => String(classItem?.status ?? '').trim().toLowerCase() === 'inactive')
+  const visibleClasses = activeTab === 'active' ? activeClasses : inactiveClasses
+  const activeClassesLabel = activeTab === 'active' ? 'Active' : 'Inactive'
 
   const formatCreatedAt = (value: string | null) => {
     if (!value) {
@@ -369,71 +375,104 @@ const ClassManagementScreen = ({ navigation }: { navigation: ClassManagementNavi
             <Text style={styles.stateText}>Create a class in the backend to see it here.</Text>
           </View>
         ) : (
-          <View style={styles.list}>
-            {classes.map((classItem) => {
-              const classUid = Number(classItem?.uid ?? 0)
-              const duration = Number(classItem?.duration_minutes ?? 0)
-              const capacity = Number(classItem?.capacity ?? 0)
-              const priceLabel = renderPrice(classItem)
-              const status = String(classItem?.status ?? '').trim().toLowerCase()
-              const isDeleting = deletingClassUids[classUid] === true
+          <>
+            <View style={styles.filterBar}>
+              <TouchableOpacity
+                style={[styles.filterButton, activeTab === 'active' && styles.filterButtonActive]}
+                onPress={() => setActiveTab('active')}
+              >
+                <Text style={[styles.filterButtonText, activeTab === 'active' && styles.filterButtonTextActive]}>
+                  Active ({activeClasses.length})
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.filterButton, activeTab === 'inactive' && styles.filterButtonActive]}
+                onPress={() => setActiveTab('inactive')}
+              >
+                <Text style={[styles.filterButtonText, activeTab === 'inactive' && styles.filterButtonTextActive]}>
+                  Inactive ({inactiveClasses.length})
+                </Text>
+              </TouchableOpacity>
+            </View>
 
-              return (
-                <View key={classUid || `${classItem?.name}-${classItem?.created_at}`} style={styles.card}>
-                  <View style={styles.cardHeader}>
-                    <View style={styles.cardHeaderText}>
-                      <Text style={styles.cardTitle}>{classItem?.name || 'Untitled class'}</Text>
-                      <Text style={styles.cardSubtitle}>{priceLabel}</Text>
-                    </View>
-                    <View style={[styles.statusPill, status === 'active' ? styles.statusActive : styles.statusInactive]}>
-                      <Text style={styles.statusText}>{renderStatusLabel(status)}</Text>
-                    </View>
-                  </View>
+            {visibleClasses.length > 0 ? (
+              <View style={styles.list}>
+                <Text style={styles.sectionTitle}>{activeClassesLabel} classes</Text>
+                {visibleClasses.map((classItem) => {
+                  const classUid = Number(classItem?.uid ?? 0)
+                  const duration = Number(classItem?.duration_minutes ?? 0)
+                  const capacity = Number(classItem?.capacity ?? 0)
+                  const priceLabel = renderPrice(classItem)
+                  const status = String(classItem?.status ?? '').trim().toLowerCase()
+                  const isDeleting = deletingClassUids[classUid] === true
 
-                  {classItem?.description ? (
-                    <Text style={styles.description} numberOfLines={3}>
-                      {classItem.description}
-                    </Text>
-                  ) : null}
+                  return (
+                    <View key={classUid || `${classItem?.name}-${classItem?.created_at}`} style={styles.card}>
+                      <View style={styles.cardHeader}>
+                        <View style={styles.cardHeaderText}>
+                          <Text style={styles.cardTitle}>{classItem?.name || 'Untitled class'}</Text>
+                          <Text style={styles.cardSubtitle}>{priceLabel}</Text>
+                        </View>
+                        <View style={[styles.statusPill, status === 'active' ? styles.statusActive : styles.statusInactive]}>
+                          <Text style={styles.statusText}>{renderStatusLabel(status)}</Text>
+                        </View>
+                      </View>
 
-                  <View style={styles.metaRow}>
-                    <View style={styles.metaItem}>
-                      <Text style={styles.metaLabel}>Duration</Text>
-                      <Text style={styles.metaValue}>{duration > 0 ? `${duration} min` : '—'}</Text>
-                    </View>
-                    <View style={styles.metaItem}>
-                      <Text style={styles.metaLabel}>Capacity</Text>
-                      <Text style={styles.metaValue}>{capacity > 0 ? capacity : '—'}</Text>
-                    </View>
-                    <View style={styles.metaItem}>
-                      <Text style={styles.metaLabel}>Created</Text>
-                      <Text style={styles.metaValue}>{formatCreatedAt(classItem?.created_at)}</Text>
-                    </View>
-                  </View>
+                      {classItem?.description ? (
+                        <Text style={styles.description} numberOfLines={3}>
+                          {classItem.description}
+                        </Text>
+                      ) : null}
 
-                  <View style={styles.cardActions}>
-                    <TouchableOpacity style={styles.editButton} onPress={() => handleEditClass(classUid)}>
-                      <Feather name="edit-2" color={AppColors.blue} size={16} />
-                      <Text style={styles.editButtonText}>Edit</Text>
-                    </TouchableOpacity>
+                      <View style={styles.metaRow}>
+                        <View style={styles.metaItem}>
+                          <Text style={styles.metaLabel}>Duration</Text>
+                          <Text style={styles.metaValue}>{duration > 0 ? `${duration} min` : '—'}</Text>
+                        </View>
+                        <View style={styles.metaItem}>
+                          <Text style={styles.metaLabel}>Capacity</Text>
+                          <Text style={styles.metaValue}>{capacity > 0 ? capacity : '—'}</Text>
+                        </View>
+                        <View style={styles.metaItem}>
+                          <Text style={styles.metaLabel}>Created</Text>
+                          <Text style={styles.metaValue}>{formatCreatedAt(classItem?.created_at)}</Text>
+                        </View>
+                      </View>
 
-                    <TouchableOpacity
-                      style={[styles.deleteButton, isDeleting ? styles.deleteButtonDisabled : null]}
-                      onPress={() => confirmDeleteClass(classItem)}
-                      disabled={isDeleting}
-                    >
-                      {isDeleting ? (
-                        <ActivityIndicator size="small" color={AppColors.white} />
-                      ) : (
-                        <Feather name="trash-2" color={AppColors.white} size={16} />
-                      )}
-                      <Text style={styles.deleteButtonText}>Delete</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              )
-            })}
-          </View>
+                      <View style={styles.cardActions}>
+                        <TouchableOpacity style={styles.editButton} onPress={() => handleEditClass(classUid)}>
+                          <Feather name="edit-2" color={AppColors.blue} size={16} />
+                          <Text style={styles.editButtonText}>Edit</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                          style={[styles.deleteButton, isDeleting ? styles.deleteButtonDisabled : null]}
+                          onPress={() => confirmDeleteClass(classItem)}
+                          disabled={isDeleting}
+                        >
+                          {isDeleting ? (
+                            <ActivityIndicator size="small" color={AppColors.white} />
+                          ) : (
+                            <Feather name="trash-2" color={AppColors.white} size={16} />
+                          )}
+                          <Text style={styles.deleteButtonText}>Delete</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  )
+                })}
+              </View>
+            ) : (
+              <View style={styles.emptyCard}>
+                <Text style={styles.emptyTitle}>{activeClassesLabel} classes</Text>
+                <Text style={styles.stateText}>
+                  {activeTab === 'active'
+                    ? 'No active classes right now. Activate a class to show it here.'
+                    : 'No inactive classes right now.'}
+                </Text>
+              </View>
+            )}
+          </>
         )}
       </ScrollView>
     </SafeAreaView>
@@ -531,6 +570,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 16,
   },
+  emptyCard: {
+    borderWidth: 1,
+    borderColor: AppColors.grey,
+    borderRadius: 18,
+    padding: 20,
+    backgroundColor: AppColors.white,
+    marginTop: 16,
+  },
   retryBtn: {
     backgroundColor: AppColors.blue,
     borderRadius: 999,
@@ -543,6 +590,38 @@ const styles = StyleSheet.create({
   list: {
     marginTop: 16,
     gap: 16,
+  },
+  filterBar: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 16,
+  },
+  filterButton: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: AppColors.grey,
+    borderRadius: 12,
+    paddingVertical: 12,
+    alignItems: 'center',
+    backgroundColor: AppColors.white,
+  },
+  filterButtonActive: {
+    backgroundColor: AppColors.blue,
+    borderColor: AppColors.blue,
+  },
+  filterButtonText: {
+    color: AppColors.blue,
+    fontFamily: 'Montserrat',
+    fontSize: 14,
+  },
+  filterButtonTextActive: {
+    color: AppColors.white,
+  },
+  sectionTitle: {
+    color: AppColors.blue,
+    fontFamily: 'Montserrat',
+    fontSize: 18,
+    marginBottom: 4,
   },
   card: {
     borderWidth: 1,
