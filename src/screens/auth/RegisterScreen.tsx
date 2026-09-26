@@ -27,7 +27,7 @@ const RegisterScreen = () => {
           <View style={styles.heroCard}>
             <View style={styles.heroTopRow}>
               <View style={styles.heroIconWrap}>
-                <Ionicons name="person-add-outline" size={26} color={AppColors.blue} />
+                <Ionicons name="person-add-outline" size={26} color={AppColors.white} />
               </View>
               <View style={styles.heroCopy}>
                 <Text style={styles.heroEyebrow}>Join Classy Fit</Text>
@@ -43,20 +43,6 @@ const RegisterScreen = () => {
                 <Text style={styles.selectedGymText}>{selectedGym}</Text>
               </View>
             ) : null}
-            <View style={styles.heroStatsRow}>
-              <View style={styles.heroStatPill}>
-                <Ionicons name="calendar-outline" size={16} color={AppColors.blue} />
-                <Text style={styles.heroStatText}>Book classes</Text>
-              </View>
-              <View style={styles.heroStatPill}>
-                <Ionicons name="cart-outline" size={16} color={AppColors.blue} />
-                <Text style={styles.heroStatText}>Shop products</Text>
-              </View>
-              <View style={styles.heroStatPill}>
-                <Ionicons name="shield-checkmark-outline" size={16} color={AppColors.blue} />
-                <Text style={styles.heroStatText}>Track membership</Text>
-              </View>
-            </View>
           </View>
 
           <View style={styles.infoCard}>
@@ -97,9 +83,10 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   heroCard: {
-    backgroundColor: AppColors.blue,
+    backgroundColor: AppColors.grey4,
     borderRadius: 28,
     padding: 20,
+    marginTop: 8,
     marginBottom: 16,
     shadowColor: '#000',
     shadowOpacity: 0.12,
@@ -116,7 +103,7 @@ const styles = StyleSheet.create({
     width: 52,
     height: 52,
     borderRadius: 18,
-    backgroundColor: AppColors.white,
+    backgroundColor: AppColors.blue,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -125,7 +112,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   heroEyebrow: {
-    color: 'rgba(255,255,255,0.82)',
+    color: AppColors.primary,
     fontFamily: 'Montserrat',
     fontSize: 12,
     letterSpacing: 0.6,
@@ -133,7 +120,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   title: {
-    color: AppColors.white,
+    color: AppColors.primary,
     fontFamily: 'Montserrat',
     fontSize: 28,
     lineHeight: 34,
@@ -142,55 +129,36 @@ const styles = StyleSheet.create({
     fontFamily: 'Montserrat',
     fontSize: 16,
     lineHeight: 24,
-    color: 'rgba(255,255,255,0.92)',
+    color: AppColors.primary,
   },
   selectedGym: {
     marginTop: 16,
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 18,
-    backgroundColor: AppColors.white,
+    backgroundColor: '#F3F4F6',
     fontFamily: 'Montserrat',
     fontSize: 13,
-    color: AppColors.blue,
+    color: AppColors.primary,
     overflow: 'hidden',
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
   },
   selectedGymText: {
-    color: AppColors.blue,
+    color: AppColors.primary,
     fontFamily: 'Montserrat',
     fontSize: 13,
     fontWeight: '700',
     flexShrink: 1,
   },
-  heroStatsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginTop: 16,
-  },
-  heroStatPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: AppColors.white,
-    borderRadius: 999,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-  },
-  heroStatText: {
-    color: AppColors.blue,
-    fontFamily: 'Montserrat',
-    fontSize: 12,
-    fontWeight: '700',
-  },
   infoCard: {
-    backgroundColor: '#F7F9FC',
+    backgroundColor: AppColors.white,
     borderRadius: 24,
     padding: 16,
     marginBottom: 16,
+    borderWidth: 1,
+    borderColor: AppColors.grey2,
   },
   infoHeader: {
     flexDirection: 'row',
@@ -212,6 +180,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 24,
+    paddingTop: 16,
     paddingBottom: 28,
   },
   formCard: {
@@ -221,7 +190,7 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 8,
     shadowColor: '#000',
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.04,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: 8 },
     elevation: 3,
