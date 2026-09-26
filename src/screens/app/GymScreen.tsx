@@ -8,6 +8,7 @@ import PinkLeafSvg from '../../assets/svg/PinkLeafSvg'
 import GymScreenScrollViewOne from './GymScreenScrollViewOne'
 import GymScreenScrollViewTwo from './GymScreenScrollViewTwo'
 import GymScreenScrollViewThree from './GymScreenScrollViewThree'
+import GymScreenScrollViewFour from './GymScreenScrollViewFour'
 import SignOut from '../../components/utils/SignOut'
 
 
@@ -33,6 +34,9 @@ const GymScreen = ({ navigation, route }) => {
             </View>
             <View style={styles.section}>
               <GymScreenScrollViewThree />
+            </View>
+            <View style={styles.section}>
+              <GymScreenScrollViewFour />
             </View>
             <View style={styles.section}>
               <GymScreenScrollViewTwo />
