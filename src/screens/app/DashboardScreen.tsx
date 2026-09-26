@@ -54,7 +54,7 @@ const DashboardScreen = ({ navigation, route }) => {
             <View style={styles.heroCard}>
               <View style={styles.heroCardTop}>
                 <View style={styles.heroIconWrap}>
-                  <Ionicons name="sparkles" size={22} color={AppColors.white} />
+                  <Ionicons name="sparkles" size={22} color={AppColors.blue} />
                 </View>
                 <View style={styles.heroTextBlock}>
                   <Text style={styles.heroEyebrow}>Today&apos;s hub</Text>
