@@ -25,20 +25,28 @@ const GymScreen = ({ navigation, route }) => {
   const isMember = role === 'member'
 
   const heroTitle = isOwner
-    ? 'Manage your gym from one place'
+    ? 'Gym command center'
     : isTrainer
-      ? 'Your classes, sessions, and clients'
+      ? 'Your training workspace'
       : isMember
-        ? 'Classes, bookings, and membership in one place'
+        ? 'Your gym home base'
         : 'Everything gym-related in one place'
 
   const heroDescription = isOwner
-    ? 'Jump into classes, personal training, memberships, and equipment without leaving this screen.'
+    ? 'Manage classes, personal training, memberships, and equipment from one place.'
     : isTrainer
-      ? 'Open your sessions, manage bookings, and stay on top of what’s next.'
+      ? 'Stay on top of sessions, bookings, and the clients you work with.'
       : isMember
-        ? 'Browse classes, check personal training, and keep your membership handy.'
+        ? 'Quickly check classes, bookings, and your membership details.'
         : 'Use the sections below to get where you need to go fast.'
+
+  const heroIcon = isOwner
+    ? <MaterialIcons name="dashboard" size={22} color={AppColors.blue} />
+    : isTrainer
+      ? <MaterialIcons name="fitness-center" size={22} color={AppColors.blue} />
+      : isMember
+        ? <Feather name="user" size={22} color={AppColors.blue} />
+        : <Ionicons name="sparkles" size={22} color={AppColors.blue} />
 
   return (
     <>
@@ -56,7 +64,7 @@ const GymScreen = ({ navigation, route }) => {
             <View style={styles.heroCard}>
               <View style={styles.heroTopRow}>
                 <View style={styles.heroIconWrap}>
-                  <Ionicons name="sparkles" size={22} color={AppColors.blue} />
+                  {heroIcon}
                 </View>
                 <View style={styles.heroTextBlock}>
                   <Text style={styles.heroEyebrow}>Today&apos;s hub</Text>
