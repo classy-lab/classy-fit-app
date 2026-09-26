@@ -93,6 +93,7 @@ const PersonalTrainingSessionsScreen = ({ navigation }: { navigation: PersonalTr
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+  const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming')
 
   const performAuthenticatedRequest = async (endpoint: string, init: RequestInit = {}) => {
     return performAuthenticatedRequestWithRefresh({
@@ -204,6 +205,17 @@ const PersonalTrainingSessionsScreen = ({ navigation }: { navigation: PersonalTr
     return notes.length > 80 ? `${notes.slice(0, 77)}...` : notes
   }
 
+  const isUpcoming = (session: PersonalTrainingSessionSummary) => {
+    const sessionDate = parseDate(session?.start_at)
+    if (!sessionDate) return false
+    return sessionDate.getTime() > Date.now()
+  }
+
+  const upcomingSessions = sessions.filter(isUpcoming)
+  const pastSessions = sessions.filter((session) => !isUpcoming(session))
+  const visibleSessions = activeTab === 'upcoming' ? upcomingSessions : pastSessions
+  const activeSessionsLabel = activeTab === 'upcoming' ? 'Upcoming' : 'Past'
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.navs}>
@@ -239,67 +251,102 @@ const PersonalTrainingSessionsScreen = ({ navigation }: { navigation: PersonalTr
             <Text style={styles.stateText}>Check back later for new sessions.</Text>
           </View>
         ) : (
-          sessions.map((session) => {
-            const price = Number(session?.price ?? 0)
-            const location = String(session?.location ?? '').trim()
-            const notesPreview = renderNotesPreview(session)
-            const status = String(session?.status ?? 'scheduled').toLowerCase()
-            const trainerName = String(session?.trainer_display_name ?? '').trim()
-
-            return (
+          <>
+            <View style={styles.filterBar}>
               <TouchableOpacity
-                key={String(session?.session_uid ?? session?.uid ?? `${session?.trainer_gym_user_id}-${session?.start_at}`)}
-                style={styles.card}
-                activeOpacity={0.85}
-                onPress={() => openSession(session)}
+                style={[styles.filterButton, activeTab === 'upcoming' && styles.filterButtonActive]}
+                onPress={() => setActiveTab('upcoming')}
               >
-                <View style={styles.cardHeader}>
-                  <View style={styles.cardHeaderText}>
-                    <Text style={styles.cardTitle}>{getMemberPersonalTrainingTitle(trainerName)}</Text>
-                    <Text style={styles.pricePill}>{renderPrice(session)}</Text>
-                  </View>
-                  <View style={[styles.badge, price <= 0 ? styles.badgeFree : styles.badgePaid]}>
-                    <Text style={styles.badgeText}>{price <= 0 ? 'Free' : 'Paid'}</Text>
-                  </View>
-                </View>
-
-                <View style={styles.metaGrid}>
-                  <View style={styles.metaItem}>
-                    <Text style={styles.metaLabel}>Date</Text>
-                    <Text style={styles.metaValue}>{formatDate(session?.start_at)}</Text>
-                  </View>
-                  <View style={styles.metaItem}>
-                    <Text style={styles.metaLabel}>Time</Text>
-                    <Text style={styles.metaValue}>
-                      {formatTime(session?.start_at)} - {formatTime(session?.end_at)}
-                    </Text>
-                  </View>
-                  <View style={styles.metaItem}>
-                    <Text style={styles.metaLabel}>Status</Text>
-                    <Text style={styles.metaValue}>{status.charAt(0).toUpperCase() + status.slice(1)}</Text>
-                  </View>
-                </View>
-
-                {location ? (
-                  <View style={styles.locationRow}>
-                    <Text style={styles.metaLabel}>Location</Text>
-                    <Text style={styles.metaValue} numberOfLines={2}>
-                      {location}
-                    </Text>
-                  </View>
-                ) : null}
-
-                {notesPreview ? (
-                  <View style={styles.notesRow}>
-                    <Text style={styles.metaLabel}>Notes</Text>
-                    <Text style={styles.notesText} numberOfLines={2}>
-                      {notesPreview}
-                    </Text>
-                  </View>
-                ) : null}
+                <Text style={[styles.filterButtonText, activeTab === 'upcoming' && styles.filterButtonTextActive]}>
+                  Upcoming ({upcomingSessions.length})
+                </Text>
               </TouchableOpacity>
-            )
-          })
+              <TouchableOpacity
+                style={[styles.filterButton, activeTab === 'past' && styles.filterButtonActive]}
+                onPress={() => setActiveTab('past')}
+              >
+                <Text style={[styles.filterButtonText, activeTab === 'past' && styles.filterButtonTextActive]}>
+                  Past ({pastSessions.length})
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {visibleSessions.length > 0 ? (
+              <View style={styles.list}>
+                <Text style={styles.sectionTitle}>{activeSessionsLabel} sessions</Text>
+                {visibleSessions.map((session) => {
+                  const price = Number(session?.price ?? 0)
+                  const location = String(session?.location ?? '').trim()
+                  const notesPreview = renderNotesPreview(session)
+                  const status = String(session?.status ?? 'scheduled').toLowerCase()
+                  const trainerName = String(session?.trainer_display_name ?? '').trim()
+
+                  return (
+                    <TouchableOpacity
+                      key={String(session?.session_uid ?? session?.uid ?? `${session?.trainer_gym_user_id}-${session?.start_at}`)}
+                      style={[styles.card, status !== 'scheduled' && styles.cardPast]}
+                      activeOpacity={0.85}
+                      onPress={() => openSession(session)}
+                    >
+                      <View style={styles.cardHeader}>
+                        <View style={styles.cardHeaderText}>
+                          <Text style={styles.cardTitle}>{getMemberPersonalTrainingTitle(trainerName)}</Text>
+                          <Text style={styles.pricePill}>{renderPrice(session)}</Text>
+                        </View>
+                        <View style={[styles.badge, price <= 0 ? styles.badgeFree : styles.badgePaid]}>
+                          <Text style={styles.badgeText}>{price <= 0 ? 'Free' : 'Paid'}</Text>
+                        </View>
+                      </View>
+
+                      <View style={styles.metaGrid}>
+                        <View style={styles.metaItem}>
+                          <Text style={styles.metaLabel}>Date</Text>
+                          <Text style={styles.metaValue}>{formatDate(session?.start_at)}</Text>
+                        </View>
+                        <View style={styles.metaItem}>
+                          <Text style={styles.metaLabel}>Time</Text>
+                          <Text style={styles.metaValue}>
+                            {formatTime(session?.start_at)} - {formatTime(session?.end_at)}
+                          </Text>
+                        </View>
+                        <View style={styles.metaItem}>
+                          <Text style={styles.metaLabel}>Status</Text>
+                          <Text style={styles.metaValue}>{status.charAt(0).toUpperCase() + status.slice(1)}</Text>
+                        </View>
+                      </View>
+
+                      {location ? (
+                        <View style={styles.locationRow}>
+                          <Text style={styles.metaLabel}>Location</Text>
+                          <Text style={styles.metaValue} numberOfLines={2}>
+                            {location}
+                          </Text>
+                        </View>
+                      ) : null}
+
+                      {notesPreview ? (
+                        <View style={styles.notesRow}>
+                          <Text style={styles.metaLabel}>Notes</Text>
+                          <Text style={styles.notesText} numberOfLines={2}>
+                            {notesPreview}
+                          </Text>
+                        </View>
+                      ) : null}
+                    </TouchableOpacity>
+                  )
+                })}
+              </View>
+            ) : (
+              <View style={styles.emptyCard}>
+                <Text style={styles.emptyTitle}>{activeSessionsLabel} sessions</Text>
+                <Text style={styles.stateText}>
+                  {activeTab === 'upcoming'
+                    ? 'No upcoming personal training sessions right now. Check back for new sessions.'
+                    : 'You do not have any past personal training sessions yet.'}
+                </Text>
+              </View>
+            )}
+          </>
         )}
       </ScrollView>
     </SafeAreaView>
@@ -342,6 +389,41 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 16,
   },
+  filterBar: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 8,
+    marginBottom: 6,
+  },
+  filterButton: {
+    flex: 1,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: AppColors.grey,
+    backgroundColor: AppColors.white,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  filterButtonActive: {
+    borderColor: AppColors.blue,
+    backgroundColor: AppColors.blue,
+  },
+  filterButtonText: {
+    color: AppColors.primary,
+    fontSize: 14,
+  },
+  filterButtonTextActive: {
+    color: AppColors.white,
+  },
+  list: {
+    marginTop: 16,
+    gap: 16,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    color: AppColors.blue,
+    marginBottom: 14,
+  },
   centerState: {
     justifyContent: 'center',
     alignItems: 'center',
@@ -359,6 +441,14 @@ const styles = StyleSheet.create({
     color: AppColors.blue,
     textAlign: 'center',
     fontFamily: 'Montserrat',
+  },
+  emptyCard: {
+    backgroundColor: AppColors.white,
+    borderRadius: 18,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: AppColors.grey,
+    marginTop: 12,
   },
   errorCard: {
     backgroundColor: AppColors.white,
@@ -399,6 +489,9 @@ const styles = StyleSheet.create({
     marginBottom: 14,
     borderColor: AppColors.grey,
     borderWidth: 1,
+  },
+  cardPast: {
+    opacity: 0.7,
   },
   cardHeader: {
     flexDirection: 'row',
