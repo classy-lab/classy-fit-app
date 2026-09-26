@@ -423,16 +423,16 @@ const CreateGymScreen = ({ navigation }: { navigation: CreateGymNavigation }) =>
                                 boxStyles={{
                                   borderColor: AppColors.textInputBorderColor,
                                   borderWidth: 1,
-                                  borderRadius: 14,
+                                  borderRadius: 16,
                                   minHeight: 48,
-                                  paddingHorizontal: 12,
+                                  paddingHorizontal: 16,
                                 }}
                                 dropdownStyles={{
                                   borderColor: AppColors.grey2,
                                   borderWidth: 1,
                                   marginTop: 8,
                                   backgroundColor: 'white',
-                                  borderRadius: 14,
+                                  borderRadius: 16,
                                 }}
                                 inputStyles={{
                                   color: AppColors.primary,
@@ -471,16 +471,16 @@ const CreateGymScreen = ({ navigation }: { navigation: CreateGymNavigation }) =>
                                 boxStyles={{
                                   borderColor: AppColors.textInputBorderColor,
                                   borderWidth: 1,
-                                  borderRadius: 14,
+                                  borderRadius: 16,
                                   minHeight: 48,
-                                  paddingHorizontal: 12,
+                                  paddingHorizontal: 16,
                                 }}
                                 dropdownStyles={{
                                   borderColor: AppColors.grey2,
                                   borderWidth: 1,
                                   marginTop: 8,
                                   backgroundColor: 'white',
-                                  borderRadius: 14,
+                                  borderRadius: 16,
                                 }}
                                 inputStyles={{
                                   color: AppColors.primary,
@@ -600,19 +600,19 @@ const styles = StyleSheet.create({
   },
   heroCard: {
     backgroundColor: AppColors.blue,
-    borderRadius: 28,
-    padding: 20,
+    borderRadius: 24,
+    padding: 16,
     marginBottom: 16,
     shadowColor: '#000',
     shadowOpacity: 0.12,
     shadowRadius: 20,
-    shadowOffset: { width: 0, height: 10 },
+    shadowOffset: { width: 0, height: 8 },
     elevation: 4,
   },
   heroTopRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 16,
   },
   heroIconWrap: {
     width: 48,
@@ -621,7 +621,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.16)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
+    marginRight: 8,
   },
   heroCopy: {
     flex: 1,
@@ -632,14 +632,14 @@ const styles = StyleSheet.create({
     fontSize: 12,
     letterSpacing: 0.6,
     textTransform: 'uppercase',
-    marginBottom: 2,
+    marginBottom: 0,
   },
   title: {
     color: AppColors.white,
     fontFamily: 'Montserrat',
     fontSize: 32,
     lineHeight: 38,
-    marginBottom: 4,
+    marginBottom: 8,
   },
   subHead: {
     fontFamily: 'Montserrat',
@@ -649,7 +649,8 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 24,
-    paddingBottom: 28,
+    paddingTop: 16,
+    paddingBottom: 16,
   },
   scrollView: {},
   heroStatsRow: {
@@ -661,10 +662,10 @@ const styles = StyleSheet.create({
   heroStatPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
     backgroundColor: AppColors.white,
     borderRadius: 999,
-    paddingHorizontal: 12,
+    paddingHorizontal: 16,
     paddingVertical: 8,
   },
   heroStatText: {
@@ -676,8 +677,8 @@ const styles = StyleSheet.create({
   infoCard: {
     backgroundColor: AppColors.grey4,
     borderRadius: 24,
-    padding: 16,
-    marginBottom: 16,
+    padding: 24,
+    marginBottom: 24,
   },
   infoHeader: {
     flexDirection: 'row',
@@ -700,9 +701,9 @@ const styles = StyleSheet.create({
   formCard: {
     backgroundColor: AppColors.white,
     borderRadius: 24,
-    paddingHorizontal: 18,
-    paddingTop: 18,
-    paddingBottom: 10,
+    paddingHorizontal: 24,
+    paddingTop: 24,
+    paddingBottom: 16,
     shadowColor: '#000',
     shadowOpacity: 0.05,
     shadowRadius: 16,
@@ -710,47 +711,47 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   formCardSpacer: {
-    marginTop: 14,
+    marginTop: 24,
   },
   sectionHeader: {
-    marginBottom: 12,
+    marginBottom: 16,
   },
   sectionTitle: {
     color: AppColors.primary,
     fontFamily: 'Montserrat',
     fontSize: 17,
     fontWeight: '700',
-    marginBottom: 4,
+    marginBottom: 8,
   },
   sectionDescription: {
     color: AppColors.grey3,
     fontFamily: 'Montserrat',
     fontSize: 13,
-    lineHeight: 19,
+    lineHeight: 16,
   },
   field: {
-    marginBottom: 14,
+    marginBottom: 24,
   },
   label: {
     color: AppColors.primary,
     fontFamily: 'Montserrat',
     fontSize: 14,
-    marginBottom: 6,
+    marginBottom: 8,
   },
   input: {
     borderColor: AppColors.textInputBorderColor,
     borderWidth: 1,
-    borderRadius: 14,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
     fontFamily: 'Montserrat',
     color: AppColors.primary,
     backgroundColor: AppColors.white,
     minHeight: 48,
   },
   textArea: {
-    minHeight: 110,
-    paddingTop: 12,
+    minHeight: 112,
+    paddingTop: 16,
   },
   inputError: {
     borderColor: '#B91C1C',
@@ -760,28 +761,28 @@ const styles = StyleSheet.create({
     color: AppColors.grey3,
   },
   errorText: {
-    marginTop: 4,
+    marginTop: 8,
     color: '#B91C1C',
     fontSize: 12,
     fontFamily: 'Montserrat',
   },
   helperText: {
-    marginTop: 4,
+    marginTop: 8,
     color: AppColors.primary,
     fontSize: 12,
-    lineHeight: 18,
+    lineHeight: 16,
     fontFamily: 'Montserrat',
   },
   submitButton: {
-    marginTop: 18,
+    marginTop: 24,
     backgroundColor: AppColors.blue,
     borderRadius: 999,
-    minHeight: 52,
+    minHeight: 56,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: AppColors.blue,
     shadowOpacity: 0.18,
-    shadowRadius: 12,
+    shadowRadius: 16,
     shadowOffset: { width: 0, height: 8 },
     elevation: 3,
   },
@@ -802,8 +803,8 @@ const styles = StyleSheet.create({
   feedbackBox: {
     marginBottom: 16,
     borderRadius: 16,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
   },
   feedbackSuccess: {
     backgroundColor: '#ECFDF5',
