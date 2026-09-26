@@ -633,8 +633,8 @@ const styles = StyleSheet.create({
   durationPill: {
     fontSize: 13,
     fontFamily: 'Montserrat',
-    color: AppColors.white,
-    backgroundColor: AppColors.blue,
+    color: AppColors.blue,
+    backgroundColor: AppColors.grey,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 999,
@@ -644,11 +644,11 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 18,
     fontFamily: 'Montserrat',
-    color: AppColors.blue,
+    color: AppColors.primary,
     lineHeight: 24,
   },
   description: {
-    color: AppColors.primary,
+    color: AppColors.grey3,
     fontSize: 14,
     lineHeight: 20,
     marginTop: 2,
@@ -661,9 +661,11 @@ const styles = StyleSheet.create({
   },
   metaItem: {
     flexBasis: '48%',
-    backgroundColor: AppColors.grey,
+    backgroundColor: AppColors.white,
     borderRadius: 14,
     padding: 12,
+    borderWidth: 1,
+    borderColor: AppColors.grey,
   },
   metaLabel: {
     color: AppColors.grey3,
@@ -672,13 +674,13 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   metaValue: {
-    color: AppColors.blue,
+    color: AppColors.primary,
     fontSize: 14,
     fontFamily: 'Montserrat',
   },
   chooseButton: {
     marginTop: 18,
-    backgroundColor: AppColors.blue,
+    backgroundColor: AppColors.grey2,
     borderRadius: 999,
     paddingVertical: 13,
     paddingHorizontal: 16,
@@ -691,7 +693,7 @@ const styles = StyleSheet.create({
     opacity: 0.75,
   },
   chooseButtonText: {
-    color: AppColors.white,
+    color: AppColors.primary,
     fontSize: 15,
     fontFamily: 'Montserrat',
   },
