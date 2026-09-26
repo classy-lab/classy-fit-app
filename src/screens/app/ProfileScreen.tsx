@@ -48,17 +48,6 @@ const ProfileScreen = () => {
           </View>
           <View style={styles.body}>
             <ProfileScreenForm />
-            {isOwner ? (
-              <TouchableOpacity
-                style={styles.menuButton}
-                activeOpacity={0.85}
-                onPress={() => navigation.navigate('PlatformBillingScreen')}
-              >
-                <Feather name="credit-card" color={AppColors.blue} size={20} />
-                <Text style={styles.menuButtonText}>Platform Billing</Text>
-                <Feather name="chevron-right" color={AppColors.blue} size={20} />
-              </TouchableOpacity>
-            ) : null}
           </View>
           <View style={styles.imageContainer}>
             <VectorImageSvg />
