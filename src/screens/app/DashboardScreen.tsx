@@ -75,12 +75,6 @@ const DashboardScreen = ({ navigation, route }) => {
                 </View>
                 <Text style={styles.squareLabel}>Members</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('MembershipPlansScreen')}>
-                <View style={styles.whiteSquare}>
-                  <FontAwesome5 name="credit-card" size={28} color={AppColors.blue} />
-                </View>
-                <Text style={styles.squareLabel}>Membership Plans</Text>
-              </TouchableOpacity>
               {isOwner ? (
                 <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('ContractorsScreen')}>
                   <View style={styles.whiteSquare}>
@@ -101,17 +95,6 @@ const DashboardScreen = ({ navigation, route }) => {
                 </View>
                 <Text style={styles.squareLabel}>Gym Videos</Text>
               </TouchableOpacity>
-              {isOwner ? (
-                <TouchableOpacity
-                  style={styles.greySquare}
-                  onPress={() => navigation.navigate('MembershipPlanManagementScreen')}
-                >
-                  <View style={styles.whiteSquare}>
-                    <MaterialCommunityIcons name="credit-card" size={28} color={AppColors.blue} />
-                  </View>
-                  <Text style={styles.squareLabel}>Gym Membership</Text>
-                </TouchableOpacity>
-              ) : null}
             </View>
           </View>
         </ScrollView>
