@@ -16,6 +16,24 @@ const windowWidth = Dimensions.get('window').width
 const DashboardScreen = ({ navigation, route }) => {
   const { user, setUser } = useContext(UserContext);
   const isOwner = String(user?.role ?? '').trim().toLowerCase() === 'owner';
+  const isTrainer = String(user?.role ?? '').trim().toLowerCase() === 'trainer';
+  const isMember = String(user?.role ?? '').trim().toLowerCase() === 'member';
+
+  const heroHeading = isOwner
+    ? 'Run your gym from one place'
+    : isTrainer
+      ? 'Manage your sessions and clients'
+      : isMember
+        ? 'Your gym access, bookings, and membership in one place'
+        : 'Welcome back to Classy Fit';
+
+  const heroDescription = isOwner
+    ? 'Jump into classes, personal training, members, and operations in a few taps.'
+    : isTrainer
+      ? 'See what’s coming up, manage your sessions, and stay on top of your day.'
+      : isMember
+        ? 'Book classes, check your membership, and keep your gym routine moving.'
+        : 'Use the dashboard to get to the parts of Classy Fit you need most.';
 
   return (
     <>
@@ -40,10 +58,8 @@ const DashboardScreen = ({ navigation, route }) => {
                 </View>
                 <View style={styles.heroTextBlock}>
                   <Text style={styles.heroEyebrow}>Today&apos;s hub</Text>
-                  <Text style={styles.heroTitleText}>Run your gym from one place</Text>
-                  <Text style={styles.heroDescription}>
-                    Jump into classes, personal training, members, and operations in a few taps.
-                  </Text>
+                  <Text style={styles.heroTitleText}>{heroHeading}</Text>
+                  <Text style={styles.heroDescription}>{heroDescription}</Text>
                 </View>
               </View>
 
@@ -197,13 +213,13 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   heroCard: {
-    backgroundColor: AppColors.blue,
+    backgroundColor: AppColors.grey,
     borderRadius: 24,
     padding: 20,
     marginBottom: 18,
-    shadowColor: AppColors.blue,
+    shadowColor: AppColors.grey3,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.18,
+    shadowOpacity: 0.1,
     shadowRadius: 12,
     elevation: 5,
   },
@@ -215,7 +231,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 14,
-    backgroundColor: 'rgba(255,255,255,0.18)',
+    backgroundColor: AppColors.white,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 14,
@@ -224,7 +240,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   heroEyebrow: {
-    color: AppColors.white,
+    color: AppColors.blue,
     fontSize: 12,
     fontFamily: 'Montserrat',
     letterSpacing: 0.8,
@@ -232,14 +248,13 @@ const styles = StyleSheet.create({
     opacity: 0.85,
   },
   heroTitleText: {
-    color: AppColors.white,
+    color: AppColors.primary,
     fontSize: 22,
     fontFamily: 'Montserrat',
     marginTop: 4,
   },
   heroDescription: {
-    color: AppColors.white,
-    opacity: 0.9,
+    color: AppColors.grey3,
     fontSize: 14,
     lineHeight: 20,
     marginTop: 8,
