@@ -680,7 +680,7 @@ const styles = StyleSheet.create({
   },
   chooseButton: {
     marginTop: 18,
-    backgroundColor: AppColors.grey2,
+    backgroundColor: AppColors.blue,
     borderRadius: 999,
     paddingVertical: 13,
     paddingHorizontal: 16,
@@ -693,7 +693,7 @@ const styles = StyleSheet.create({
     opacity: 0.75,
   },
   chooseButtonText: {
-    color: AppColors.primary,
+    color: AppColors.white,
     fontSize: 15,
     fontFamily: 'Montserrat',
   },
