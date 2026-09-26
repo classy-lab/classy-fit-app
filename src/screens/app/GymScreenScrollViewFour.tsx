@@ -32,7 +32,7 @@ const GymScreenScrollViewFour = () => {
                 <Feather name="credit-card" color={AppColors.blue} size={28} />
               </View>
             </TouchableOpacity>
-            <Text style={gymScreenStyles.cardText}>Membership Plans</Text>
+            <Text style={gymScreenStyles.cardText}>Buy Membership</Text>
           </View>
         ) : null}
         {isOwner ? (
@@ -63,21 +63,6 @@ const GymScreenScrollViewFour = () => {
               </View>
             </TouchableOpacity>
             <Text style={gymScreenStyles.cardText}>My Membership</Text>
-          </View>
-        ) : null}
-        {!isOwner ? (
-          <View style={gymScreenStyles.greySquareContainer}>
-            <TouchableOpacity
-              style={gymScreenStyles.greySquare}
-              activeOpacity={0.8}
-              hitSlop={8}
-              onPress={() => navigation.navigate('GymTab', { screen: 'MyPersonalTrainingBookingsScreen' })}
-            >
-              <View style={gymScreenStyles.whiteSquare}>
-                <Feather name="calendar" color={AppColors.blue} size={28} />
-              </View>
-            </TouchableOpacity>
-            <Text style={gymScreenStyles.cardText}>My PT Bookings</Text>
           </View>
         ) : null}
       </ScrollView>
