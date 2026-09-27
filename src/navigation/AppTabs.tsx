@@ -18,6 +18,7 @@ import ClassManagementScreen from '../screens/app/ClassManagementScreen'
 import AddClassScreen from '../screens/app/AddClassScreen'
 import EditClassScreen from '../screens/app/EditClassScreen'
 import EditClassSessionScreen from '../screens/app/EditClassSessionScreen'
+import AddClassSessionScreen from '../screens/app/AddClassSessionScreen'
 import EarningsScreen from '../screens/app/EarningsScreen'
 import ContractorsScreen from '../screens/app/ContractorsScreen'
 import SignoutScreen from '../screens/app/SignoutScreen'
@@ -111,6 +112,7 @@ function HomeStackScreen() {
       <HomeStack.Screen name="AddClassScreen" component={AddClassScreen} />
       <HomeStack.Screen name="EditClassScreen" component={EditClassScreen} />
       <HomeStack.Screen name="EditClassSessionScreen" component={EditClassSessionScreen} />
+      <HomeStack.Screen name="AddClassSessionScreen" component={AddClassSessionScreen} />
       {canManageStaff ? <HomeStack.Screen name="StaffScreen" component={StaffScreen} /> : null}
       {canManageMembers ? <HomeStack.Screen name="MembersScreen" component={MembersScreen} /> : null}
       <HomeStack.Screen name="ProductsScreen" component={ProductsScreen} />
@@ -151,6 +153,7 @@ function GymStackScreen() {
       <GymStack.Screen name="AddClassScreen" component={AddClassScreen} />
       <GymStack.Screen name="EditClassScreen" component={EditClassScreen} />
       <GymStack.Screen name="EditClassSessionScreen" component={EditClassSessionScreen} />
+      <GymStack.Screen name="AddClassSessionScreen" component={AddClassSessionScreen} />
       <GymStack.Screen name="GymEquipmentScreen" component={GymEquipmentScreen} />
       <GymStack.Screen name="EquipmentDetailScreen" component={EquipmentDetailScreen} />
       <GymStack.Screen name="TreadmillEquipmentScreen" component={TreadmillEquipmentScreen} />
@@ -205,6 +208,7 @@ function ProfileStackScreen() {
       <ProfileStack.Screen name="AddClassScreen" component={AddClassScreen} />
       <ProfileStack.Screen name="EditClassScreen" component={EditClassScreen} />
       <ProfileStack.Screen name="EditClassSessionScreen" component={EditClassSessionScreen} />
+      <ProfileStack.Screen name="AddClassSessionScreen" component={AddClassSessionScreen} />
       <ProfileStack.Screen name="MembershipPlanManagementScreen" component={MembershipPlanManagementScreen} />
       <ProfileStack.Screen name="AddMembershipPlanScreen" component={AddMembershipPlanScreen} />
       <ProfileStack.Screen name="EditMembershipPlanScreen" component={EditMembershipPlanScreen} />
