@@ -80,7 +80,7 @@ const extractMessageCandidates = (responseText: string): string[] => {
 }
 
 export const shouldRefreshAuthResponse = async (response: Response): Promise<boolean> => {
-  if (response.status === 401 || response.status === 403) {
+  if (response.status === 401) {
     return true
   }
 
