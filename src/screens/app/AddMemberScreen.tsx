@@ -41,6 +41,7 @@ import FlashMessage, {
   showMessage,
   hideMessage,
 } from "react-native-flash-message";
+import { canAccessAddMember, normalizeUserRole } from "../../utils/roleAccess";
 import { StyleSheet } from 'react-native'
 
 const AddMemberScreen = () => {
@@ -48,6 +49,23 @@ const AddMemberScreen = () => {
   const [website, setWebsite] = useState("");
   const { webServer } = useContext(UserContext);
   const { user, tokens, setUser } = useContext(UserContext);
+  const role = normalizeUserRole(user?.role);
+  const canCreateMembers = canAccessAddMember(role);
+
+  useEffect(() => {
+    if (canCreateMembers) {
+      return;
+    }
+
+    showMessage({
+      message: "Access denied",
+      description: "This action is only available to gym staff.",
+      type: "danger",
+      icon: "danger",
+      autoHide: true,
+    });
+    navigation.navigate('HomeTab', { screen: 'DashboardScreen' } as never);
+  }, [canCreateMembers, navigation]);
 
   const selectImage = async (onChange: (value: any) => void) => {
     try {
@@ -116,7 +134,7 @@ const AddMemberScreen = () => {
   ];
 
   const [gyms, setGyms] = useState([]);
-  const [role, setRole] = React.useState("");
+  const [selectedRole, setSelectedRole] = React.useState("");
 
   // This is the "onChange" logic for GymList
   const handleSelectionChange = (val) => {
@@ -225,6 +243,22 @@ const AddMemberScreen = () => {
         duration: 3000,
         // autoHide: false,
         onPress: () => hideMessage(),
+      });
+    } else if (response.status === 403) {
+      showMessage({
+        message: "Access denied",
+        description: apiResponse.message || "You do not have permission to add members.",
+        type: "danger",
+        icon: "danger",
+        autoHide: false,
+      });
+    } else if (response.status === 401) {
+      showMessage({
+        message: "Session expired",
+        description: apiResponse.message || "Please sign in again to continue.",
+        type: "warning",
+        icon: "warning",
+        autoHide: false,
       });
     } else {
       showMessage({
