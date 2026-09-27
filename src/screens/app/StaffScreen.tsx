@@ -8,9 +8,11 @@ import { useFocusEffect } from '@react-navigation/native'
 import * as yup from 'yup'
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { useCallback, useContext, useState } from 'react'
+import { useCallback, useContext, useEffect, useState } from 'react'
 import { UserContext } from '../../context/UserContext'
 import { logGymRequestDiagnostics, logGymRequestResponse, logGymRefreshResponse } from '../../utils/devGymRequestDiagnostics'
+import { showMessage } from 'react-native-flash-message'
+import { canAccessStaffManagement, normalizeUserRole } from '../../utils/roleAccess'
 
 type StaffMember = {
   user_picture_url?: string;
@@ -27,6 +29,8 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
   const [imageCacheKey, setImageCacheKey] = useState(Date.now());
   const ownersList = Object.values(owners);
   const trainersList = Object.values(trainers);
+  const role = normalizeUserRole(user?.role);
+  const canManageStaff = canAccessStaffManagement(role);
 
   // 1. Define the Yup validation schema
   const schema = yup.object().shape({
@@ -80,8 +84,27 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
   const filteredOwners = ownersList.filter(matchesSearch);
   const filteredTrainers = trainersList.filter(matchesSearch);
 
+  useEffect(() => {
+    if (canManageStaff) {
+      return;
+    }
+
+    showMessage({
+      message: 'Access denied',
+      description: 'This section is only available to gym staff.',
+      type: 'danger',
+      icon: 'danger',
+      autoHide: true,
+    });
+    navigation.navigate('HomeTab', { screen: 'DashboardScreen' });
+  }, [canManageStaff, navigation]);
+
   useFocusEffect(
     useCallback(() => {
+      if (!canManageStaff) {
+        return;
+      }
+
       const fetchStaffData = async () => {
         const requestContext = {
           screen: 'StaffScreen',
@@ -114,6 +137,16 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
             setOwners(obj.owners);
             setTrainers(obj.trainers);
             setImageCacheKey(Date.now());
+          }
+          else if (response.status === 403) {
+            showMessage({
+              message: 'Access denied',
+              description: obj?.message || 'You do not have permission to view staff.',
+              type: 'danger',
+              icon: 'danger',
+              autoHide: true,
+            });
+            return;
           }
           else {
             logGymRequestDiagnostics(requestContext, 'response', {
