@@ -1,6 +1,6 @@
 // @ts-nocheck
 // navigation/AppTabs.js
-import React from 'react';
+import React, { useContext } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createStackNavigator } from '@react-navigation/stack';
 import { AppColors } from '../styles/colors'
@@ -59,6 +59,14 @@ import AddEquipmentScreen from '../screens/app/AddEquipmentScreen'
 import EquipmentEditScreen from '../screens/app/EquipmentEditScreen'
 import MyClassBookingsScreen from '../screens/app/MyClassBookingsScreen'
 import MyClassBookingDetailScreen from '../screens/app/MyClassBookingDetailScreen'
+import { UserContext } from '../context/UserContext'
+import {
+  canAccessAddMember,
+  canAccessAddStaff,
+  canAccessMemberManagement,
+  canAccessStaffManagement,
+  normalizeUserRole,
+} from '../utils/roleAccess'
 
 const Tab = createBottomTabNavigator()
 const HomeStack = createStackNavigator()
@@ -68,6 +76,12 @@ const GymStack = createStackNavigator()
 const ProfileStack = createStackNavigator()
 
 function HomeStackScreen() {
+  const { user } = useContext(UserContext)
+  const userRole = normalizeUserRole(user?.role)
+  const canManageMembers = canAccessMemberManagement(userRole)
+  const canManageStaff = canAccessStaffManagement(userRole)
+  const canCreateMembers = canAccessAddMember(userRole)
+
   return (
     <HomeStack.Navigator
       screenOptions={{ ...screenOptions, animationEnabled: false }}
@@ -97,16 +111,16 @@ function HomeStackScreen() {
       <HomeStack.Screen name="AddClassScreen" component={AddClassScreen} />
       <HomeStack.Screen name="EditClassScreen" component={EditClassScreen} />
       <HomeStack.Screen name="EditClassSessionScreen" component={EditClassSessionScreen} />
-      <HomeStack.Screen name="StaffScreen" component={StaffScreen} />
-      <HomeStack.Screen name="MembersScreen" component={MembersScreen} />
+      {canManageStaff ? <HomeStack.Screen name="StaffScreen" component={StaffScreen} /> : null}
+      {canManageMembers ? <HomeStack.Screen name="MembersScreen" component={MembersScreen} /> : null}
       <HomeStack.Screen name="ProductsScreen" component={ProductsScreen} />
       <HomeStack.Screen name="ContractorsScreen" component={ContractorsScreen} />
       <HomeStack.Screen name="SignoutScreen" component={SignoutScreen} />
       <HomeStack.Screen name="LoginScreen" component={LoginScreen} />
       <HomeStack.Screen name="AllEarnings" component={AllEarnings} />
-      <HomeStack.Screen name="UpdateStaffScreen" component={UpdateStaffScreen} />
-      <HomeStack.Screen name="UpdateMemberScreen" component={UpdateMemberScreen} />
-      <HomeStack.Screen name="AddMemberScreen" component={AddMemberScreen} />
+      {canManageStaff ? <HomeStack.Screen name="UpdateStaffScreen" component={UpdateStaffScreen} /> : null}
+      {canManageMembers ? <HomeStack.Screen name="UpdateMemberScreen" component={UpdateMemberScreen} /> : null}
+      {canCreateMembers ? <HomeStack.Screen name="AddMemberScreen" component={AddMemberScreen} /> : null}
     </HomeStack.Navigator>
   );
 }
@@ -147,10 +161,14 @@ function GymStackScreen() {
 }
 
 function StaffStackScreen() {
+  const { user } = useContext(UserContext)
+  const userRole = normalizeUserRole(user?.role)
+  const canCreateStaff = canAccessAddStaff(userRole)
+
   return (
     <StaffStack.Navigator screenOptions={screenOptions}>
       <StaffStack.Screen name="StaffScreen" component={StaffScreen} />
-      <StaffStack.Screen name="AddStaffScreen" component={AddStaffScreen} />
+      {canCreateStaff ? <StaffStack.Screen name="AddStaffScreen" component={AddStaffScreen} /> : null}
       <StaffStack.Screen name="AddContactScreen" component={AddContactScreen} />
       <StaffStack.Screen name="UpdateContactScreen" component={UpdateContactScreen} />
       <StaffStack.Screen name="UpdateStaffScreen" component={UpdateStaffScreen} />
@@ -224,6 +242,10 @@ const createRootTabListener = (tabName, screenName) => ({ navigation }) => ({
 });
 
 const AppTabs = () => {
+  const { user } = useContext(UserContext)
+  const userRole = normalizeUserRole(user?.role)
+  const canManageStaff = canAccessStaffManagement(userRole)
+
   return (
     <Tab.Navigator screenOptions={screenOptions}>
       {/* Clicking this tab shows the HomeStack, with the tab bar still at the bottom */}
@@ -250,18 +272,20 @@ const AppTabs = () => {
         }}
         listeners={createRootTabListener('GymTab', 'GymScreen')}
       />
-      <Tab.Screen
-        name="StaffTab"
-        component={StaffStackScreen}
-        options={{
-          title: "Staff",
-          tabBarIcon: ({ color, size }) => (
-            <FontAwesome6 name="bolt-lightning" size={19} color={color} />
-            // <FontAwesome5 name="user-friends" size={20} color={color} />
-          ),
-        }}
-        listeners={createRootTabListener('StaffTab', 'StaffScreen')}
-      />
+      {canManageStaff ? (
+        <Tab.Screen
+          name="StaffTab"
+          component={StaffStackScreen}
+          options={{
+            title: "Staff",
+            tabBarIcon: ({ color, size }) => (
+              <FontAwesome6 name="bolt-lightning" size={19} color={color} />
+              // <FontAwesome5 name="user-friends" size={20} color={color} />
+            ),
+          }}
+          listeners={createRootTabListener('StaffTab', 'StaffScreen')}
+        />
+      ) : null}
       <Tab.Screen
         name="ProductsTab"
         component={ProductStackScreen}
