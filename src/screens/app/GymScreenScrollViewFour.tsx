@@ -20,21 +20,6 @@ const GymScreenScrollViewFour = () => {
         horizontal={true}
         showsHorizontalScrollIndicator={false}
       >
-        {!isOwner ? (
-          <View style={gymScreenStyles.greySquareContainer}>
-            <TouchableOpacity
-              style={gymScreenStyles.greySquare}
-              activeOpacity={0.8}
-              hitSlop={8}
-              onPress={() => navigation.navigate('MembershipPlansScreen')}
-            >
-              <View style={gymScreenStyles.whiteSquare}>
-                <Feather name="credit-card" color={AppColors.blue} size={28} />
-              </View>
-            </TouchableOpacity>
-            <Text style={gymScreenStyles.cardText}>Buy Membership</Text>
-          </View>
-        ) : null}
         {isOwner ? (
           <View style={gymScreenStyles.greySquareContainer}>
             <TouchableOpacity
@@ -50,21 +35,32 @@ const GymScreenScrollViewFour = () => {
             <Text style={gymScreenStyles.cardText}>Manage Membership Plans</Text>
           </View>
         ) : null}
-        {!isOwner ? (
-          <View style={gymScreenStyles.greySquareContainer}>
-            <TouchableOpacity
-              style={gymScreenStyles.greySquare}
-              activeOpacity={0.8}
-              hitSlop={8}
-              onPress={() => navigation.navigate('ProfileTab', { screen: 'MyMembershipScreen' })}
-            >
-              <View style={gymScreenStyles.whiteSquare}>
-                <Feather name="user" color={AppColors.blue} size={28} />
-              </View>
-            </TouchableOpacity>
-            <Text style={gymScreenStyles.cardText}>My Membership</Text>
-          </View>
-        ) : null}
+        <View style={gymScreenStyles.greySquareContainer}>
+          <TouchableOpacity
+            style={gymScreenStyles.greySquare}
+            activeOpacity={0.8}
+            hitSlop={8}
+            onPress={() => navigation.navigate('MembershipPlansScreen')}
+          >
+            <View style={gymScreenStyles.whiteSquare}>
+              <Feather name="credit-card" color={AppColors.blue} size={28} />
+            </View>
+          </TouchableOpacity>
+          <Text style={gymScreenStyles.cardText}>Buy Membership</Text>
+        </View>
+        <View style={gymScreenStyles.greySquareContainer}>
+          <TouchableOpacity
+            style={gymScreenStyles.greySquare}
+            activeOpacity={0.8}
+            hitSlop={8}
+            onPress={() => navigation.navigate('ProfileTab', { screen: 'MyMembershipScreen' })}
+          >
+            <View style={gymScreenStyles.whiteSquare}>
+              <Feather name="user" color={AppColors.blue} size={28} />
+            </View>
+          </TouchableOpacity>
+          <Text style={gymScreenStyles.cardText}>My Membership</Text>
+        </View>
       </ScrollView>
     </>
   )
