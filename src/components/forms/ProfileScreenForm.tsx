@@ -303,57 +303,93 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
   const executeProfileDeletion = async ({ tokens, webServer, user, setTokens }) => {
     console.log("Profile deletion API initiated.");
 
-    const response = await fetch(
-      `${webServer}/api/v1/gyms/${user?.gym_id}/users/${user?.sub}`,
-      {
+    const parseJson = (value: string) => {
+      if (!value) {
+        return {};
+      }
+
+      try {
+        return JSON.parse(value);
+      } catch {
+        return { message: value };
+      }
+    };
+
+    const performDelete = async (accessToken: string) =>
+      fetch(`${webServer}/api/v1/account`, {
         method: "DELETE",
         headers: {
-          Authorization: "Bearer " + tokens.access_token,
+          Authorization: "Bearer " + accessToken,
         },
-        body: user.sub,
-      },
-    );
-
-    const json = await response.text();;
-    const obj = JSON.parse(json);
-
-
-    if (response.status == 200) {
-      console.log(obj);
-      showMessage({
-        message: obj?.message,
-        type: "success",
-        autoHide: true, // prevents the message from disappearing automatically
-        onPress: () => hideMessage(), // closes the message when pressed
       });
 
-      // // Optionally, you can also clear the user context or navigate to a different screen after deletion
+    const handleSuccessfulClosure = (message: string) => {
+      showMessage({
+        message,
+        type: "success",
+        autoHide: true,
+        onPress: () => hideMessage(),
+      });
+
       setUser(null);
       setTokens(null);
       setIsLoggedIn(false);
-    }
-    else {
-      console.log("Access token expired, requesting new one - executeProfileDeletion()");
+    };
 
-      const response = await fetch(`${webServer}/api/v1/refresh`, {
+    const handleFailure = (status: number, message: string) => {
+      showMessage({
+        message: status === 409 ? "Account closure blocked" : "Action Failed",
+        description: message,
+        type: "danger",
+        icon: "danger",
+        autoHide: false,
+      });
+    };
+
+    const firstResponse = await performDelete(tokens.access_token);
+    const firstJson = parseJson(await firstResponse.text());
+
+    if (firstResponse.ok) {
+      handleSuccessfulClosure(String(firstJson?.message || "Your account has been closed."));
+      return;
+    }
+
+    if (firstResponse.status === 409) {
+      handleFailure(firstResponse.status, String(firstJson?.message || "You must transfer ownership of all gyms before closing your account."));
+      return;
+    }
+
+    if (firstResponse.status === 401 && tokens.refresh_token) {
+      const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
         method: "POST",
         body: JSON.stringify({
           token: tokens.refresh_token,
         }),
       });
 
-      const json = await response.text();
-      const obj = JSON.parse(json);
+      const refreshJson = parseJson(await refreshResponse.text());
 
-      if (response.status == 200) {
-        console.log("Got new access token and refresh token");
+      if (refreshResponse.ok && refreshJson?.access_token) {
         setTokens({
           ...tokens,
-          access_token: obj.access_token,
-          refresh_token: obj.refresh_token,
+          access_token: refreshJson.access_token,
+          refresh_token: refreshJson.refresh_token,
         });
+
+        const retryResponse = await performDelete(refreshJson.access_token);
+        const retryJson = parseJson(await retryResponse.text());
+
+        if (retryResponse.ok) {
+          handleSuccessfulClosure(String(retryJson?.message || "Your account has been closed."));
+          return;
+        }
+
+        handleFailure(retryResponse.status, String(retryJson?.message || retryJson?.error || "Unable to close your account."));
+        return;
       }
     }
+
+    handleFailure(firstResponse.status, String(firstJson?.message || firstJson?.error || "Unable to close your account."));
   };
 
   // 2. Build the confirmation modal configuration
