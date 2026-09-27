@@ -9,9 +9,11 @@ import { useFocusEffect } from '@react-navigation/native'
 import * as yup from 'yup'
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { useCallback, useContext, useState } from 'react'
+import { useCallback, useContext, useEffect, useState } from 'react'
 import { UserContext } from '../../context/UserContext'
 import { logGymRequestDiagnostics, logGymRequestResponse, logGymRefreshResponse } from '../../utils/devGymRequestDiagnostics'
+import { showMessage } from 'react-native-flash-message'
+import { canAccessMemberManagement, normalizeUserRole } from '../../utils/roleAccess'
 
 const defaultProfileImage = require("../../assets/images/avatars/profile-img.png");
 
@@ -30,6 +32,8 @@ const MembersScreen = ({ navigation }: { navigation: any }) => {
   const [imageCacheKey, setImageCacheKey] = useState(Date.now());
   const [failedImageKeys, setFailedImageKeys] = useState<Record<string, boolean>>({});
   const membersList = Object.values(members);
+  const role = normalizeUserRole(user?.role);
+  const canManageMembers = canAccessMemberManagement(role);
 
   // 1. Define the Yup validation schema
   const schema = yup.object().shape({
@@ -92,8 +96,27 @@ const MembersScreen = ({ navigation }: { navigation: any }) => {
     return fullName.length > 11 ? `${fullName.slice(0, 11)}` : fullName;
   };
 
+  useEffect(() => {
+    if (canManageMembers) {
+      return;
+    }
+
+    showMessage({
+      message: 'Access denied',
+      description: 'This section is only available to gym staff.',
+      type: 'danger',
+      icon: 'danger',
+      autoHide: true,
+    });
+    navigation.navigate('HomeTab', { screen: 'DashboardScreen' });
+  }, [canManageMembers, navigation]);
+
   useFocusEffect(
     useCallback(() => {
+      if (!canManageMembers) {
+        return;
+      }
+
       let isActive = true;
 
       const fetchStaffData = async () => {
@@ -136,6 +159,18 @@ const MembersScreen = ({ navigation }: { navigation: any }) => {
               setMembers(obj.members);
               setImageCacheKey(Date.now());
             }
+          }
+          else if (response.status === 403) {
+            if (isActive) {
+              showMessage({
+                message: 'Access denied',
+                description: obj?.message || 'You do not have permission to view members.',
+                type: 'danger',
+                icon: 'danger',
+                autoHide: true,
+              });
+            }
+            return;
           }
           else {
             logGymRequestDiagnostics(requestContext, 'response', {
