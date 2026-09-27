@@ -40,7 +40,7 @@ type EditClassRoute = {
 
 type EditClassNavigation = {
   goBack: () => void
-  navigate: (screen: 'EditClassSessionScreen', params?: Record<string, unknown>) => void
+  navigate: (screen: 'EditClassSessionScreen' | 'AddClassSessionScreen', params?: Record<string, unknown>) => void
 }
 
 type ClassRecord = {
@@ -209,6 +209,15 @@ const formatPrice = (value?: number | string | null, currencyCode?: string | nul
   return `${price.toFixed(2)} ${currency}`.trim()
 }
 
+const isUpcomingSession = (session: ClassSessionRecord) => {
+  const parsed = parseDateTime(session?.start_at)
+  if (!parsed) {
+    return false
+  }
+
+  return parsed.getTime() >= Date.now()
+}
+
 const EditClassScreen = ({ navigation, route }: { navigation: EditClassNavigation; route: EditClassRoute }) => {
   const { tokens, setTokens, webServer } = useContext(UserContext) as UserContextValue
   const classUid = Number(route?.params?.classUid ?? 0)
@@ -219,6 +228,7 @@ const EditClassScreen = ({ navigation, route }: { navigation: EditClassNavigatio
   const [sessionsLoadError, setSessionsLoadError] = useState('')
   const [serverMessage, setServerMessage] = useState('')
   const [sessions, setSessions] = useState<ClassSessionRecord[]>([])
+  const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming')
 
   const defaultValues = useMemo<EditClassFormValues>(
     () => ({
@@ -441,6 +451,12 @@ const EditClassScreen = ({ navigation, route }: { navigation: EditClassNavigatio
     })
   }
 
+  const handleAddSession = () => {
+    navigation.navigate('AddClassSessionScreen', {
+      classUid,
+    })
+  }
+
   const onSubmit = useCallback(
     async (formData: EditClassFormValues) => {
       if (saving) {
@@ -585,6 +601,11 @@ const EditClassScreen = ({ navigation, route }: { navigation: EditClassNavigatio
     const currency = String(session?.currency_code ?? '').trim().toUpperCase()
     return `${price.toFixed(2)} ${currency}`.trim()
   }
+
+  const upcomingSessions = useMemo(() => sessions.filter(isUpcomingSession), [sessions])
+  const pastSessions = useMemo(() => sessions.filter((session) => !isUpcomingSession(session)), [sessions])
+  const visibleSessions = activeTab === 'upcoming' ? upcomingSessions : pastSessions
+  const activeSessionsLabel = activeTab === 'upcoming' ? 'Upcoming' : 'Past'
 
   if (classLoading && classLoadError === '') {
     return (
@@ -811,8 +832,35 @@ const EditClassScreen = ({ navigation, route }: { navigation: EditClassNavigatio
               </View>
 
               <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Sessions</Text>
-                {sessionsLoading ? <ActivityIndicator color={AppColors.blue} /> : null}
+                <View style={styles.sectionHeaderText}>
+                  <Text style={styles.sectionTitle}>Sessions</Text>
+                </View>
+                <View style={styles.sessionsHeaderActions}>
+                  <TouchableOpacity style={styles.addSessionButton} onPress={handleAddSession}>
+                    <Feather name="plus" color={AppColors.white} size={16} />
+                    <Text style={styles.addSessionButtonText}>Add Session</Text>
+                  </TouchableOpacity>
+                  {sessionsLoading ? <ActivityIndicator color={AppColors.blue} /> : null}
+                </View>
+              </View>
+
+              <View style={styles.filterBar}>
+                <TouchableOpacity
+                  style={[styles.filterButton, activeTab === 'upcoming' && styles.filterButtonActive]}
+                  onPress={() => setActiveTab('upcoming')}
+                >
+                  <Text style={[styles.filterButtonText, activeTab === 'upcoming' && styles.filterButtonTextActive]}>
+                    Upcoming ({upcomingSessions.length})
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.filterButton, activeTab === 'past' && styles.filterButtonActive]}
+                  onPress={() => setActiveTab('past')}
+                >
+                  <Text style={[styles.filterButtonText, activeTab === 'past' && styles.filterButtonTextActive]}>
+                    Past ({pastSessions.length})
+                  </Text>
+                </TouchableOpacity>
               </View>
 
               {sessionsLoadError ? (
@@ -828,9 +876,19 @@ const EditClassScreen = ({ navigation, route }: { navigation: EditClassNavigatio
                   <Text style={styles.emptyTitle}>No sessions yet</Text>
                   <Text style={styles.stateText}>This class does not have any sessions yet.</Text>
                 </View>
+              ) : visibleSessions.length === 0 && !sessionsLoading ? (
+                <View style={styles.emptyCard}>
+                  <Text style={styles.emptyTitle}>{activeSessionsLabel} sessions</Text>
+                  <Text style={styles.stateText}>
+                    {activeTab === 'upcoming'
+                      ? 'No upcoming sessions right now. Add a new session to get started.'
+                      : 'No past sessions yet.'}
+                  </Text>
+                </View>
               ) : (
                 <View style={styles.sessionList}>
-                  {sessions.map((session) => {
+                  <Text style={styles.sectionTitle}>{activeSessionsLabel} sessions</Text>
+                  {visibleSessions.map((session) => {
                     const price = Number(session?.price ?? 0)
                     const trainer = String(session?.trainer_display_name ?? '').trim()
                     const location = String(session?.location ?? '').trim()
@@ -1001,15 +1059,64 @@ const styles = StyleSheet.create({
   },
   sectionHeader: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'space-between',
     marginTop: 18,
     marginBottom: 12,
+  },
+  sectionHeaderText: {
+    flex: 1,
+    marginRight: 12,
+  },
+  sessionsHeaderActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
   },
   sectionTitle: {
     color: AppColors.blue,
     fontFamily: 'Montserrat',
     fontSize: 20,
+  },
+  filterBar: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 10,
+  },
+  filterButton: {
+    flex: 1,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: AppColors.grey,
+    backgroundColor: AppColors.white,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  filterButtonActive: {
+    backgroundColor: AppColors.blue,
+    borderColor: AppColors.blue,
+  },
+  filterButtonText: {
+    color: AppColors.primary,
+    fontFamily: 'Montserrat',
+    fontSize: 14,
+  },
+  filterButtonTextActive: {
+    color: AppColors.white,
+  },
+  addSessionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: AppColors.blue,
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  addSessionButtonText: {
+    color: AppColors.white,
+    fontFamily: 'Montserrat',
+    fontSize: 13,
   },
   inlineMessage: {
     backgroundColor: '#FEF3C7',
