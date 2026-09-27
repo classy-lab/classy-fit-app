@@ -10,14 +10,17 @@ import Ionicons from '@expo/vector-icons/Ionicons'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import SignOut from "../../components/utils/SignOut";
 import Feather from "@expo/vector-icons/Feather";
+import { isStaffRole, normalizeUserRole } from '../../utils/roleAccess';
 
 const windowWidth = Dimensions.get('window').width
 
 const DashboardScreen = ({ navigation, route }) => {
   const { user, setUser } = useContext(UserContext);
-  const isOwner = String(user?.role ?? '').trim().toLowerCase() === 'owner';
-  const isTrainer = String(user?.role ?? '').trim().toLowerCase() === 'trainer';
-  const isMember = String(user?.role ?? '').trim().toLowerCase() === 'member';
+  const role = normalizeUserRole(user?.role);
+  const isOwner = role === 'owner';
+  const isTrainer = role === 'trainer';
+  const isMember = role === 'member';
+  const canManageMembers = isStaffRole(role);
 
   const heroHeading = isOwner
     ? 'Run your gym from one place'
@@ -109,20 +112,24 @@ const DashboardScreen = ({ navigation, route }) => {
               <Text style={styles.sectionTitle}>Quick actions</Text>
             </View>
             <View style={styles.greySquares}>
-              <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('StaffScreen')}>
-                <View style={styles.whiteSquare}>
-                  <FontAwesome5 name="user-friends" size={28} color={AppColors.blue} />
-                </View>
-                <Text style={styles.squareLabel}>Staff</Text>
-                <Text style={styles.squareSubtitle}>Team access</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('MembersScreen')}>
-                <View style={styles.whiteSquare}>
-                  <FontAwesome5 name="users" size={28} color={AppColors.blue} />
-                </View>
-                <Text style={styles.squareLabel}>Members</Text>
-                <Text style={styles.squareSubtitle}>Client list</Text>
-              </TouchableOpacity>
+              {canManageMembers ? (
+                <>
+                  <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('StaffScreen')}>
+                    <View style={styles.whiteSquare}>
+                      <FontAwesome5 name="user-friends" size={28} color={AppColors.blue} />
+                    </View>
+                    <Text style={styles.squareLabel}>Staff</Text>
+                    <Text style={styles.squareSubtitle}>Team access</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('MembersScreen')}>
+                    <View style={styles.whiteSquare}>
+                      <FontAwesome5 name="users" size={28} color={AppColors.blue} />
+                    </View>
+                    <Text style={styles.squareLabel}>Members</Text>
+                    <Text style={styles.squareSubtitle}>Client list</Text>
+                  </TouchableOpacity>
+                </>
+              ) : null}
               {isOwner ? (
                 <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('ContractorsScreen')}>
                   <View style={styles.whiteSquare}>
