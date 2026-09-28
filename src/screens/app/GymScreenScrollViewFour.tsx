@@ -32,7 +32,7 @@ const GymScreenScrollViewFour = () => {
                 <MaterialCommunityIcons name="credit-card-settings" color={AppColors.blue} size={28} />
               </View>
             </TouchableOpacity>
-            <Text style={gymScreenStyles.cardText}>Manage Membership Plans</Text>
+            <Text style={gymScreenStyles.cardText}>Manage Plans</Text>
           </View>
         ) : null}
         <View style={gymScreenStyles.greySquareContainer}>
