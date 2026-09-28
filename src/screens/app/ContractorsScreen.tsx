@@ -189,7 +189,12 @@ const ContractorsScreen = ({ navigation }: { navigation: any }) => {
               <SignOut />
             </View>
           </View>
-          <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+          >
             <View style={styles.headingContainer}>
               <Text style={styles.title}>Contractors</Text>
               <PinkLeafSvg style={styles.pinkLeaf} />
@@ -235,7 +240,7 @@ const ContractorsScreen = ({ navigation }: { navigation: any }) => {
                         return (
                           <TouchableOpacity
                             key={String(contactId)}
-                            disabled={!canEditContacts}
+                            activeOpacity={canEditContacts ? 0.85 : 1}
                             onPress={() => {
                               if (!canEditContacts) {
                                 return;
@@ -313,6 +318,13 @@ const styles = StyleSheet.create({
   },
   body: {
     flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 28,
   },
   bodyText: {
     fontSize: 16,
