@@ -14,7 +14,7 @@ const GymScreenScrollViewFour = () => {
 
   return (
     <>
-      <Text style={gymScreenStyles.sectionTitle}>Memberships</Text>
+      <Text style={gymScreenStyles.sectionTitle}>Membership</Text>
       <ScrollView
         style={gymScreenStyles.greySquares}
         horizontal={true}
