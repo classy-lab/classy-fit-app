@@ -28,8 +28,8 @@ const ProductsScreen = ({ navigation, route }) => {
 
   // 1. Define the Yup validation schema
   const schema = yup.object().shape({
-    search: yup.string().required('Search field is required').matches(
-      /^[a-zA-Z0-9]+$/,
+    search: yup.string().matches(
+      /^[a-zA-Z0-9]*$/,
       'Search must only contain alphanumeric characters (letters and numbers)'
     )
   })
@@ -51,6 +51,15 @@ const ProductsScreen = ({ navigation, route }) => {
   }
 
   const filteredProducts = products.filter(matchesSearch);
+
+  const formatPrice = (price?: string) => {
+    const amount = Number(price ?? 0)
+    if (!Number.isFinite(amount) || amount <= 0) {
+      return 'Free'
+    }
+
+    return `$${amount.toFixed(2)}`
+  }
 
   // 3. Define the submit handler
   const onSubmit = async (data) => {
@@ -151,74 +160,107 @@ const ProductsScreen = ({ navigation, route }) => {
           </View>
           <ScrollView
             showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
           >
             <View style={styles.headingContainer}>
-              <Text style={styles.title}>Products</Text>
+              <View style={styles.heroCard}>
+                <View style={styles.heroTopRow}>
+                  <View style={styles.heroIcon}>
+                    <Feather name="shopping-bag" color={AppColors.white} size={20} />
+                  </View>
+                  <View style={styles.heroTextBlock}>
+                    <Text style={styles.title}>Products</Text>
+                    <Text style={styles.subtitle}>Browse gym products, view details, and add items to your cart.</Text>
+                  </View>
+                </View>
+              </View>
               <PinkLeafSvg style={styles.pinkLeaf} />
             </View>
-            <View style={styles.body}>
 
-              <View style={styles.fieldset}>
-                <View style={styles.field}>
-                  <Controller
-                    control={control}
-                    name="search"
-                    render={({ field: { onChange, onBlur, value } }) => (
-                      <TextInput
-                        onBlur={() => {
-                          onBlur();
-                          handleSubmit(onSubmit)();
-                        }}
-                        onSubmitEditing={() => {
-                          Keyboard.dismiss();
-                        }}
-                        onChangeText={onChange}
-                        value={value}
-                        placeholder="Search"
-                        style={styles.inputField}
-                        keyboardType="default"
-                        returnKeyType="done"
-                        blurOnSubmit
-                        autoCapitalize="none"
-                        placeholderTextColor={AppColors.blue}
-                      />
-                    )}
-                  />
+            <View style={styles.body}>
+              <View style={styles.searchCard}>
+                <View style={styles.searchRow}>
+                  <Feather name="search" color={AppColors.blue} size={18} />
+                  <View style={styles.fieldset}>
+                    <Controller
+                      control={control}
+                      name="search"
+                      render={({ field: { onChange, onBlur, value } }) => (
+                        <TextInput
+                          onBlur={() => {
+                            onBlur();
+                            handleSubmit(onSubmit)();
+                          }}
+                          onSubmitEditing={() => {
+                            Keyboard.dismiss();
+                          }}
+                          onChangeText={onChange}
+                          value={value}
+                          placeholder="Search products"
+                          style={styles.inputField}
+                          keyboardType="default"
+                          returnKeyType="done"
+                          blurOnSubmit
+                          autoCapitalize="none"
+                          placeholderTextColor={AppColors.grey3}
+                        />
+                      )}
+                    />
+                  </View>
                 </View>
-                {/* Render other form inputs and their corresponding error messages */}
+                <Text style={styles.searchHint}>Tap any card to open the product details page.</Text>
                 {errors.search && <Text style={styles.errorText}>{errors.search.message}</Text>}
               </View>
 
               <View style={styles.section}>
                 <View style={styles.sectionHeading}>
-                  <Text style={styles.sectionTitle}>Products</Text>
-                  <Text style={styles.countText}>Count: {filteredProducts.length}</Text>
-                </View>
-                <View style={styles.boxes}>
-                  {filteredProducts.length === 0 ? (
-                    <Text style={styles.noResultsText}>No results found</Text>
-                  ) :
-                    (
-                      filteredProducts.map((product, index) => {
-                        return (
-                          <TouchableOpacity key={index} onPress={() => navigation.navigate('ProductsTab', { screen: 'ProductDetailScreen', params: { product: product } })}>
-                            <View style={styles.box}>
-                              {
-                                product.title ? (
-                                  <Image style={styles.image} source={{ uri: product.primaryImageURL }} />
-                                ) : null
-                              }
-                              <Text style={styles.productTitle} numberOfLines={1} ellipsizeMode="tail">{product.title ?? ''}</Text>
-                              <Text style={styles.productPrice}>{product.price ?? ''}</Text>
-                            </View>
-                          </TouchableOpacity>
-                        );
-                      })
-                    )}
+                  <Text style={styles.sectionTitle}>Featured products</Text>
+                  <View style={styles.countPill}>
+                    <Text style={styles.countText}>{filteredProducts.length} items</Text>
+                  </View>
                 </View>
 
+                {filteredProducts.length === 0 ? (
+                  <View style={styles.emptyStateCard}>
+                    <View style={styles.emptyIcon}>
+                      <Feather name="package" color={AppColors.white} size={24} />
+                    </View>
+                    <Text style={styles.emptyTitle}>No results found</Text>
+                    <Text style={styles.emptyText}>Try a different search term or clear the search field.</Text>
+                  </View>
+                ) : (
+                  <View style={styles.boxes}>
+                    {filteredProducts.map((product, index) => {
+                      return (
+                        <TouchableOpacity
+                          key={index}
+                          style={styles.productCard}
+                          activeOpacity={0.85}
+                          onPress={() => navigation.navigate('ProductsTab', { screen: 'ProductDetailScreen', params: { product: product } })}
+                        >
+                          <View style={styles.imageWrap}>
+                            {product.title ? (
+                              <Image style={styles.image} source={{ uri: product.primaryImageURL }} />
+                            ) : (
+                              <View style={styles.placeholderImage}>
+                                <Feather name="image" color={AppColors.blue} size={20} />
+                              </View>
+                            )}
+                          </View>
+                          <Text style={styles.productTitle} numberOfLines={2} ellipsizeMode="tail">
+                            {product.title ?? 'Untitled product'}
+                          </Text>
+                          <Text style={styles.productPrice}>{formatPrice(product.price)}</Text>
+                          <View style={styles.detailsPill}>
+                            <Text style={styles.detailsPillText}>View details</Text>
+                          </View>
+                        </TouchableOpacity>
+                      )
+                    })}
+                  </View>
+                )}
               </View>
-
             </View>
           </ScrollView>
         </SafeAreaView>
@@ -231,34 +273,43 @@ export default ProductsScreen
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: AppColors.white,
+    backgroundColor: AppColors.grey,
     flex: 1,
-    paddingLeft: 24,
-    paddingRight: 24,
   },
   navs: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingBottom: 8,
   },
   headingContainer: {
-    alignItems: 'center',
-    marginBottom: 20
+    marginHorizontal: 20,
+    marginBottom: 14,
   },
   title: {
     color: AppColors.blue,
-    fontSize: 32,
-    marginTop: 20,
-    marginBottom: 40,
-    width: 320,
-    textAlign: "center",
+    fontSize: 30,
+    fontFamily: 'Montserrat',
+    marginBottom: 6,
+  },
+  subtitle: {
+    color: AppColors.grey3,
+    fontSize: 14,
+    lineHeight: 20,
+    fontFamily: 'Montserrat',
   },
   pinkLeaf: {
-    position: "absolute",
+    position: 'absolute',
     zIndex: -1,
-    right: 96,
+    right: 0,
+    top: -8,
   },
   body: {
     flex: 1,
+    paddingHorizontal: 20,
+    paddingBottom: 28,
   },
   bodyText: {
     fontSize: 16,
@@ -272,7 +323,8 @@ const styles = StyleSheet.create({
   signOutText: {
     marginRight: 6,
     color: AppColors.blue,
-    fontSize: 14
+    fontSize: 14,
+    fontFamily: 'Montserrat',
   },
   headerActions: {
     flexDirection: 'row',
@@ -281,48 +333,138 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: AppColors.red,
+    marginTop: 8,
+    fontSize: 12,
   },
-  fieldset: {},
+  scrollContent: {
+    paddingBottom: 24,
+  },
+  heroCard: {
+    backgroundColor: AppColors.white,
+    borderRadius: 22,
+    padding: 18,
+    borderWidth: 1,
+    borderColor: AppColors.grey,
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 2,
+  },
+  heroTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  heroIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: AppColors.blue,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 14,
+  },
+  heroTextBlock: {
+    flex: 1,
+  },
+  searchCard: {
+    backgroundColor: AppColors.white,
+    borderRadius: 18,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: AppColors.grey,
+    marginBottom: 18,
+  },
+  searchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  searchHint: {
+    marginTop: 10,
+    color: AppColors.grey3,
+    fontSize: 12,
+    fontFamily: 'Montserrat',
+  },
+  fieldset: {
+    flex: 1,
+  },
   field: {
     flexGrow: 1
   },
   inputField: {
     borderWidth: 1,
-    borderColor: AppColors.textInputBorderColor,
+    borderColor: AppColors.grey,
     backgroundColor: AppColors.grey,
-    paddingLeft: 22,
+    paddingHorizontal: 16,
     height: 48,
-    borderRadius: 8,
+    borderRadius: 14,
     color: AppColors.blue,
     fontFamily: "Montserrat",
     fontSize: 16,
   },
   section: {
-    marginTop: 24,
-    marginBottom: 32
+    marginBottom: 18,
   },
   sectionTitle: {
-    fontSize: 24,
+    fontSize: 22,
+    fontFamily: 'Montserrat',
+    color: AppColors.blue,
+  },
+  sectionHeading: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 14,
+  },
+  countPill: {
+    backgroundColor: AppColors.white,
+    borderColor: AppColors.grey,
+    borderWidth: 1,
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  countText: {
+    color: AppColors.blue,
+    fontSize: 13,
+    fontFamily: 'Montserrat',
   },
   boxes: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    columnGap: 16,
-    rowGap: 24,
-    justifyContent: 'space-evenly',
+    justifyContent: 'space-between',
   },
-  box: {
-    width: 96,
-    alignItems: 'center',
+  productCard: {
+    width: '48%',
+    backgroundColor: AppColors.white,
+    borderRadius: 18,
+    padding: 12,
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: AppColors.grey,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 1,
+  },
+  imageWrap: {
+    borderRadius: 14,
+    overflow: 'hidden',
+    backgroundColor: AppColors.grey,
+    marginBottom: 10,
   },
   image: {
-    width: 96,
-    height: 96,
-    borderRadius: 16
+    width: '100%',
+    height: 120,
   },
   productTitle: {
-    marginTop: 10,
-    textAlign: 'center',
+    color: AppColors.primary,
+    fontFamily: 'Montserrat',
+    fontSize: 15,
+    lineHeight: 20,
+    minHeight: 40,
   },
   noResultsText: {
     marginTop: 12,
@@ -330,15 +472,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   productPrice: {
-    marginTop: 4,
-    color: AppColors.grey2,
+    marginTop: 6,
+    color: AppColors.blue,
     lineHeight: 18,
-    minHeight: 18,
-  },
-  noResultsText: {
-    marginTop: 12,
-    color: AppColors.primary,
-    fontSize: 14,
+    fontFamily: 'Montserrat',
+    fontSize: 13,
   },
   circle: {
     width: 30,
@@ -374,7 +512,55 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 16,
   },
-  countText: {
-    color: AppColors.blue
+  emptyStateCard: {
+    backgroundColor: AppColors.white,
+    borderRadius: 18,
+    padding: 22,
+    borderWidth: 1,
+    borderColor: AppColors.grey,
+    alignItems: 'center',
+  },
+  emptyIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: AppColors.blue,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 14,
+  },
+  emptyTitle: {
+    color: AppColors.blue,
+    fontFamily: 'Montserrat',
+    fontSize: 18,
+    marginBottom: 6,
+    textAlign: 'center',
+  },
+  emptyText: {
+    color: AppColors.grey3,
+    fontSize: 13,
+    lineHeight: 20,
+    textAlign: 'center',
+    fontFamily: 'Montserrat',
+  },
+  placeholderImage: {
+    width: '100%',
+    height: 120,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F5F8FC',
+  },
+  detailsPill: {
+    marginTop: 10,
+    alignSelf: 'flex-start',
+    backgroundColor: '#EEF5FF',
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  detailsPillText: {
+    color: AppColors.blue,
+    fontSize: 11,
+    fontFamily: 'Montserrat',
   },
 })
