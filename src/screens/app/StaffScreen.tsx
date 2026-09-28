@@ -12,7 +12,7 @@ import { useCallback, useContext, useEffect, useState } from 'react'
 import { UserContext } from '../../context/UserContext'
 import { logGymRequestDiagnostics, logGymRequestResponse, logGymRefreshResponse } from '../../utils/devGymRequestDiagnostics'
 import { showMessage } from 'react-native-flash-message'
-import { canAccessStaffManagement, normalizeUserRole } from '../../utils/roleAccess'
+import { normalizeUserRole } from '../../utils/roleAccess'
 
 type StaffMember = {
   user_picture_url?: string;
@@ -30,7 +30,8 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
   const ownersList = Object.values(owners);
   const trainersList = Object.values(trainers);
   const role = normalizeUserRole(user?.role);
-  const canManageStaff = canAccessStaffManagement(role);
+  const canOpenStaffDetails = role !== 'member';
+  const canEditStaff = role !== 'member';
 
   // 1. Define the Yup validation schema
   const schema = yup.object().shape({
@@ -84,27 +85,8 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
   const filteredOwners = ownersList.filter(matchesSearch);
   const filteredTrainers = trainersList.filter(matchesSearch);
 
-  useEffect(() => {
-    if (canManageStaff) {
-      return;
-    }
-
-    showMessage({
-      message: 'Access denied',
-      description: 'This section is only available to gym staff.',
-      type: 'danger',
-      icon: 'danger',
-      autoHide: true,
-    });
-    navigation.navigate('HomeTab', { screen: 'DashboardScreen' });
-  }, [canManageStaff, navigation]);
-
   useFocusEffect(
     useCallback(() => {
-      if (!canManageStaff) {
-        return;
-      }
-
       const fetchStaffData = async () => {
         const requestContext = {
           screen: 'StaffScreen',
@@ -185,7 +167,7 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
       };
 
       fetchStaffData();
-    }, [tokens?.access_token, tokens?.refresh_token])
+    }, [tokens?.access_token, tokens?.refresh_token, user?.gym_id, webServer, setTokens])
   );
 
   return (
@@ -203,12 +185,14 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
             />
             <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: 10 }}>
               {/* move to separate component */}
-              <TouchableOpacity onPress={() => navigation.navigate('StaffTab', { screen: 'AddStaffScreen' })} style={styles.signOut}>
-                <Text style={styles.signOutText}>Add</Text>
-                <View style={styles.circle}>
-                  <MaterialIcons name="add" color={AppColors.white} size={16} />
-                </View>
-              </TouchableOpacity>
+              {canEditStaff ? (
+                <TouchableOpacity onPress={() => navigation.navigate('StaffTab', { screen: 'AddStaffScreen' })} style={styles.signOut}>
+                  <Text style={styles.signOutText}>Add</Text>
+                  <View style={styles.circle}>
+                    <MaterialIcons name="add" color={AppColors.white} size={16} />
+                  </View>
+                </TouchableOpacity>
+              ) : null}
               <SignOut />
             </View>
           </View>
@@ -261,7 +245,16 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
                   ) : (
                     filteredOwners.map((owner, index) => {
                       return (
-                        <TouchableOpacity key={index} onPress={() => navigation.navigate('UpdateStaffScreen', { staff: owner })}>
+                        <TouchableOpacity
+                          key={index}
+                          disabled={!canOpenStaffDetails}
+                          onPress={() => {
+                            if (!canOpenStaffDetails) {
+                              return;
+                            }
+                            navigation.navigate('UpdateStaffScreen', { staff: owner });
+                          }}
+                        >
                           <View style={styles.box}>
                             {owner.user_picture_url ? (
                               <Image style={styles.image} source={{ uri: getImageUri(owner.user_picture_url) }} />
@@ -283,7 +276,16 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
                   ) : (
                     filteredTrainers.map((trainer, index) => {
                       return (
-                        <TouchableOpacity key={index} onPress={() => navigation.navigate('UpdateStaffScreen', { staff: trainer })}>
+                        <TouchableOpacity
+                          key={index}
+                          disabled={!canOpenStaffDetails}
+                          onPress={() => {
+                            if (!canOpenStaffDetails) {
+                              return;
+                            }
+                            navigation.navigate('UpdateStaffScreen', { staff: trainer });
+                          }}
+                        >
                           <View style={styles.box}>
                             {trainer.user_picture_url ? (
                               <Image style={styles.image} source={{ uri: getImageUri(trainer.user_picture_url) }} />
