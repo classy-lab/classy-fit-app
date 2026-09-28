@@ -22,6 +22,8 @@ import AddClassSessionScreen from '../screens/app/AddClassSessionScreen'
 import EarningsScreen from '../screens/app/EarningsScreen'
 import ContractorsScreen from '../screens/app/ContractorsScreen'
 import GymVideosScreen from '../screens/app/GymVideosScreen'
+import GymVideoManagementScreen from '../screens/app/GymVideoManagementScreen'
+import AddEditGymVideoScreen from '../screens/app/AddEditGymVideoScreen'
 import SignoutScreen from '../screens/app/SignoutScreen'
 import LoginScreen from '../screens/auth/LoginScreen'
 import ProductDetailScreen from '../screens/app/ProductDetailScreen'
@@ -119,6 +121,8 @@ function HomeStackScreen() {
       <HomeStack.Screen name="ProductsScreen" component={ProductsScreen} />
       <HomeStack.Screen name="ContractorsScreen" component={ContractorsScreen} />
       <HomeStack.Screen name="GymVideosScreen" component={GymVideosScreen} />
+      <HomeStack.Screen name="GymVideoManagementScreen" component={GymVideoManagementScreen} />
+      <HomeStack.Screen name="AddEditGymVideoScreen" component={AddEditGymVideoScreen} />
       <HomeStack.Screen name="SignoutScreen" component={SignoutScreen} />
       <HomeStack.Screen name="LoginScreen" component={LoginScreen} />
       <HomeStack.Screen name="AllEarnings" component={AllEarnings} />
@@ -161,6 +165,8 @@ function GymStackScreen() {
       <GymStack.Screen name="TreadmillEquipmentScreen" component={TreadmillEquipmentScreen} />
       <GymStack.Screen name="AddEquipmentScreen" component={AddEquipmentScreen} />
       <GymStack.Screen name="EquipmentEditScreen" component={EquipmentEditScreen} />
+      <GymStack.Screen name="GymVideoManagementScreen" component={GymVideoManagementScreen} />
+      <GymStack.Screen name="AddEditGymVideoScreen" component={AddEditGymVideoScreen} />
     </GymStack.Navigator>
   )
 }
