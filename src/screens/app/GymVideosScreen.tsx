@@ -1,213 +1,178 @@
 // @ts-nocheck
-import { useMemo } from "react";
+import { useCallback, useContext, useMemo, useState } from 'react'
 import {
+  ActivityIndicator,
   Alert,
+  Image,
   Linking,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
-import SignOut from "../../components/utils/SignOut";
-import { AppColors } from "../../styles/colors";
-
-type GymVideo = {
-  title: string;
-  description: string;
-  category: string;
-  query: string;
-  icon: keyof typeof MaterialCommunityIcons.glyphMap;
-  accent: string;
-};
-
-type VideoCategory = {
-  key: string;
-  title: string;
-  subtitle: string;
-  icon: keyof typeof MaterialCommunityIcons.glyphMap;
-  accent: string;
-};
-
-const videoCategories: VideoCategory[] = [
-  {
-    key: "machines",
-    title: "Machine Tutorials",
-    subtitle: "Learn how to set up and use the most common gym machines.",
-    icon: "weight-lifter",
-    accent: "#2563EB",
-  },
-  {
-    key: "cardio",
-    title: "Cardio Workouts",
-    subtitle: "Simple treadmill, rower, and elliptical sessions for all levels.",
-    icon: "run",
-    accent: "#7C3AED",
-  },
-  {
-    key: "safety",
-    title: "Safety & Etiquette",
-    subtitle: "Warm-ups, machine safety, cleaning, and gym-friendly habits.",
-    icon: "shield-check",
-    accent: "#0F766E",
-  },
-  {
-    key: "fullbody",
-    title: "Workout Ideas",
-    subtitle: "Use the equipment around you for simple strength sessions.",
-    icon: "dumbbell",
-    accent: "#DB2777",
-  },
-];
-
-const gymVideoTopics: GymVideo[] = [
-  {
-    title: "Leg Press Machine Tutorial",
-    description: "Learn foot placement, seat setup, and a safe range of motion.",
-    category: "machines",
-    query: "leg press machine tutorial proper form",
-    icon: "weight-lifter",
-    accent: "#2563EB",
-  },
-  {
-    title: "Lat Pulldown Machine Tutorial",
-    description: "A beginner-friendly walkthrough for back training and posture.",
-    category: "machines",
-    query: "lat pulldown machine tutorial proper form",
-    icon: "weight-lifter",
-    accent: "#2563EB",
-  },
-  {
-    title: "Seated Row Machine Tutorial",
-    description: "Build a stronger back while keeping your wrist and shoulder position in check.",
-    category: "machines",
-    query: "seated row machine tutorial proper form",
-    icon: "weight-lifter",
-    accent: "#2563EB",
-  },
-  {
-    title: "Chest Press Machine Tutorial",
-    description: "Set the seat height, control the press, and protect your shoulders.",
-    category: "machines",
-    query: "chest press machine tutorial proper form",
-    icon: "weight-lifter",
-    accent: "#2563EB",
-  },
-  {
-    title: "Smith Machine Safety Guide",
-    description: "See how to rack, unrack, and move safely on the Smith machine.",
-    category: "safety",
-    query: "smith machine safety tutorial",
-    icon: "shield-check",
-    accent: "#0F766E",
-  },
-  {
-    title: "Gym Safety and Etiquette",
-    description: "Cleaning equipment, sharing space, and staying safe around machines.",
-    category: "safety",
-    query: "gym safety etiquette equipment cleaning",
-    icon: "shield-check",
-    accent: "#0F766E",
-  },
-  {
-    title: "Warm Up Before Lifting",
-    description: "A quick mobility and activation routine before strength training.",
-    category: "safety",
-    query: "warm up before lifting routine",
-    icon: "shield-check",
-    accent: "#0F766E",
-  },
-  {
-    title: "Cable Machine Exercises for Beginners",
-    description: "Simple cable movements for arms, back, and core using the cable stack.",
-    category: "fullbody",
-    query: "cable machine exercises for beginners",
-    icon: "dumbbell",
-    accent: "#DB2777",
-  },
-  {
-    title: "Full Body Machine Workout",
-    description: "A simple whole-body gym session using common resistance machines.",
-    category: "fullbody",
-    query: "full body machine workout beginner",
-    icon: "dumbbell",
-    accent: "#DB2777",
-  },
-  {
-    title: "Rowing Machine Technique",
-    description: "Use the rower efficiently with good posture, leg drive, and rhythm.",
-    category: "cardio",
-    query: "rowing machine technique tutorial",
-    icon: "run",
-    accent: "#7C3AED",
-  },
-  {
-    title: "Treadmill Walking Workout",
-    description: "Low-impact treadmill ideas for warm-ups, fat loss, and steady cardio.",
-    category: "cardio",
-    query: "treadmill walking workout beginner",
-    icon: "run",
-    accent: "#7C3AED",
-  },
-  {
-    title: "Elliptical Workout Tips",
-    description: "Get more from the elliptical with interval suggestions and posture tips.",
-    category: "cardio",
-    query: "elliptical workout tips beginner",
-    icon: "run",
-    accent: "#7C3AED",
-  },
-];
-
-const buildYouTubeSearchUrl = (query: string) =>
-  `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
+} from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { Feather, MaterialCommunityIcons } from '@expo/vector-icons'
+import SignOut from '../../components/utils/SignOut'
+import { AppColors } from '../../styles/colors'
+import { UserContext } from '../../context/UserContext'
+import {
+  fetchPublishedGymVideos,
+  gymVideoCategories,
+  getGymVideoCategoryLabel,
+  getGymVideoCategoryMeta,
+  getGymVideoThumbnailUri,
+  type GymVideoRecord,
+} from '../../utils/gymVideosApi'
+import { showMessage } from 'react-native-flash-message'
+import { useFocusEffect } from '@react-navigation/native'
 
 const GymVideosScreen = ({ navigation }: { navigation: any }) => {
-  const groupedTopics = useMemo(() => {
-    return videoCategories.map((category) => ({
-      ...category,
-      count: gymVideoTopics.filter((topic) => topic.category === category.key).length,
-      videos: gymVideoTopics.filter((topic) => topic.category === category.key),
-    }));
-  }, []);
+  const { user, tokens, setTokens, webServer } = useContext(UserContext)
+  const [videos, setVideos] = useState<GymVideoRecord[]>([])
+  const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
+  const [activeCategory, setActiveCategory] = useState<'all' | GymVideoRecord['category']>('all')
+  const [failedThumbnails, setFailedThumbnails] = useState<Record<string, boolean>>({})
 
-  const featuredTopics = useMemo(
-    () => [
-      gymVideoTopics.find((video) => video.title === "Leg Press Machine Tutorial"),
-      gymVideoTopics.find((video) => video.title === "Gym Safety and Etiquette"),
-      gymVideoTopics.find((video) => video.title === "Full Body Machine Workout"),
-    ].filter(Boolean),
-    [],
-  );
-
-  const openYouTube = async (query: string) => {
-    const url = buildYouTubeSearchUrl(query);
-
-    try {
-      const supported = await Linking.canOpenURL(url);
-      if (!supported) {
-        Alert.alert("Unable to open YouTube", "Please check that YouTube is available on this device.");
-        return;
+  const loadVideos = useCallback(
+    async ({ isRefresh = false } = {}) => {
+      if (!user?.gym_id || !tokens?.access_token) {
+        setErrorMessage('Please sign in again to view gym videos.')
+        setVideos([])
+        setLoading(false)
+        setRefreshing(false)
+        return
       }
 
-      await Linking.openURL(url);
-    } catch (error) {
-      console.log("Failed to open YouTube video search", error);
-      Alert.alert("Unable to open YouTube", "Please try again.");
+      if (isRefresh) {
+        setRefreshing(true)
+      } else {
+        setLoading(true)
+      }
+
+      setErrorMessage('')
+
+      try {
+        const result = await fetchPublishedGymVideos({
+          webServer,
+          gymId: user.gym_id,
+          accessToken: tokens.access_token,
+          refreshToken: tokens.refresh_token,
+          setTokens,
+        })
+
+        if (!result.ok) {
+          const message = result.message || 'Unable to load gym videos.'
+          setErrorMessage(message)
+          setVideos([])
+          showMessage({
+            message: 'Gym videos unavailable',
+            description: message,
+            type: 'danger',
+          })
+          return
+        }
+
+        setVideos(result.videos)
+        setFailedThumbnails({})
+      } catch (error) {
+        console.log('Failed to load gym videos:', error)
+        const message = 'Failed to load gym videos.'
+        setErrorMessage(message)
+        setVideos([])
+        showMessage({
+          message: 'Gym videos unavailable',
+          description: message,
+          type: 'danger',
+        })
+      } finally {
+        setLoading(false)
+        setRefreshing(false)
+      }
+    },
+    [setTokens, tokens?.access_token, tokens?.refresh_token, user?.gym_id, webServer],
+  )
+
+  useFocusEffect(
+    useCallback(() => {
+      let isActive = true
+
+      const run = async () => {
+        if (!isActive) {
+          return
+        }
+        await loadVideos()
+      }
+
+      void run()
+
+      return () => {
+        isActive = false
+      }
+    }, [loadVideos]),
+  )
+
+  const filteredVideos = useMemo(() => {
+    if (activeCategory === 'all') {
+      return videos
     }
-  };
+
+    return videos.filter((video) => video.category === activeCategory)
+  }, [activeCategory, videos])
+
+  const categoryCounts = useMemo(() => {
+    return gymVideoCategories.reduce<Record<string, number>>((acc, category) => {
+      acc[category.key] = videos.filter((video) => video.category === category.key).length
+      return acc
+    }, {})
+  }, [videos])
+
+  const openVideo = useCallback(async (video: GymVideoRecord) => {
+    const url = String(video?.video_url ?? '').trim()
+    if (!url) {
+      Alert.alert('Unable to open video', 'This video does not have a valid URL.')
+      return
+    }
+
+    try {
+      const supported = await Linking.canOpenURL(url)
+      if (!supported) {
+        Alert.alert('Unable to open video', 'Please check that a compatible app or browser is available.')
+        return
+      }
+
+      await Linking.openURL(url)
+    } catch (error) {
+      console.log('Failed to open gym video URL', error)
+      Alert.alert('Unable to open video', 'Please try again.')
+    }
+  }, [])
+
+  const onRefresh = () => {
+    void loadVideos({ isRefresh: true })
+  }
+
+  const getThumbnailSource = useCallback((video: GymVideoRecord) => {
+    const thumbnailUri = getGymVideoThumbnailUri(video)
+    if (!thumbnailUri) {
+      return null
+    }
+
+    const thumbKey = `thumb:${video.uid}:${thumbnailUri}`
+    if (failedThumbnails[thumbKey]) {
+      return null
+    }
+
+    return { uri: thumbnailUri }
+  }, [failedThumbnails])
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.navs}>
-        <Feather
-          name="arrow-left"
-          color={AppColors.blue}
-          size={36}
-          onPress={() => navigation.goBack()}
-        />
+        <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => navigation.goBack()} />
         <SignOut />
       </View>
 
@@ -215,6 +180,7 @@ const GymVideosScreen = ({ navigation }: { navigation: any }) => {
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={AppColors.blue} />}
       >
         <View style={styles.heroCard}>
           <View style={styles.heroTopRow}>
@@ -225,7 +191,7 @@ const GymVideosScreen = ({ navigation }: { navigation: any }) => {
               <Text style={styles.eyebrow}>Gym Videos</Text>
               <Text style={styles.title}>Learn, train, and stay safe</Text>
               <Text style={styles.subtitle}>
-                Tap a topic to open a YouTube search for exercise form, machine tutorials, and gym safety.
+                Browse published videos from your gym for machine tutorials, workout ideas, and safety tips.
               </Text>
             </View>
           </View>
@@ -233,123 +199,154 @@ const GymVideosScreen = ({ navigation }: { navigation: any }) => {
           <View style={styles.heroStatsRow}>
             <View style={styles.heroStatPill}>
               <MaterialCommunityIcons name="play-box-multiple" size={16} color={AppColors.blue} />
-              <Text style={styles.heroStatText}>12 curated topics</Text>
+              <Text style={styles.heroStatText}>{videos.length} published videos</Text>
             </View>
             <View style={styles.heroStatPill}>
               <MaterialCommunityIcons name="shield-check" size={16} color={AppColors.blue} />
-              <Text style={styles.heroStatText}>Form & safety first</Text>
+              <Text style={styles.heroStatText}>Members and trainers only</Text>
             </View>
           </View>
         </View>
 
-        <View style={styles.featuredSection}>
+        <View style={styles.filterSection}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Featured picks</Text>
-            <Text style={styles.sectionSubtitle}>Quick-start videos members often need first.</Text>
+            <Text style={styles.sectionTitle}>Categories</Text>
+            <Text style={styles.sectionSubtitle}>Tap a category to filter the library.</Text>
           </View>
 
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.featuredRow}>
-            {featuredTopics.map((video) => (
-              <TouchableOpacity
-                key={video.title}
-                style={[styles.featuredCard, { borderColor: video.accent }]}
-                activeOpacity={0.9}
-                onPress={() => openYouTube(video.query)}
-              >
-                <View style={[styles.previewPane, { backgroundColor: video.accent }]}>
-                  <View style={styles.previewTopRow}>
-                    <View style={styles.previewBadge}>
-                      <MaterialCommunityIcons name={video.icon} size={15} color={video.accent} />
-                      <Text style={[styles.previewBadgeText, { color: video.accent }]}>
-                        {videoCategories.find((category) => category.key === video.category)?.title}
-                      </Text>
-                    </View>
-                    <View style={styles.previewPlayButton}>
-                      <MaterialCommunityIcons name="play" size={18} color={AppColors.white} />
-                    </View>
-                  </View>
-                  <Text style={styles.previewTitle} numberOfLines={3}>
-                    {video.title}
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterRow}>
+            <TouchableOpacity
+              style={[styles.filterChip, activeCategory === 'all' && styles.filterChipActive]}
+              onPress={() => setActiveCategory('all')}
+            >
+              <Text style={[styles.filterChipText, activeCategory === 'all' && styles.filterChipTextActive]}>
+                All ({videos.length})
+              </Text>
+            </TouchableOpacity>
+
+            {gymVideoCategories.map((category) => {
+              const count = categoryCounts[category.key] ?? 0
+              const isActive = activeCategory === category.key
+              return (
+                <TouchableOpacity
+                  key={category.key}
+                  style={[styles.filterChip, isActive && styles.filterChipActive]}
+                  onPress={() => setActiveCategory(category.key)}
+                >
+                  <Text style={[styles.filterChipText, isActive && styles.filterChipTextActive]}>
+                    {category.label} ({count})
                   </Text>
-                  <Text style={styles.previewLabel}>Open on YouTube</Text>
-                </View>
-                <View style={styles.featuredBody}>
-                  <Text style={styles.featuredDescription} numberOfLines={3}>
-                    {video.description}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            ))}
+                </TouchableOpacity>
+              )
+            })}
           </ScrollView>
         </View>
 
-        {groupedTopics.map((category) => (
-          <View key={category.key} style={styles.categoryBlock}>
-            <View style={styles.sectionHeader}>
-              <View style={styles.categoryHeaderRow}>
-                <View style={[styles.categoryIcon, { backgroundColor: category.accent }]}>
-                  <MaterialCommunityIcons name={category.icon} size={18} color={AppColors.white} />
-                </View>
-                <View style={styles.categoryHeaderText}>
-                  <Text style={styles.sectionTitle}>{category.title}</Text>
-                  <Text style={styles.sectionSubtitle}>{category.subtitle}</Text>
-                </View>
-              </View>
-              <View style={styles.countPill}>
-                <Text style={styles.countPillText}>{category.count} videos</Text>
-              </View>
-            </View>
-
-            {category.videos.map((item) => (
-              <TouchableOpacity
-                key={item.title}
-                style={styles.videoCard}
-                activeOpacity={0.86}
-                onPress={() => openYouTube(item.query)}
-              >
-                <View style={[styles.videoThumbnail, { backgroundColor: item.accent }]}>
-                  <View style={styles.thumbnailTopRow}>
-                    <View style={styles.thumbnailTag}>
-                      <MaterialCommunityIcons name={item.icon} size={14} color={item.accent} />
-                      <Text style={[styles.thumbnailTagText, { color: item.accent }]}>YouTube</Text>
-                    </View>
-                    <View style={styles.thumbnailPlayCircle}>
-                      <MaterialCommunityIcons name="play" size={20} color={AppColors.white} />
-                    </View>
-                  </View>
-                  <Text style={styles.thumbnailHeadline} numberOfLines={3}>
-                    {item.title}
-                  </Text>
-                  <Text style={styles.thumbnailSubhead}>Tap to search YouTube</Text>
-                </View>
-
-                <View style={styles.videoBody}>
-                  <Text style={styles.videoTitle}>{item.title}</Text>
-                  <Text style={styles.videoDescription}>{item.description}</Text>
-                  <View style={styles.actionRow}>
-                    <View style={styles.actionPill}>
-                      <Text style={styles.actionPillText}>Open video search</Text>
-                    </View>
-                    <Feather name="external-link" size={16} color={AppColors.blue} />
-                  </View>
-                </View>
-              </TouchableOpacity>
-            ))}
+        {loading ? (
+          <View style={styles.centerState}>
+            <ActivityIndicator size="large" color={AppColors.blue} />
+            <Text style={styles.stateText}>Loading gym videos...</Text>
           </View>
-        ))}
+        ) : errorMessage ? (
+          <View style={styles.errorCard}>
+            <Text style={styles.errorTitle}>Unable to load gym videos</Text>
+            <Text style={styles.errorText}>{errorMessage}</Text>
+            <TouchableOpacity style={styles.retryBtn} onPress={() => loadVideos()}>
+              <Text style={styles.retryBtnText}>Try Again</Text>
+            </TouchableOpacity>
+          </View>
+        ) : filteredVideos.length === 0 ? (
+          <View style={styles.emptyCard}>
+            <View style={styles.emptyIcon}>
+              <MaterialCommunityIcons name="youtube" size={28} color={AppColors.blue} />
+            </View>
+            <Text style={styles.emptyTitle}>
+              {activeCategory === 'all'
+                ? 'No published videos yet'
+                : `No ${getGymVideoCategoryLabel(activeCategory).toLowerCase()} videos`}
+            </Text>
+            <Text style={styles.stateText}>
+              {activeCategory === 'all'
+                ? 'Check back soon for new gym content.'
+                : 'Try another category or check back later for new content.'}
+            </Text>
+          </View>
+        ) : (
+          <View style={styles.videoList}>
+            {filteredVideos.map((video) => {
+              const categoryMeta = getGymVideoCategoryMeta(video.category)
+              const thumbnailSource = getThumbnailSource(video)
+              const thumbKey = `thumb:${video.uid}:${thumbnailSource?.uri ?? 'placeholder'}`
 
-        <View style={styles.footerCard}>
-          <MaterialCommunityIcons name="information-outline" size={22} color={AppColors.blue} />
-          <Text style={styles.footerText}>
-            These links open YouTube search results so users can choose the most relevant video and version for their machine.
-          </Text>
-        </View>
+              return (
+                <TouchableOpacity
+                  key={String(video.uid)}
+                  style={styles.videoCard}
+                  activeOpacity={0.88}
+                  onPress={() => openVideo(video)}
+                >
+                  <View style={styles.thumbnailWrap}>
+                    {thumbnailSource ? (
+                      <Image
+                        source={thumbnailSource}
+                        style={styles.thumbnail}
+                        resizeMode="cover"
+                        onError={() =>
+                          setFailedThumbnails((prev) => ({
+                            ...prev,
+                            [thumbKey]: true,
+                          }))
+                        }
+                      />
+                    ) : (
+                      <View style={[styles.thumbnailPlaceholder, { backgroundColor: categoryMeta.accent }]}>
+                        <MaterialCommunityIcons name={categoryMeta.icon} size={30} color={AppColors.white} />
+                        <Text style={styles.placeholderText}>{categoryMeta.label}</Text>
+                      </View>
+                    )}
+
+                    <View style={styles.videoTypePill}>
+                      <Text style={styles.videoTypeText}>{String(video.video_type ?? '').toUpperCase()}</Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.videoBody}>
+                    <View style={styles.videoHeaderRow}>
+                      <Text style={styles.videoTitle} numberOfLines={2}>
+                        {video.title}
+                      </Text>
+                      <Feather name="external-link" size={18} color={AppColors.blue} />
+                    </View>
+
+                    <View style={styles.metaRow}>
+                      <View style={[styles.categoryPill, { borderColor: categoryMeta.accent }]}>
+                        <Text style={[styles.categoryPillText, { color: categoryMeta.accent }]}>
+                          {categoryMeta.label}
+                        </Text>
+                      </View>
+                      <Text style={styles.metaDot}>•</Text>
+                      <Text style={styles.metaText}>{String(video.video_type ?? '').replace('_', ' ')}</Text>
+                    </View>
+
+                    {video.description ? (
+                      <Text style={styles.videoDescription} numberOfLines={3}>
+                        {video.description}
+                      </Text>
+                    ) : (
+                      <Text style={styles.videoDescriptionMuted}>No description provided.</Text>
+                    )}
+                  </View>
+                </TouchableOpacity>
+              )
+            })}
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
-  );
-};
+  )
+}
 
-export default GymVideosScreen;
+export default GymVideosScreen
 
 const styles = StyleSheet.create({
   container: {
@@ -357,9 +354,9 @@ const styles = StyleSheet.create({
     backgroundColor: AppColors.grey,
   },
   navs: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: 20,
     paddingTop: 10,
     paddingBottom: 8,
@@ -373,289 +370,295 @@ const styles = StyleSheet.create({
   },
   heroCard: {
     backgroundColor: AppColors.white,
-    borderRadius: 24,
+    borderRadius: 22,
     padding: 18,
     borderWidth: 1,
     borderColor: AppColors.grey,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOpacity: 0.06,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 4 },
     elevation: 2,
   },
   heroTopRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   heroIconWrap: {
-    width: 54,
-    height: 54,
-    borderRadius: 18,
-    backgroundColor: "#FF0000",
-    alignItems: "center",
-    justifyContent: "center",
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: AppColors.blue,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginRight: 14,
   },
   heroTextBlock: {
     flex: 1,
   },
   eyebrow: {
-    color: AppColors.grey3,
+    color: AppColors.blue,
     fontSize: 12,
-    fontFamily: "Montserrat",
-    textTransform: "uppercase",
+    textTransform: 'uppercase',
     letterSpacing: 0.8,
-    marginBottom: 4,
+    fontFamily: 'Montserrat',
   },
   title: {
-    color: AppColors.blue,
-    fontSize: 26,
-    lineHeight: 32,
-    fontFamily: "Montserrat",
-    marginBottom: 6,
+    color: AppColors.primary,
+    fontSize: 24,
+    lineHeight: 30,
+    marginTop: 4,
+    fontFamily: 'Montserrat',
   },
   subtitle: {
     color: AppColors.grey3,
     fontSize: 14,
     lineHeight: 20,
-    fontFamily: "Montserrat",
+    marginTop: 8,
+    fontFamily: 'Montserrat',
   },
   heroStatsRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 10,
     marginTop: 16,
   },
   heroStatPill: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#F3F7FF",
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    borderWidth: 1,
+    borderColor: AppColors.grey,
+    backgroundColor: AppColors.grey,
     borderRadius: 999,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    gap: 6,
   },
   heroStatText: {
     color: AppColors.blue,
-    fontSize: 12,
-    fontFamily: "Montserrat",
+    fontSize: 13,
+    fontFamily: 'Montserrat',
   },
-  featuredSection: {
-    marginTop: 20,
-  },
-  featuredRow: {
-    gap: 12,
-    paddingBottom: 4,
-  },
-  featuredCard: {
-    width: 230,
-    borderRadius: 22,
-    backgroundColor: AppColors.white,
-    borderWidth: 1,
-    overflow: "hidden",
-  },
-  previewPane: {
-    minHeight: 170,
-    padding: 14,
-    justifyContent: "space-between",
-  },
-  previewTopRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-  },
-  previewBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    backgroundColor: "rgba(255,255,255,0.9)",
-    borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-  },
-  previewBadgeText: {
-    fontSize: 11,
-    fontFamily: "Montserrat",
-  },
-  previewPlayButton: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: "rgba(255,255,255,0.22)",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  previewTitle: {
-    color: AppColors.white,
-    fontFamily: "Montserrat",
-    fontSize: 18,
-    lineHeight: 24,
-    marginTop: 12,
-    marginBottom: 8,
-  },
-  previewLabel: {
-    color: "rgba(255,255,255,0.95)",
-    fontSize: 12,
-    fontFamily: "Montserrat",
-  },
-  featuredBody: {
-    padding: 14,
-  },
-  featuredDescription: {
-    color: AppColors.grey3,
-    fontSize: 12,
-    lineHeight: 18,
-    fontFamily: "Montserrat",
-  },
-  categoryBlock: {
-    marginTop: 22,
+  filterSection: {
+    marginTop: 18,
+    marginBottom: 14,
   },
   sectionHeader: {
     marginBottom: 12,
   },
-  categoryHeaderRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  categoryIcon: {
-    width: 42,
-    height: 42,
-    borderRadius: 14,
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 12,
-  },
-  categoryHeaderText: {
-    flex: 1,
-  },
   sectionTitle: {
+    fontSize: 22,
+    fontFamily: 'Montserrat',
     color: AppColors.blue,
-    fontSize: 20,
-    fontFamily: "Montserrat",
-    marginBottom: 4,
   },
   sectionSubtitle: {
+    marginTop: 4,
     color: AppColors.grey3,
     fontSize: 13,
-    lineHeight: 19,
-    fontFamily: "Montserrat",
+    lineHeight: 18,
+    fontFamily: 'Montserrat',
   },
-  countPill: {
-    alignSelf: "flex-start",
-    backgroundColor: AppColors.white,
-    borderColor: AppColors.grey,
-    borderWidth: 1,
+  filterRow: {
+    paddingRight: 4,
+    gap: 10,
+  },
+  filterChip: {
     borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    borderWidth: 1,
+    borderColor: AppColors.grey,
+    backgroundColor: AppColors.white,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
   },
-  countPillText: {
-    color: AppColors.blue,
-    fontSize: 12,
-    fontFamily: "Montserrat",
+  filterChipActive: {
+    backgroundColor: AppColors.blue,
+    borderColor: AppColors.blue,
+  },
+  filterChipText: {
+    color: AppColors.primary,
+    fontSize: 13,
+    fontFamily: 'Montserrat',
+  },
+  filterChipTextActive: {
+    color: AppColors.white,
+  },
+  centerState: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 48,
+  },
+  stateText: {
+    color: AppColors.grey3,
+    fontSize: 14,
+    lineHeight: 20,
+    marginTop: 12,
+    textAlign: 'center',
+    fontFamily: 'Montserrat',
+  },
+  errorCard: {
+    backgroundColor: AppColors.white,
+    borderWidth: 1,
+    borderColor: AppColors.grey,
+    borderRadius: 18,
+    padding: 20,
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  errorTitle: {
+    color: AppColors.primary,
+    fontSize: 18,
+    fontFamily: 'Montserrat',
+  },
+  errorText: {
+    color: AppColors.grey3,
+    fontSize: 14,
+    lineHeight: 20,
+    textAlign: 'center',
+    marginTop: 10,
+    fontFamily: 'Montserrat',
+  },
+  retryBtn: {
+    marginTop: 16,
+    backgroundColor: AppColors.blue,
+    borderRadius: 999,
+    paddingHorizontal: 18,
+    paddingVertical: 11,
+  },
+  retryBtnText: {
+    color: AppColors.white,
+    fontSize: 14,
+    fontFamily: 'Montserrat',
+  },
+  emptyCard: {
+    backgroundColor: AppColors.white,
+    borderWidth: 1,
+    borderColor: AppColors.grey,
+    borderRadius: 18,
+    padding: 22,
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  emptyIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: AppColors.grey,
+  },
+  emptyTitle: {
+    marginTop: 14,
+    color: AppColors.primary,
+    fontSize: 18,
+    fontFamily: 'Montserrat',
+    textAlign: 'center',
+  },
+  videoList: {
+    gap: 14,
   },
   videoCard: {
     backgroundColor: AppColors.white,
-    borderRadius: 22,
+    borderRadius: 20,
+    overflow: 'hidden',
     borderWidth: 1,
     borderColor: AppColors.grey,
-    marginBottom: 12,
-    overflow: "hidden",
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 1,
   },
-  videoThumbnail: {
-    minHeight: 160,
-    padding: 14,
-    justifyContent: "space-between",
+  thumbnailWrap: {
+    position: 'relative',
+    backgroundColor: AppColors.grey,
   },
-  thumbnailTopRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
+  thumbnail: {
+    width: '100%',
+    height: 190,
   },
-  thumbnailTag: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    backgroundColor: "rgba(255,255,255,0.92)",
+  thumbnailPlaceholder: {
+    width: '100%',
+    height: 190,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+  },
+  placeholderText: {
+    marginTop: 10,
+    color: AppColors.white,
+    fontSize: 14,
+    textAlign: 'center',
+    fontFamily: 'Montserrat',
+  },
+  videoTypePill: {
+    position: 'absolute',
+    top: 14,
+    right: 14,
+    backgroundColor: 'rgba(255,255,255,0.92)',
     borderRadius: 999,
     paddingHorizontal: 10,
     paddingVertical: 6,
   },
-  thumbnailTagText: {
+  videoTypeText: {
+    color: AppColors.blue,
     fontSize: 11,
-    fontFamily: "Montserrat",
-  },
-  thumbnailPlayCircle: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: "rgba(255,255,255,0.22)",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  thumbnailHeadline: {
-    color: AppColors.white,
-    fontSize: 18,
-    lineHeight: 24,
-    fontFamily: "Montserrat",
-    marginTop: 10,
-    marginBottom: 8,
-  },
-  thumbnailSubhead: {
-    color: "rgba(255,255,255,0.95)",
-    fontSize: 12,
-    fontFamily: "Montserrat",
+    fontFamily: 'Montserrat',
   },
   videoBody: {
-    padding: 14,
+    padding: 16,
   },
-  videoTitle: {
-    color: AppColors.primary,
-    fontSize: 15,
-    lineHeight: 21,
-    fontFamily: "Montserrat",
-    marginBottom: 6,
-  },
-  videoDescription: {
-    color: AppColors.grey3,
-    fontSize: 13,
-    lineHeight: 19,
-    fontFamily: "Montserrat",
-    marginBottom: 12,
-  },
-  actionRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  actionPill: {
-    backgroundColor: "#EEF5FF",
-    borderRadius: 999,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  actionPillText: {
-    color: AppColors.blue,
-    fontSize: 12,
-    fontFamily: "Montserrat",
-  },
-  footerCard: {
-    marginTop: 18,
-    backgroundColor: AppColors.white,
-    borderRadius: 18,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: AppColors.grey,
-    flexDirection: "row",
-    alignItems: "center",
+  videoHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
     gap: 10,
   },
-  footerText: {
+  videoTitle: {
     flex: 1,
+    color: AppColors.primary,
+    fontSize: 18,
+    lineHeight: 24,
+    fontFamily: 'Montserrat',
+  },
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 12,
+  },
+  categoryPill: {
+    borderWidth: 1,
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    backgroundColor: AppColors.white,
+  },
+  categoryPillText: {
+    fontSize: 12,
+    fontFamily: 'Montserrat',
+  },
+  metaDot: {
     color: AppColors.grey3,
     fontSize: 12,
-    lineHeight: 18,
-    fontFamily: "Montserrat",
   },
-});
+  metaText: {
+    color: AppColors.grey3,
+    fontSize: 12,
+    fontFamily: 'Montserrat',
+  },
+  videoDescription: {
+    marginTop: 12,
+    color: AppColors.primary,
+    fontSize: 14,
+    lineHeight: 20,
+    fontFamily: 'Montserrat',
+  },
+  videoDescriptionMuted: {
+    marginTop: 12,
+    color: AppColors.grey3,
+    fontSize: 14,
+    lineHeight: 20,
+    fontFamily: 'Montserrat',
+  },
+})
