@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, TextInput, Image, Keyboard, TouchableWithoutFeedback } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, TextInput, Image, Keyboard } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { AppColors } from '../../styles/colors'
 import { Feather, MaterialIcons } from '@expo/vector-icons'
@@ -200,35 +200,38 @@ const MembersScreen = ({ navigation }: { navigation: any }) => {
 
   return (
     <>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <SafeAreaView style={styles.container}>
-          <View style={styles.navs}>
-            <Feather
-              name="arrow-left"
-              color={AppColors.blue}
-              size={36}
-              onPress={() => {
-                navigation.goBack();
-              }}
-            />
-            <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: 10 }}>
-              {/* move to separate component */}
+      <SafeAreaView style={styles.container}>
+        <View style={styles.navs}>
+          <Feather
+            name="arrow-left"
+            color={AppColors.blue}
+            size={36}
+            onPress={() => {
+              navigation.goBack();
+            }}
+          />
+          <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: 10 }}>
+            {/* move to separate component */}
 
-              {canEditMembers ? (
-                <TouchableOpacity onPress={() => navigation.navigate('AddMemberScreen')} style={styles.signOut}>
-                  <Text style={styles.signOutText}>Add</Text>
-                  <View style={styles.circle}>
-                    <MaterialIcons name="add" color={AppColors.white} size={16} />
-                  </View>
-                </TouchableOpacity>
-              ) : null}
+            {canEditMembers ? (
+              <TouchableOpacity onPress={() => navigation.navigate('AddMemberScreen')} style={styles.signOut}>
+                <Text style={styles.signOutText}>Add</Text>
+                <View style={styles.circle}>
+                  <MaterialIcons name="add" color={AppColors.white} size={16} />
+                </View>
+              </TouchableOpacity>
+            ) : null}
 
-              <SignOut />
-            </View>
+            <SignOut />
           </View>
-          <ScrollView style={styles.scrollView}
-            showsVerticalScrollIndicator={false}
-          >
+        </View>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+        >
             <View style={styles.headingContainer}>
               <Text style={styles.title}>Members</Text>
               <PinkLeafSvg style={styles.pinkLeaf} />
@@ -281,12 +284,12 @@ const MembersScreen = ({ navigation }: { navigation: any }) => {
                         return (
                           <TouchableOpacity
                             key={index}
-                            disabled={!canOpenMemberDetails}
+                            activeOpacity={canOpenMemberDetails ? 0.85 : 1}
                             onPress={() => {
                               if (!canOpenMemberDetails) {
                                 return;
                               }
-                              navigation.navigate('UpdateMemberScreen', { member })
+                              navigation.navigate('UpdateMemberScreen', { member });
                             }}
                           >
                             <View style={styles.box}>
@@ -318,9 +321,8 @@ const MembersScreen = ({ navigation }: { navigation: any }) => {
               </View>
 
             </View>
-          </ScrollView>
-        </SafeAreaView>
-      </TouchableWithoutFeedback>
+        </ScrollView>
+      </SafeAreaView>
     </>
   )
 }
@@ -357,6 +359,13 @@ const styles = StyleSheet.create({
   },
   body: {
     flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 28,
   },
   bodyText: {
     fontSize: 16,
