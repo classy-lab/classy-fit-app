@@ -11,6 +11,7 @@ import GymScreenScrollViewOne from './GymScreenScrollViewOne'
 import GymScreenScrollViewTwo from './GymScreenScrollViewTwo'
 import GymScreenScrollViewThree from './GymScreenScrollViewThree'
 import GymScreenScrollViewFour from './GymScreenScrollViewFour'
+import GymScreenScrollViewFive from './GymScreenScrollViewFive'
 import SignOut from '../../components/utils/SignOut'
 import { UserContext } from '../../context/UserContext'
 
@@ -101,6 +102,11 @@ const GymScreen = ({ navigation, route }) => {
             <View style={styles.section}>
               <GymScreenScrollViewTwo />
             </View>
+            {isOwner ? (
+              <View style={styles.section}>
+                <GymScreenScrollViewFive />
+              </View>
+            ) : null}
           </View>
         </ScrollView>
       </SafeAreaView>
