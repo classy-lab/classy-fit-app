@@ -90,13 +90,13 @@ const GymScreen = ({ navigation, route }) => {
             </View>
 
             <View style={styles.section}>
+              <GymScreenScrollViewFour />
+            </View>
+            <View style={styles.section}>
               <GymScreenScrollViewOne />
             </View>
             <View style={styles.section}>
               <GymScreenScrollViewThree />
-            </View>
-            <View style={styles.section}>
-              <GymScreenScrollViewFour />
             </View>
             <View style={styles.section}>
               <GymScreenScrollViewTwo />
