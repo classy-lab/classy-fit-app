@@ -20,7 +20,6 @@ const DashboardScreen = ({ navigation, route }) => {
   const isOwner = role === 'owner';
   const isTrainer = role === 'trainer';
   const isMember = role === 'member';
-  const canManageMembers = isStaffRole(role);
 
   const heroHeading = isOwner
     ? 'Run your gym from one place'
@@ -112,33 +111,36 @@ const DashboardScreen = ({ navigation, route }) => {
               <Text style={styles.sectionTitle}>Quick actions</Text>
             </View>
             <View style={styles.greySquares}>
-              {canManageMembers ? (
-                <>
-                  <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('StaffScreen')}>
-                    <View style={styles.whiteSquare}>
-                      <FontAwesome5 name="user-friends" size={28} color={AppColors.blue} />
-                    </View>
-                    <Text style={styles.squareLabel}>Staff</Text>
-                    <Text style={styles.squareSubtitle}>Team access</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('MembersScreen')}>
-                    <View style={styles.whiteSquare}>
-                      <FontAwesome5 name="users" size={28} color={AppColors.blue} />
-                    </View>
-                    <Text style={styles.squareLabel}>Members</Text>
-                    <Text style={styles.squareSubtitle}>Client list</Text>
-                  </TouchableOpacity>
-                </>
-              ) : null}
-              {isOwner ? (
-                <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('ContractorsScreen')}>
-                  <View style={styles.whiteSquare}>
-                    <FontAwesome5 name="user-tie" size={28} color={AppColors.blue} />
-                  </View>
-                  <Text style={styles.squareLabel}>Contractors</Text>
-                  <Text style={styles.squareSubtitle}>Manage partners</Text>
-                </TouchableOpacity>
-              ) : null}
+              <TouchableOpacity
+                style={styles.greySquare}
+                onPress={() => navigation.navigate('StaffScreen')}
+              >
+                <View style={styles.whiteSquare}>
+                  <FontAwesome5 name="user-friends" size={28} color={AppColors.blue} />
+                </View>
+                <Text style={styles.squareLabel}>Staff</Text>
+                <Text style={styles.squareSubtitle}>Team access</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.greySquare}
+                onPress={() => navigation.navigate('MembersScreen')}
+              >
+                <View style={styles.whiteSquare}>
+                  <FontAwesome5 name="users" size={28} color={AppColors.blue} />
+                </View>
+                <Text style={styles.squareLabel}>Members</Text>
+                <Text style={styles.squareSubtitle}>Client list</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.greySquare}
+                onPress={() => navigation.navigate('ContractorsScreen')}
+              >
+                <View style={styles.whiteSquare}>
+                  <FontAwesome5 name="user-tie" size={28} color={AppColors.blue} />
+                </View>
+                <Text style={styles.squareLabel}>Contractors</Text>
+                <Text style={styles.squareSubtitle}>Manage partners</Text>
+              </TouchableOpacity>
               <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('ProductsScreen')}>
                 <View style={styles.whiteSquare}>
                   <MaterialCommunityIcons name="shopping" size={28} color={AppColors.blue} />
