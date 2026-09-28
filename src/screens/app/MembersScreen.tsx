@@ -9,11 +9,11 @@ import { useFocusEffect } from '@react-navigation/native'
 import * as yup from 'yup'
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { useCallback, useContext, useEffect, useState } from 'react'
+import { useCallback, useContext, useState } from 'react'
 import { UserContext } from '../../context/UserContext'
 import { logGymRequestDiagnostics, logGymRequestResponse, logGymRefreshResponse } from '../../utils/devGymRequestDiagnostics'
 import { showMessage } from 'react-native-flash-message'
-import { canAccessMemberManagement, normalizeUserRole } from '../../utils/roleAccess'
+import { normalizeUserRole } from '../../utils/roleAccess'
 
 const defaultProfileImage = require("../../assets/images/avatars/profile-img.png");
 
@@ -33,7 +33,8 @@ const MembersScreen = ({ navigation }: { navigation: any }) => {
   const [failedImageKeys, setFailedImageKeys] = useState<Record<string, boolean>>({});
   const membersList = Object.values(members);
   const role = normalizeUserRole(user?.role);
-  const canManageMembers = canAccessMemberManagement(role);
+  const canEditMembers = role !== 'member';
+  const canOpenMemberDetails = role !== 'member';
 
   // 1. Define the Yup validation schema
   const schema = yup.object().shape({
@@ -96,27 +97,8 @@ const MembersScreen = ({ navigation }: { navigation: any }) => {
     return fullName.length > 11 ? `${fullName.slice(0, 11)}` : fullName;
   };
 
-  useEffect(() => {
-    if (canManageMembers) {
-      return;
-    }
-
-    showMessage({
-      message: 'Access denied',
-      description: 'This section is only available to gym staff.',
-      type: 'danger',
-      icon: 'danger',
-      autoHide: true,
-    });
-    navigation.navigate('HomeTab', { screen: 'DashboardScreen' });
-  }, [canManageMembers, navigation]);
-
   useFocusEffect(
     useCallback(() => {
-      if (!canManageMembers) {
-        return;
-      }
-
       let isActive = true;
 
       const fetchStaffData = async () => {
@@ -232,12 +214,14 @@ const MembersScreen = ({ navigation }: { navigation: any }) => {
             <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: 10 }}>
               {/* move to separate component */}
 
-              <TouchableOpacity onPress={() => navigation.navigate('AddMemberScreen')} style={styles.signOut}>
-                <Text style={styles.signOutText}>Add</Text>
-                <View style={styles.circle}>
-                  <MaterialIcons name="add" color={AppColors.white} size={16} />
-                </View>
-              </TouchableOpacity>
+              {canEditMembers ? (
+                <TouchableOpacity onPress={() => navigation.navigate('AddMemberScreen')} style={styles.signOut}>
+                  <Text style={styles.signOutText}>Add</Text>
+                  <View style={styles.circle}>
+                    <MaterialIcons name="add" color={AppColors.white} size={16} />
+                  </View>
+                </TouchableOpacity>
+              ) : null}
 
               <SignOut />
             </View>
@@ -295,7 +279,16 @@ const MembersScreen = ({ navigation }: { navigation: any }) => {
                       filteredMembers.map((member, index) => {
                         const memberImageUri = getImageUri(member.user_picture_url);
                         return (
-                          <TouchableOpacity key={index} onPress={() => navigation.navigate('UpdateMemberScreen', { member })}>
+                          <TouchableOpacity
+                            key={index}
+                            disabled={!canOpenMemberDetails}
+                            onPress={() => {
+                              if (!canOpenMemberDetails) {
+                                return;
+                              }
+                              navigation.navigate('UpdateMemberScreen', { member })
+                            }}
+                          >
                             <View style={styles.box}>
                               <Image
                                 style={styles.image}
