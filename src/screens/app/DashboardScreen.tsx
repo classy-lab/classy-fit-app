@@ -49,7 +49,7 @@ const DashboardScreen = ({ navigation, route }) => {
         </View>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.headingContainer}>
-            <Text style={styles.title}>Overview</Text>
+            {/* <Text style={styles.title}>Overview</Text> */}
             {/* <Text style={styles.subtitle}>Manage your gym operations</Text> */}
           </View>
           <View style={styles.body}>
@@ -148,9 +148,9 @@ const DashboardScreen = ({ navigation, route }) => {
                 <Text style={styles.squareLabel}>Products</Text>
                 <Text style={styles.squareSubtitle}>Sell items</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('ContractorsScreen')}>
+              <TouchableOpacity style={styles.greySquare} onPress={() => navigation.navigate('GymVideosScreen')}>
                 <View style={styles.whiteSquare}>
-                  <FontAwesome5 name="user-tie" size={28} color={AppColors.blue} />
+                  <MaterialCommunityIcons name="youtube" size={28} color={AppColors.blue} />
                 </View>
                 <Text style={styles.squareLabel}>Gym Videos</Text>
                 <Text style={styles.squareSubtitle}>Content library</Text>
