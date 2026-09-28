@@ -785,7 +785,16 @@ const EditProductScreen = ({ navigation, route }) => {
                 <TouchableOpacity
                   style={styles.registerBtn}
                   title="Edit Product"
-                  onPress={() => { handleDeleteProduct() }}>
+                  onPress={() => {
+                    Alert.alert(
+                      'Delete product?',
+                      'This action cannot be undone. Are you sure you want to delete this product?',
+                      [
+                        { text: 'Cancel', style: 'cancel' },
+                        { text: 'Delete', style: 'destructive', onPress: () => { handleDeleteProduct() } },
+                      ]
+                    )
+                  }}>
                   <Text style={styles.registerBtnText}>Delete Product</Text>
                 </TouchableOpacity>
               </View>
