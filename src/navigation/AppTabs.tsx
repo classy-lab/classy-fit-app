@@ -113,15 +113,15 @@ function HomeStackScreen() {
       <HomeStack.Screen name="EditClassScreen" component={EditClassScreen} />
       <HomeStack.Screen name="EditClassSessionScreen" component={EditClassSessionScreen} />
       <HomeStack.Screen name="AddClassSessionScreen" component={AddClassSessionScreen} />
-      {canManageStaff ? <HomeStack.Screen name="StaffScreen" component={StaffScreen} /> : null}
-      {canManageMembers ? <HomeStack.Screen name="MembersScreen" component={MembersScreen} /> : null}
+      <HomeStack.Screen name="StaffScreen" component={StaffScreen} />
+      <HomeStack.Screen name="MembersScreen" component={MembersScreen} />
       <HomeStack.Screen name="ProductsScreen" component={ProductsScreen} />
       <HomeStack.Screen name="ContractorsScreen" component={ContractorsScreen} />
       <HomeStack.Screen name="SignoutScreen" component={SignoutScreen} />
       <HomeStack.Screen name="LoginScreen" component={LoginScreen} />
       <HomeStack.Screen name="AllEarnings" component={AllEarnings} />
-      {canManageStaff ? <HomeStack.Screen name="UpdateStaffScreen" component={UpdateStaffScreen} /> : null}
-      {canManageMembers ? <HomeStack.Screen name="UpdateMemberScreen" component={UpdateMemberScreen} /> : null}
+      <HomeStack.Screen name="UpdateStaffScreen" component={UpdateStaffScreen} />
+      <HomeStack.Screen name="UpdateMemberScreen" component={UpdateMemberScreen} />
       {canCreateMembers ? <HomeStack.Screen name="AddMemberScreen" component={AddMemberScreen} /> : null}
     </HomeStack.Navigator>
   );
