@@ -329,7 +329,7 @@ const MyMembershipScreen = ({ navigation }: { navigation: MyMembershipNavigation
             <View style={styles.emptyIcon}>
               <Feather name="credit-card" color={AppColors.white} size={28} />
             </View>
-            <Text style={styles.emptyTitle}>No membership found</Text>
+            <Text style={styles.emptyTitle}>You don't have an active membership yet</Text>
             <Text style={styles.stateText}>
               You do not currently have a membership. Browse the available membership plans to get started.
             </Text>
