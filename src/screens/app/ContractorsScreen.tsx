@@ -12,6 +12,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { useCallback, useContext, useState } from 'react'
 import { UserContext } from '../../context/UserContext'
 import { logGymRequestDiagnostics, logGymRequestResponse, logGymRefreshResponse } from '../../utils/devGymRequestDiagnostics'
+import { normalizeUserRole } from '../../utils/roleAccess'
 
 type StaffContact = {
   contact_id?: string | number;
@@ -34,6 +35,8 @@ const ContractorsScreen = ({ navigation }: { navigation: any }) => {
     ...contact,
     contact_id: contact?.contact_id ?? id,
   }));
+  const role = normalizeUserRole(user?.role);
+  const canEditContacts = role !== 'member';
 
   // 1. Define the Yup validation schema
   const schema = yup.object().shape({
@@ -175,12 +178,14 @@ const ContractorsScreen = ({ navigation }: { navigation: any }) => {
           <View style={styles.navs}>
             <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
             <View style={styles.rightActions}>
-              <TouchableOpacity onPress={() => { navigation.navigate('StaffTab', { screen: 'AddContactScreen' }) }} style={styles.signOut}>
-                <Text style={styles.signOutText}>Add</Text>
-                <View style={styles.circle}>
-                  <MaterialIcons name="add" color={AppColors.white} size={16} />
-                </View>
-              </TouchableOpacity>
+              {canEditContacts ? (
+                <TouchableOpacity onPress={() => { navigation.navigate('StaffTab', { screen: 'AddContactScreen' }) }} style={styles.signOut}>
+                  <Text style={styles.signOutText}>Add</Text>
+                  <View style={styles.circle}>
+                    <MaterialIcons name="add" color={AppColors.white} size={16} />
+                  </View>
+                </TouchableOpacity>
+              ) : null}
               <SignOut />
             </View>
           </View>
@@ -230,7 +235,11 @@ const ContractorsScreen = ({ navigation }: { navigation: any }) => {
                         return (
                           <TouchableOpacity
                             key={String(contactId)}
+                            disabled={!canEditContacts}
                             onPress={() => {
+                              if (!canEditContacts) {
+                                return;
+                              }
                               navigation.navigate('StaffTab', {
                                 screen: 'UpdateContactScreen',
                                 params: {
