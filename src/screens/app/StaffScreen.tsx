@@ -30,7 +30,6 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
   const ownersList = Object.values(owners);
   const trainersList = Object.values(trainers);
   const role = normalizeUserRole(user?.role);
-  const canOpenStaffDetails = role !== 'member';
   const canEditStaff = role !== 'member';
 
   // 1. Define the Yup validation schema
@@ -197,7 +196,10 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
             </View>
           </View>
           <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
           >
             <View style={styles.headingContainer}>
               <Text style={styles.title}>Staff</Text>
@@ -247,13 +249,8 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
                       return (
                         <TouchableOpacity
                           key={index}
-                          disabled={!canOpenStaffDetails}
-                          onPress={() => {
-                            if (!canOpenStaffDetails) {
-                              return;
-                            }
-                            navigation.navigate('UpdateStaffScreen', { staff: owner });
-                          }}
+                          activeOpacity={0.85}
+                          onPress={() => navigation.navigate('UpdateStaffScreen', { staff: owner })}
                         >
                           <View style={styles.box}>
                             {owner.user_picture_url ? (
@@ -278,13 +275,8 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
                       return (
                         <TouchableOpacity
                           key={index}
-                          disabled={!canOpenStaffDetails}
-                          onPress={() => {
-                            if (!canOpenStaffDetails) {
-                              return;
-                            }
-                            navigation.navigate('UpdateStaffScreen', { staff: trainer });
-                          }}
+                          activeOpacity={0.85}
+                          onPress={() => navigation.navigate('UpdateStaffScreen', { staff: trainer })}
                         >
                           <View style={styles.box}>
                             {trainer.user_picture_url ? (
@@ -339,6 +331,13 @@ const styles = StyleSheet.create({
   },
   body: {
     flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 28,
   },
   bodyText: {
     fontSize: 16,
