@@ -152,7 +152,7 @@ const DashboardScreen = ({ navigation, route }) => {
                 <View style={styles.whiteSquare}>
                   <MaterialCommunityIcons name="youtube" size={28} color={AppColors.blue} />
                 </View>
-                <Text style={styles.squareLabel}>Gym Videos</Text>
+                <Text style={styles.squareLabel}>Video Library</Text>
                 <Text style={styles.squareSubtitle}>Content library</Text>
               </TouchableOpacity>
             </View>
