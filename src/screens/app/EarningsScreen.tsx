@@ -1,294 +1,301 @@
 // @ts-nocheck
-import { StyleSheet, Text, View, Image, TouchableOpacity, ImageBackground, ScrollView, Linking, ActivityIndicator, Alert } from 'react-native'
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import {
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+} from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { AppColors } from '../../styles/colors'
 import Feather from '@expo/vector-icons/Feather'
-import { s } from 'react-native-size-matters'
-import MaterialIcons from '@expo/vector-icons/MaterialIcons'
-import EarningsBarGraph from '../../assets/svg/EarningsBarGraph'
-import Entypo from '@expo/vector-icons/Entypo'
-import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
-import { useContext, useEffect, useState } from 'react'
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5'
+import { AppColors } from '../../styles/colors'
+import SignOut from '../../components/utils/SignOut'
 import { UserContext } from '../../context/UserContext'
+import { performAuthenticatedRequest } from '../../utils/authenticatedRequest'
+import type { EarningsApiResponse, EarningsDailyPoint } from '../../types/earnings'
 
-import LineChart from '../../assets/svg/LineChart'
-import LineChart2 from '../../assets/svg/LineChart2'
-import LineChart3 from '../../assets/svg/LineChart3'
-import LineChart4 from '../../assets/svg/LineChart4'
-const imageSource = require('../../assets/images/ovalBg.png')
+const categoryCards = [
+  {
+    title: 'Memberships',
+    subtitle: 'Recurring revenue',
+    icon: <MaterialCommunityIcons name="credit-card-outline" size={30} color={AppColors.blue} />,
+  },
+  {
+    title: 'Products',
+    subtitle: 'Retail sales',
+    icon: <MaterialCommunityIcons name="shopping" size={30} color={AppColors.blue} />,
+  },
+  {
+    title: 'Classes',
+    subtitle: 'Group sessions',
+    icon: <FontAwesome5 name="calendar-alt" size={24} color={AppColors.blue} />,
+  },
+  {
+    title: 'Personal Training',
+    subtitle: '1-on-1 revenue',
+    icon: <MaterialCommunityIcons name="dumbbell" size={30} color={AppColors.blue} />,
+  },
+]
 
-const EarningsScreen = ({ navigation, route }) => {
-  const { user, tokens, setTokens, webServer } = useContext(UserContext)
-  const [isLoadingStripe, setIsLoadingStripe] = useState(false)
-  const [isCheckingStripeStatus, setIsCheckingStripeStatus] = useState(true)
-  const [isStripeConfigured, setIsStripeConfigured] = useState(false)
+const formatDateLabel = (value?: string) => {
+  if (!value) {
+    return '—'
+  }
+
+  const date = new Date(`${value}T00:00:00`)
+  if (Number.isNaN(date.getTime())) {
+    return value
+  }
+
+  return new Intl.DateTimeFormat(undefined, { weekday: 'short' }).format(date)
+}
+
+const formatDayAndDate = (value?: string) => {
+  if (!value) {
+    return '—'
+  }
+
+  const date = new Date(`${value}T00:00:00`)
+  if (Number.isNaN(date.getTime())) {
+    return value
+  }
+
+  return new Intl.DateTimeFormat(undefined, {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+  }).format(date)
+}
+
+const EarningsScreen = ({ navigation }) => {
+  const authContext = useContext(UserContext)
+  const user = authContext?.user ?? null
+  const tokens = authContext?.tokens ?? null
+  const webServer = authContext?.webServer ?? ''
+  const setTokens = authContext?.setTokens
+
+  const [earnings, setEarnings] = useState<EarningsApiResponse | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [errorMessage, setErrorMessage] = useState('')
+  const [selectedIndex, setSelectedIndex] = useState(0)
+
+  const isOwner = String(user?.role ?? '').trim().toLowerCase() === 'owner'
+
+  const loadEarnings = useCallback(async () => {
+    if (!user?.gym_id || !tokens?.access_token || !setTokens) {
+      setErrorMessage('Please sign in again to view earnings.')
+      setIsLoading(false)
+      return
+    }
+
+    if (!isOwner) {
+      setErrorMessage('Only gym owners can view earnings.')
+      setIsLoading(false)
+      setEarnings(null)
+      return
+    }
+
+    setIsLoading(true)
+    setErrorMessage('')
+
+    try {
+      const response = await performAuthenticatedRequest({
+        endpoint: `${webServer}/api/v1/gyms/${user.gym_id}/earnings?period=7d`,
+        init: { method: 'GET' },
+        accessToken: tokens.access_token,
+        refreshToken: tokens.refresh_token,
+        webServer,
+        setTokens,
+      })
+
+      if (!response) {
+        setErrorMessage('Please sign in again to view earnings.')
+        setEarnings(null)
+        return
+      }
+
+      const responseBody = (await response.json()) as Partial<EarningsApiResponse> & {
+        message?: string
+      }
+
+      if (response.status !== 200 || responseBody.status !== 'success') {
+        setErrorMessage(responseBody.message || 'Unable to load earnings.')
+        setEarnings(null)
+        return
+      }
+
+      const nextEarnings = responseBody as EarningsApiResponse
+      setEarnings(nextEarnings)
+      setSelectedIndex(Math.max(nextEarnings.daily.length - 1, 0))
+    } catch {
+      setErrorMessage('Unable to load earnings.')
+      setEarnings(null)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [isOwner, setTokens, tokens?.access_token, tokens?.refresh_token, user?.gym_id, webServer])
 
   useEffect(() => {
-    checkStripeAccountStatus()
-  }, [user?.gym_id, tokens?.access_token])
+    void loadEarnings()
+  }, [loadEarnings])
 
-  const checkStripeAccountStatus = async () => {
-    if (!user?.gym_id) {
-      // Gym info missing: fail safely by keeping the button visible so onboarding is still reachable
-      setIsStripeConfigured(false)
-      setIsCheckingStripeStatus(false)
-      return
-    }
-
-    setIsCheckingStripeStatus(true)
+  const currencyFormatter = useMemo(() => {
+    const currencyCode = earnings?.currency ?? 'USD'
     try {
-      const response = await fetch(
-        `${webServer}/api/v1/gyms/${user.gym_id}/stripe/accounts/status`,
-        {
-          headers: {
-            Authorization: 'Bearer ' + tokens.access_token,
-          },
-        }
-      )
-
-      if (response.status === 401) {
-        console.log('Access token expired, requesting new one')
-        const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
-          method: 'POST',
-          body: JSON.stringify({
-            token: tokens.refresh_token,
-          }),
-        })
-
-        if (refreshResponse.status === 200) {
-          const refreshObj = await refreshResponse.json()
-          setTokens((prev) => ({
-            ...prev,
-            access_token: refreshObj.access_token,
-            refresh_token: refreshObj.refresh_token,
-          }))
-          // Retry the original request with the new token
-          checkStripeAccountStatus()
-          return
-        }
-
-        // Refresh failed: fail safely, keep button visible
-        setIsStripeConfigured(false)
-        setIsCheckingStripeStatus(false)
-        return
-      }
-
-      if (response.status === 200) {
-        const data = await response.json()
-        const account = data?.account
-
-        // Fully configured only when every one of these conditions holds true.
-        // Existence of stripe_account_id alone is NOT sufficient.
-        const fullyConfigured =
-          !!account?.stripe_account_id &&
-          account?.onboarding_status === 'complete' &&
-          account?.details_submitted === true &&
-          account?.charges_enabled === true &&
-          account?.payouts_enabled === true
-
-        setIsStripeConfigured(fullyConfigured)
-      } else {
-        // 404 (no account yet) or any other error means Stripe isn't fully configured
-        setIsStripeConfigured(false)
-      }
-    } catch (error) {
-      console.log('Stripe status check error:', error)
-      // Fail safely: if status can't be determined, assume not configured so onboarding stays reachable
-      setIsStripeConfigured(false)
-    } finally {
-      setIsCheckingStripeStatus(false)
+      return new Intl.NumberFormat(undefined, {
+        style: 'currency',
+        currency: currencyCode,
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })
+    } catch {
+      return new Intl.NumberFormat(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })
     }
-  }
+  }, [earnings?.currency])
 
-  const handleConnectStripe = async () => {
-    if (!user?.gym_id) {
-      Alert.alert('Error', 'Gym information not found')
-      return
-    }
+  const formatCurrency = useCallback(
+    (value: number) => currencyFormatter.format(value),
+    [currencyFormatter]
+  )
 
-    setIsLoadingStripe(true)
-    try {
-      const response = await fetch(
-        `${webServer}/api/v1/gyms/${user.gym_id}/stripe/accounts/onboarding-link`,
-        {
-          headers: {
-            Authorization: 'Bearer ' + tokens.access_token,
-          },
-        }
-      )
+  const dailyData: EarningsDailyPoint[] = earnings?.daily ?? []
+  const selectedPoint = dailyData[selectedIndex] ?? dailyData[dailyData.length - 1] ?? null
+  const maxRevenue = useMemo(() => {
+    const maxValue = Math.max(...dailyData.map((item) => item.revenue), 0)
+    return maxValue > 0 ? maxValue : 1
+  }, [dailyData])
 
-      if (response.status === 401) {
-        console.log('Access token expired, requesting new one')
-        const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
-          method: 'POST',
-          body: JSON.stringify({
-            token: tokens.refresh_token,
-          }),
-        })
-
-        if (refreshResponse.status === 200) {
-          const refreshObj = await refreshResponse.json()
-          setTokens((prev) => ({
-            ...prev,
-            access_token: refreshObj.access_token,
-            refresh_token: refreshObj.refresh_token,
-          }))
-          setIsLoadingStripe(false)
-          // Retry the original request
-          handleConnectStripe()
-          return
-        }
-      }
-
-      if (response.status !== 200) {
-        const errorData = await response.json()
-        Alert.alert(
-          'Error',
-          errorData?.message || 'Failed to get Stripe onboarding link'
-        )
-        setIsLoadingStripe(false)
-        return
-      }
-
-      const data = await response.json()
-
-      if (!data?.onboarding_url || typeof data.onboarding_url !== 'string') {
-        Alert.alert('Error', 'Invalid onboarding link received from server')
-        setIsLoadingStripe(false)
-        return
-      }
-
-      // Open the Stripe onboarding URL
-      try {
-        await Linking.openURL(data.onboarding_url)
-      } catch (error) {
-        Alert.alert('Error', 'Unable to open Stripe onboarding link')
-      }
-    } catch (error) {
-      console.log('Stripe onboarding error:', error)
-      Alert.alert('Error', 'Failed to initiate Stripe Connect setup')
-    } finally {
-      setIsLoadingStripe(false)
-    }
-  }
+  const hasData = dailyData.length > 0
+  const totalRevenue = earnings?.totals.revenue ?? 0
+  const transactionCount = earnings?.totals.transaction_count ?? 0
 
   return (
-    <>
-      <ImageBackground source={imageSource} style={styles.background}>
-        <SafeAreaView style={styles.container}>
-          <View style={styles.navs}>
-            <Feather name="arrow-left" color={AppColors.white} size={36} onPress={() => { navigation.goBack() }} />
-            <View style={styles.signOut}>
-              <Text style={styles.signOutText}>Log out</Text>
-              <View style={styles.circle}>
-                <MaterialIcons name="logout" color={AppColors.white} size={18} onPress={() => { navigation.navigate('SignoutScreen') }} />
+    <SafeAreaView style={styles.container}>
+      <View style={styles.navs}>
+        <Feather
+          name="arrow-left"
+          color={AppColors.blue}
+          size={36}
+          onPress={() => navigation.goBack()}
+        />
+        <SignOut />
+      </View>
+
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <View style={styles.headingContainer}>
+          <Text style={styles.title}>Earnings</Text>
+          <Text style={styles.subtitle}>Weekly revenue snapshot</Text>
+        </View>
+
+        <View style={styles.body}>
+          <View style={styles.heroCard}>
+            <View style={styles.heroHeader}>
+              <View style={styles.heroTextBlock}>
+                <Text style={styles.heroEyebrow}>This week</Text>
+                <Text style={styles.heroTitle}>Combined total sales</Text>
+                <Text style={styles.heroDescription}>
+                  Tap a bar to see the actual sales for that day.
+                </Text>
               </View>
+            </View>
+
+            <View style={styles.summaryRow}>
+              <View style={styles.summaryPill}>
+                <Text style={styles.summaryLabel}>Total revenue</Text>
+                <Text style={styles.summaryValue}>{formatCurrency(totalRevenue)}</Text>
+              </View>
+              <View style={styles.summaryPill}>
+                <Text style={styles.summaryLabel}>Transactions</Text>
+                <Text style={styles.summaryValue}>{transactionCount}</Text>
+              </View>
+            </View>
+
+            <View style={styles.graphCard}>
+              {isLoading ? (
+                <View style={styles.loadingWrap}>
+                  <ActivityIndicator color={AppColors.blue} />
+                  <Text style={styles.loadingText}>Loading actual sales...</Text>
+                </View>
+              ) : errorMessage && !earnings ? (
+                <View style={styles.loadingWrap}>
+                  <Text style={styles.loadingText}>{errorMessage}</Text>
+                </View>
+              ) : (
+                <>
+                  <View style={styles.selectedDayCard}>
+                    <Text style={styles.selectedDayLabel}>
+                      {selectedPoint ? formatDayAndDate(selectedPoint.date) : 'Select a day'}
+                    </Text>
+                    <Text style={styles.selectedDayValue}>
+                      {selectedPoint ? formatCurrency(selectedPoint.revenue) : formatCurrency(0)}
+                    </Text>
+                  </View>
+
+                  <View style={styles.chartRow}>
+                    {dailyData.map((item, index) => {
+                      const isSelected = index === selectedIndex
+                      const heightPercent = Math.max((item.revenue / maxRevenue) * 100, 8)
+
+                      return (
+                        <Pressable
+                          key={item.date}
+                          onPress={() => setSelectedIndex(index)}
+                          style={styles.barColumn}
+                        >
+                          <Text style={[styles.barAmount, isSelected && styles.barAmountSelected]}>
+                            {formatCurrency(item.revenue)}
+                          </Text>
+                          <View style={styles.barTrack}>
+                            <View
+                              style={[
+                                styles.barFill,
+                                {
+                                  height: `${heightPercent}%`,
+                                  backgroundColor: isSelected ? AppColors.primary : AppColors.blue,
+                                },
+                              ]}
+                            />
+                          </View>
+                          <Text style={[styles.barLabel, isSelected && styles.barLabelSelected]}>
+                            {formatDateLabel(item.date)}
+                          </Text>
+                        </Pressable>
+                      )
+                    })}
+                  </View>
+
+                  {!hasData ? (
+                    <Text style={styles.emptyText}>No sales data for this week.</Text>
+                  ) : null}
+                </>
+              )}
             </View>
           </View>
 
-          <ScrollView style={styles.scrollViewStyles} showsVerticalScrollIndicator={false}>
-            <View style={styles.heading}>
-              <Text style={styles.headingTitle}>Statements</Text>
-              <Text style={styles.headingSubTitle}>March 2026</Text>
-              <View style={styles.calendarControls}>
-                <TouchableOpacity>
-                  <Text style={styles.calendarControlText}>{'<'} Previous</Text>
-                </TouchableOpacity>
-                <TouchableOpacity>
-                  <Text style={styles.calendarControlText}>Full Year</Text>
-                </TouchableOpacity>
-                <TouchableOpacity>
-                  <Text style={styles.calendarControlText}>Next {'>'}</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-            <View style={styles.body}>
-              {!isCheckingStripeStatus && !isStripeConfigured && (
-                <TouchableOpacity
-                  style={styles.stripeCard}
-                  onPress={handleConnectStripe}
-                  disabled={isLoadingStripe}
-                >
-                  <View style={styles.stripeCardContent}>
-                    <View style={styles.stripeCardLeft}>
-                      <View style={styles.stripeCardIcon}>
-                        <FontAwesome6 name="stripe-s" size={24} color={AppColors.blue} />
-                      </View>
-                      <View style={styles.stripeCardText}>
-                        <Text style={styles.stripeCardTitle}>Connect Stripe Account</Text>
-                        <Text style={styles.stripeCardSubtitle}>
-                          Set up payments for your gym
-                        </Text>
-                      </View>
-                    </View>
-                    {isLoadingStripe ? (
-                      <ActivityIndicator color={AppColors.blue} size="small" />
-                    ) : (
-                      <Feather name="arrow-right" color={AppColors.blue} size={20} />
-                    )}
-                  </View>
-                </TouchableOpacity>
-              )}
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Earnings categories</Text>
+          </View>
 
-              <TouchableOpacity onPress={() => navigation.navigate('HomeTab', { screen: 'AllEarnings' })}>
-                <View style={styles.squareCard}>
-                  <View style={styles.squareCardHeadingContainer}>
-                    <View style={styles.squareCardHeading}>
-                      <Text style={styles.SquareCardTitle}>March</Text>
-                      <Text style={styles.SquareCardSubTitle}>7 Day Business Earnings Graph</Text>
-                    </View>
-                    <View style={styles.SquareCardSettingsIcon}>
-                      <Entypo name="sound-mix" size={24} color={AppColors.grey3} />
-                    </View>
-                  </View>
-                  <View style={styles.barGraph}>
-                    <EarningsBarGraph />
-                  </View>
-                </View>
+          <View style={styles.grid}>
+            {categoryCards.map((card) => (
+              <TouchableOpacity key={card.title} activeOpacity={0.9} style={styles.squareCard}>
+                <View style={styles.iconWrap}>{card.icon}</View>
+                <Text style={styles.squareTitle}>{card.title}</Text>
+                <Text style={styles.squareSubtitle}>{card.subtitle}</Text>
               </TouchableOpacity>
-              <View style={styles.cards}>
-                <TouchableOpacity>
-                  <View style={styles.square}>
-                    <Text style={styles.smallSquareCardTitle}>Membership</Text>
-                    <Text style={styles.smallSquareCardSubTitle}>Earnings</Text>
-                    <View style={styles.smallBarGraph}>
-                      <LineChart />
-                    </View>
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity>
-                  <View style={styles.square}>
-                    <Text style={styles.smallSquareCardTitle}>Product</Text>
-                    <Text style={styles.smallSquareCardSubTitle}>Earnings</Text>
-                    <View style={styles.smallBarGraph}>
-                      <LineChart2 />
-                    </View>
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity>
-                  <View style={styles.square}>
-                    <Text style={styles.smallSquareCardTitle}>Class</Text>
-                    <Text style={styles.smallSquareCardSubTitle}>Statements</Text>
-                    <View style={styles.smallBarGraph}>
-                      <LineChart3 />
-                    </View>
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity>
-                  <View style={styles.square}>
-                    <Text style={styles.smallSquareCardTitle}>Personal Training</Text>
-                    <Text style={styles.smallSquareCardSubTitle}>Earnings</Text>
-                    <View style={styles.smallBarGraph}>
-                      <LineChart4 />
-                    </View>
-                  </View>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </ScrollView>
-        </SafeAreaView>
-      </ImageBackground>
-    </>
+            ))}
+          </View>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   )
 }
 
@@ -296,205 +303,245 @@ export default EarningsScreen
 
 const styles = StyleSheet.create({
   container: {
-    // backgroundColor: AppColors.grey,
-    backgroundColor: 'transparent',
-  },
-  background: {
     flex: 1,
-    // width: '100%',
-    // height: '100%',
-    // jusifyContent: 'center',
-    // alignItems: 'center',
+    backgroundColor: AppColors.white,
   },
   navs: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingLeft: 24,
-    paddingRight: 24,
-    width: '100%',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingBottom: 8,
   },
-  scrollViewStyles: {
-    paddingLeft: 24,
-    paddingRight: 24,
-    marginBottom: 8,
+  scrollView: {
+    flex: 1,
+  },
+  headingContainer: {
+    paddingHorizontal: 24,
+    marginTop: 8,
+    marginBottom: 18,
+    alignItems: 'center',
   },
   title: {
-    color: AppColors.white,
+    color: AppColors.blue,
     fontSize: 32,
-    marginTop: 20,
+    fontFamily: 'Montserrat',
   },
-  bodyText: {
-    fontSize: s(14),
-    lineHeight: 24,
-    color: AppColors.primary,
-  },
-  signOut: {
-    // borderWidth: 1, borderColor: 'red',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  signOutText: {
-    marginRight: 4,
-    color: AppColors.white,
-    fontSize: 14
-  },
-  circle: {
-    width: 30,
-    height: 30,
-    borderRadius: '50%',
-    backgroundColor: AppColors.blue,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingLeft: 3
-  },
-  earningsText: {
-    color: AppColors.white,
-    fontSize: 24
-  },
-  heading: {
-    // marginTop: 8,
-    alignItems: 'center',
-    width: '100%',
-    // borderWidth: 1, borderColor: 'red',
-    marginBottom: 20
-  },
-  headingTitle: {
-    color: AppColors.white,
-    fontSize: 32,
-    marginTop: 16,
-    // fontFamily: 'Montserrat-Bold'
-  },
-  headingSubTitle: {
+  subtitle: {
+    color: AppColors.grey3,
+    fontSize: 14,
     marginTop: 6,
-    fontSize: 16,
-    color: AppColors.white,
+    fontFamily: 'Montserrat',
   },
-  calendarControls: {
-    marginTop: 16,
+  body: {
+    paddingHorizontal: 24,
+    paddingBottom: 24,
+  },
+  heroCard: {
+    backgroundColor: AppColors.grey,
+    borderRadius: 24,
+    padding: 20,
+    marginBottom: 20,
+    shadowColor: AppColors.grey3,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  heroHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    // borderWidth: 1, borderColor: 'red',
-    width: '100%'
+    alignItems: 'flex-start',
   },
-  calendarControlText: {
+  heroTextBlock: {
+    flex: 1,
+  },
+  heroEyebrow: {
+    color: AppColors.blue,
+    fontSize: 12,
+    fontFamily: 'Montserrat',
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+    opacity: 0.85,
+  },
+  heroTitle: {
+    color: AppColors.primary,
+    fontSize: 22,
+    fontFamily: 'Montserrat',
+    marginTop: 4,
+  },
+  heroDescription: {
+    color: AppColors.grey3,
+    fontSize: 14,
+    lineHeight: 20,
+    marginTop: 8,
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 16,
+  },
+  summaryPill: {
+    flex: 1,
+    backgroundColor: AppColors.white,
+    borderRadius: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+  },
+  summaryLabel: {
+    color: AppColors.grey3,
+    fontSize: 11,
+    fontFamily: 'Montserrat',
+  },
+  summaryValue: {
     color: AppColors.blue,
     fontSize: 16,
-    fontWeight: 'bold'
+    fontFamily: 'Montserrat',
+    marginTop: 4,
   },
-  squareCard: {
-    width: '100%',
+  graphCard: {
     backgroundColor: AppColors.white,
-    borderRadius: 24,
-    height: 320,
-    marginTop: 24,
-    paddingTop: 32,
-    paddingLeft: 24,
-    paddingRight: 24,
-    paddingBottom: 12,
-    marginBottom: 20,
-    boxShadow: '4px 8px 24px rgba(000, 0, 0, 0.1)'
-  },
-  squareCardHeadingContainer: {
-    flexDirection: 'row',
-    // borderWidth: 1, borderColor: 'red',
-    justifyContent: 'space-between',
-    alignItems: 'baseline'
-  },
-  squareCardHeading: {},
-  SquareCardHeadingText: {},
-  SquareCardTitle: {
-    color: AppColors.primary,
-    fontSize: 24,
-    fontFamily: 'Montserrat-Bold'
-  },
-  SquareCardSubTitle: {
-    color: AppColors.grey2,
-    fontSize: 12
-  },
-  settings: {
-    color: AppColors.primary
-  },
-  barGraph: {
+    borderRadius: 18,
+    marginTop: 16,
+    paddingHorizontal: 10,
+    paddingTop: 12,
+    paddingBottom: 10,
     width: '100%',
-    height: 200,
-    flex: 1,
-    marginTop: 20,
-    borderRadius: 16,
-    alignItems: 'center'
   },
-  cards: {
+  loadingWrap: {
+    minHeight: 210,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+  },
+  loadingText: {
+    color: AppColors.grey3,
+    fontSize: 13,
+    fontFamily: 'Montserrat',
+    textAlign: 'center',
+  },
+  selectedDayCard: {
+    alignSelf: 'flex-start',
+    backgroundColor: AppColors.grey,
+    borderRadius: 14,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    marginBottom: 12,
+  },
+  selectedDayLabel: {
+    color: AppColors.grey3,
+    fontSize: 11,
+    fontFamily: 'Montserrat',
+  },
+  selectedDayValue: {
+    color: AppColors.primary,
+    fontSize: 18,
+    fontFamily: 'Montserrat',
+    marginTop: 4,
+  },
+  chartRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+    width: '100%',
+    minHeight: 180,
+    marginTop: 4,
+  },
+  barColumn: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    paddingHorizontal: 2,
+  },
+  barAmount: {
+    color: AppColors.grey3,
+    fontSize: 9,
+    fontFamily: 'Montserrat',
+    marginBottom: 6,
+    textAlign: 'center',
+    minHeight: 12,
+  },
+  barAmountSelected: {
+    color: AppColors.primary,
+    fontFamily: 'Montserrat',
+  },
+  barTrack: {
+    width: '100%',
+    flex: 1,
+    minHeight: 120,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    borderRadius: 999,
+    overflow: 'hidden',
+  },
+  barFill: {
+    width: '72%',
+    borderRadius: 999,
+  },
+  barLabel: {
+    marginTop: 8,
+    color: AppColors.grey3,
+    fontSize: 11,
+    fontFamily: 'Montserrat',
+    textAlign: 'center',
+  },
+  barLabelSelected: {
+    color: AppColors.blue,
+  },
+  emptyText: {
+    marginTop: 12,
+    color: AppColors.grey3,
+    fontSize: 12,
+    fontFamily: 'Montserrat',
+    textAlign: 'center',
+  },
+  sectionHeader: {
+    marginBottom: 14,
+  },
+  sectionTitle: {
+    color: AppColors.blue,
+    fontSize: 14,
+    fontFamily: 'Montserrat',
+  },
+  grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    // flex: 1,
-    marginBottom: 20,
-    // borderWidth: 1, borderColor: 'red',
-    rowGap: 16,
-    columnGap: 16,
-    justifyContent: 'center',
-    paddingBottom: 88
-  },
-  square: {
-    width: s(140),
-    height: s(140),
-    borderRadius: 24,
-    backgroundColor: AppColors.white,
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
-    boxShadow: '4px 8px 24px rgba(000, 0, 0, 0.1)',
-    padding: 16
-  },
-  smallSquareCardTitle: {
-    fontSize: 12,
-    fontFamily: 'Montserrat-Bold',
-    // borderWidth: 1, borderColor: 'red',
-  },
-  smallSquareCardSubTitle: {
-    marginTop: 6,
-    color: AppColors.grey2
-  },
-  smallBarGraph: {
-    marginTop: 16
-  },
-  stripeCard: {
-    width: '100%',
-    backgroundColor: AppColors.white,
-    borderRadius: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    marginTop: 20,
-    marginBottom: 20,
-    boxShadow: '4px 8px 24px rgba(000, 0, 0, 0.1)',
-  },
-  stripeCardContent: {
-    flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    rowGap: 12,
   },
-  stripeCardLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  stripeCardIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
+  squareCard: {
+    width: '48%',
+    aspectRatio: 1,
     backgroundColor: AppColors.grey,
+    borderRadius: 20,
+    padding: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    shadowColor: AppColors.grey3,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    elevation: 3,
   },
-  stripeCardText: {
-    flex: 1,
+  iconWrap: {
+    width: 58,
+    height: 58,
+    borderRadius: 16,
+    backgroundColor: AppColors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
   },
-  stripeCardTitle: {
-    fontSize: 14,
-    fontFamily: 'Montserrat-Bold',
+  squareTitle: {
     color: AppColors.blue,
+    fontSize: 15,
+    fontFamily: 'Montserrat',
+    textAlign: 'center',
   },
-  stripeCardSubtitle: {
-    fontSize: 12,
-    color: AppColors.grey2,
-    marginTop: 2,
+  squareSubtitle: {
+    color: AppColors.grey3,
+    fontSize: 11,
+    marginTop: 4,
+    fontFamily: 'Montserrat',
+    textAlign: 'center',
   },
 })
