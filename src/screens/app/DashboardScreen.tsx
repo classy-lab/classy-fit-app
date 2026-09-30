@@ -94,7 +94,8 @@ const DashboardScreen = ({ navigation, route }) => {
                 <Feather style={styles.arrow} name="arrow-right" size={24} color={AppColors.white} />
               </TouchableOpacity>
               {isOwner ? (
-                <TouchableOpacity style={[styles.primaryCard, styles.secondaryCard]} onPress={() => { navigation.navigate('AllEarnings') }}>
+                <TouchableOpacity style={[styles.primaryCard, styles.secondaryCard]} onPress={() => { navigation.navigate('EarningsScreen') }}>
+                  {/* <TouchableOpacity style={[styles.primaryCard, styles.secondaryCard]} onPress={() => { navigation.navigate('AllEarnings') }}> */}
                   <View style={styles.primaryCardLeft}>
                     <MaterialCommunityIcons name="chart-line" size={32} color={AppColors.white} />
                     <View style={styles.primaryCardTextContainer}>
