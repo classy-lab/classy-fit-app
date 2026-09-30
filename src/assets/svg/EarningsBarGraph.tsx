@@ -24,7 +24,7 @@ const EarningsBarGraph = (props) => (
                   fill="#B0BED4"
                 >
                   <TSpan x={0} y={93}>
-                    {"9/01"}
+                    {"Mon"}
                   </TSpan>
                 </Text>
                 <G>
@@ -49,7 +49,7 @@ const EarningsBarGraph = (props) => (
                   fill="#B0BED4"
                 >
                   <TSpan x={0} y={156}>
-                    {"9/02"}
+                    {"Tue"}
                   </TSpan>
                 </Text>
                 <G id="Column-1">
@@ -74,7 +74,7 @@ const EarningsBarGraph = (props) => (
                   fill="#B0BED4"
                 >
                   <TSpan x={0} y={53}>
-                    {"9/03"}
+                    {"Wed"}
                   </TSpan>
                 </Text>
                 <G id="Column-1">
@@ -99,7 +99,7 @@ const EarningsBarGraph = (props) => (
                   fill="#B0BED4"
                 >
                   <TSpan x={0} y={198}>
-                    {"9/04"}
+                    {"Thu"}
                   </TSpan>
                 </Text>
                 <G id="Column-1">
@@ -124,7 +124,7 @@ const EarningsBarGraph = (props) => (
                   fill="#B0BED4"
                 >
                   <TSpan x={0} y={107}>
-                    {"9/05"}
+                    {"Fri"}
                   </TSpan>
                 </Text>
                 <G id="Column-1">
@@ -149,7 +149,7 @@ const EarningsBarGraph = (props) => (
                   fill="#B0BED4"
                 >
                   <TSpan x={0} y={68}>
-                    {"9/06"}
+                    {"Sat"}
                   </TSpan>
                 </Text>
                 <G id="Column-1">
@@ -174,7 +174,7 @@ const EarningsBarGraph = (props) => (
                   fill="#B0BED4"
                 >
                   <TSpan x={0} y={54}>
-                    {"9/07"}
+                    {"Sun"}
                   </TSpan>
                 </Text>
                 <G id="Column-1">
