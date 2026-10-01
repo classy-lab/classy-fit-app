@@ -15,7 +15,7 @@ import { showMessage } from 'react-native-flash-message'
 import { AppColors } from '../../styles/colors'
 import { UserContext } from '../../context/UserContext'
 import { Feather } from '@expo/vector-icons'
-import { shouldRefreshAuthResponse } from '../../utils/authenticatedRequest'
+import { performAuthenticatedRequest } from '../../utils/authenticatedRequest'
 
 const MyClassBookingDetailScreen = ({ navigation, route }) => {
   const { tokens, setTokens, webServer } = useContext(UserContext)
@@ -25,36 +25,6 @@ const MyClassBookingDetailScreen = ({ navigation, route }) => {
   const [errorMessage, setErrorMessage] = useState('')
   const [isCancelling, setIsCancelling] = useState(false)
   const cancellationKeyRef = useRef<string | null>(null)
-
-  const refreshAccessToken = async () => {
-    if (!tokens?.refresh_token) {
-      return null
-    }
-
-    const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
-      method: 'POST',
-      body: JSON.stringify({
-        token: tokens.refresh_token,
-      }),
-    })
-
-    if (refreshResponse.status !== 200) {
-      return null
-    }
-
-    const refreshObj = await refreshResponse.json()
-    if (!refreshObj?.access_token || !refreshObj?.refresh_token) {
-      return null
-    }
-
-    setTokens((prev: any) => ({
-      ...prev,
-      access_token: refreshObj.access_token,
-      refresh_token: refreshObj.refresh_token,
-    }))
-
-    return refreshObj.access_token
-  }
 
   const loadBooking = useCallback(async () => {
     if (!tokens?.access_token || !bookingUid) {
@@ -68,28 +38,19 @@ const MyClassBookingDetailScreen = ({ navigation, route }) => {
 
     const endpoint = `${webServer}/api/v1/classes/bookings/${bookingUid}`
 
-    const performRequest = async (accessToken) => {
-      return fetch(endpoint, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      })
-    }
-
     try {
-      let accessToken = tokens.access_token
-      let response = await performRequest(accessToken)
+      const response = await performAuthenticatedRequest({
+        endpoint,
+        accessToken: tokens.access_token,
+        refreshToken: tokens.refresh_token,
+        webServer,
+        setTokens,
+      })
 
-      if (await shouldRefreshAuthResponse(response)) {
-        const refreshedAccessToken = await refreshAccessToken()
-        if (refreshedAccessToken) {
-          accessToken = refreshedAccessToken
-          response = await performRequest(accessToken)
-        } else {
-          setErrorMessage('Your session expired. Please sign in again.')
-          setBooking(null)
-          return
-        }
+      if (!response) {
+        setErrorMessage('Your session expired. Please sign in again.')
+        setBooking(null)
+        return
       }
 
       const responseText = await response.text()
@@ -102,7 +63,7 @@ const MyClassBookingDetailScreen = ({ navigation, route }) => {
         }
       }
 
-      if (response.status !== 200) {
+      if (!response.ok) {
         const message = responseBody?.message || 'Unable to load booking details.'
         setErrorMessage(message)
         setBooking(null)
@@ -263,37 +224,32 @@ const MyClassBookingDetailScreen = ({ navigation, route }) => {
     const idempotencyKey = cancellationKeyRef.current
     const endpoint = `${webServer}/api/v1/classes/bookings/${bookingUid}/cancel`
 
-    const performRequest = async (accessToken) => {
-      return fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-          'Idempotency-Key': idempotencyKey,
-        },
-        body: '{}',
-      })
-    }
-
     setIsCancelling(true)
 
     try {
-      let accessToken = tokens.access_token
-      let response = await performRequest(accessToken)
+      const response = await performAuthenticatedRequest({
+        endpoint,
+        init: {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Idempotency-Key': idempotencyKey,
+          },
+          body: '{}',
+        },
+        accessToken: tokens.access_token,
+        refreshToken: tokens.refresh_token,
+        webServer,
+        setTokens,
+      })
 
-      if (await shouldRefreshAuthResponse(response)) {
-        const refreshedAccessToken = await refreshAccessToken()
-        if (refreshedAccessToken) {
-          accessToken = refreshedAccessToken
-          response = await performRequest(accessToken)
-        } else {
-          showMessage({
-            message: 'Session expired',
-            description: 'Please sign in again.',
-            type: 'danger',
-          })
-          return
-        }
+      if (!response) {
+        showMessage({
+          message: 'Session expired',
+          description: 'Please sign in again.',
+          type: 'danger',
+        })
+        return
       }
 
       const responseText = await response.text()
@@ -317,7 +273,7 @@ const MyClassBookingDetailScreen = ({ navigation, route }) => {
         return
       }
 
-      if (response.status !== 200) {
+      if (!response.ok) {
         const message = responseBody?.message || 'Unable to cancel this booking.'
         showMessage({
           message: 'Cancellation failed',
