@@ -159,7 +159,7 @@ type AddEquipmentFormValues = {
 }
 
 const AddEquipmentScreen = ({ navigation }) => {
-  const { user, tokens, webServer } = useContext(UserContext)
+  const { user, tokens, setTokens, webServer } = useContext(UserContext)
   const [descriptionHtml, setDescriptionHtml] = useState('')
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -167,8 +167,68 @@ const AddEquipmentScreen = ({ navigation }) => {
   const [categoryOptions, setCategoryOptions] = useState<Array<{ key: string; value: string }>>([])
   const richText = useRef(null)
 
+  const normalizeCategoryOptions = (payload: any) => {
+    const rawCategories = Array.isArray(payload)
+      ? payload
+      : Array.isArray(payload?.data)
+        ? payload.data
+        : Array.isArray(payload?.categories)
+          ? payload.categories
+          : []
+
+    return rawCategories
+      .map((cat: any) => ({
+        key: String(cat?.uid ?? cat?.category_uid ?? cat?.id ?? '').trim(),
+        value: String(cat?.name ?? cat?.category_name ?? cat?.title ?? '').trim(),
+      }))
+      .filter((option) => option.key && option.value)
+  }
+
   useEffect(() => {
-    const fetchCategories = async () => {
+    const refreshAccessToken = async () => {
+      if (!tokens?.refresh_token) {
+        return false
+      }
+
+      const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
+        method: 'POST',
+        body: JSON.stringify({
+          token: tokens.refresh_token,
+        }),
+      })
+
+      if (!refreshResponse.ok) {
+        return false
+      }
+
+      const refreshObj = await refreshResponse.json()
+      if (!refreshObj?.access_token || !refreshObj?.refresh_token) {
+        return false
+      }
+
+      setTokens((prev: any) => ({
+        ...prev,
+        access_token: refreshObj.access_token,
+        refresh_token: refreshObj.refresh_token,
+      }))
+
+      return true
+    }
+
+    const parseResponseBody = async (response: Response) => {
+      const raw = await response.text()
+      if (!raw) {
+        return {}
+      }
+
+      try {
+        return JSON.parse(raw)
+      } catch {
+        return { message: raw }
+      }
+    }
+
+    const fetchCategories = async (shouldRetry = true) => {
       if (!tokens?.access_token || !user?.gym_id) {
         return
       }
@@ -184,22 +244,38 @@ const AddEquipmentScreen = ({ navigation }) => {
         )
 
         if (response.ok) {
-          const data = await response.json()
-          const options = (data.data || []).map((cat: any) => ({
-            key: String(cat.uid),
-            value: cat.name,
-          }))
+          const data = await parseResponseBody(response)
+          const options = normalizeCategoryOptions(data)
           setCategoryOptions(options)
-        } else {
-          console.log('Failed to fetch categories:', response.status)
+          return
         }
+
+        const body = await parseResponseBody(response)
+        const message = String(body?.message ?? '').toLowerCase()
+        const isAuthFailure =
+          response.status === 400 ||
+          response.status === 401 ||
+          response.status === 403 ||
+          message.includes('token has expired') ||
+          message.includes('expired token') ||
+          message.includes('invalid token')
+
+        if (shouldRetry && isAuthFailure) {
+          const refreshed = await refreshAccessToken()
+          if (refreshed) {
+            await fetchCategories(false)
+            return
+          }
+        }
+
+        console.log('Failed to fetch categories:', response.status)
       } catch (error) {
         console.log('Failed to fetch equipment categories:', error)
       }
     }
 
     void fetchCategories()
-  }, [tokens?.access_token, user?.gym_id, webServer])
+  }, [setTokens, tokens?.access_token, tokens?.refresh_token, user?.gym_id, webServer])
 
   const {
     control,
