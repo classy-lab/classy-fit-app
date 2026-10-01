@@ -9,6 +9,7 @@ import { useCart } from '../../context/CartContext'
 import { UserContext } from '../../context/UserContext'
 import { showMessage } from 'react-native-flash-message'
 import { useStripe } from '@stripe/stripe-react-native'
+import { performAuthenticatedRequest, shouldRefreshAuthResponse } from '../../utils/authenticatedRequest'
 
 const ViewCartScreen = () => {
   const navigation = useNavigation()
@@ -31,36 +32,6 @@ const ViewCartScreen = () => {
     const ss = String(now.getSeconds()).padStart(2, '0')
     const randomSuffix = Math.random().toString(36).slice(2, 8).toUpperCase()
     return `ORD-${yyyy}${mm}${dd}-${hh}${mi}${ss}-${randomSuffix}`
-  }
-
-  const refreshAccessToken = async () => {
-    if (!tokens?.refresh_token) {
-      return null
-    }
-
-    const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
-      method: 'POST',
-      body: JSON.stringify({
-        token: tokens.refresh_token,
-      }),
-    })
-
-    if (refreshResponse.status !== 200) {
-      return null
-    }
-
-    const refreshObj = await refreshResponse.json()
-    if (!refreshObj?.access_token || !refreshObj?.refresh_token) {
-      return null
-    }
-
-    setTokens((prev: any) => ({
-      ...prev,
-      access_token: refreshObj.access_token,
-      refresh_token: refreshObj.refresh_token,
-    }))
-
-    return refreshObj.access_token
   }
 
   const buildCreateOrderPayload = () => {
@@ -136,38 +107,31 @@ const ViewCartScreen = () => {
     }
 
     const endpoint = `${webServer}/api/v1/gyms/${user.gym_id}/checkout/payment-intent`
-
-    let accessToken = tokens.access_token
-    let response = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
+    const response = await performAuthenticatedRequest({
+      endpoint,
+      init: {
+        method: 'POST',
+        body: JSON.stringify(payload),
       },
-      body: JSON.stringify(payload),
+      accessToken: tokens.access_token,
+      refreshToken: tokens.refresh_token,
+      webServer,
+      setTokens,
     })
 
-    if (response.status === 401 || response.status === 403) {
-      const refreshedAccessToken = await refreshAccessToken()
-      if (!refreshedAccessToken) {
-        showMessage({
-          message: 'Session expired',
-          description: 'Please sign in again.',
-          type: 'danger',
-        })
-        return null
-      }
-
-      accessToken = refreshedAccessToken
-      response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(payload),
+    if (!response) {
+      showMessage({
+        message: 'Session expired',
+        description: 'Please sign in again.',
+        type: 'danger',
       })
+      return null
     }
+
+    const shouldShowSessionExpired =
+      response.status === 401 ||
+      response.status === 403 ||
+      (response.status === 400 && (await shouldRefreshAuthResponse(response)))
 
     const text = await response.text()
     let responseBody: any = {}
@@ -177,6 +141,15 @@ const ViewCartScreen = () => {
       } catch (parseError) {
         responseBody = { message: text }
       }
+    }
+
+    if (shouldShowSessionExpired) {
+      showMessage({
+        message: 'Session expired',
+        description: 'Please sign in again.',
+        type: 'danger',
+      })
+      return null
     }
 
     return { response, responseBody }
