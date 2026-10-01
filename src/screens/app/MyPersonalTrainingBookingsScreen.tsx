@@ -15,7 +15,7 @@ import { Feather } from '@expo/vector-icons'
 import { AppColors } from '../../styles/colors'
 import { UserContext } from '../../context/UserContext'
 import { getMemberPersonalTrainingTitle } from '../../components/utils/personalTrainingDisplay'
-import { shouldRefreshAuthResponse } from '../../utils/authenticatedRequest'
+import { performAuthenticatedRequest } from '../../utils/authenticatedRequest'
 
 type RefreshTokens = {
   access_token?: string
@@ -83,36 +83,6 @@ const MyPersonalTrainingBookingsScreen = ({ navigation }: { navigation: MyPerson
   const [errorMessage, setErrorMessage] = useState('')
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming')
 
-  const refreshAccessToken = async () => {
-    if (!tokens?.refresh_token) {
-      return null
-    }
-
-    const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
-      method: 'POST',
-      body: JSON.stringify({
-        token: tokens.refresh_token,
-      }),
-    })
-
-    if (refreshResponse.status !== 200) {
-      return null
-    }
-
-    const refreshObj = await refreshResponse.json()
-    if (!refreshObj?.access_token || !refreshObj?.refresh_token) {
-      return null
-    }
-
-    setTokens((prev) => ({
-      ...(prev ?? {}),
-      access_token: refreshObj.access_token,
-      refresh_token: refreshObj.refresh_token,
-    }))
-
-    return refreshObj.access_token
-  }
-
   const loadBookings = useCallback(async ({ isRefresh = false } = {}) => {
     if (!tokens?.access_token) {
       setErrorMessage('Please sign in again to view your personal training bookings.')
@@ -132,28 +102,19 @@ const MyPersonalTrainingBookingsScreen = ({ navigation }: { navigation: MyPerson
 
     const endpoint = `${webServer}/api/v1/personal-training/bookings`
 
-    const performRequest = async (accessToken: string): Promise<Response> => {
-      return fetch(endpoint, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      })
-    }
-
     try {
-      let accessToken = tokens.access_token
-      let response = await performRequest(accessToken)
+      const response = await performAuthenticatedRequest({
+        endpoint,
+        accessToken: tokens.access_token,
+        refreshToken: tokens.refresh_token,
+        webServer,
+        setTokens,
+      })
 
-      if (await shouldRefreshAuthResponse(response)) {
-        const refreshedAccessToken = await refreshAccessToken()
-        if (refreshedAccessToken) {
-          accessToken = refreshedAccessToken
-          response = await performRequest(accessToken)
-        } else {
-          setErrorMessage('Your session expired. Please sign in again.')
-          setBookings([])
-          return
-        }
+      if (!response) {
+        setErrorMessage('Your session expired. Please sign in again.')
+        setBookings([])
+        return
       }
 
       const responseText = await response.text()
@@ -166,7 +127,7 @@ const MyPersonalTrainingBookingsScreen = ({ navigation }: { navigation: MyPerson
         }
       }
 
-      if (response.status !== 200) {
+      if (!response.ok) {
         const message = responseBody?.message || 'Unable to load your personal training bookings.'
         setErrorMessage(message)
         setBookings([])
