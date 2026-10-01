@@ -52,7 +52,7 @@ const ProductDetailScreen = ({ navigation, route }) => {
             setSelectedImageIndex(0);
           }
           else {
-            console.log("Access token expired, requesting new one - useFocusEffect()");
+            console.log("Access token expired, requesting new one");
 
             const response = await fetch(`${webServer}/api/v1/refresh`, {
               method: "POST",
