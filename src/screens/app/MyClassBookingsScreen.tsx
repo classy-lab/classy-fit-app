@@ -15,7 +15,7 @@ import { showMessage } from 'react-native-flash-message'
 import { AppColors } from '../../styles/colors'
 import { UserContext } from '../../context/UserContext'
 import { Feather } from '@expo/vector-icons'
-import { shouldRefreshAuthResponse } from '../../utils/authenticatedRequest'
+import { performAuthenticatedRequest } from '../../utils/authenticatedRequest'
 
 const MyClassBookingsScreen = ({ navigation }) => {
   const { user, tokens, setTokens, webServer } = useContext(UserContext)
@@ -24,36 +24,6 @@ const MyClassBookingsScreen = ({ navigation }) => {
   const [refreshing, setRefreshing] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming')
-
-  const refreshAccessToken = async () => {
-    if (!tokens?.refresh_token) {
-      return null
-    }
-
-    const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
-      method: 'POST',
-      body: JSON.stringify({
-        token: tokens.refresh_token,
-      }),
-    })
-
-    if (refreshResponse.status !== 200) {
-      return null
-    }
-
-    const refreshObj = await refreshResponse.json()
-    if (!refreshObj?.access_token || !refreshObj?.refresh_token) {
-      return null
-    }
-
-    setTokens((prev: any) => ({
-      ...prev,
-      access_token: refreshObj.access_token,
-      refresh_token: refreshObj.refresh_token,
-    }))
-
-    return refreshObj.access_token
-  }
 
   const loadBookings = useCallback(async ({ isRefresh = false } = {}) => {
     if (!tokens?.access_token) {
@@ -74,28 +44,19 @@ const MyClassBookingsScreen = ({ navigation }) => {
 
     const endpoint = `${webServer}/api/v1/classes/bookings`
 
-    const performRequest = async (accessToken) => {
-      return fetch(endpoint, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      })
-    }
-
     try {
-      let accessToken = tokens.access_token
-      let response = await performRequest(accessToken)
+      const response = await performAuthenticatedRequest({
+        endpoint,
+        accessToken: tokens.access_token,
+        refreshToken: tokens.refresh_token,
+        webServer,
+        setTokens,
+      })
 
-      if (await shouldRefreshAuthResponse(response)) {
-        const refreshedAccessToken = await refreshAccessToken()
-        if (refreshedAccessToken) {
-          accessToken = refreshedAccessToken
-          response = await performRequest(accessToken)
-        } else {
-          setErrorMessage('Your session expired. Please sign in again.')
-          setBookings([])
-          return
-        }
+      if (!response) {
+        setErrorMessage('Your session expired. Please sign in again.')
+        setBookings([])
+        return
       }
 
       const responseText = await response.text()
@@ -108,7 +69,7 @@ const MyClassBookingsScreen = ({ navigation }) => {
         }
       }
 
-      if (response.status !== 200) {
+      if (!response.ok) {
         const message = responseBody?.message || 'Unable to load your bookings.'
         setErrorMessage(message)
         setBookings([])
@@ -135,7 +96,7 @@ const MyClassBookingsScreen = ({ navigation }) => {
       setLoading(false)
       setRefreshing(false)
     }
-  }, [tokens?.access_token, tokens?.refresh_token, setTokens, webServer])
+  }, [setTokens, tokens?.access_token, tokens?.refresh_token, webServer])
 
   useFocusEffect(
     useCallback(() => {
