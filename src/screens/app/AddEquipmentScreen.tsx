@@ -168,12 +168,12 @@ const AddEquipmentScreen = ({ navigation }) => {
   const richText = useRef(null)
 
   const normalizeCategoryOptions = (payload: any) => {
-    const rawCategories = Array.isArray(payload)
-      ? payload
-      : Array.isArray(payload?.data)
-        ? payload.data
-        : Array.isArray(payload?.categories)
-          ? payload.categories
+    const rawCategories = Array.isArray(payload?.data)
+      ? payload.data
+      : Array.isArray(payload?.categories)
+        ? payload.categories
+        : Array.isArray(payload)
+          ? payload
           : []
 
     return rawCategories
@@ -187,23 +187,21 @@ const AddEquipmentScreen = ({ navigation }) => {
   useEffect(() => {
     const refreshAccessToken = async () => {
       if (!tokens?.refresh_token) {
-        return false
+        return null
       }
 
       const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
         method: 'POST',
-        body: JSON.stringify({
-          token: tokens.refresh_token,
-        }),
+        body: JSON.stringify({ token: tokens.refresh_token }),
       })
 
       if (!refreshResponse.ok) {
-        return false
+        return null
       }
 
       const refreshObj = await refreshResponse.json()
       if (!refreshObj?.access_token || !refreshObj?.refresh_token) {
-        return false
+        return null
       }
 
       setTokens((prev: any) => ({
@@ -212,60 +210,56 @@ const AddEquipmentScreen = ({ navigation }) => {
         refresh_token: refreshObj.refresh_token,
       }))
 
-      return true
+      return refreshObj.access_token
     }
 
-    const parseResponseBody = async (response: Response) => {
-      const raw = await response.text()
-      if (!raw) {
-        return {}
-      }
-
-      try {
-        return JSON.parse(raw)
-      } catch {
-        return { message: raw }
-      }
-    }
-
-    const fetchCategories = async (shouldRetry = true) => {
+    const fetchCategories = async () => {
       if (!tokens?.access_token || !user?.gym_id) {
         return
       }
 
       try {
-        const response = await fetch(
-          `${webServer}/api/v1/gyms/${user?.gym_id}/equipment-categories`,
-          {
+        const loadCategories = (accessToken: string) =>
+          fetch(`${webServer}/api/v1/gyms/${user?.gym_id}/equipment-categories`, {
             headers: {
-              Authorization: 'Bearer ' + tokens.access_token,
+              Authorization: 'Bearer ' + accessToken,
             },
-          }
-        )
+          })
 
-        if (response.ok) {
-          const data = await parseResponseBody(response)
-          const options = normalizeCategoryOptions(data)
-          setCategoryOptions(options)
-          return
+        const parseCategoriesResponse = async (response: Response) => {
+          const raw = await response.text()
+          try {
+            return raw ? JSON.parse(raw) : {}
+          } catch {
+            return { message: raw }
+          }
         }
 
-        const body = await parseResponseBody(response)
-        const message = String(body?.message ?? '').toLowerCase()
-        const isAuthFailure =
-          response.status === 400 ||
-          response.status === 401 ||
-          response.status === 403 ||
-          message.includes('token has expired') ||
-          message.includes('expired token') ||
-          message.includes('invalid token')
+        let response = await loadCategories(tokens.access_token)
+        let body = await parseCategoriesResponse(response)
 
-        if (shouldRetry && isAuthFailure) {
-          const refreshed = await refreshAccessToken()
-          if (refreshed) {
-            await fetchCategories(false)
-            return
+        if (!response.ok) {
+          const message = String(body?.message ?? '').toLowerCase()
+          const expiredToken =
+            response.status === 400 ||
+            response.status === 401 ||
+            response.status === 403 ||
+            message.includes('token has expired') ||
+            message.includes('expired token') ||
+            message.includes('invalid token')
+
+          if (expiredToken) {
+            const refreshedAccessToken = await refreshAccessToken()
+            if (refreshedAccessToken) {
+              response = await loadCategories(refreshedAccessToken)
+              body = await parseCategoriesResponse(response)
+            }
           }
+        }
+
+        if (response.ok) {
+          setCategoryOptions(normalizeCategoryOptions(body))
+          return
         }
 
         console.log('Failed to fetch categories:', response.status)
