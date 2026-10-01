@@ -163,8 +163,12 @@ const PersonalTrainingSessionScreen = ({
   const [errorMessage, setErrorMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const requestWithRefresh = async (endpoint: string, init: RequestInit = {}) => {
-    const accessToken = String(tokens?.access_token ?? "").trim()
+  const requestWithRefresh = async (
+    endpoint: string,
+    init: RequestInit = {},
+    debugStage: 'session-load' | 'booking' | 'checkout' | 'reconciliation' = 'session-load'
+  ) => {
+    const accessToken = String(tokens?.access_token ?? '').trim()
 
     if (!accessToken) {
       return null
@@ -172,7 +176,7 @@ const PersonalTrainingSessionScreen = ({
 
     const performRequest = (token: string) => {
       const headers = new Headers(init.headers ?? undefined)
-      headers.set("Authorization", `Bearer ${token}`)
+      headers.set('Authorization', `Bearer ${token}`)
 
       return fetch(endpoint, {
         ...init,
@@ -180,45 +184,116 @@ const PersonalTrainingSessionScreen = ({
       })
     }
 
-    let response = await performRequest(accessToken)
-
-    if (await shouldRefreshAuthResponse(response)) {
-      const currentRefreshToken = tokens?.refresh_token
-
-      if (!currentRefreshToken) {
-        return null
-      }
-
-      const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          token: currentRefreshToken,
-        }),
-      })
-
-      if (!refreshResponse.ok) {
-        return null
-      }
-
-      const refreshObj = (await refreshResponse.json()) as RefreshTokens
-      if (!refreshObj?.access_token || !refreshObj?.refresh_token) {
-        return null
-      }
-
-      setTokens((prev) => ({
-        ...(prev ?? {}),
-        access_token: refreshObj.access_token,
-        refresh_token: refreshObj.refresh_token,
-      }))
-
-      response = await performRequest(refreshObj.access_token)
+    const response = await performRequest(accessToken)
+    if (debugStage === 'booking') {
+      console.log('PT_AUTH booking request', { hasAccessToken: Boolean(accessToken) })
+      console.log('PT_AUTH booking response', { status: response.status, ok: response.ok })
+    } else if (debugStage === 'checkout') {
+      console.log('PT_AUTH checkout request', { hasAccessToken: Boolean(accessToken) })
+      console.log('PT_AUTH checkout response', { status: response.status, ok: response.ok })
+    } else if (debugStage === 'session-load') {
+      console.log('PT_AUTH session-load response', { status: response.status, ok: response.ok })
+    } else if (debugStage === 'reconciliation') {
+      console.log('PT_AUTH reconciliation response', { status: response.status, ok: response.ok })
+      console.log('PT_AUTH reconciliation refresh required', { required: false })
     }
 
-    return response
+    const shouldRefresh = await shouldRefreshAuthResponse(response)
+    if (debugStage === 'session-load') {
+      console.log('PT_AUTH session-load refresh required', { required: shouldRefresh })
+    } else if (debugStage === 'reconciliation') {
+      console.log('PT_AUTH reconciliation refresh required', { required: shouldRefresh })
+    }
+
+    if (!shouldRefresh) {
+      return response
+    }
+
+    if (debugStage === 'booking') {
+      console.log('PT_AUTH booking refresh started', { hasRefreshToken: Boolean(tokens?.refresh_token) })
+    } else if (debugStage === 'checkout') {
+      console.log('PT_AUTH checkout refresh started', { hasRefreshToken: Boolean(tokens?.refresh_token) })
+    } else if (debugStage === 'session-load') {
+      console.log('PT_AUTH session-load refresh started', { hasRefreshToken: Boolean(tokens?.refresh_token) })
+    } else if (debugStage === 'reconciliation') {
+      console.log('PT_AUTH reconciliation refresh started', { hasRefreshToken: Boolean(tokens?.refresh_token) })
+    }
+
+    const currentRefreshToken = tokens?.refresh_token
+
+    if (!currentRefreshToken) {
+      return null
+    }
+
+    const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        token: currentRefreshToken,
+      }),
+    })
+
+    if (debugStage === 'booking') {
+      console.log('PT_AUTH booking refresh response', { status: refreshResponse.status, ok: refreshResponse.ok })
+    } else if (debugStage === 'checkout') {
+      console.log('PT_AUTH checkout refresh response', { status: refreshResponse.status, ok: refreshResponse.ok })
+    } else if (debugStage === 'session-load') {
+      console.log('PT_AUTH session-load refresh response', { status: refreshResponse.status, ok: refreshResponse.ok })
+    } else if (debugStage === 'reconciliation') {
+      console.log('PT_AUTH reconciliation refresh response', { status: refreshResponse.status, ok: refreshResponse.ok })
+    }
+
+    if (!refreshResponse.ok) {
+      return null
+    }
+
+    const refreshObj = (await refreshResponse.json()) as RefreshTokens
+    if (debugStage === 'booking') {
+      console.log('PT_AUTH booking refresh tokens', {
+        hasAccessToken: Boolean(refreshObj?.access_token),
+        hasRefreshToken: Boolean(refreshObj?.refresh_token),
+      })
+    } else if (debugStage === 'checkout') {
+      console.log('PT_AUTH checkout refresh tokens', {
+        hasAccessToken: Boolean(refreshObj?.access_token),
+        hasRefreshToken: Boolean(refreshObj?.refresh_token),
+      })
+    } else if (debugStage === 'session-load') {
+      console.log('PT_AUTH session-load refresh tokens', {
+        hasAccessToken: Boolean(refreshObj?.access_token),
+        hasRefreshToken: Boolean(refreshObj?.refresh_token),
+      })
+    } else if (debugStage === 'reconciliation') {
+      console.log('PT_AUTH reconciliation refresh tokens', {
+        hasAccessToken: Boolean(refreshObj?.access_token),
+        hasRefreshToken: Boolean(refreshObj?.refresh_token),
+      })
+    }
+    if (!refreshObj?.access_token || !refreshObj?.refresh_token) {
+      return null
+    }
+
+    setTokens((prev) => ({
+      ...(prev ?? {}),
+      access_token: refreshObj.access_token,
+      refresh_token: refreshObj.refresh_token,
+    }))
+
+    const retryResponse = await performRequest(refreshObj.access_token)
+    if (debugStage === 'booking') {
+      console.log('PT_AUTH booking retry', { status: retryResponse.status, ok: retryResponse.ok })
+    } else if (debugStage === 'checkout') {
+      console.log('PT_AUTH checkout retry', { status: retryResponse.status, ok: retryResponse.ok })
+    } else if (debugStage === 'session-load') {
+      console.log('PT_AUTH session-load retry', { status: retryResponse.status, ok: retryResponse.ok })
+    } else if (debugStage === 'reconciliation') {
+      console.log('PT_AUTH reconciliation retry', { status: retryResponse.status, ok: retryResponse.ok })
+    }
+    return retryResponse
   }
+
   const loadSession = async ({ isRefresh = false }: { isRefresh?: boolean } = {}) => {
     if (!sessionUid || !user?.gym_id || !tokens?.access_token) {
       setErrorMessage('Unable to load personal training session.')
@@ -237,9 +312,10 @@ const PersonalTrainingSessionScreen = ({
 
     const endpoint = `${webServer}/api/v1/personal-training/sessions/${sessionUid}`
     try {
-      const response = await requestWithRefresh(endpoint)
+      const response = await requestWithRefresh(endpoint, {}, 'session-load')
 
       if (!response) {
+        console.log('PT_AUTH SESSION_EXPIRED', { stage: 'session-load' })
         setErrorMessage('Your session expired. Please sign in again.')
         setSession(null)
         return
@@ -336,9 +412,10 @@ const PersonalTrainingSessionScreen = ({
         headers: {
           'Idempotency-Key': idempotencyKey,
         },
-      })
+      }, 'booking')
 
       if (!bookingResponse) {
+        console.log('PT_AUTH SESSION_EXPIRED', { stage: 'booking' })
         showMessage({
           message: 'Session expired',
           description: 'Please sign in again.',
@@ -377,9 +454,10 @@ const PersonalTrainingSessionScreen = ({
         headers: {
           'Idempotency-Key': idempotencyKey,
         },
-      })
+      }, 'checkout')
 
       if (!checkoutResponse) {
+        console.log('PT_AUTH SESSION_EXPIRED', { stage: 'checkout' })
         showMessage({
           message: 'Session expired',
           description: 'Please sign in again.',
@@ -387,6 +465,15 @@ const PersonalTrainingSessionScreen = ({
         })
         return
       }
+
+      const checkoutResponseBodyDebug = (await parseResponseBody<LoadBookingResponse>(checkoutResponse.clone())) as LoadBookingResponse
+      console.log('PT_AUTH checkout response body', {
+        message: checkoutResponseBodyDebug?.message,
+        error: (checkoutResponseBodyDebug as { error?: unknown })?.error,
+        code: (checkoutResponseBodyDebug as { code?: unknown })?.code,
+        status: (checkoutResponseBodyDebug as { status?: unknown })?.status,
+        body: checkoutResponseBodyDebug,
+      })
 
       let checkoutResponseBody = (await parseResponseBody<LoadBookingResponse>(checkoutResponse)) as LoadBookingResponse
 
@@ -467,7 +554,7 @@ const PersonalTrainingSessionScreen = ({
         headers: {
           'Idempotency-Key': idempotencyKey,
         },
-      })
+      }, 'reconciliation')
 
       if (reconciliationResponse?.ok) {
         checkoutResponseBody = (await parseResponseBody<LoadBookingResponse>(reconciliationResponse)) as LoadBookingResponse
