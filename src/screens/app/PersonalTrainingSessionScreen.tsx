@@ -132,6 +132,19 @@ const generateIdempotencyKey = (sessionUid: string) => {
   return `pt-booking-${sessionUid}-${Date.now()}-${random}`
 }
 
+const parseResponseBody = async <T extends object>(response: Response): Promise<T | { message?: string }> => {
+  const responseText = await response.text()
+  if (!responseText) {
+    return {}
+  }
+
+  try {
+    return JSON.parse(responseText) as T
+  } catch {
+    return { message: responseText }
+  }
+}
+
 const PersonalTrainingSessionScreen = ({
   navigation,
   route,
@@ -150,36 +163,62 @@ const PersonalTrainingSessionScreen = ({
   const [errorMessage, setErrorMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const refreshAccessToken = async () => {
-    if (!tokens?.refresh_token) {
+  const requestWithRefresh = async (endpoint: string, init: RequestInit = {}) => {
+    const accessToken = String(tokens?.access_token ?? "").trim()
+
+    if (!accessToken) {
       return null
     }
 
-    const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
-      method: 'POST',
-      body: JSON.stringify({
-        token: tokens.refresh_token,
-      }),
-    })
+    const performRequest = (token: string) => {
+      const headers = new Headers(init.headers ?? undefined)
+      headers.set("Authorization", `Bearer ${token}`)
 
-    if (refreshResponse.status !== 200) {
-      return null
+      return fetch(endpoint, {
+        ...init,
+        headers,
+      })
     }
 
-    const refreshObj = await refreshResponse.json()
-    if (!refreshObj?.access_token || !refreshObj?.refresh_token) {
-      return null
+    let response = await performRequest(accessToken)
+
+    if (await shouldRefreshAuthResponse(response)) {
+      const currentRefreshToken = tokens?.refresh_token
+
+      if (!currentRefreshToken) {
+        return null
+      }
+
+      const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          token: currentRefreshToken,
+        }),
+      })
+
+      if (!refreshResponse.ok) {
+        return null
+      }
+
+      const refreshObj = (await refreshResponse.json()) as RefreshTokens
+      if (!refreshObj?.access_token || !refreshObj?.refresh_token) {
+        return null
+      }
+
+      setTokens((prev) => ({
+        ...(prev ?? {}),
+        access_token: refreshObj.access_token,
+        refresh_token: refreshObj.refresh_token,
+      }))
+
+      response = await performRequest(refreshObj.access_token)
     }
 
-    setTokens((prev) => ({
-      ...(prev ?? {}),
-      access_token: refreshObj.access_token,
-      refresh_token: refreshObj.refresh_token,
-    }))
-
-    return refreshObj.access_token
+    return response
   }
-
   const loadSession = async ({ isRefresh = false }: { isRefresh?: boolean } = {}) => {
     if (!sessionUid || !user?.gym_id || !tokens?.access_token) {
       setErrorMessage('Unable to load personal training session.')
@@ -197,41 +236,18 @@ const PersonalTrainingSessionScreen = ({
     setErrorMessage('')
 
     const endpoint = `${webServer}/api/v1/personal-training/sessions/${sessionUid}`
-    const performRequest = async (accessToken: string): Promise<Response> => {
-      return fetch(endpoint, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      })
-    }
-
     try {
-      let accessToken = tokens.access_token
-      let response = await performRequest(accessToken)
+      const response = await requestWithRefresh(endpoint)
 
-      if (await shouldRefreshAuthResponse(response)) {
-        const refreshedAccessToken = await refreshAccessToken()
-        if (refreshedAccessToken) {
-          accessToken = refreshedAccessToken
-          response = await performRequest(accessToken)
-        } else {
-          setErrorMessage('Your session expired. Please sign in again.')
-          setSession(null)
-          return
-        }
+      if (!response) {
+        setErrorMessage('Your session expired. Please sign in again.')
+        setSession(null)
+        return
       }
 
-      const responseText = await response.text()
-      let responseBody: LoadSessionResponse = {}
-      if (responseText) {
-        try {
-          responseBody = JSON.parse(responseText) as LoadSessionResponse
-        } catch {
-          responseBody = { message: responseText }
-        }
-      }
+      const responseBody = (await parseResponseBody(response)) as LoadSessionResponse
 
-      if (response.status !== 200) {
+      if (!response.ok) {
         const message = responseBody?.message || 'Unable to load personal training session.'
         setErrorMessage(message)
         setSession(null)
@@ -313,70 +329,28 @@ const PersonalTrainingSessionScreen = ({
     setIsSubmitting(true)
 
     const bookingEndpoint = `${webServer}/api/v1/personal-training/sessions/${sessionUid}/book`
-    const performBookingRequest = async (accessToken: string): Promise<Response> => {
-      return fetch(bookingEndpoint, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Idempotency-Key': idempotencyKey,
-        },
-      })
-    }
-
-    const performCheckoutRequest = async (accessToken: string, bookingUid: number): Promise<Response> => {
-      return fetch(`${webServer}/api/v1/personal-training/bookings/${bookingUid}/checkout`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Idempotency-Key': idempotencyKey,
-        },
-      })
-    }
-
-    const submitRequestWithRefresh = async (
-      performRequest: (accessToken: string) => Promise<Response>
-    ): Promise<{ response: Response; responseBody: LoadBookingResponse; accessToken: string } | null> => {
-      let accessToken = tokens.access_token
-      let response = await performRequest(accessToken)
-
-      if (await shouldRefreshAuthResponse(response)) {
-        const refreshedAccessToken = await refreshAccessToken()
-        if (refreshedAccessToken) {
-          accessToken = refreshedAccessToken
-          response = await performRequest(accessToken)
-        } else {
-          showMessage({
-            message: 'Session expired',
-            description: 'Please sign in again.',
-            type: 'danger',
-          })
-          return null
-        }
-      }
-
-      const responseText = await response.text()
-      let responseBody: LoadBookingResponse = {}
-      if (responseText) {
-        try {
-          responseBody = JSON.parse(responseText) as LoadBookingResponse
-        } catch {
-          responseBody = { message: responseText }
-        }
-      }
-
-      return { response, responseBody, accessToken }
-    }
 
     try {
-      const bookingResult = await submitRequestWithRefresh(performBookingRequest)
-      if (!bookingResult) {
+      const bookingResponse = await requestWithRefresh(bookingEndpoint, {
+        method: 'POST',
+        headers: {
+          'Idempotency-Key': idempotencyKey,
+        },
+      })
+
+      if (!bookingResponse) {
+        showMessage({
+          message: 'Session expired',
+          description: 'Please sign in again.',
+          type: 'danger',
+        })
         return
       }
 
-      const { response, responseBody } = bookingResult
+      const bookingResponseBody = (await parseResponseBody<LoadBookingResponse>(bookingResponse)) as LoadBookingResponse
 
-      if (response.status !== 200 && response.status !== 201) {
-        const message = responseBody?.message || 'Unable to book this session.'
+      if (!bookingResponse.ok) {
+        const message = bookingResponseBody?.message || 'Unable to book this session.'
         showMessage({
           message: 'Booking failed',
           description: message,
@@ -385,7 +359,7 @@ const PersonalTrainingSessionScreen = ({
         return
       }
 
-      const booking = responseBody?.booking
+      const booking = bookingResponseBody?.booking
       const bookingUid = Number(booking?.booking_uid ?? 0)
 
       if (!bookingUid) {
@@ -397,18 +371,26 @@ const PersonalTrainingSessionScreen = ({
         return
       }
 
-      const checkoutResult = await submitRequestWithRefresh((token) =>
-        performCheckoutRequest(token, bookingUid)
-      )
+      const checkoutEndpoint = `${webServer}/api/v1/personal-training/bookings/${bookingUid}/checkout`
+      const checkoutResponse = await requestWithRefresh(checkoutEndpoint, {
+        method: 'POST',
+        headers: {
+          'Idempotency-Key': idempotencyKey,
+        },
+      })
 
-      if (!checkoutResult) {
+      if (!checkoutResponse) {
+        showMessage({
+          message: 'Session expired',
+          description: 'Please sign in again.',
+          type: 'danger',
+        })
         return
       }
 
-      let checkoutResponse = checkoutResult.response
-      let checkoutResponseBody = checkoutResult.responseBody
+      let checkoutResponseBody = (await parseResponseBody<LoadBookingResponse>(checkoutResponse)) as LoadBookingResponse
 
-      if (checkoutResponse.status !== 200 && checkoutResponse.status !== 201) {
+      if (!checkoutResponse.ok) {
         const message = checkoutResponseBody?.message || 'Unable to complete this booking.'
         showMessage({
           message: 'Booking failed',
@@ -432,7 +414,7 @@ const PersonalTrainingSessionScreen = ({
           booking: checkoutBooking,
           payment: checkoutPayment,
           isPaid: false,
-          idempotencyKey: responseBody?.idempotency_key ?? idempotencyKey,
+          idempotencyKey: bookingResponseBody?.idempotency_key ?? idempotencyKey,
         })
         return
       }
@@ -480,13 +462,15 @@ const PersonalTrainingSessionScreen = ({
         return
       }
 
-      const reconciliationResult = await submitRequestWithRefresh((token) =>
-        performCheckoutRequest(token, bookingUid)
-      )
+      const reconciliationResponse = await requestWithRefresh(checkoutEndpoint, {
+        method: 'POST',
+        headers: {
+          'Idempotency-Key': idempotencyKey,
+        },
+      })
 
-      if (reconciliationResult && (reconciliationResult.response.status === 200 || reconciliationResult.response.status === 201)) {
-        checkoutResponse = reconciliationResult.response
-        checkoutResponseBody = reconciliationResult.responseBody
+      if (reconciliationResponse?.ok) {
+        checkoutResponseBody = (await parseResponseBody<LoadBookingResponse>(reconciliationResponse)) as LoadBookingResponse
       }
 
       const reconciledBooking = checkoutResponseBody?.booking ?? checkoutBooking
@@ -502,7 +486,7 @@ const PersonalTrainingSessionScreen = ({
         booking: reconciledBooking,
         payment: reconciledPayment,
         isPaid: true,
-        idempotencyKey: checkoutResponseBody?.idempotency_key ?? responseBody?.idempotency_key ?? idempotencyKey,
+        idempotencyKey: checkoutResponseBody?.idempotency_key ?? bookingResponseBody?.idempotency_key ?? idempotencyKey,
       })
     } catch (error) {
       console.log('Personal training booking checkout error:', error)
@@ -515,7 +499,6 @@ const PersonalTrainingSessionScreen = ({
       setIsSubmitting(false)
     }
   }
-
   const showUnavailable = !loading && !errorMessage && !isBookable
 
   return (
