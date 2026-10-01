@@ -169,6 +169,10 @@ const AddEquipmentScreen = ({ navigation }) => {
 
   useEffect(() => {
     const fetchCategories = async () => {
+      if (!tokens?.access_token || !user?.gym_id) {
+        return
+      }
+
       try {
         const response = await fetch(
           `${webServer}/api/v1/gyms/${user?.gym_id}/equipment-categories`,
@@ -179,7 +183,7 @@ const AddEquipmentScreen = ({ navigation }) => {
           }
         )
 
-        if (response.status === 200) {
+        if (response.ok) {
           const data = await response.json()
           const options = (data.data || []).map((cat: any) => ({
             key: String(cat.uid),
@@ -194,10 +198,8 @@ const AddEquipmentScreen = ({ navigation }) => {
       }
     }
 
-    if (tokens?.access_token) {
-      fetchCategories()
-    }
-  }, [tokens?.access_token, webServer])
+    void fetchCategories()
+  }, [tokens?.access_token, user?.gym_id, webServer])
 
   const {
     control,
