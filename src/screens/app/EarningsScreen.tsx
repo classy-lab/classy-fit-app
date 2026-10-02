@@ -2,17 +2,18 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import {
   ActivityIndicator,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
   View,
   TouchableOpacity,
+  useWindowDimensions,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5'
+import { LineChart } from 'react-native-gifted-charts'
 import { AppColors } from '../../styles/colors'
 import SignOut from '../../components/utils/SignOut'
 import { UserContext } from '../../context/UserContext'
@@ -92,6 +93,7 @@ const formatDayAndDate = (value?: string) => {
 
 const EarningsScreen = ({ navigation }) => {
   const authContext = useContext(UserContext)
+  const { width } = useWindowDimensions()
   const user = authContext?.user ?? null
   const tokens = authContext?.tokens ?? null
   const webServer = authContext?.webServer ?? ''
@@ -186,10 +188,15 @@ const EarningsScreen = ({ navigation }) => {
 
   const dailyData: EarningsDailyPoint[] = earnings?.daily ?? []
   const selectedPoint = dailyData[selectedIndex] ?? dailyData[dailyData.length - 1] ?? null
-  const maxRevenue = useMemo(() => {
-    const maxValue = Math.max(...dailyData.map((item) => item.revenue), 0)
-    return maxValue > 0 ? maxValue : 1
-  }, [dailyData])
+  const lineChartData = useMemo(
+    () =>
+      dailyData.map((item) => ({
+        value: item.revenue,
+        label: formatDateLabel(item.date),
+      })),
+    [dailyData, formatDateLabel]
+  )
+  const chartWidth = Math.max(width - 48, dailyData.length * 56 + 64)
 
   const hasData = dailyData.length > 0
   const totalRevenue = earnings?.totals.revenue ?? 0
@@ -252,7 +259,7 @@ const EarningsScreen = ({ navigation }) => {
               {isLoading ? (
                 <View style={styles.loadingWrap}>
                   <ActivityIndicator color={AppColors.blue} />
-                  <Text style={styles.loadingText}>Loading actual sales...</Text>
+                  <Text style={styles.loadingText}>Loading revenue trend...</Text>
                 </View>
               ) : errorMessage && !earnings ? (
                 <View style={styles.loadingWrap}>
@@ -269,38 +276,38 @@ const EarningsScreen = ({ navigation }) => {
                     </Text>
                   </View>
 
-                  <View style={styles.chartRow}>
-                    {dailyData.map((item, index) => {
-                      const isSelected = index === selectedIndex
-                      const heightPercent = Math.max((item.revenue / maxRevenue) * 100, 8)
-
-                      return (
-                        <Pressable
-                          key={item.date}
-                          onPress={() => setSelectedIndex(index)}
-                          style={styles.barColumn}
-                        >
-                          <Text style={[styles.barAmount, isSelected && styles.barAmountSelected]}>
-                            {formatCurrency(item.revenue)}
-                          </Text>
-                          <View style={styles.barTrack}>
-                            <View
-                              style={[
-                                styles.barFill,
-                                {
-                                  height: `${heightPercent}%`,
-                                  backgroundColor: isSelected ? AppColors.primary : AppColors.blue,
-                                },
-                              ]}
-                            />
-                          </View>
-                          <Text style={[styles.barLabel, isSelected && styles.barLabelSelected]}>
-                            {formatDateLabel(item.date)}
-                          </Text>
-                        </Pressable>
-                      )
-                    })}
-                  </View>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.chartScrollContainer}
+                  >
+                    <View style={{ width: chartWidth }}>
+                      <LineChart
+                        data={lineChartData}
+                        height={220}
+                        spacing={dailyData.length > 7 ? 44 : 48}
+                        initialSpacing={18}
+                        endSpacing={18}
+                        curved
+                        isAnimated={false}
+                        hideDataPoints={false}
+                        dataPointsColor={AppColors.blue}
+                        dataPointsRadius={4}
+                        hideRules={false}
+                        hideYAxisText={false}
+                        showVerticalLines={false}
+                        yAxisColor={AppColors.grey2}
+                        xAxisColor={AppColors.grey2}
+                        color={AppColors.blue}
+                        thickness={2}
+                        yAxisTextStyle={styles.chartAxisText}
+                        xAxisLabelTextStyle={styles.chartAxisText}
+                        yAxisLabelPrefix=""
+                        roundToDigits={2}
+                        noOfSections={4}
+                      />
+                    </View>
+                  </ScrollView>
 
                   {!hasData ? (
                     <Text style={styles.emptyText}>No sales data for this week.</Text>
@@ -471,54 +478,14 @@ const styles = StyleSheet.create({
     fontFamily: 'Montserrat',
     marginTop: 4,
   },
-  chartRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'space-between',
-    width: '100%',
-    minHeight: 180,
-    marginTop: 4,
+  chartScrollContainer: {
+    paddingTop: 4,
+    paddingBottom: 2,
   },
-  barColumn: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    paddingHorizontal: 2,
-  },
-  barAmount: {
+  chartAxisText: {
     color: AppColors.grey3,
-    fontSize: 9,
+    fontSize: 10,
     fontFamily: 'Montserrat',
-    marginBottom: 6,
-    textAlign: 'center',
-    minHeight: 12,
-  },
-  barAmountSelected: {
-    color: AppColors.primary,
-    fontFamily: 'Montserrat',
-  },
-  barTrack: {
-    width: '100%',
-    flex: 1,
-    minHeight: 120,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    borderRadius: 999,
-    overflow: 'hidden',
-  },
-  barFill: {
-    width: '72%',
-    borderRadius: 999,
-  },
-  barLabel: {
-    marginTop: 8,
-    color: AppColors.grey3,
-    fontSize: 11,
-    fontFamily: 'Montserrat',
-    textAlign: 'center',
-  },
-  barLabelSelected: {
-    color: AppColors.blue,
   },
   emptyText: {
     marginTop: 12,
