@@ -193,8 +193,18 @@ const EarningsScreen = ({ navigation }) => {
       dailyData.map((item) => ({
         value: item.revenue,
         label: formatDateLabel(item.date),
+        dataPointsHeight: 8,
+        dataPointsWidth: 8,
+        dataPointsRadius: 4,
+        dataPointLabelComponent: () => (
+          <View style={styles.pointTooltip}>
+            <Text style={styles.pointTooltipDate}>{formatDayAndDate(item.date)}</Text>
+            <Text style={styles.pointTooltipValue}>{formatCurrency(item.revenue)}</Text>
+            <Text style={styles.pointTooltipMeta}>{item.transaction_count} transactions</Text>
+          </View>
+        ),
       })),
-    [dailyData, formatDateLabel]
+    [dailyData, formatCurrency]
   )
   const chartWidth = Math.max(width - 48, dailyData.length * 56 + 64)
 
@@ -239,7 +249,7 @@ const EarningsScreen = ({ navigation }) => {
                 <Text style={styles.heroEyebrow}>This week</Text>
                 <Text style={styles.heroTitle}>Combined total sales</Text>
                 <Text style={styles.heroDescription}>
-                  Tap a bar to see the actual sales for that day.
+                  Tap a point to see the revenue, date, and transaction count.
                 </Text>
               </View>
             </View>
@@ -293,6 +303,9 @@ const EarningsScreen = ({ navigation }) => {
                         hideDataPoints={false}
                         dataPointsColor={AppColors.blue}
                         dataPointsRadius={4}
+                        focusEnabled
+                        showStripOnFocus
+                        showDataPointLabelOnFocus
                         hideRules={false}
                         hideYAxisText={false}
                         showVerticalLines={false}
@@ -486,6 +499,41 @@ const styles = StyleSheet.create({
     color: AppColors.grey3,
     fontSize: 10,
     fontFamily: 'Montserrat',
+  },
+  pointTooltip: {
+    backgroundColor: AppColors.white,
+    borderRadius: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    borderWidth: 1,
+    borderColor: '#F3DFA9',
+    alignItems: 'center',
+    minWidth: 92,
+    shadowColor: AppColors.grey3,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  pointTooltipDate: {
+    color: AppColors.grey3,
+    fontSize: 10,
+    fontFamily: 'Montserrat',
+    textAlign: 'center',
+  },
+  pointTooltipValue: {
+    color: AppColors.primary,
+    fontSize: 13,
+    marginTop: 2,
+    fontFamily: 'Montserrat',
+    textAlign: 'center',
+  },
+  pointTooltipMeta: {
+    color: AppColors.grey3,
+    fontSize: 9,
+    marginTop: 2,
+    fontFamily: 'Montserrat',
+    textAlign: 'center',
   },
   emptyText: {
     marginTop: 12,
