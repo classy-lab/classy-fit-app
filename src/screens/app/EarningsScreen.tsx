@@ -17,30 +17,48 @@ import { AppColors } from '../../styles/colors'
 import SignOut from '../../components/utils/SignOut'
 import { UserContext } from '../../context/UserContext'
 import { performAuthenticatedRequest } from '../../utils/authenticatedRequest'
-import type { EarningsApiResponse, EarningsDailyPoint } from '../../types/earnings'
+import type {
+  EarningsApiResponse,
+  EarningsCategoryKey,
+  EarningsDailyPoint,
+} from '../../types/earnings'
 
-const categoryCards = [
+const categoryOrder: EarningsCategoryKey[] = [
+  'products',
+  'memberships',
+  'classes',
+  'personal_training',
+]
+
+const categoryCards: Record<
+  EarningsCategoryKey,
   {
-    title: 'Memberships',
-    subtitle: 'Recurring revenue',
-    icon: <MaterialCommunityIcons name="credit-card-outline" size={30} color={AppColors.blue} />,
-  },
-  {
+    title: string
+    subtitle: string
+    icon: React.ReactNode
+  }
+> = {
+  products: {
     title: 'Products',
     subtitle: 'Retail sales',
     icon: <MaterialCommunityIcons name="shopping" size={30} color={AppColors.blue} />,
   },
-  {
+  memberships: {
+    title: 'Memberships',
+    subtitle: 'Recurring revenue',
+    icon: <MaterialCommunityIcons name="credit-card-outline" size={30} color={AppColors.blue} />,
+  },
+  classes: {
     title: 'Classes',
     subtitle: 'Group sessions',
     icon: <FontAwesome5 name="calendar-alt" size={24} color={AppColors.blue} />,
   },
-  {
+  personal_training: {
     title: 'Personal Training',
     subtitle: '1-on-1 revenue',
     icon: <MaterialCommunityIcons name="dumbbell" size={30} color={AppColors.blue} />,
   },
-]
+}
 
 const formatDateLabel = (value?: string) => {
   if (!value) {
@@ -176,6 +194,18 @@ const EarningsScreen = ({ navigation }) => {
   const hasData = dailyData.length > 0
   const totalRevenue = earnings?.totals.revenue ?? 0
   const transactionCount = earnings?.totals.transaction_count ?? 0
+  const categoryBreakdown = useMemo(
+    () =>
+      categoryOrder.map((categoryKey) => ({
+        key: categoryKey,
+        ...categoryCards[categoryKey],
+        summary: earnings?.by_category[categoryKey] ?? {
+          revenue: 0,
+          transaction_count: 0,
+        },
+      })),
+    [earnings]
+  )
 
   return (
     <SafeAreaView style={styles.container}>
@@ -282,14 +312,17 @@ const EarningsScreen = ({ navigation }) => {
 
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Earnings categories</Text>
+            <Text style={styles.sectionSubtitle}>Revenue and transaction counts by category</Text>
           </View>
 
           <View style={styles.grid}>
-            {categoryCards.map((card) => (
-              <TouchableOpacity key={card.title} activeOpacity={0.9} style={styles.squareCard}>
+            {categoryBreakdown.map((card) => (
+              <TouchableOpacity key={card.key} activeOpacity={0.9} style={styles.squareCard}>
                 <View style={styles.iconWrap}>{card.icon}</View>
                 <Text style={styles.squareTitle}>{card.title}</Text>
                 <Text style={styles.squareSubtitle}>{card.subtitle}</Text>
+                <Text style={styles.squareValue}>{formatCurrency(card.summary.revenue)}</Text>
+                <Text style={styles.squareCount}>{card.summary.transaction_count} transactions</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -502,6 +535,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'Montserrat',
   },
+  sectionSubtitle: {
+    color: AppColors.grey3,
+    fontSize: 11,
+    marginTop: 4,
+    fontFamily: 'Montserrat',
+  },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -538,6 +577,20 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   squareSubtitle: {
+    color: AppColors.grey3,
+    fontSize: 11,
+    marginTop: 4,
+    fontFamily: 'Montserrat',
+    textAlign: 'center',
+  },
+  squareValue: {
+    color: AppColors.primary,
+    fontSize: 16,
+    marginTop: 12,
+    fontFamily: 'Montserrat',
+    textAlign: 'center',
+  },
+  squareCount: {
     color: AppColors.grey3,
     fontSize: 11,
     marginTop: 4,
