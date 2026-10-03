@@ -22,6 +22,7 @@ import {
   NEGATIVE_COLOR,
   PERIOD_OPTIONS,
   POSITIVE_COLOR,
+  allEarningsCard,
   categoryCards,
   categoryOrder,
   formatCompactAxis,
@@ -652,6 +653,22 @@ const EarningsScreen = ({ navigation }) => {
                 <Text style={styles.squareCount}>{card.summary.transaction_count} transactions</Text>
               </TouchableOpacity>
             ))}
+
+            <TouchableOpacity
+              activeOpacity={0.9}
+              style={styles.wideCard}
+              onPress={() =>
+                navigation.navigate('AllCategoriesEarningsScreen', { period: selectedPeriod })
+              }
+            >
+              <View style={[styles.iconWrap, styles.wideCardIcon]}>{allEarningsCard.icon}</View>
+              <View style={styles.wideCardText}>
+                <Text style={styles.wideCardTitle}>{allEarningsCard.title}</Text>
+                <Text style={styles.wideCardValue}>{formatCurrency(totalRevenue)}</Text>
+                <Text style={styles.wideCardCount}>{transactionCount} transactions</Text>
+              </View>
+              <Feather name="chevron-right" size={22} color={AppColors.grey2} />
+            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
@@ -1064,6 +1081,43 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 10,
     elevation: 3,
+  },
+  wideCard: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: AppColors.grey,
+    borderRadius: 20,
+    padding: 16,
+    shadowColor: AppColors.grey3,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    elevation: 3,
+  },
+  wideCardIcon: {
+    marginBottom: 0,
+    marginRight: 14,
+  },
+  wideCardText: {
+    flex: 1,
+  },
+  wideCardTitle: {
+    color: AppColors.blue,
+    fontSize: 15,
+    fontFamily: 'Montserrat',
+  },
+  wideCardValue: {
+    color: AppColors.primary,
+    fontSize: 18,
+    marginTop: 6,
+    fontFamily: 'Montserrat',
+  },
+  wideCardCount: {
+    color: AppColors.grey3,
+    fontSize: 11,
+    marginTop: 4,
+    fontFamily: 'Montserrat',
   },
   iconWrap: {
     width: 58,
