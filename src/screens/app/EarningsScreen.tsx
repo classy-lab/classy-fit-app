@@ -35,28 +35,23 @@ const categoryCards: Record<
   EarningsCategoryKey,
   {
     title: string
-    subtitle: string
     icon: React.ReactNode
   }
 > = {
   classes: {
     title: 'Classes',
-    // subtitle: 'Group sessions',
     icon: <FontAwesome5 name="calendar-alt" size={24} color={AppColors.blue} />,
   },
   memberships: {
     title: 'Memberships',
-    subtitle: 'Recurring revenue',
     icon: <MaterialCommunityIcons name="credit-card-outline" size={30} color={AppColors.blue} />,
   },
   personal_training: {
     title: 'Personal Training',
-    subtitle: '1-on-1 revenue',
     icon: <MaterialCommunityIcons name="dumbbell" size={30} color={AppColors.blue} />,
   },
   products: {
     title: 'Products',
-    subtitle: 'Retail sales',
     icon: <MaterialCommunityIcons name="shopping" size={30} color={AppColors.blue} />,
   }
 }
@@ -340,7 +335,6 @@ const EarningsScreen = ({ navigation }) => {
               <TouchableOpacity key={card.key} activeOpacity={0.9} style={styles.squareCard}>
                 <View style={styles.iconWrap}>{card.icon}</View>
                 <Text style={styles.squareTitle}>{card.title}</Text>
-                <Text style={styles.squareSubtitle}>{card.subtitle}</Text>
                 <Text style={styles.squareValue}>{formatCurrency(card.summary.revenue)}</Text>
                 <Text style={styles.squareCount}>{card.summary.transaction_count} transactions</Text>
               </TouchableOpacity>
@@ -588,13 +582,6 @@ const styles = StyleSheet.create({
   squareTitle: {
     color: AppColors.blue,
     fontSize: 15,
-    fontFamily: 'Montserrat',
-    textAlign: 'center',
-  },
-  squareSubtitle: {
-    color: AppColors.grey3,
-    fontSize: 11,
-    marginTop: 4,
     fontFamily: 'Montserrat',
     textAlign: 'center',
   },
