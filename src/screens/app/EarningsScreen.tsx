@@ -13,121 +13,31 @@ import {
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
-import FontAwesome5 from '@expo/vector-icons/FontAwesome5'
 import { BarChart, PieChart } from 'react-native-gifted-charts'
 import { AppColors } from '../../styles/colors'
 import SignOut from '../../components/utils/SignOut'
 import { UserContext } from '../../context/UserContext'
 import { performAuthenticatedRequest } from '../../utils/authenticatedRequest'
+import {
+  NEGATIVE_COLOR,
+  PERIOD_OPTIONS,
+  POSITIVE_COLOR,
+  categoryCards,
+  categoryOrder,
+  formatCompactAxis,
+  formatDayAndDate,
+  formatPercent,
+  formatShortDate,
+  getDelta,
+  parseApiDate,
+} from '../../utils/earningsShared'
 import type {
   EarningsApiResponse,
   EarningsCategoryKey,
   EarningsPeriod,
 } from '../../types/earnings'
 
-const categoryOrder: EarningsCategoryKey[] = [
-  'classes',
-  'memberships',
-  'personal_training',
-  'products',
-]
-
-const categoryCards: Record<
-  EarningsCategoryKey,
-  {
-    title: string
-    icon: React.ReactNode
-    color: string
-  }
-> = {
-  classes: {
-    title: 'Classes',
-    icon: <FontAwesome5 name="calendar-alt" size={24} color={AppColors.blue} />,
-    color: '#4C6FFF',
-  },
-  memberships: {
-    title: 'Memberships',
-    icon: <MaterialCommunityIcons name="credit-card-outline" size={30} color={AppColors.blue} />,
-    color: '#FF6C40',
-  },
-  personal_training: {
-    title: 'Personal Training',
-    icon: <MaterialCommunityIcons name="dumbbell" size={30} color={AppColors.blue} />,
-    color: '#2BB673',
-  },
-  products: {
-    title: 'Products',
-    icon: <MaterialCommunityIcons name="shopping" size={30} color={AppColors.blue} />,
-    color: '#F5B700',
-  },
-}
-
-const PERIOD_OPTIONS: {
-  key: EarningsPeriod
-  label: string
-  title: string
-  previousLabel: string
-}[] = [
-  { key: '7d', label: '7D', title: 'Last 7 days', previousLabel: 'prior 7 days' },
-  { key: '30d', label: '30D', title: 'Last 30 days', previousLabel: 'prior 30 days' },
-  { key: '90d', label: '90D', title: 'Last 90 days', previousLabel: 'prior 90 days' },
-  { key: '1y', label: '1Y', title: 'Last 12 months', previousLabel: 'prior year' },
-]
-
-const POSITIVE_COLOR = '#2BB673'
-const NEGATIVE_COLOR = '#E5484D'
 const TREND_Y_AXIS_WIDTH = 42
-
-const getDelta = (current: number, previous?: number) => {
-  if (previous === undefined || previous === null) {
-    return null
-  }
-
-  if (previous <= 0) {
-    return current > 0 ? { label: 'New', direction: 'up' } : null
-  }
-
-  const change = (current - previous) / previous
-  return {
-    label: `${Math.abs(Math.round(change * 100))}%`,
-    direction: change > 0.005 ? 'up' : change < -0.005 ? 'down' : 'flat',
-  }
-}
-
-const formatCompactAxis = (label: string) => {
-  const value = Number(String(label).replace(/,/g, ''))
-  if (!Number.isFinite(value) || value < 1000) {
-    return label
-  }
-
-  return `${(value / 1000).toFixed(value >= 10000 ? 0 : 1)}k`
-}
-
-const formatPercent = (value: number) => `${Math.round(value * 100)}%`
-
-const parseApiDate = (value?: string) => {
-  const date = new Date(`${value}T00:00:00`)
-  return Number.isNaN(date.getTime()) ? null : date
-}
-
-const formatShortDate = (value?: string) => {
-  const date = parseApiDate(value)
-  return date
-    ? new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' }).format(date)
-    : value ?? '—'
-}
-
-const formatDayAndDate = (value?: string) => {
-  const date = parseApiDate(value)
-  return date
-    ? new Intl.DateTimeFormat(undefined, {
-        weekday: 'short',
-        month: 'short',
-        day: 'numeric',
-      }).format(date)
-    : value ?? '—'
-}
 
 const EarningsScreen = ({ navigation }) => {
   const authContext = useContext(UserContext)
@@ -725,7 +635,17 @@ const EarningsScreen = ({ navigation }) => {
 
           <View style={styles.grid}>
             {categoryBreakdown.map((card) => (
-              <TouchableOpacity key={card.key} activeOpacity={0.9} style={styles.squareCard}>
+              <TouchableOpacity
+                key={card.key}
+                activeOpacity={0.9}
+                style={styles.squareCard}
+                onPress={() =>
+                  navigation.navigate('CategoryEarningsScreen', {
+                    category: card.key,
+                    period: selectedPeriod,
+                  })
+                }
+              >
                 <View style={styles.iconWrap}>{card.icon}</View>
                 <Text style={styles.squareTitle}>{card.title}</Text>
                 <Text style={styles.squareValue}>{formatCurrency(card.summary.revenue)}</Text>
