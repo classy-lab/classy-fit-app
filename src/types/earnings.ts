@@ -22,6 +22,8 @@ export interface EarningsRange {
   end_date: string;
 }
 
+export interface EarningsPreviousPeriod extends EarningsRange, EarningsCategorySummary {}
+
 export interface EarningsApiResponse {
   status: 'success';
   period: EarningsPeriod;
@@ -31,4 +33,5 @@ export interface EarningsApiResponse {
   by_category: Record<EarningsCategoryKey, EarningsCategorySummary>;
   daily: EarningsDailyPoint[];
   category_daily: Record<EarningsCategoryKey, EarningsDailyPoint[]>;
+  previous?: EarningsPreviousPeriod;
 }
