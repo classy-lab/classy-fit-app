@@ -15,7 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5'
-import { PieChart } from 'react-native-gifted-charts'
+import { BarChart, PieChart } from 'react-native-gifted-charts'
 import { AppColors } from '../../styles/colors'
 import SignOut from '../../components/utils/SignOut'
 import { UserContext } from '../../context/UserContext'
@@ -63,12 +63,46 @@ const categoryCards: Record<
   },
 }
 
-const PERIOD_OPTIONS: { key: EarningsPeriod; label: string; title: string }[] = [
-  { key: '7d', label: '7D', title: 'Last 7 days' },
-  { key: '30d', label: '30D', title: 'Last 30 days' },
-  { key: '90d', label: '90D', title: 'Last 90 days' },
-  { key: '1y', label: '1Y', title: 'Last 12 months' },
+const PERIOD_OPTIONS: {
+  key: EarningsPeriod
+  label: string
+  title: string
+  previousLabel: string
+}[] = [
+  { key: '7d', label: '7D', title: 'Last 7 days', previousLabel: 'prior 7 days' },
+  { key: '30d', label: '30D', title: 'Last 30 days', previousLabel: 'prior 30 days' },
+  { key: '90d', label: '90D', title: 'Last 90 days', previousLabel: 'prior 90 days' },
+  { key: '1y', label: '1Y', title: 'Last 12 months', previousLabel: 'prior year' },
 ]
+
+const POSITIVE_COLOR = '#2BB673'
+const NEGATIVE_COLOR = '#E5484D'
+const TREND_Y_AXIS_WIDTH = 42
+
+const getDelta = (current: number, previous?: number) => {
+  if (previous === undefined || previous === null) {
+    return null
+  }
+
+  if (previous <= 0) {
+    return current > 0 ? { label: 'New', direction: 'up' } : null
+  }
+
+  const change = (current - previous) / previous
+  return {
+    label: `${Math.abs(Math.round(change * 100))}%`,
+    direction: change > 0.005 ? 'up' : change < -0.005 ? 'down' : 'flat',
+  }
+}
+
+const formatCompactAxis = (label: string) => {
+  const value = Number(String(label).replace(/,/g, ''))
+  if (!Number.isFinite(value) || value < 1000) {
+    return label
+  }
+
+  return `${(value / 1000).toFixed(value >= 10000 ? 0 : 1)}k`
+}
 
 const formatPercent = (value: number) => `${Math.round(value * 100)}%`
 
@@ -107,6 +141,7 @@ const EarningsScreen = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<EarningsCategoryKey | null>(null)
+  const [selectedBucket, setSelectedBucket] = useState<number | null>(null)
   const [selectedPeriod, setSelectedPeriod] = useState<EarningsPeriod>('7d')
   const [isRefreshing, setIsRefreshing] = useState(false)
   const requestSequenceRef = useRef(0)
@@ -167,6 +202,7 @@ const EarningsScreen = ({ navigation }) => {
       const nextEarnings = responseBody as EarningsApiResponse
       setEarnings(nextEarnings)
       setSelectedCategory(null)
+      setSelectedBucket(null)
     } catch {
       setErrorMessage('Unable to load earnings.')
       setEarnings(null)
@@ -246,6 +282,97 @@ const EarningsScreen = ({ navigation }) => {
       })),
     [earnings]
   )
+  const bucketSize = selectedPeriod === '90d' ? 7 : selectedPeriod === '1y' ? 30 : 1
+  const trendBuckets = useMemo(() => {
+    const daily = earnings?.daily ?? []
+    const buckets = []
+
+    for (let start = 0; start < daily.length; start += bucketSize) {
+      const end = Math.min(start + bucketSize, daily.length)
+      const byCategory = {}
+      let revenue = 0
+      let count = 0
+
+      categoryOrder.forEach((key) => {
+        const rows = (earnings?.category_daily?.[key] ?? []).slice(start, end)
+        byCategory[key] = rows.reduce((sum, row) => sum + row.revenue, 0)
+        revenue += byCategory[key]
+        count += rows.reduce((sum, row) => sum + row.transaction_count, 0)
+      })
+
+      buckets.push({
+        startDate: daily[start].date,
+        endDate: daily[end - 1].date,
+        byCategory,
+        revenue,
+        count,
+      })
+    }
+
+    return buckets
+  }, [bucketSize, earnings])
+  const activeBucketIndex = selectedBucket ?? trendBuckets.length - 1
+  const activeBucket = trendBuckets[activeBucketIndex] ?? null
+  const trendInnerWidth = width - 48 - 32 - TREND_Y_AXIS_WIDTH
+  const trendMinSlot = bucketSize > 1 ? 56 : selectedPeriod === '7d' ? 0 : 30
+  const trendSlot = Math.max(trendInnerWidth / Math.max(trendBuckets.length, 1), trendMinSlot)
+  const trendBarWidth = Math.max(Math.floor(trendSlot * 0.55), 4)
+  const trendStackData = trendBuckets.map((bucket, index) => {
+    const date = parseApiDate(bucket.startDate)
+    let label = ''
+
+    if (bucketSize > 1) {
+      label = formatShortDate(bucket.startDate)
+    } else if (selectedPeriod === '7d') {
+      label = date
+        ? new Intl.DateTimeFormat(undefined, { weekday: 'short' }).format(date)
+        : ''
+    } else {
+      label = date ? String(date.getDate()) : ''
+    }
+
+    return {
+      label,
+      labelTextStyle: index === activeBucketIndex ? styles.trendLabelActive : styles.trendLabel,
+      onPress: () => setSelectedBucket(index),
+      stacks: categoryOrder.map((key) => ({
+        value: bucket.byCategory[key],
+        color:
+          selectedCategory && selectedCategory !== key
+            ? `${categoryCards[key].color}33`
+            : categoryCards[key].color,
+      })),
+    }
+  })
+  const revenueDelta = getDelta(totalRevenue, earnings?.previous?.revenue)
+  const transactionDelta = getDelta(transactionCount, earnings?.previous?.transaction_count)
+  const renderDelta = (delta) => {
+    if (!delta) {
+      return null
+    }
+
+    const color =
+      delta.direction === 'up'
+        ? POSITIVE_COLOR
+        : delta.direction === 'down'
+          ? NEGATIVE_COLOR
+          : AppColors.grey3
+    const iconName =
+      delta.direction === 'up'
+        ? 'arrow-up-right'
+        : delta.direction === 'down'
+          ? 'arrow-down-right'
+          : 'minus'
+
+    return (
+      <View style={styles.deltaRow}>
+        <Feather name={iconName} size={12} color={color} />
+        <Text style={[styles.deltaText, { color }]} numberOfLines={1}>
+          {delta.label} <Text style={styles.deltaSuffix}>vs {periodMeta?.previousLabel}</Text>
+        </Text>
+      </View>
+    )
+  }
   const periodMeta = PERIOD_OPTIONS.find((option) => option.key === selectedPeriod)
   const rangeLabel = earnings
     ? `${formatShortDate(earnings.range.start_date)} – ${formatShortDate(earnings.range.end_date)}`
@@ -380,10 +507,12 @@ const EarningsScreen = ({ navigation }) => {
               <View style={styles.summaryPill}>
                 <Text style={styles.summaryLabel}>Total revenue</Text>
                 <Text style={styles.summaryValue}>{formatCurrency(totalRevenue)}</Text>
+                {renderDelta(revenueDelta)}
               </View>
               <View style={styles.summaryPill}>
                 <Text style={styles.summaryLabel}>Transactions</Text>
                 <Text style={styles.summaryValue}>{transactionCount}</Text>
+                {renderDelta(transactionDelta)}
               </View>
             </View>
 
@@ -495,6 +624,73 @@ const EarningsScreen = ({ navigation }) => {
               )}
             </View>
           </View>
+
+          {hasData && !isLoading && trendBuckets.length > 0 ? (
+            <>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Revenue trend</Text>
+                <Text style={styles.sectionSubtitle}>
+                  {selectedCategory
+                    ? `Highlighting ${categoryCards[selectedCategory].title} · tap a bar for details`
+                    : 'Tap a bar to see that period\'s breakdown'}
+                </Text>
+              </View>
+
+              <View style={styles.trendCard}>
+                {activeBucket ? (
+                  <View style={styles.trendSummary}>
+                    <View style={styles.trendSummaryTop}>
+                      <View>
+                        <Text style={styles.trendSummaryDate}>
+                          {bucketSize === 1
+                            ? formatDayAndDate(activeBucket.startDate)
+                            : `${formatShortDate(activeBucket.startDate)} – ${formatShortDate(activeBucket.endDate)}`}
+                        </Text>
+                        <Text style={styles.trendSummaryValue}>
+                          {formatCurrency(activeBucket.revenue)}
+                        </Text>
+                      </View>
+                      <Text style={styles.trendSummaryCount}>{activeBucket.count} sales</Text>
+                    </View>
+                    <View style={styles.trendChips}>
+                      {categoryOrder.map((key) => (
+                        <View key={key} style={styles.trendChip}>
+                          <View
+                            style={[styles.trendChipDot, { backgroundColor: categoryCards[key].color }]}
+                          />
+                          <Text style={styles.trendChipText} numberOfLines={1}>
+                            {categoryCards[key].title} {formatCurrency(activeBucket.byCategory[key])}
+                          </Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+                ) : null}
+
+                <BarChart
+                  stackData={trendStackData}
+                  width={trendInnerWidth}
+                  height={160}
+                  barWidth={trendBarWidth}
+                  spacing={Math.max(trendSlot - trendBarWidth, 2)}
+                  initialSpacing={Math.max((trendSlot - trendBarWidth) / 2, 4)}
+                  endSpacing={8}
+                  labelWidth={trendSlot}
+                  noOfSections={4}
+                  yAxisLabelWidth={TREND_Y_AXIS_WIDTH}
+                  yAxisThickness={0}
+                  xAxisColor={AppColors.grey2}
+                  rulesColor={AppColors.grey2}
+                  yAxisTextStyle={styles.trendAxisText}
+                  formatYLabel={formatCompactAxis}
+                  showScrollIndicator={false}
+                  scrollToEnd={trendBuckets.length * trendSlot > trendInnerWidth}
+                  isAnimated
+                  animationDuration={500}
+                />
+              </View>
+            </>
+          ) : null}
 
           {insights.length > 0 ? (
             <>
@@ -776,6 +972,98 @@ const styles = StyleSheet.create({
   },
   periodTextActive: {
     color: AppColors.white,
+  },
+  deltaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    marginTop: 4,
+  },
+  deltaText: {
+    fontSize: 10,
+    fontFamily: 'Montserrat-Bold',
+  },
+  deltaSuffix: {
+    color: AppColors.grey3,
+    fontFamily: 'Montserrat',
+  },
+  trendCard: {
+    backgroundColor: AppColors.grey,
+    borderRadius: 20,
+    padding: 16,
+    marginBottom: 22,
+    shadowColor: AppColors.grey3,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.07,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  trendSummary: {
+    backgroundColor: AppColors.white,
+    borderRadius: 14,
+    padding: 12,
+    marginBottom: 14,
+  },
+  trendSummaryTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  trendSummaryDate: {
+    color: AppColors.grey3,
+    fontSize: 11,
+    fontFamily: 'Montserrat',
+  },
+  trendSummaryValue: {
+    color: AppColors.primary,
+    fontSize: 20,
+    marginTop: 2,
+    fontFamily: 'Montserrat-Bold',
+  },
+  trendSummaryCount: {
+    color: AppColors.grey3,
+    fontSize: 11,
+    fontFamily: 'Montserrat',
+  },
+  trendChips: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    marginTop: 10,
+  },
+  trendChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: AppColors.grey,
+    borderRadius: 10,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+  },
+  trendChipDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 6,
+  },
+  trendChipText: {
+    color: AppColors.blue,
+    fontSize: 10,
+    fontFamily: 'Montserrat',
+  },
+  trendAxisText: {
+    color: AppColors.grey3,
+    fontSize: 10,
+    fontFamily: 'Montserrat',
+  },
+  trendLabel: {
+    color: AppColors.grey3,
+    fontSize: 10,
+    fontFamily: 'Montserrat',
+  },
+  trendLabelActive: {
+    color: AppColors.blue,
+    fontSize: 10,
+    fontFamily: 'Montserrat-Bold',
   },
   insightGrid: {
     marginBottom: 22,
