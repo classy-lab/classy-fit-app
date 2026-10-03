@@ -20,6 +20,7 @@ import EditClassScreen from '../screens/app/EditClassScreen'
 import EditClassSessionScreen from '../screens/app/EditClassSessionScreen'
 import AddClassSessionScreen from '../screens/app/AddClassSessionScreen'
 import EarningsScreen from '../screens/app/EarningsScreen'
+import CategoryEarningsScreen from '../screens/app/CategoryEarningsScreen'
 import ContractorsScreen from '../screens/app/ContractorsScreen'
 import GymVideosScreen from '../screens/app/GymVideosScreen'
 import GymVideoManagementScreen from '../screens/app/GymVideoManagementScreen'
@@ -92,6 +93,7 @@ function HomeStackScreen() {
     >
       <HomeStack.Screen name="DashboardScreen" component={DashboardScreen} />
       <HomeStack.Screen name="EarningsScreen" component={EarningsScreen} />
+      <HomeStack.Screen name="CategoryEarningsScreen" component={CategoryEarningsScreen} />
       <HomeStack.Screen name="GymScreen" component={GymScreen} />
       <HomeStack.Screen name="ClassesScreen" component={ClassesScreen} />
       <HomeStack.Screen name="ClassSessionScreen" component={ClassSessionScreen} />
