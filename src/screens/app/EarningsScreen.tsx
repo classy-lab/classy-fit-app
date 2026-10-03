@@ -13,7 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5'
-import { LineChart } from 'react-native-gifted-charts'
+import { PieChart } from 'react-native-gifted-charts'
 import { AppColors } from '../../styles/colors'
 import SignOut from '../../components/utils/SignOut'
 import { UserContext } from '../../context/UserContext'
@@ -21,7 +21,6 @@ import { performAuthenticatedRequest } from '../../utils/authenticatedRequest'
 import type {
   EarningsApiResponse,
   EarningsCategoryKey,
-  EarningsDailyPoint,
 } from '../../types/earnings'
 
 const categoryOrder: EarningsCategoryKey[] = [
@@ -36,55 +35,32 @@ const categoryCards: Record<
   {
     title: string
     icon: React.ReactNode
+    color: string
   }
 > = {
   classes: {
     title: 'Classes',
     icon: <FontAwesome5 name="calendar-alt" size={24} color={AppColors.blue} />,
+    color: '#4C6FFF',
   },
   memberships: {
     title: 'Memberships',
     icon: <MaterialCommunityIcons name="credit-card-outline" size={30} color={AppColors.blue} />,
+    color: '#FF6C40',
   },
   personal_training: {
     title: 'Personal Training',
     icon: <MaterialCommunityIcons name="dumbbell" size={30} color={AppColors.blue} />,
+    color: '#2BB673',
   },
   products: {
     title: 'Products',
     icon: <MaterialCommunityIcons name="shopping" size={30} color={AppColors.blue} />,
-  }
+    color: '#F5B700',
+  },
 }
 
-const formatDateLabel = (value?: string) => {
-  if (!value) {
-    return '—'
-  }
-
-  const date = new Date(`${value}T00:00:00`)
-  if (Number.isNaN(date.getTime())) {
-    return value
-  }
-
-  return new Intl.DateTimeFormat(undefined, { weekday: 'short' }).format(date)
-}
-
-const formatDayAndDate = (value?: string) => {
-  if (!value) {
-    return '—'
-  }
-
-  const date = new Date(`${value}T00:00:00`)
-  if (Number.isNaN(date.getTime())) {
-    return value
-  }
-
-  return new Intl.DateTimeFormat(undefined, {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-  }).format(date)
-}
+const formatPercent = (value: number) => `${Math.round(value * 100)}%`
 
 const EarningsScreen = ({ navigation }) => {
   const authContext = useContext(UserContext)
@@ -97,7 +73,7 @@ const EarningsScreen = ({ navigation }) => {
   const [earnings, setEarnings] = useState<EarningsApiResponse | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState('')
-  const [selectedIndex, setSelectedIndex] = useState(0)
+  const [selectedCategory, setSelectedCategory] = useState<EarningsCategoryKey | null>(null)
 
   const isOwner = String(user?.role ?? '').trim().toLowerCase() === 'owner'
 
@@ -146,7 +122,7 @@ const EarningsScreen = ({ navigation }) => {
 
       const nextEarnings = responseBody as EarningsApiResponse
       setEarnings(nextEarnings)
-      setSelectedIndex(Math.max(nextEarnings.daily.length - 1, 0))
+      setSelectedCategory(null)
     } catch {
       setErrorMessage('Unable to load earnings.')
       setEarnings(null)
@@ -181,31 +157,9 @@ const EarningsScreen = ({ navigation }) => {
     [currencyFormatter]
   )
 
-  const dailyData: EarningsDailyPoint[] = earnings?.daily ?? []
-  const selectedPoint = dailyData[selectedIndex] ?? dailyData[dailyData.length - 1] ?? null
-  const lineChartData = useMemo(
-    () =>
-      dailyData.map((item) => ({
-        value: item.revenue,
-        label: formatDateLabel(item.date),
-        dataPointsHeight: 8,
-        dataPointsWidth: 8,
-        dataPointsRadius: 4,
-        dataPointLabelComponent: () => (
-          <View style={styles.pointTooltip}>
-            <Text style={styles.pointTooltipDate}>{formatDayAndDate(item.date)}</Text>
-            <Text style={styles.pointTooltipValue}>{formatCurrency(item.revenue)}</Text>
-            <Text style={styles.pointTooltipMeta}>{item.transaction_count} transactions</Text>
-          </View>
-        ),
-      })),
-    [dailyData, formatCurrency]
-  )
-  const chartWidth = Math.max(width - 48, dailyData.length * 56 + 64)
-
-  const hasData = dailyData.length > 0
   const totalRevenue = earnings?.totals.revenue ?? 0
   const transactionCount = earnings?.totals.transaction_count ?? 0
+  const hasData = totalRevenue > 0
   const categoryBreakdown = useMemo(
     () =>
       categoryOrder.map((categoryKey) => ({
@@ -218,6 +172,19 @@ const EarningsScreen = ({ navigation }) => {
       })),
     [earnings]
   )
+  const activeCategory = categoryBreakdown.find((card) => card.key === selectedCategory) ?? null
+  const donutRadius = Math.min(110, Math.floor((width - 48 - 40) / 2))
+  const donutData = hasData
+    ? categoryBreakdown
+        .filter((card) => card.summary.revenue > 0)
+        .map((card) => ({
+          value: card.summary.revenue,
+          color: card.color,
+          focused: card.key === selectedCategory,
+          onPress: () =>
+            setSelectedCategory((current) => (current === card.key ? null : card.key)),
+        }))
+    : [{ value: 1, color: AppColors.grey2 }]
 
   return (
     <SafeAreaView style={styles.container}>
@@ -244,7 +211,7 @@ const EarningsScreen = ({ navigation }) => {
                 <Text style={styles.heroEyebrow}>This week</Text>
                 <Text style={styles.heroTitle}>Combined total sales</Text>
                 <Text style={styles.heroDescription}>
-                  Tap a point to see the revenue, date, and transaction count.
+                  Tap a slice or legend row to see that category's share of revenue.
                 </Text>
               </View>
             </View>
@@ -264,7 +231,7 @@ const EarningsScreen = ({ navigation }) => {
               {isLoading ? (
                 <View style={styles.loadingWrap}>
                   <ActivityIndicator color={AppColors.blue} />
-                  <Text style={styles.loadingText}>Loading revenue trend...</Text>
+                  <Text style={styles.loadingText}>Loading revenue breakdown...</Text>
                 </View>
               ) : errorMessage && !earnings ? (
                 <View style={styles.loadingWrap}>
@@ -272,50 +239,64 @@ const EarningsScreen = ({ navigation }) => {
                 </View>
               ) : (
                 <>
-                  <View style={styles.selectedDayCard}>
-                    <Text style={styles.selectedDayLabel}>
-                      {selectedPoint ? formatDayAndDate(selectedPoint.date) : 'Select a day'}
-                    </Text>
-                    <Text style={styles.selectedDayValue}>
-                      {selectedPoint ? formatCurrency(selectedPoint.revenue) : formatCurrency(0)}
-                    </Text>
+                  <View style={styles.donutWrap}>
+                    <PieChart
+                      donut
+                      data={donutData}
+                      radius={donutRadius}
+                      innerRadius={Math.round(donutRadius * 0.65)}
+                      innerCircleColor={AppColors.white}
+                      isAnimated={false}
+                      centerLabelComponent={() => (
+                        <View style={styles.donutCenter}>
+                          <Text style={styles.donutCenterLabel}>
+                            {activeCategory ? activeCategory.title : 'Total'}
+                          </Text>
+                          <Text style={styles.donutCenterValue}>
+                            {formatCurrency(
+                              activeCategory ? activeCategory.summary.revenue : totalRevenue
+                            )}
+                          </Text>
+                          <Text style={styles.donutCenterMeta}>
+                            {activeCategory
+                              ? `${formatPercent(
+                                  totalRevenue > 0 ? activeCategory.summary.revenue / totalRevenue : 0
+                                )} of revenue`
+                              : `${transactionCount} transactions`}
+                          </Text>
+                        </View>
+                      )}
+                    />
                   </View>
 
-                  <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.chartScrollContainer}
-                  >
-                    <View style={{ width: chartWidth }}>
-                      <LineChart
-                        data={lineChartData}
-                        height={220}
-                        spacing={dailyData.length > 7 ? 44 : 48}
-                        initialSpacing={18}
-                        endSpacing={18}
-                        curved
-                        isAnimated={false}
-                        hideDataPoints={false}
-                        dataPointsColor={AppColors.blue}
-                        dataPointsRadius={4}
-                        focusEnabled
-                        showStripOnFocus
-                        showDataPointLabelOnFocus
-                        hideRules={false}
-                        hideYAxisText={false}
-                        showVerticalLines={false}
-                        yAxisColor={AppColors.grey2}
-                        xAxisColor={AppColors.grey2}
-                        color={AppColors.blue}
-                        thickness={2}
-                        yAxisTextStyle={styles.chartAxisText}
-                        xAxisLabelTextStyle={styles.chartAxisText}
-                        yAxisLabelPrefix=""
-                        roundToDigits={2}
-                        noOfSections={4}
-                      />
-                    </View>
-                  </ScrollView>
+                  <View style={styles.legend}>
+                    {categoryBreakdown.map((card) => {
+                      const share = totalRevenue > 0 ? card.summary.revenue / totalRevenue : 0
+                      const isActive = card.key === selectedCategory
+
+                      return (
+                        <TouchableOpacity
+                          key={card.key}
+                          activeOpacity={0.8}
+                          style={[styles.legendRow, isActive && styles.legendRowActive]}
+                          onPress={() =>
+                            setSelectedCategory((current) =>
+                              current === card.key ? null : card.key
+                            )
+                          }
+                        >
+                          <View
+                            style={[styles.legendDot, { backgroundColor: card.color }]}
+                          />
+                          <Text style={styles.legendName}>{card.title}</Text>
+                          <Text style={styles.legendValue}>
+                            {formatCurrency(card.summary.revenue)}
+                          </Text>
+                          <Text style={styles.legendPercent}>{formatPercent(share)}</Text>
+                        </TouchableOpacity>
+                      )
+                    })}
+                  </View>
 
                   {!hasData ? (
                     <Text style={styles.emptyText}>No sales data for this week.</Text>
@@ -466,68 +447,74 @@ const styles = StyleSheet.create({
     fontFamily: 'Montserrat',
     textAlign: 'center',
   },
-  selectedDayCard: {
-    alignSelf: 'flex-start',
-    backgroundColor: AppColors.grey,
-    borderRadius: 14,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    marginBottom: 12,
+  donutWrap: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
   },
-  selectedDayLabel: {
+  donutCenter: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 8,
+  },
+  donutCenterLabel: {
     color: AppColors.grey3,
     fontSize: 11,
     fontFamily: 'Montserrat',
+    textAlign: 'center',
   },
-  selectedDayValue: {
+  donutCenterValue: {
     color: AppColors.primary,
     fontSize: 18,
-    fontFamily: 'Montserrat',
-    marginTop: 4,
-  },
-  chartScrollContainer: {
-    paddingTop: 4,
-    paddingBottom: 2,
-  },
-  chartAxisText: {
-    color: AppColors.grey3,
-    fontSize: 10,
-    fontFamily: 'Montserrat',
-  },
-  pointTooltip: {
-    backgroundColor: AppColors.white,
-    borderRadius: 10,
-    paddingHorizontal: 8,
-    paddingVertical: 6,
-    borderWidth: 1,
-    borderColor: '#F3DFA9',
-    alignItems: 'center',
-    minWidth: 92,
-    shadowColor: AppColors.grey3,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.12,
-    shadowRadius: 6,
-    elevation: 2,
-  },
-  pointTooltipDate: {
-    color: AppColors.grey3,
-    fontSize: 10,
+    marginTop: 2,
     fontFamily: 'Montserrat',
     textAlign: 'center',
   },
-  pointTooltipValue: {
+  donutCenterMeta: {
+    color: AppColors.grey3,
+    fontSize: 10,
+    marginTop: 2,
+    fontFamily: 'Montserrat',
+    textAlign: 'center',
+  },
+  legend: {
+    marginTop: 8,
+    gap: 6,
+  },
+  legendRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderRadius: 12,
+  },
+  legendRowActive: {
+    backgroundColor: AppColors.grey,
+  },
+  legendDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginRight: 10,
+  },
+  legendName: {
+    flex: 1,
+    color: AppColors.blue,
+    fontSize: 13,
+    fontFamily: 'Montserrat',
+  },
+  legendValue: {
     color: AppColors.primary,
     fontSize: 13,
-    marginTop: 2,
     fontFamily: 'Montserrat',
-    textAlign: 'center',
+    marginRight: 10,
   },
-  pointTooltipMeta: {
+  legendPercent: {
+    width: 40,
+    textAlign: 'right',
     color: AppColors.grey3,
-    fontSize: 9,
-    marginTop: 2,
+    fontSize: 12,
     fontFamily: 'Montserrat',
-    textAlign: 'center',
   },
   emptyText: {
     marginTop: 12,
@@ -577,7 +564,7 @@ const styles = StyleSheet.create({
     backgroundColor: AppColors.white,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 12,
+    marginBottom: 10,
   },
   squareTitle: {
     color: AppColors.blue,
@@ -588,7 +575,7 @@ const styles = StyleSheet.create({
   squareValue: {
     color: AppColors.primary,
     fontSize: 16,
-    marginTop: 12,
+    marginTop: 10,
     fontFamily: 'Montserrat',
     textAlign: 'center',
   },
