@@ -30,4 +30,5 @@ export interface EarningsApiResponse {
   totals: EarningsCategorySummary;
   by_category: Record<EarningsCategoryKey, EarningsCategorySummary>;
   daily: EarningsDailyPoint[];
+  category_daily: Record<EarningsCategoryKey, EarningsDailyPoint[]>;
 }
