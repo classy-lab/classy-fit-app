@@ -35,3 +35,57 @@ export interface EarningsApiResponse {
   category_daily: Record<EarningsCategoryKey, EarningsDailyPoint[]>;
   previous?: EarningsPreviousPeriod;
 }
+
+export interface EarningsTransactionCustomer {
+  uid: number | null;
+  name: string;
+  email: string | null;
+}
+
+export interface EarningsTransaction {
+  payment_uid: number;
+  paid_at: string | null;
+  amount: number;
+  currency: string;
+  customer: EarningsTransactionCustomer;
+  item_name: string;
+  item_detail: string | null;
+  quantity: number | null;
+  event_at: string | null;
+  reference: string | null;
+}
+
+export interface EarningsTransactionPage {
+  items: EarningsTransaction[];
+  page: number;
+  per_page: number;
+  total: number;
+  has_more: boolean;
+}
+
+export interface EarningsBreakdownItem {
+  name: string;
+  revenue: number;
+  count: number;
+}
+
+export interface EarningsCategoryDetailResponse {
+  status: 'success';
+  category: EarningsCategoryKey;
+  period: EarningsPeriod;
+  range: EarningsRange;
+  currency: string;
+  totals: EarningsCategorySummary & {
+    average_sale: number;
+    unique_customers: number;
+    repeat_customers: number;
+  };
+  previous: EarningsPreviousPeriod;
+  daily: EarningsDailyPoint[];
+  breakdown: {
+    title: string;
+    count_label: string;
+    items: EarningsBreakdownItem[];
+  };
+  transactions: EarningsTransactionPage;
+}
