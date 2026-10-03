@@ -15,6 +15,7 @@ import Feather from '@expo/vector-icons/Feather'
 import { useFocusEffect } from '@react-navigation/native'
 import { showMessage } from 'react-native-flash-message'
 import { AppColors } from '../../styles/colors'
+import SignOut from '../../components/utils/SignOut'
 import { UserContext } from '../../context/UserContext'
 import {
   deleteGymVideo,
@@ -339,6 +340,15 @@ const GymVideoManagementScreen = ({ navigation }: { navigation: any }) => {
   if (!isOwner) {
     return (
       <SafeAreaView style={styles.safeArea}>
+        <View style={styles.navs}>
+          <Feather
+            name="arrow-left"
+            color={AppColors.blue}
+            size={36}
+            onPress={() => navigation.goBack()}
+          />
+          <SignOut />
+        </View>
         <View style={styles.accessDeniedContainer}>
           <Feather name="lock" size={34} color={AppColors.blue} />
           <Text style={styles.accessDeniedTitle}>Owner access required</Text>
@@ -352,6 +362,15 @@ const GymVideoManagementScreen = ({ navigation }: { navigation: any }) => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      <View style={styles.navs}>
+        <Feather
+          name="arrow-left"
+          color={AppColors.blue}
+          size={36}
+          onPress={() => navigation.goBack()}
+        />
+        <SignOut />
+      </View>
       <View style={styles.container}>
         <View style={styles.header}>
           <View>
@@ -367,6 +386,25 @@ const GymVideoManagementScreen = ({ navigation }: { navigation: any }) => {
             <Text style={styles.addButtonText}>Add Video</Text>
           </TouchableOpacity>
         </View>
+
+        <TouchableOpacity
+          style={styles.suggestedBanner}
+          activeOpacity={0.88}
+          onPress={() => navigation.navigate('SuggestedGymVideosScreen')}
+        >
+          <View style={styles.suggestedIcon}>
+            <Feather name="star" size={18} color="#fff" />
+          </View>
+          <View style={styles.suggestedTextBlock}>
+            <Text style={styles.suggestedTitle}>Starter videos for your members</Text>
+            <Text style={styles.suggestedText}>
+              {videos.length === 0
+                ? 'New here? Add ready-made workouts, machine tutorials, and safety tips in one tap.'
+                : 'Browse ready-made workouts, machine tutorials, and safety tips.'}
+            </Text>
+          </View>
+          <Feather name="chevron-right" size={20} color={AppColors.blue} />
+        </TouchableOpacity>
 
         <View style={styles.filterRow}>
           {filterOptions.map((option) => {
@@ -431,6 +469,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: AppColors.white,
   },
+  navs: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingTop: 8,
+  },
   container: {
     flex: 1,
     paddingHorizontal: 16,
@@ -474,6 +519,40 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 10,
     marginBottom: 16,
+  },
+  suggestedBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    padding: 14,
+    marginBottom: 16,
+    borderRadius: 16,
+    backgroundColor: '#eef2ff',
+    borderWidth: 1,
+    borderColor: '#c7d2fe',
+  },
+  suggestedIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: AppColors.blue,
+  },
+  suggestedTextBlock: {
+    flex: 1,
+  },
+  suggestedTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: AppColors.primary,
+  },
+  suggestedText: {
+    marginTop: 2,
+    fontSize: 12,
+    lineHeight: 17,
+    color: AppColors.primary,
+    opacity: 0.72,
   },
   filterChip: {
     paddingHorizontal: 14,
