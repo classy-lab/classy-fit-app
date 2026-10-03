@@ -25,10 +25,10 @@ import type {
 } from '../../types/earnings'
 
 const categoryOrder: EarningsCategoryKey[] = [
-  'products',
-  'memberships',
   'classes',
+  'memberships',
   'personal_training',
+  'products',
 ]
 
 const categoryCards: Record<
@@ -39,26 +39,26 @@ const categoryCards: Record<
     icon: React.ReactNode
   }
 > = {
-  products: {
-    title: 'Products',
-    subtitle: 'Retail sales',
-    icon: <MaterialCommunityIcons name="shopping" size={30} color={AppColors.blue} />,
+  classes: {
+    title: 'Classes',
+    // subtitle: 'Group sessions',
+    icon: <FontAwesome5 name="calendar-alt" size={24} color={AppColors.blue} />,
   },
   memberships: {
     title: 'Memberships',
     subtitle: 'Recurring revenue',
     icon: <MaterialCommunityIcons name="credit-card-outline" size={30} color={AppColors.blue} />,
   },
-  classes: {
-    title: 'Classes',
-    subtitle: 'Group sessions',
-    icon: <FontAwesome5 name="calendar-alt" size={24} color={AppColors.blue} />,
-  },
   personal_training: {
     title: 'Personal Training',
     subtitle: '1-on-1 revenue',
     icon: <MaterialCommunityIcons name="dumbbell" size={30} color={AppColors.blue} />,
   },
+  products: {
+    title: 'Products',
+    subtitle: 'Retail sales',
+    icon: <MaterialCommunityIcons name="shopping" size={30} color={AppColors.blue} />,
+  }
 }
 
 const formatDateLabel = (value?: string) => {
