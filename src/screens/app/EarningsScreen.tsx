@@ -1,7 +1,9 @@
 // @ts-nocheck
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import {
   ActivityIndicator,
+  Animated,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -21,6 +23,7 @@ import { performAuthenticatedRequest } from '../../utils/authenticatedRequest'
 import type {
   EarningsApiResponse,
   EarningsCategoryKey,
+  EarningsPeriod,
 } from '../../types/earnings'
 
 const categoryOrder: EarningsCategoryKey[] = [
@@ -60,7 +63,37 @@ const categoryCards: Record<
   },
 }
 
+const PERIOD_OPTIONS: { key: EarningsPeriod; label: string; title: string }[] = [
+  { key: '7d', label: '7D', title: 'Last 7 days' },
+  { key: '30d', label: '30D', title: 'Last 30 days' },
+  { key: '90d', label: '90D', title: 'Last 90 days' },
+  { key: '1y', label: '1Y', title: 'Last 12 months' },
+]
+
 const formatPercent = (value: number) => `${Math.round(value * 100)}%`
+
+const parseApiDate = (value?: string) => {
+  const date = new Date(`${value}T00:00:00`)
+  return Number.isNaN(date.getTime()) ? null : date
+}
+
+const formatShortDate = (value?: string) => {
+  const date = parseApiDate(value)
+  return date
+    ? new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' }).format(date)
+    : value ?? '—'
+}
+
+const formatDayAndDate = (value?: string) => {
+  const date = parseApiDate(value)
+  return date
+    ? new Intl.DateTimeFormat(undefined, {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+      }).format(date)
+    : value ?? '—'
+}
 
 const EarningsScreen = ({ navigation }) => {
   const authContext = useContext(UserContext)
@@ -74,10 +107,14 @@ const EarningsScreen = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<EarningsCategoryKey | null>(null)
+  const [selectedPeriod, setSelectedPeriod] = useState<EarningsPeriod>('7d')
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const requestSequenceRef = useRef(0)
+  const donutAnim = useRef(new Animated.Value(0)).current
 
   const isOwner = String(user?.role ?? '').trim().toLowerCase() === 'owner'
 
-  const loadEarnings = useCallback(async () => {
+  const loadEarnings = useCallback(async (isPullRefresh = false) => {
     if (!user?.gym_id || !tokens?.access_token || !setTokens) {
       setErrorMessage('Please sign in again to view earnings.')
       setIsLoading(false)
@@ -91,12 +128,15 @@ const EarningsScreen = ({ navigation }) => {
       return
     }
 
-    setIsLoading(true)
+    const requestId = ++requestSequenceRef.current
+    if (!isPullRefresh) {
+      setIsLoading(true)
+    }
     setErrorMessage('')
 
     try {
       const response = await performAuthenticatedRequest({
-        endpoint: `${webServer}/api/v1/gyms/${user.gym_id}/earnings?period=7d`,
+        endpoint: `${webServer}/api/v1/gyms/${user.gym_id}/earnings?period=${selectedPeriod}`,
         init: { method: 'GET' },
         accessToken: tokens.access_token,
         refreshToken: tokens.refresh_token,
@@ -114,6 +154,10 @@ const EarningsScreen = ({ navigation }) => {
         message?: string
       }
 
+      if (requestId !== requestSequenceRef.current) {
+        return
+      }
+
       if (response.status !== 200 || responseBody.status !== 'success') {
         setErrorMessage(responseBody.message || 'Unable to load earnings.')
         setEarnings(null)
@@ -127,13 +171,43 @@ const EarningsScreen = ({ navigation }) => {
       setErrorMessage('Unable to load earnings.')
       setEarnings(null)
     } finally {
-      setIsLoading(false)
+      if (requestId === requestSequenceRef.current) {
+        setIsLoading(false)
+        setIsRefreshing(false)
+      }
     }
-  }, [isOwner, setTokens, tokens?.access_token, tokens?.refresh_token, user?.gym_id, webServer])
+  }, [
+    isOwner,
+    selectedPeriod,
+    setTokens,
+    tokens?.access_token,
+    tokens?.refresh_token,
+    user?.gym_id,
+    webServer,
+  ])
+
+  const handleRefresh = useCallback(() => {
+    setIsRefreshing(true)
+    void loadEarnings(true)
+  }, [loadEarnings])
 
   useEffect(() => {
     void loadEarnings()
   }, [loadEarnings])
+
+  useEffect(() => {
+    if (isLoading || !earnings) {
+      return
+    }
+
+    donutAnim.setValue(0)
+    Animated.spring(donutAnim, {
+      toValue: 1,
+      friction: 7,
+      tension: 60,
+      useNativeDriver: true,
+    }).start()
+  }, [donutAnim, earnings, isLoading])
 
   const currencyFormatter = useMemo(() => {
     const currencyCode = earnings?.currency ?? 'USD'
@@ -172,6 +246,59 @@ const EarningsScreen = ({ navigation }) => {
       })),
     [earnings]
   )
+  const periodMeta = PERIOD_OPTIONS.find((option) => option.key === selectedPeriod)
+  const rangeLabel = earnings
+    ? `${formatShortDate(earnings.range.start_date)} – ${formatShortDate(earnings.range.end_date)}`
+    : ''
+  const insights = useMemo(() => {
+    if (!earnings || totalRevenue <= 0) {
+      return []
+    }
+
+    const topCategory = [...categoryBreakdown].sort(
+      (a, b) => b.summary.revenue - a.summary.revenue
+    )[0]
+    const bestDay = (earnings.daily ?? []).reduce(
+      (best, day) => (!best || day.revenue > best.revenue ? day : best),
+      null
+    )
+    const dayCount = Math.max(earnings.daily?.length ?? 0, 1)
+
+    return [
+      {
+        key: 'top',
+        icon: 'award',
+        label: 'Top earner',
+        value: topCategory.title,
+        hint: `${formatPercent(topCategory.summary.revenue / totalRevenue)} of revenue`,
+        color: topCategory.color,
+      },
+      {
+        key: 'best',
+        icon: 'trending-up',
+        label: 'Best day',
+        value: bestDay ? formatDayAndDate(bestDay.date) : '—',
+        hint: bestDay ? formatCurrency(bestDay.revenue) : '',
+        color: AppColors.blue,
+      },
+      {
+        key: 'avg',
+        icon: 'dollar-sign',
+        label: 'Avg. sale',
+        value: formatCurrency(transactionCount > 0 ? totalRevenue / transactionCount : 0),
+        hint: `${transactionCount} sales`,
+        color: AppColors.blue,
+      },
+      {
+        key: 'daily',
+        icon: 'calendar',
+        label: 'Daily average',
+        value: formatCurrency(totalRevenue / dayCount),
+        hint: `over ${dayCount} days`,
+        color: AppColors.blue,
+      },
+    ]
+  }, [categoryBreakdown, earnings, formatCurrency, totalRevenue, transactionCount])
   const activeCategory = categoryBreakdown.find((card) => card.key === selectedCategory) ?? null
   const donutRadius = Math.min(110, Math.floor((width - 48 - 40) / 2))
   const donutData = hasData
@@ -198,22 +325,55 @@ const EarningsScreen = ({ navigation }) => {
         <SignOut />
       </View>
 
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={handleRefresh}
+            tintColor={AppColors.blue}
+            colors={[AppColors.blue]}
+          />
+        }
+      >
         <View style={styles.headingContainer}>
           <Text style={styles.title}>Earnings</Text>
-          <Text style={styles.subtitle}>Weekly revenue snapshot</Text>
+          <Text style={styles.subtitle}>{rangeLabel || 'Revenue snapshot'}</Text>
         </View>
 
         <View style={styles.body}>
           <View style={styles.heroCard}>
             <View style={styles.heroHeader}>
               <View style={styles.heroTextBlock}>
-                <Text style={styles.heroEyebrow}>This week</Text>
+                <Text style={styles.heroEyebrow}>{periodMeta?.title}</Text>
                 <Text style={styles.heroTitle}>Combined total sales</Text>
                 <Text style={styles.heroDescription}>
-                  Tap a slice or legend row to see that category's share of revenue.
+                  Tap a slice or legend row to focus on one category.
                 </Text>
               </View>
+            </View>
+
+            <View style={styles.periodRow}>
+              {PERIOD_OPTIONS.map((option) => {
+                const active = option.key === selectedPeriod
+
+                return (
+                  <TouchableOpacity
+                    key={option.key}
+                    activeOpacity={0.85}
+                    style={[styles.periodButton, active && styles.periodButtonActive]}
+                    onPress={() => {
+                      setSelectedCategory(null)
+                      setSelectedPeriod(option.key)
+                    }}
+                  >
+                    <Text style={[styles.periodText, active && styles.periodTextActive]}>
+                      {option.label}
+                    </Text>
+                  </TouchableOpacity>
+                )
+              })}
             </View>
 
             <View style={styles.summaryRow}>
@@ -239,14 +399,31 @@ const EarningsScreen = ({ navigation }) => {
                 </View>
               ) : (
                 <>
-                  <View style={styles.donutWrap}>
+                  <Animated.View
+                    style={[
+                      styles.donutWrap,
+                      {
+                        opacity: donutAnim,
+                        transform: [
+                          {
+                            scale: donutAnim.interpolate({
+                              inputRange: [0, 1],
+                              outputRange: [0.85, 1],
+                            }),
+                          },
+                        ],
+                      },
+                    ]}
+                  >
                     <PieChart
                       donut
                       data={donutData}
                       radius={donutRadius}
                       innerRadius={Math.round(donutRadius * 0.65)}
                       innerCircleColor={AppColors.white}
-                      isAnimated={false}
+                      extraRadius={8}
+                      strokeWidth={3}
+                      strokeColor={AppColors.white}
                       centerLabelComponent={() => (
                         <View style={styles.donutCenter}>
                           <Text style={styles.donutCenterLabel}>
@@ -267,7 +444,7 @@ const EarningsScreen = ({ navigation }) => {
                         </View>
                       )}
                     />
-                  </View>
+                  </Animated.View>
 
                   <View style={styles.legend}>
                     {categoryBreakdown.map((card) => {
@@ -285,26 +462,65 @@ const EarningsScreen = ({ navigation }) => {
                             )
                           }
                         >
-                          <View
-                            style={[styles.legendDot, { backgroundColor: card.color }]}
-                          />
-                          <Text style={styles.legendName}>{card.title}</Text>
-                          <Text style={styles.legendValue}>
-                            {formatCurrency(card.summary.revenue)}
-                          </Text>
-                          <Text style={styles.legendPercent}>{formatPercent(share)}</Text>
+                          <View style={styles.legendTopLine}>
+                            <View style={[styles.legendDot, { backgroundColor: card.color }]} />
+                            <View style={styles.legendNameBlock}>
+                              <Text style={styles.legendName}>{card.title}</Text>
+                              <Text style={styles.legendMeta}>
+                                {card.summary.transaction_count} transactions
+                              </Text>
+                            </View>
+                            <Text style={styles.legendValue}>
+                              {formatCurrency(card.summary.revenue)}
+                            </Text>
+                            <Text style={styles.legendPercent}>{formatPercent(share)}</Text>
+                          </View>
+                          <View style={styles.legendBarTrack}>
+                            <View
+                              style={[
+                                styles.legendBarFill,
+                                { width: `${Math.max(share * 100, share > 0 ? 3 : 0)}%`, backgroundColor: card.color },
+                              ]}
+                            />
+                          </View>
                         </TouchableOpacity>
                       )
                     })}
                   </View>
 
                   {!hasData ? (
-                    <Text style={styles.emptyText}>No sales data for this week.</Text>
+                    <Text style={styles.emptyText}>No sales data for this period.</Text>
                   ) : null}
                 </>
               )}
             </View>
           </View>
+
+          {insights.length > 0 ? (
+            <>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Highlights</Text>
+                <Text style={styles.sectionSubtitle}>{periodMeta?.title} at a glance</Text>
+              </View>
+
+              <View style={[styles.grid, styles.insightGrid]}>
+                {insights.map((item) => (
+                  <View key={item.key} style={styles.insightTile}>
+                    <View style={[styles.insightIcon, { backgroundColor: `${item.color}22` }]}>
+                      <Feather name={item.icon} size={16} color={item.color} />
+                    </View>
+                    <Text style={styles.insightLabel}>{item.label}</Text>
+                    <Text style={styles.insightValue} numberOfLines={1}>
+                      {item.value}
+                    </Text>
+                    <Text style={styles.insightHint} numberOfLines={1}>
+                      {item.hint}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </>
+          ) : null}
 
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Earnings categories</Text>
@@ -482,8 +698,6 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   legendRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
     paddingVertical: 8,
     paddingHorizontal: 10,
     borderRadius: 12,
@@ -491,16 +705,28 @@ const styles = StyleSheet.create({
   legendRowActive: {
     backgroundColor: AppColors.grey,
   },
+  legendTopLine: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   legendDot: {
     width: 12,
     height: 12,
     borderRadius: 6,
     marginRight: 10,
   },
-  legendName: {
+  legendNameBlock: {
     flex: 1,
+  },
+  legendName: {
     color: AppColors.blue,
     fontSize: 13,
+    fontFamily: 'Montserrat-Bold',
+  },
+  legendMeta: {
+    color: AppColors.grey3,
+    fontSize: 10,
+    marginTop: 1,
     fontFamily: 'Montserrat',
   },
   legendValue: {
@@ -514,6 +740,80 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     color: AppColors.grey3,
     fontSize: 12,
+    fontFamily: 'Montserrat',
+  },
+  legendBarTrack: {
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: AppColors.grey,
+    marginTop: 8,
+    overflow: 'hidden',
+  },
+  legendBarFill: {
+    height: '100%',
+    borderRadius: 2,
+  },
+  periodRow: {
+    flexDirection: 'row',
+    backgroundColor: AppColors.white,
+    borderRadius: 14,
+    padding: 4,
+    marginTop: 16,
+  },
+  periodButton: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 8,
+    borderRadius: 10,
+  },
+  periodButtonActive: {
+    backgroundColor: AppColors.blue,
+  },
+  periodText: {
+    color: AppColors.grey3,
+    fontSize: 12,
+    fontFamily: 'Montserrat',
+  },
+  periodTextActive: {
+    color: AppColors.white,
+  },
+  insightGrid: {
+    marginBottom: 22,
+  },
+  insightTile: {
+    width: '48%',
+    backgroundColor: AppColors.grey,
+    borderRadius: 18,
+    padding: 14,
+    shadowColor: AppColors.grey3,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.07,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  insightIcon: {
+    width: 30,
+    height: 30,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
+  },
+  insightLabel: {
+    color: AppColors.grey3,
+    fontSize: 11,
+    fontFamily: 'Montserrat',
+  },
+  insightValue: {
+    color: AppColors.blue,
+    fontSize: 15,
+    marginTop: 3,
+    fontFamily: 'Montserrat',
+  },
+  insightHint: {
+    color: AppColors.primary,
+    fontSize: 11,
+    marginTop: 2,
     fontFamily: 'Montserrat',
   },
   emptyText: {
