@@ -9,6 +9,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native'
@@ -28,6 +29,21 @@ import {
 import { showMessage } from 'react-native-flash-message'
 import { useFocusEffect } from '@react-navigation/native'
 
+const NEW_VIDEO_WINDOW_DAYS = 14
+
+const isRecentlyAdded = (createdAt?: string | null) => {
+  if (!createdAt) {
+    return false
+  }
+
+  const created = new Date(String(createdAt).replace(' ', 'T'))
+  if (Number.isNaN(created.getTime())) {
+    return false
+  }
+
+  return Date.now() - created.getTime() < NEW_VIDEO_WINDOW_DAYS * 24 * 60 * 60 * 1000
+}
+
 const GymVideosScreen = ({ navigation }: { navigation: any }) => {
   const { user, tokens, setTokens, webServer } = useContext(UserContext)
   const [videos, setVideos] = useState<GymVideoRecord[]>([])
@@ -35,6 +51,8 @@ const GymVideosScreen = ({ navigation }: { navigation: any }) => {
   const [refreshing, setRefreshing] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [activeCategory, setActiveCategory] = useState<'all' | GymVideoRecord['category']>('all')
+  const [searchQuery, setSearchQuery] = useState('')
+  const isOwner = String(user?.role ?? '').trim().toLowerCase() === 'owner'
   const [failedThumbnails, setFailedThumbnails] = useState<Record<string, boolean>>({})
 
   const loadVideos = useCallback(
@@ -115,13 +133,22 @@ const GymVideosScreen = ({ navigation }: { navigation: any }) => {
     }, [loadVideos]),
   )
 
+  const trimmedQuery = searchQuery.trim().toLowerCase()
+
   const filteredVideos = useMemo(() => {
-    if (activeCategory === 'all') {
-      return videos
+    const inCategory =
+      activeCategory === 'all' ? videos : videos.filter((video) => video.category === activeCategory)
+
+    if (!trimmedQuery) {
+      return inCategory
     }
 
-    return videos.filter((video) => video.category === activeCategory)
-  }, [activeCategory, videos])
+    return inCategory.filter((video) =>
+      [video.title, video.description, getGymVideoCategoryLabel(video.category)]
+        .filter(Boolean)
+        .some((text) => String(text).toLowerCase().includes(trimmedQuery)),
+    )
+  }, [activeCategory, trimmedQuery, videos])
 
   const categoryCounts = useMemo(() => {
     return gymVideoCategories.reduce<Record<string, number>>((acc, category) => {
@@ -208,6 +235,26 @@ const GymVideosScreen = ({ navigation }: { navigation: any }) => {
           </View>
         </View>
 
+        <View style={styles.searchBox}>
+          <Feather name="search" size={18} color={AppColors.grey3} />
+          <TextInput
+            style={styles.searchInput}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholder="Search videos, e.g. squat or warm-up"
+            placeholderTextColor={AppColors.grey3}
+            returnKeyType="search"
+            autoCorrect={false}
+            autoCapitalize="none"
+            clearButtonMode="never"
+          />
+          {searchQuery.length > 0 ? (
+            <TouchableOpacity onPress={() => setSearchQuery('')} hitSlop={10} accessibilityLabel="Clear search">
+              <Feather name="x-circle" size={18} color={AppColors.grey3} />
+            </TouchableOpacity>
+          ) : null}
+        </View>
+
         <View style={styles.filterSection}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Categories</Text>
@@ -261,18 +308,41 @@ const GymVideosScreen = ({ navigation }: { navigation: any }) => {
               <MaterialCommunityIcons name="youtube" size={28} color={AppColors.blue} />
             </View>
             <Text style={styles.emptyTitle}>
-              {activeCategory === 'all'
-                ? 'No published videos yet'
-                : `No ${getGymVideoCategoryLabel(activeCategory).toLowerCase()} videos`}
+              {trimmedQuery
+                ? `No videos match "${searchQuery.trim()}"`
+                : activeCategory === 'all'
+                  ? 'No published videos yet'
+                  : `No ${getGymVideoCategoryLabel(activeCategory).toLowerCase()} videos`}
             </Text>
             <Text style={styles.stateText}>
-              {activeCategory === 'all'
-                ? 'Check back soon for new gym content.'
-                : 'Try another category or check back later for new content.'}
+              {trimmedQuery
+                ? 'Try a different word, or clear the search to see everything.'
+                : activeCategory === 'all'
+                  ? isOwner
+                    ? 'Add videos for your members, or start with our ready-made picks.'
+                    : 'Check back soon for new gym content.'
+                  : 'Try another category or check back later for new content.'}
             </Text>
+            {trimmedQuery ? (
+              <TouchableOpacity style={styles.retryBtn} onPress={() => setSearchQuery('')}>
+                <Text style={styles.retryBtnText}>Clear search</Text>
+              </TouchableOpacity>
+            ) : isOwner && activeCategory === 'all' && videos.length === 0 ? (
+              <TouchableOpacity
+                style={styles.retryBtn}
+                onPress={() => navigation.navigate('SuggestedGymVideosScreen')}
+              >
+                <Text style={styles.retryBtnText}>Browse starter videos</Text>
+              </TouchableOpacity>
+            ) : null}
           </View>
         ) : (
           <View style={styles.videoList}>
+            {trimmedQuery ? (
+              <Text style={styles.resultCount}>
+                {filteredVideos.length} {filteredVideos.length === 1 ? 'result' : 'results'}
+              </Text>
+            ) : null}
             {filteredVideos.map((video) => {
               const categoryMeta = getGymVideoCategoryMeta(video.category)
               const thumbnailSource = getThumbnailSource(video)
@@ -304,6 +374,12 @@ const GymVideosScreen = ({ navigation }: { navigation: any }) => {
                         <Text style={styles.placeholderText}>{categoryMeta.label}</Text>
                       </View>
                     )}
+
+                    {isRecentlyAdded(video.created_at) ? (
+                      <View style={styles.newPill}>
+                        <Text style={styles.newPillText}>NEW</Text>
+                      </View>
+                    ) : null}
 
                     <View style={styles.videoTypePill}>
                       <Text style={styles.videoTypeText}>{String(video.video_type ?? '').toUpperCase()}</Text>
@@ -437,6 +513,46 @@ const styles = StyleSheet.create({
   heroStatText: {
     color: AppColors.blue,
     fontSize: 13,
+    fontFamily: 'Montserrat',
+  },
+  searchBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginTop: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 11,
+    borderRadius: 16,
+    backgroundColor: AppColors.white,
+    borderWidth: 1,
+    borderColor: AppColors.grey2,
+  },
+  searchInput: {
+    flex: 1,
+    paddingVertical: 0,
+    fontSize: 14,
+    color: AppColors.primary,
+    fontFamily: 'Montserrat',
+  },
+  resultCount: {
+    marginBottom: 2,
+    fontSize: 12,
+    color: AppColors.grey3,
+    fontFamily: 'Montserrat',
+  },
+  newPill: {
+    position: 'absolute',
+    top: 14,
+    left: 14,
+    backgroundColor: '#16a34a',
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  newPillText: {
+    color: AppColors.white,
+    fontSize: 11,
+    letterSpacing: 0.6,
     fontFamily: 'Montserrat',
   },
   filterSection: {
