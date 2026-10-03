@@ -53,6 +53,13 @@ export const PERIOD_OPTIONS: {
   { key: '1y', label: '1Y', title: 'Last 12 months', previousLabel: 'prior year' },
 ]
 
+// Used by the combined "All Earnings" card and screen.
+export const allEarningsCard = {
+  title: 'All Earnings',
+  icon: <MaterialCommunityIcons name="cash-multiple" size={30} color={AppColors.blue} />,
+  color: AppColors.blue,
+}
+
 export const POSITIVE_COLOR = '#2BB673'
 export const NEGATIVE_COLOR = '#E5484D'
 
@@ -144,3 +151,30 @@ export const getInitials = (name?: string | null) => {
 
   return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase()
 }
+
+const currencyFormatters = new Map<string, Intl.NumberFormat>()
+
+export const formatMoney = (value: number, currency = 'USD') => {
+  let formatter = currencyFormatters.get(currency)
+
+  if (!formatter) {
+    try {
+      formatter = new Intl.NumberFormat(undefined, {
+        style: 'currency',
+        currency,
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })
+    } catch {
+      formatter = new Intl.NumberFormat(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })
+    }
+    currencyFormatters.set(currency, formatter)
+  }
+
+  return formatter.format(value)
+}
+
+export const roundMoney = (value: number) => Math.round(value * 100) / 100
