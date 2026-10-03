@@ -53,6 +53,7 @@ export interface EarningsTransaction {
   quantity: number | null;
   event_at: string | null;
   reference: string | null;
+  category?: EarningsCategoryKey | null;
 }
 
 export interface EarningsTransactionPage {
@@ -87,5 +88,33 @@ export interface EarningsCategoryDetailResponse {
     count_label: string;
     items: EarningsBreakdownItem[];
   };
+  transactions: EarningsTransactionPage;
+}
+
+export interface EarningsTopCustomer {
+  uid: number;
+  name: string;
+  email: string | null;
+  spent: number;
+  purchases: number;
+}
+
+export interface EarningsAllResponse {
+  status: 'success';
+  category: 'all';
+  period: EarningsPeriod;
+  filter: EarningsCategoryKey | null;
+  range: EarningsRange;
+  currency: string;
+  totals: EarningsCategorySummary & {
+    average_sale: number;
+    unique_customers: number;
+    repeat_customers: number;
+  };
+  previous: EarningsPreviousPeriod;
+  daily: EarningsDailyPoint[];
+  by_category: Record<EarningsCategoryKey, EarningsCategorySummary>;
+  category_daily: Record<EarningsCategoryKey, EarningsDailyPoint[]>;
+  top_customers: EarningsTopCustomer[];
   transactions: EarningsTransactionPage;
 }
