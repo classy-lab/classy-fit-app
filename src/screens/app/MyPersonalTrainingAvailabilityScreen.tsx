@@ -1,0 +1,712 @@
+import { useCallback, useContext, useState } from 'react'
+import {
+  Alert,
+  ActivityIndicator,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { useFocusEffect } from '@react-navigation/native'
+import { Feather } from '@expo/vector-icons'
+import { showMessage } from 'react-native-flash-message'
+import { AppColors } from '../../styles/colors'
+import { UserContext } from '../../context/UserContext'
+import { performAuthenticatedRequest as performAuthenticatedRequestWithRefresh } from '../../utils/authenticatedRequest'
+import { canManagePersonalTraining, isOwnerRole } from '../../utils/roleAccess'
+
+type RefreshTokens = {
+  access_token?: string
+  refresh_token?: string
+}
+
+type AvailabilityRule = {
+  uid: number
+  gym_id?: number
+  trainer_gym_user_id?: number
+  trainer_display_name?: string | null
+  day_of_week: number
+  start_time_local: string
+  end_time_local: string
+  effective_start_date: string
+  effective_end_date?: string | null
+  status: string
+}
+
+type UserContextValue = {
+  user?: {
+    role?: string | null
+  } | null
+  tokens?: RefreshTokens | null
+  setTokens: (value: RefreshTokens | null | ((prev: RefreshTokens | null) => RefreshTokens | null)) => void
+  webServer: string
+}
+
+type MyPersonalTrainingAvailabilityNavigation = {
+  goBack: () => void
+  navigate: (
+    screen: 'AddEditPersonalTrainingAvailabilityScreen',
+    params?: { availability?: AvailabilityRule; gymTimezone?: string | null }
+  ) => void
+}
+
+type LoadOptions = {
+  isRefresh?: boolean
+}
+
+// ISO weekdays, matching the API: 1 = Monday ... 7 = Sunday.
+const WEEKDAYS = [
+  { day: 1, label: 'Monday' },
+  { day: 2, label: 'Tuesday' },
+  { day: 3, label: 'Wednesday' },
+  { day: 4, label: 'Thursday' },
+  { day: 5, label: 'Friday' },
+  { day: 6, label: 'Saturday' },
+  { day: 7, label: 'Sunday' },
+]
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+// Availability times and dates are gym-local wall-clock values, so they are formatted from the
+// strings themselves and never go through Date (which would apply the device timezone).
+const formatLocalTime = (value?: string | null) => {
+  const match = /^(\d{2}):(\d{2})/.exec(String(value ?? ''))
+  if (!match) {
+    return 'Unknown time'
+  }
+
+  const hours = Number(match[1])
+  return `${hours % 12 || 12}:${match[2]} ${hours >= 12 ? 'PM' : 'AM'}`
+}
+
+const formatLocalDate = (value?: string | null) => {
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(value ?? ''))
+  if (!match) {
+    return 'Unknown date'
+  }
+
+  return `${MONTHS[Number(match[2]) - 1]} ${Number(match[3])}, ${match[1]}`
+}
+
+const MyPersonalTrainingAvailabilityScreen = ({ navigation }: { navigation: MyPersonalTrainingAvailabilityNavigation }) => {
+  const { user, tokens, setTokens, webServer } = useContext(UserContext) as UserContextValue
+  const [rules, setRules] = useState<AvailabilityRule[]>([])
+  const [gymTimezone, setGymTimezone] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
+  const [deletingRuleUid, setDeletingRuleUid] = useState<number | null>(null)
+
+  const canManage = canManagePersonalTraining(user?.role)
+  const isOwner = isOwnerRole(user?.role)
+
+  const performAuthenticatedRequest = async (endpoint: string, init: RequestInit = {}) => {
+    return performAuthenticatedRequestWithRefresh({
+      endpoint,
+      init,
+      accessToken: tokens?.access_token ?? null,
+      refreshToken: tokens?.refresh_token ?? null,
+      webServer,
+      setTokens,
+    })
+  }
+
+  const loadRules = useCallback(
+    async ({ isRefresh = false }: LoadOptions = {}) => {
+      if (!canManage) {
+        setLoading(false)
+        setRefreshing(false)
+        return
+      }
+
+      if (!tokens?.access_token) {
+        setErrorMessage('Please sign in again to view your availability.')
+        setRules([])
+        setLoading(false)
+        setRefreshing(false)
+        return
+      }
+
+      if (isRefresh) {
+        setRefreshing(true)
+      } else {
+        setLoading(true)
+      }
+
+      setErrorMessage('')
+
+      try {
+        const response = await performAuthenticatedRequest(`${webServer}/api/v1/personal-training/availability`)
+        if (!response) {
+          setErrorMessage('Please sign in again to view your availability.')
+          setRules([])
+          return
+        }
+
+        const responseText = await response.text()
+        let responseBody: { message?: string; data?: AvailabilityRule[]; gym_timezone?: string | null } = {}
+        if (responseText) {
+          try {
+            responseBody = JSON.parse(responseText)
+          } catch {
+            responseBody = { message: responseText }
+          }
+        }
+
+        if (response.status !== 200) {
+          const message = responseBody?.message || 'Unable to load availability.'
+          setErrorMessage(message)
+          setRules([])
+          showMessage({
+            message: 'Availability unavailable',
+            description: message,
+            type: 'danger',
+          })
+          return
+        }
+
+        setRules(Array.isArray(responseBody?.data) ? responseBody.data : [])
+        setGymTimezone(responseBody?.gym_timezone ?? null)
+      } catch {
+        const message = 'Failed to load availability.'
+        setErrorMessage(message)
+        setRules([])
+        showMessage({
+          message: 'Availability unavailable',
+          description: message,
+          type: 'danger',
+        })
+      } finally {
+        setLoading(false)
+        setRefreshing(false)
+      }
+    },
+    [canManage, tokens?.access_token, webServer, setTokens]
+  )
+
+  useFocusEffect(
+    useCallback(() => {
+      void loadRules()
+    }, [loadRules])
+  )
+
+  const onRefresh = () => {
+    void loadRules({ isRefresh: true })
+  }
+
+  const deleteRule = useCallback(
+    async (ruleUid: number) => {
+      if (!ruleUid || deletingRuleUid !== null) {
+        return
+      }
+
+      setDeletingRuleUid(ruleUid)
+
+      try {
+        const response = await performAuthenticatedRequest(
+          `${webServer}/api/v1/personal-training/availability/${ruleUid}`,
+          {
+            method: 'DELETE',
+          }
+        )
+
+        if (!response) {
+          showMessage({
+            message: 'Authentication required',
+            description: 'Please sign in again to delete availability.',
+            type: 'danger',
+          })
+          return
+        }
+
+        const responseText = await response.text()
+        let responseBody: { message?: string } = {}
+        if (responseText) {
+          try {
+            responseBody = JSON.parse(responseText)
+          } catch {
+            responseBody = { message: responseText }
+          }
+        }
+
+        if (response.status === 200) {
+          showMessage({
+            message: 'Availability deleted',
+            description: responseBody?.message || 'The availability was deleted successfully.',
+            type: 'success',
+          })
+          await loadRules()
+          return
+        }
+
+        const message = responseBody?.message || 'Unable to delete availability.'
+
+        if (response.status === 404) {
+          // Already gone (for example deleted on another device); refresh to match the server.
+          showMessage({
+            message: 'Availability not found',
+            description: message,
+            type: 'danger',
+          })
+          await loadRules()
+          return
+        }
+
+        if (response.status === 401) {
+          showMessage({
+            message: 'Authentication required',
+            description: 'Please sign in again to delete availability.',
+            type: 'danger',
+          })
+          return
+        }
+
+        if (response.status === 403) {
+          showMessage({
+            message: 'Permission denied',
+            description: message,
+            type: 'danger',
+          })
+          return
+        }
+
+        showMessage({
+          message: 'Delete failed',
+          description: message,
+          type: 'danger',
+        })
+      } catch {
+        showMessage({
+          message: 'Delete failed',
+          description: 'Unable to delete availability.',
+          type: 'danger',
+        })
+      } finally {
+        setDeletingRuleUid((current) => (current === ruleUid ? null : current))
+      }
+    },
+    [deletingRuleUid, loadRules, performAuthenticatedRequest, webServer]
+  )
+
+  const confirmDeleteRule = (rule: AvailabilityRule, dayLabel: string) => {
+    if (!rule.uid || deletingRuleUid !== null) {
+      return
+    }
+
+    Alert.alert(
+      'Delete availability?',
+      `This will permanently delete ${dayLabel} ${formatLocalTime(rule.start_time_local)} - ${formatLocalTime(rule.end_time_local)}. This cannot be undone.`,
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            void deleteRule(rule.uid)
+          },
+        },
+      ],
+      { cancelable: true }
+    )
+  }
+
+  const groupedRules = WEEKDAYS.map(({ day, label }) => ({
+    day,
+    label,
+    rules: rules
+      .filter((rule) => Number(rule.day_of_week) === day)
+      .sort(
+        (a, b) =>
+          String(a.start_time_local).localeCompare(String(b.start_time_local)) ||
+          Number(a.trainer_gym_user_id ?? 0) - Number(b.trainer_gym_user_id ?? 0)
+      ),
+  })).filter((group) => group.rules.length > 0)
+
+  if (!canManage) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.navs}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+            <Feather name="arrow-left" color={AppColors.blue} size={36} />
+          </TouchableOpacity>
+          <Text style={styles.title}>My Availability</Text>
+          <View style={styles.spacer} />
+        </View>
+
+        <View style={styles.centerState}>
+          <Text style={styles.emptyTitle}>Staff access required</Text>
+          <Text style={styles.stateText}>This screen is only available to gym owners and trainers.</Text>
+        </View>
+      </SafeAreaView>
+    )
+  }
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.navs}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+          <Feather name="arrow-left" color={AppColors.blue} size={36} />
+        </TouchableOpacity>
+        <Text style={styles.title}>My Availability</Text>
+        <View style={styles.spacer} />
+      </View>
+
+      <View style={styles.actionsBar}>
+        <TouchableOpacity
+          style={styles.addButton}
+          activeOpacity={0.85}
+          onPress={() => navigation.navigate('AddEditPersonalTrainingAvailabilityScreen', { gymTimezone })}
+        >
+          <Feather name="plus" color={AppColors.white} size={18} />
+          <Text style={styles.addButtonText}>Add Availability</Text>
+        </TouchableOpacity>
+        <Text style={styles.timezoneNote}>
+          {gymTimezone ? `Times are in your gym's local time (${gymTimezone}).` : "Times are in your gym's local time."}
+        </Text>
+      </View>
+
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={AppColors.blue} />}
+      >
+        {loading ? (
+          <View style={styles.centerState}>
+            <ActivityIndicator size="large" color={AppColors.blue} />
+            <Text style={styles.stateText}>Loading availability...</Text>
+          </View>
+        ) : errorMessage ? (
+          <View style={styles.errorCard}>
+            <Text style={styles.errorTitle}>Unable to load availability</Text>
+            <Text style={styles.errorText}>{errorMessage}</Text>
+            <TouchableOpacity style={styles.retryBtn} onPress={() => loadRules()}>
+              <Text style={styles.retryBtnText}>Try Again</Text>
+            </TouchableOpacity>
+          </View>
+        ) : groupedRules.length === 0 ? (
+          <View style={styles.centerState}>
+            <Text style={styles.emptyTitle}>No availability yet</Text>
+            <Text style={styles.stateText}>Use Add Availability to set the weekly hours you are available.</Text>
+          </View>
+        ) : (
+          <View style={styles.list}>
+            {groupedRules.map((group) => (
+              <View key={group.day} style={styles.dayGroup}>
+                <Text style={styles.sectionTitle}>{group.label}</Text>
+                {group.rules.map((rule) => {
+                  const isActive = String(rule.status).trim().toLowerCase() === 'active'
+                  const deleting = deletingRuleUid === rule.uid
+                  const trainerName = String(rule.trainer_display_name ?? '').trim()
+
+                  return (
+                    <View key={rule.uid} style={[styles.card, !isActive && styles.cardInactive]}>
+                      <View style={styles.cardHeader}>
+                        <View style={styles.cardHeaderText}>
+                          <Text style={styles.cardTitle}>
+                            {formatLocalTime(rule.start_time_local)} - {formatLocalTime(rule.end_time_local)}
+                          </Text>
+                        </View>
+                        <View style={[styles.statusPill, isActive ? styles.statusActive : styles.statusInactive]}>
+                          <Text style={styles.statusText}>{isActive ? 'Active' : 'Inactive'}</Text>
+                        </View>
+                      </View>
+
+                      <View style={styles.metaGrid}>
+                        {isOwner ? (
+                          <View style={styles.metaItem}>
+                            <Text style={styles.metaLabel}>Trainer</Text>
+                            <Text style={styles.metaValue}>{trainerName || 'Unknown trainer'}</Text>
+                          </View>
+                        ) : null}
+                        <View style={styles.metaItem}>
+                          <Text style={styles.metaLabel}>From</Text>
+                          <Text style={styles.metaValue}>{formatLocalDate(rule.effective_start_date)}</Text>
+                        </View>
+                        <View style={styles.metaItem}>
+                          <Text style={styles.metaLabel}>Until</Text>
+                          <Text style={styles.metaValue}>
+                            {rule.effective_end_date ? formatLocalDate(rule.effective_end_date) : 'No end date'}
+                          </Text>
+                        </View>
+                      </View>
+
+                      <View style={styles.cardActions}>
+                        <TouchableOpacity
+                          style={styles.editButton}
+                          activeOpacity={0.85}
+                          onPress={() =>
+                            navigation.navigate('AddEditPersonalTrainingAvailabilityScreen', {
+                              availability: rule,
+                              gymTimezone,
+                            })
+                          }
+                          disabled={deleting}
+                        >
+                          <Feather name="edit-2" color={AppColors.blue} size={16} />
+                          <Text style={styles.editButtonText}>Edit</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={[styles.deleteButton, deleting ? styles.deleteButtonDisabled : null]}
+                          activeOpacity={0.85}
+                          onPress={() => confirmDeleteRule(rule, group.label)}
+                          disabled={deleting || deletingRuleUid !== null}
+                        >
+                          <Feather name="trash-2" color={AppColors.white} size={16} />
+                          <Text style={styles.deleteButtonText}>{deleting ? 'Deleting...' : 'Delete'}</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  )
+                })}
+              </View>
+            ))}
+          </View>
+        )}
+      </ScrollView>
+    </SafeAreaView>
+  )
+}
+
+export default MyPersonalTrainingAvailabilityScreen
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: AppColors.grey,
+  },
+  navs: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingTop: 8,
+    paddingBottom: 12,
+    backgroundColor: AppColors.white,
+    borderBottomColor: AppColors.grey,
+    borderBottomWidth: 1,
+  },
+  backBtn: {
+    paddingRight: 8,
+  },
+  spacer: {
+    width: 36,
+  },
+  title: {
+    color: AppColors.blue,
+    fontFamily: 'Montserrat',
+    fontSize: 28,
+  },
+  actionsBar: {
+    paddingHorizontal: 16,
+    paddingTop: 14,
+    paddingBottom: 6,
+  },
+  addButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: AppColors.blue,
+    borderRadius: 18,
+    paddingHorizontal: 18,
+    paddingVertical: 14,
+    shadowColor: AppColors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    elevation: 2,
+    opacity: 0.92,
+  },
+  addButtonText: {
+    color: AppColors.white,
+    fontSize: 16,
+    fontFamily: 'Montserrat',
+  },
+  timezoneNote: {
+    marginTop: 10,
+    marginHorizontal: 4,
+    color: AppColors.grey3,
+    fontSize: 12,
+    fontFamily: 'Montserrat',
+  },
+  cardActions: {
+    marginTop: 16,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    gap: 10,
+    flexWrap: 'wrap',
+  },
+  editButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    borderColor: AppColors.blue,
+    borderWidth: 1,
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    backgroundColor: AppColors.white,
+  },
+  editButtonText: {
+    color: AppColors.blue,
+    fontSize: 14,
+    fontFamily: 'Montserrat',
+  },
+  deleteButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    borderColor: AppColors.red,
+    borderWidth: 1,
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    backgroundColor: AppColors.red,
+  },
+  deleteButtonDisabled: {
+    opacity: 0.75,
+  },
+  deleteButtonText: {
+    color: AppColors.white,
+    fontSize: 14,
+    fontFamily: 'Montserrat',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    paddingBottom: 28,
+  },
+  centerState: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 80,
+  },
+  stateText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: AppColors.grey3,
+    textAlign: 'center',
+    fontFamily: 'Montserrat',
+  },
+  emptyTitle: {
+    fontSize: 20,
+    color: AppColors.blue,
+    textAlign: 'center',
+    fontFamily: 'Montserrat',
+  },
+  errorCard: {
+    backgroundColor: AppColors.white,
+    borderColor: AppColors.grey,
+    borderWidth: 1,
+    borderRadius: 18,
+    padding: 20,
+    marginVertical: 20,
+  },
+  errorTitle: {
+    fontSize: 16,
+    color: AppColors.blue,
+    marginBottom: 8,
+    fontFamily: 'Montserrat',
+  },
+  errorText: {
+    fontSize: 14,
+    color: AppColors.grey3,
+    marginBottom: 12,
+    fontFamily: 'Montserrat',
+  },
+  retryBtn: {
+    backgroundColor: AppColors.blue,
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    borderRadius: 999,
+    alignSelf: 'flex-start',
+  },
+  retryBtnText: {
+    color: AppColors.white,
+    fontSize: 14,
+    fontFamily: 'Montserrat',
+  },
+  list: {
+    gap: 14,
+  },
+  dayGroup: {
+    gap: 14,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    color: AppColors.blue,
+    fontFamily: 'Montserrat',
+  },
+  card: {
+    backgroundColor: AppColors.white,
+    borderRadius: 18,
+    padding: 18,
+    borderColor: AppColors.grey,
+    borderWidth: 1,
+  },
+  cardInactive: {
+    opacity: 0.7,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 8,
+    gap: 12,
+  },
+  cardHeaderText: {
+    flex: 1,
+  },
+  cardTitle: {
+    fontSize: 18,
+    color: AppColors.blue,
+    fontFamily: 'Montserrat',
+  },
+  statusPill: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 999,
+  },
+  statusActive: {
+    backgroundColor: AppColors.blue,
+  },
+  statusInactive: {
+    backgroundColor: AppColors.grey3,
+  },
+  statusText: {
+    color: AppColors.white,
+    fontSize: 12,
+    fontFamily: 'Montserrat',
+  },
+  metaGrid: {
+    marginTop: 8,
+  },
+  metaItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+    gap: 12,
+  },
+  metaLabel: {
+    fontSize: 12,
+    color: AppColors.grey3,
+    textTransform: 'uppercase',
+    fontFamily: 'Montserrat',
+  },
+  metaValue: {
+    fontSize: 12,
+    color: AppColors.blue,
+    textAlign: 'right',
+    flexShrink: 1,
+    fontFamily: 'Montserrat',
+  },
+})
