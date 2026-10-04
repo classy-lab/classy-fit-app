@@ -57,7 +57,7 @@ type UserContextValue = {
 type PersonalTrainingManagementNavigation = {
   goBack: () => void
   navigate: (
-    screen: 'AddPersonalTrainingSessionScreen' | 'EditPersonalTrainingSessionScreen',
+    screen: 'AddPersonalTrainingSessionScreen' | 'EditPersonalTrainingSessionScreen' | 'MyPersonalTrainingAvailabilityScreen',
     params?: { sessionUid?: number }
   ) => void
 }
@@ -545,6 +545,14 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
             <Feather name="plus" color={AppColors.white} size={18} />
             <Text style={styles.addButtonText}>Add Session</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.availabilityButton}
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate('MyPersonalTrainingAvailabilityScreen')}
+          >
+            <Feather name="calendar" color={AppColors.blue} size={18} />
+            <Text style={styles.availabilityButtonText}>My Availability</Text>
+          </TouchableOpacity>
         </View>
       ) : null}
 
@@ -784,6 +792,23 @@ const styles = StyleSheet.create({
   },
   addButtonText: {
     color: AppColors.white,
+    fontSize: 16,
+    fontFamily: 'Montserrat',
+  },
+  availabilityButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginTop: 10,
+    backgroundColor: AppColors.white,
+    borderColor: AppColors.blue,
+    borderWidth: 1,
+    borderRadius: 18,
+    paddingHorizontal: 18,
+    paddingVertical: 14,
+  },
+  availabilityButtonText: {
+    color: AppColors.blue,
     fontSize: 16,
     fontFamily: 'Montserrat',
   },
