@@ -7,11 +7,12 @@ import { AppColors } from '../../styles/colors'
 import { gymScreenStyles } from '../../styles/gymScreenStyles'
 import PersonalTrainingSvg from '../../components/svg/PersonalTrainingSvg'
 import { UserContext } from '../../context/UserContext'
+import { canManagePersonalTraining } from '../../utils/roleAccess'
 
 const GymScreenScrollViewThree = () => {
   const navigation = useNavigation<any>()
   const { user } = useContext(UserContext)
-  const isOwner = String(user?.role ?? '').trim().toLowerCase() === 'owner'
+  const canManagePT = canManagePersonalTraining(user?.role)
 
   return (
     <>
@@ -21,7 +22,7 @@ const GymScreenScrollViewThree = () => {
         horizontal={true}
         showsHorizontalScrollIndicator={false}
       >
-        {isOwner ? (
+        {canManagePT ? (
           <View style={gymScreenStyles.greySquareContainer}>
             <TouchableOpacity
               style={gymScreenStyles.greySquare}
