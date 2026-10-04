@@ -297,20 +297,18 @@ const AppTabs = () => {
         }}
         listeners={createRootTabListener('GymTab', 'GymScreen')}
       />
-      {canManageStaff ? (
-        <Tab.Screen
-          name="StaffTab"
-          component={StaffStackScreen}
-          options={{
-            title: "Staff",
-            tabBarIcon: ({ color, size }) => (
-              <FontAwesome6 name="bolt-lightning" size={19} color={color} />
-              // <FontAwesome5 name="user-friends" size={20} color={color} />
-            ),
-          }}
-          listeners={createRootTabListener('StaffTab', 'StaffScreen')}
-        />
-      ) : null}
+      <Tab.Screen
+        name="StaffTab"
+        component={StaffStackScreen}
+        options={{
+          title: "Staff",
+          tabBarIcon: ({ color, size }) => (
+            <FontAwesome6 name="bolt-lightning" size={19} color={color} />
+            // <FontAwesome5 name="user-friends" size={20} color={color} />
+          ),
+        }}
+        listeners={createRootTabListener('StaffTab', 'StaffScreen')}
+      />
       <Tab.Screen
         name="ProductsTab"
         component={ProductStackScreen}
