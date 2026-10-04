@@ -17,6 +17,7 @@ import { AppColors } from '../../styles/colors'
 import { UserContext } from '../../context/UserContext'
 import { getOwnerPersonalTrainingTitle } from '../../components/utils/personalTrainingDisplay'
 import { performAuthenticatedRequest as performAuthenticatedRequestWithRefresh } from '../../utils/authenticatedRequest'
+import { canManagePersonalTraining } from '../../utils/roleAccess'
 
 type RefreshTokens = {
   access_token?: string
@@ -38,6 +39,8 @@ type ManagedPersonalTrainingSession = {
   price?: number | string | null
   currency_code?: string | null
   status?: SessionStatus
+  booked_count?: number | null
+  is_available?: boolean | null
   created_at?: string | null
   updated_at?: string | null
 }
@@ -108,6 +111,18 @@ const renderStatusLabel = (status?: SessionStatus) => {
   return normalized.charAt(0).toUpperCase() + normalized.slice(1)
 }
 
+const renderBookingState = (session: ManagedPersonalTrainingSession) => {
+  if (session?.booked_count === undefined || session?.booked_count === null) {
+    return null
+  }
+
+  if (Number(session.booked_count) > 0) {
+    return 'Booked'
+  }
+
+  return session?.is_available ? 'Available' : 'Not available'
+}
+
 const PersonalTrainingManagementScreen = ({ navigation }: { navigation: PersonalTrainingManagementNavigation }) => {
   const { user, tokens, setTokens, webServer } = useContext(UserContext) as UserContextValue
   const [sessions, setSessions] = useState<ManagedPersonalTrainingSession[]>([])
@@ -115,9 +130,10 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
   const [refreshing, setRefreshing] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [deletingSessionUid, setDeletingSessionUid] = useState<number | null>(null)
+  const [cancellingSessionUid, setCancellingSessionUid] = useState<number | null>(null)
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming')
 
-  const isOwner = String(user?.role ?? '').trim().toLowerCase() === 'owner'
+  const canManage = canManagePersonalTraining(user?.role)
 
   const performAuthenticatedRequest = async (endpoint: string, init: RequestInit = {}) => {
     return performAuthenticatedRequestWithRefresh({
@@ -326,6 +342,144 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
     )
   }
 
+  const cancelSession = useCallback(
+    async (sessionUid: number) => {
+      if (!sessionUid || cancellingSessionUid !== null) {
+        return
+      }
+
+      setCancellingSessionUid(sessionUid)
+
+      try {
+        const response = await performAuthenticatedRequest(
+          `${webServer}/api/v1/personal-training/sessions/${sessionUid}`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({ status: 'cancelled' }),
+          }
+        )
+
+        if (!response) {
+          showMessage({
+            message: 'Authentication required',
+            description: 'Please sign in again to cancel personal training sessions.',
+            type: 'danger',
+          })
+          return
+        }
+
+        const responseText = await response.text()
+        let responseBody: {
+          message?: string
+          error?: string
+          session_cancelled?: boolean
+          cancellation?: { bookings_cancelled?: number; payments_refunded?: number; payments_canceled?: number }
+        } = {}
+        if (responseText) {
+          try {
+            responseBody = JSON.parse(responseText)
+          } catch {
+            responseBody = { message: responseText }
+          }
+        }
+
+        if (response.status === 200) {
+          const cancellation = responseBody?.cancellation
+          showMessage({
+            message: 'Session cancelled',
+            description:
+              Number(cancellation?.payments_refunded ?? 0) > 0
+                ? 'The session was cancelled and the member\'s payment was refunded.'
+                : Number(cancellation?.bookings_cancelled ?? 0) > 0
+                  ? 'The session was cancelled along with the member\'s booking.'
+                  : 'The personal training session was cancelled.',
+            type: 'success',
+          })
+          await loadSessions()
+          return
+        }
+
+        if (
+          (response.status === 409 || response.status === 500) &&
+          responseBody?.error === 'Cancellation Incomplete' &&
+          responseBody?.session_cancelled === true
+        ) {
+          showMessage({
+            message: 'Session cancelled, payment needs attention',
+            description:
+              'The session was cancelled, but the member\'s payment or refund did not finish processing. The booking is still open. Use Retry Cancellation on the session to try again.',
+            type: 'danger',
+            autoHide: false,
+          })
+          await loadSessions()
+          return
+        }
+
+        const message = responseBody?.message || 'Unable to cancel personal training session.'
+
+        if (response.status === 401) {
+          showMessage({
+            message: 'Authentication required',
+            description: 'Please sign in again to cancel personal training sessions.',
+            type: 'danger',
+          })
+          return
+        }
+
+        if (response.status === 403) {
+          showMessage({
+            message: 'Permission denied',
+            description: message,
+            type: 'danger',
+          })
+          return
+        }
+
+        showMessage({
+          message: 'Cancel failed',
+          description: message,
+          type: 'danger',
+        })
+      } catch {
+        showMessage({
+          message: 'Cancel failed',
+          description: 'Unable to cancel personal training session.',
+          type: 'danger',
+        })
+      } finally {
+        setCancellingSessionUid((current) => (current === sessionUid ? null : current))
+      }
+    },
+    [cancellingSessionUid, loadSessions, performAuthenticatedRequest, webServer]
+  )
+
+  const confirmCancelSession = (sessionUid: number, isBooked: boolean, isRetry: boolean) => {
+    if (!sessionUid || cancellingSessionUid !== null) {
+      return
+    }
+
+    Alert.alert(
+      isRetry ? 'Retry cancellation?' : 'Cancel personal training session?',
+      isBooked
+        ? 'A member has booked this session. Cancelling will cancel their booking and cancel or refund their payment. This cannot simply be undone.'
+        : 'This session will be cancelled and can no longer be booked. Any booking or payment on it will be cancelled or refunded. This cannot simply be undone.',
+      [
+        {
+          text: 'Keep Session',
+          style: 'cancel',
+        },
+        {
+          text: isRetry ? 'Retry Cancellation' : 'Cancel Session',
+          style: 'destructive',
+          onPress: () => {
+            void cancelSession(sessionUid)
+          },
+        },
+      ],
+      { cancelable: true }
+    )
+  }
+
   const renderPrice = (session: ManagedPersonalTrainingSession) => {
     const price = Number(session?.price ?? 0)
     if (price <= 0) {
@@ -352,7 +506,7 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
 
   const sessionCount = sessions.length
 
-  if (!isOwner) {
+  if (!canManage) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.navs}>
@@ -364,8 +518,8 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
         </View>
 
         <View style={styles.centerState}>
-          <Text style={styles.emptyTitle}>Owner access required</Text>
-          <Text style={styles.stateText}>This screen is only available to gym owners.</Text>
+          <Text style={styles.emptyTitle}>Staff access required</Text>
+          <Text style={styles.stateText}>This screen is only available to gym owners and trainers.</Text>
         </View>
       </SafeAreaView>
     )
@@ -381,16 +535,18 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
         <View style={styles.spacer} />
       </View>
 
-      <View style={styles.actionsBar}>
-        <TouchableOpacity
-          style={styles.addButton}
-          activeOpacity={0.85}
-          onPress={() => navigation.navigate('AddPersonalTrainingSessionScreen')}
-        >
-          <Feather name="plus" color={AppColors.white} size={18} />
-          <Text style={styles.addButtonText}>Add Session</Text>
-        </TouchableOpacity>
-      </View>
+      {canManage ? (
+        <View style={styles.actionsBar}>
+          <TouchableOpacity
+            style={styles.addButton}
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate('AddPersonalTrainingSessionScreen')}
+          >
+            <Feather name="plus" color={AppColors.white} size={18} />
+            <Text style={styles.addButtonText}>Add Session</Text>
+          </TouchableOpacity>
+        </View>
+      ) : null}
 
       <ScrollView
         style={styles.scrollView}
@@ -448,6 +604,12 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
                   const notes = String(session?.additional_notes ?? '').trim()
                   const trainerDisplayName = String(session?.trainer_display_name ?? '').trim()
                   const deleting = deletingSessionUid === sessionUid
+                  const bookingState = renderBookingState(session)
+                  const bookedCount = Number(session?.booked_count ?? 0)
+                  const cancelling = cancellingSessionUid === sessionUid
+                  // A cancelled session that still has a booking means refund processing did not finish.
+                  const isCancelRetry = status === 'cancelled' && bookedCount > 0
+                  const canCancel = (status === 'scheduled' && isUpcomingSession(session)) || isCancelRetry
                   const statusStyle =
                     status === 'cancelled'
                       ? styles.statusCancelled
@@ -481,6 +643,12 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
                             {formatTime(session?.start_at)} - {formatTime(session?.end_at)}
                           </Text>
                         </View>
+                        {bookingState ? (
+                          <View style={styles.metaItem}>
+                            <Text style={styles.metaLabel}>Booking</Text>
+                            <Text style={styles.metaValue}>{bookingState}</Text>
+                          </View>
+                        ) : null}
                       </View>
 
                       {location ? (
@@ -498,15 +666,35 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
                       ) : null}
 
                       <View style={styles.cardActions}>
-                        <TouchableOpacity
-                          style={styles.editButton}
-                          activeOpacity={0.85}
-                          onPress={() => navigation.navigate('EditPersonalTrainingSessionScreen', { sessionUid })}
-                          disabled={!sessionUid || deleting}
-                        >
-                          <Feather name="edit-2" color={AppColors.blue} size={16} />
-                          <Text style={styles.editButtonText}>Edit</Text>
-                        </TouchableOpacity>
+                        {canManage ? (
+                          <TouchableOpacity
+                            style={styles.editButton}
+                            activeOpacity={0.85}
+                            onPress={() => navigation.navigate('EditPersonalTrainingSessionScreen', { sessionUid })}
+                            disabled={!sessionUid || deleting || cancelling}
+                          >
+                            <Feather name="edit-2" color={AppColors.blue} size={16} />
+                            <Text style={styles.editButtonText}>Edit</Text>
+                          </TouchableOpacity>
+                        ) : null}
+
+                        {canCancel ? (
+                          <TouchableOpacity
+                            style={[styles.cancelSessionButton, cancelling ? styles.cancelSessionButtonDisabled : null]}
+                            activeOpacity={0.85}
+                            onPress={() => confirmCancelSession(sessionUid, bookedCount > 0, isCancelRetry)}
+                            disabled={!sessionUid || deleting || cancelling}
+                          >
+                            {cancelling ? (
+                              <ActivityIndicator size="small" color={AppColors.red} />
+                            ) : (
+                              <Feather name="x-circle" color={AppColors.red} size={16} />
+                            )}
+                            <Text style={styles.cancelSessionButtonText}>
+                              {cancelling ? 'Cancelling...' : isCancelRetry ? 'Retry Cancellation' : 'Cancel Session'}
+                            </Text>
+                          </TouchableOpacity>
+                        ) : null}
 
                         <TouchableOpacity
                           style={[styles.deleteButton, deleting ? styles.deleteButtonDisabled : null]}
@@ -514,7 +702,7 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
                           onPress={() =>
                             confirmDeleteSession(sessionUid, `${trainerDisplayName || 'this personal training session'}`)
                           }
-                          disabled={!sessionUid || deleting}
+                          disabled={!sessionUid || deleting || cancelling}
                         >
                           {deleting ? (
                             <ActivityIndicator size="small" color={AppColors.white} />
@@ -619,6 +807,25 @@ const styles = StyleSheet.create({
   },
   editButtonText: {
     color: AppColors.blue,
+    fontSize: 14,
+    fontFamily: 'Montserrat',
+  },
+  cancelSessionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    borderColor: AppColors.red,
+    borderWidth: 1,
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    backgroundColor: AppColors.white,
+  },
+  cancelSessionButtonDisabled: {
+    opacity: 0.75,
+  },
+  cancelSessionButtonText: {
+    color: AppColors.red,
     fontSize: 14,
     fontFamily: 'Montserrat',
   },
