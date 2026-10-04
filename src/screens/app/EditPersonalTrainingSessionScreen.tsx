@@ -1,5 +1,6 @@
 import { useContext, useEffect, useMemo, useState } from 'react'
 import {
+  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -21,6 +22,7 @@ import { UserContext } from '../../context/UserContext'
 import DateOfBirthField from '../../components/forms/input_fields/DateOfBirthField'
 import TimePickerField from '../../components/forms/input_fields/TimePickerField'
 import { performAuthenticatedRequest as performAuthenticatedRequestWithRefresh } from '../../utils/authenticatedRequest'
+import { canManagePersonalTraining } from '../../utils/roleAccess'
 
 type RefreshTokens = {
   access_token?: string
@@ -89,6 +91,8 @@ type SessionPayload = {
   location?: string | null
   additional_notes?: string | null
   status?: string | null
+  trainer_display_name?: string | null
+  booked_count?: number | null
 }
 
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
@@ -220,8 +224,15 @@ const EditPersonalTrainingSessionScreen = ({
   const [loadErrorMessage, setLoadErrorMessage] = useState('')
   const [formMessage, setFormMessage] = useState('')
   const [trainerOptions, setTrainerOptions] = useState<TrainerOption[]>([])
+  const [cancelling, setCancelling] = useState(false)
+  const [bookedCount, setBookedCount] = useState(0)
+  const [loadedStatus, setLoadedStatus] = useState('')
+  const [loadedStartAt, setLoadedStartAt] = useState('')
+  const [trainerName, setTrainerName] = useState('')
 
   const isOwner = String(user?.role ?? '').trim().toLowerCase() === 'owner'
+  const canManage = canManagePersonalTraining(user?.role)
+  const isBooked = bookedCount > 0
 
   const defaultValues = useMemo<EditPersonalTrainingSessionFormInput>(() => ({
     trainer_gym_user_id: '',
@@ -265,7 +276,7 @@ const EditPersonalTrainingSessionScreen = ({
   }
 
   useEffect(() => {
-    if (!user?.gym_id || !tokens?.access_token) {
+    if (!isOwner || !user?.gym_id || !tokens?.access_token) {
       setTrainerOptions([])
       return
     }
@@ -317,7 +328,7 @@ const EditPersonalTrainingSessionScreen = ({
     return () => {
       isMounted = false
     }
-  }, [tokens?.access_token, user?.gym_id, webServer])
+  }, [isOwner, tokens?.access_token, user?.gym_id, webServer])
 
   const loadSession = async () => {
     if (!sessionUid || !tokens?.access_token) {
@@ -363,6 +374,11 @@ const EditPersonalTrainingSessionScreen = ({
       const startAt = parseDateTime(session.start_at)
       const endAt = parseDateTime(session.end_at)
       const normalizedStatus = String(session.status ?? 'scheduled').trim().toLowerCase()
+
+      setBookedCount(Number(session.booked_count ?? 0) || 0)
+      setLoadedStatus(normalizedStatus)
+      setLoadedStartAt(String(session.start_at ?? ''))
+      setTrainerName(String(session.trainer_display_name ?? '').trim())
 
       reset({
         trainer_gym_user_id: session.trainer_gym_user_id ? String(session.trainer_gym_user_id) : '',
@@ -424,12 +440,19 @@ const EditPersonalTrainingSessionScreen = ({
       const location = String(formData.location ?? '').trim()
       const additionalNotes = String(formData.additional_notes ?? '').trim()
 
+      // A booked session keeps its scheduling, price, currency and trainer; only the editable fields are sent.
+      const lockedFields = isBooked
+        ? {}
+        : {
+            trainer_gym_user_id: trainerGymUserId === '' ? null : Number.parseInt(trainerGymUserId, 10),
+            start_at: buildDateTimeValue(String(formData.session_start_date ?? ''), String(formData.session_start_time ?? '')),
+            end_at: buildDateTimeValue(String(formData.session_end_date ?? ''), String(formData.session_end_time ?? '')),
+            price: Number.parseFloat(String(formData.price ?? '0')),
+            currency_code: String(formData.currency_code ?? 'USD').trim().toUpperCase(),
+          }
+
       const payload = {
-        trainer_gym_user_id: trainerGymUserId === '' ? null : Number.parseInt(trainerGymUserId, 10),
-        start_at: buildDateTimeValue(String(formData.session_start_date ?? ''), String(formData.session_start_time ?? '')),
-        end_at: buildDateTimeValue(String(formData.session_end_date ?? ''), String(formData.session_end_time ?? '')),
-        price: Number.parseFloat(String(formData.price ?? '0')),
-        currency_code: String(formData.currency_code ?? 'USD').trim().toUpperCase(),
+        ...lockedFields,
         location: location === '' ? null : location,
         additional_notes: additionalNotes === '' ? null : additionalNotes,
         status: formData.status ?? 'scheduled',
@@ -517,7 +540,10 @@ const EditPersonalTrainingSessionScreen = ({
       }
 
       if (response.status === 409) {
-        const message = responseBody?.message || 'Unable to update personal training session.'
+        const isLockedFieldConflict = /booked session/i.test(String(responseBody?.message ?? ''))
+        const message = isLockedFieldConflict
+          ? 'This session is already booked. Its date, time, price, currency and trainer can no longer be changed. You can still update the location and notes.'
+          : responseBody?.message || 'Unable to update personal training session.'
         setFormMessage(message)
         showMessage({
           message: 'Update failed',
@@ -547,7 +573,157 @@ const EditPersonalTrainingSessionScreen = ({
     }
   }
 
-  if (!isOwner) {
+  const submitCancellation = async () => {
+    if (cancelling || submitting) {
+      return
+    }
+
+    if (!sessionUid || !tokens?.access_token) {
+      showMessage({
+        message: 'Cancel failed',
+        description: 'Please sign in again to cancel personal training sessions.',
+        type: 'danger',
+      })
+      return
+    }
+
+    setCancelling(true)
+    setFormMessage('')
+
+    try {
+      const response = await performAuthenticatedRequest(`${webServer}/api/v1/personal-training/sessions/${sessionUid}`, {
+        method: 'PUT',
+        body: JSON.stringify({ status: 'cancelled' }),
+      })
+
+      if (!response) {
+        showMessage({
+          message: 'Authentication required',
+          description: 'Please sign in again to cancel personal training sessions.',
+          type: 'danger',
+        })
+        return
+      }
+
+      const responseText = await response.text()
+      let responseBody: {
+        message?: string
+        error?: string
+        session_cancelled?: boolean
+        cancellation?: { bookings_cancelled?: number; payments_refunded?: number; payments_canceled?: number }
+      } = {}
+      if (responseText) {
+        try {
+          responseBody = JSON.parse(responseText)
+        } catch {
+          responseBody = { message: responseText }
+        }
+      }
+
+      if (response.status === 200) {
+        const cancellation = responseBody?.cancellation
+        showMessage({
+          message: 'Session cancelled',
+          description:
+            Number(cancellation?.payments_refunded ?? 0) > 0
+              ? 'The session was cancelled and the member\'s payment was refunded.'
+              : Number(cancellation?.bookings_cancelled ?? 0) > 0
+                ? 'The session was cancelled along with the member\'s booking.'
+                : 'The personal training session was cancelled.',
+          type: 'success',
+        })
+        navigation.goBack()
+        return
+      }
+
+      if (
+        (response.status === 409 || response.status === 500) &&
+        responseBody?.error === 'Cancellation Incomplete' &&
+        responseBody?.session_cancelled === true
+      ) {
+        showMessage({
+          message: 'Session cancelled, payment needs attention',
+          description:
+            'The session was cancelled, but the member\'s payment or refund did not finish processing. The booking is still open. Use Retry Cancellation on the session to try again.',
+          type: 'danger',
+          autoHide: false,
+        })
+        navigation.goBack()
+        return
+      }
+
+      const message = responseBody?.message || 'Unable to cancel personal training session.'
+      setFormMessage(message)
+
+      if (response.status === 401) {
+        showMessage({
+          message: 'Authentication required',
+          description: 'Please sign in again to cancel personal training sessions.',
+          type: 'danger',
+        })
+        return
+      }
+
+      if (response.status === 403) {
+        showMessage({
+          message: 'Permission denied',
+          description: message,
+          type: 'danger',
+        })
+        return
+      }
+
+      showMessage({
+        message: 'Cancel failed',
+        description: message,
+        type: 'danger',
+      })
+    } catch {
+      const message = 'Unable to cancel personal training session.'
+      setFormMessage(message)
+      showMessage({
+        message: 'Cancel failed',
+        description: message,
+        type: 'danger',
+      })
+    } finally {
+      setCancelling(false)
+    }
+  }
+
+  const isCancelRetry = loadedStatus === 'cancelled' && isBooked
+  const loadedStartDate = new Date(String(loadedStartAt).includes('T') ? loadedStartAt : String(loadedStartAt).replace(' ', 'T'))
+  const isUpcoming = !Number.isNaN(loadedStartDate.getTime()) && loadedStartDate.getTime() > Date.now()
+  const canCancelSession = (loadedStatus === 'scheduled' && isUpcoming) || isCancelRetry
+
+  const confirmCancelSession = () => {
+    if (cancelling || submitting) {
+      return
+    }
+
+    Alert.alert(
+      isCancelRetry ? 'Retry cancellation?' : 'Cancel personal training session?',
+      isBooked
+        ? 'A member has booked this session. Cancelling will cancel their booking and cancel or refund their payment. Unsaved changes on this screen are not applied. This cannot simply be undone.'
+        : 'This session will be cancelled and can no longer be booked. Any booking or payment on it will be cancelled or refunded. Unsaved changes on this screen are not applied. This cannot simply be undone.',
+      [
+        {
+          text: 'Keep Session',
+          style: 'cancel',
+        },
+        {
+          text: isCancelRetry ? 'Retry Cancellation' : 'Cancel Session',
+          style: 'destructive',
+          onPress: () => {
+            void submitCancellation()
+          },
+        },
+      ],
+      { cancelable: true }
+    )
+  }
+
+  if (!canManage) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.navs}>
@@ -559,8 +735,8 @@ const EditPersonalTrainingSessionScreen = ({
         </View>
 
         <View style={styles.centerState}>
-          <Text style={styles.emptyTitle}>Owner access required</Text>
-          <Text style={styles.stateText}>This screen is only available to gym owners.</Text>
+          <Text style={styles.emptyTitle}>Staff access required</Text>
+          <Text style={styles.stateText}>This screen is only available to gym owners and trainers.</Text>
         </View>
       </SafeAreaView>
     )
@@ -631,33 +807,48 @@ const EditPersonalTrainingSessionScreen = ({
               <Text style={styles.sectionTitle}>Session Information</Text>
             </View>
 
-            <View style={styles.field}>
-              <Text style={styles.label}>Trainer</Text>
-              <Controller
-                control={control}
-                name="trainer_gym_user_id"
-                render={({ field: { onChange, value } }) => {
-                  const selectedTrainer = trainerOptions.find((trainer) => trainer.key === value)
+            {isBooked ? (
+              <Text style={styles.lockedNotice}>
+                This session has an active booking, so its date, time, price, currency and trainer are locked. You can
+                still update the location and notes.
+              </Text>
+            ) : null}
 
-                  return (
-                    <SelectList
-                      setSelected={(selectedValue) => onChange(String(selectedValue ?? ''))}
-                      data={trainerOptions}
-                      save="key"
-                      placeholder="Select trainer"
-                      boxStyles={styles.selectBox}
-                      dropdownStyles={styles.selectDropdown}
-                      search={false}
-                      {...(selectedTrainer ? { defaultOption: selectedTrainer } : {})}
-                    />
-                  )
-                }}
-              />
-              {trainerOptions.length === 0 ? <Text style={styles.helperText}>No trainers available for this gym.</Text> : null}
+            <View style={[styles.field, isBooked ? styles.lockedField : null]} pointerEvents={isBooked ? 'none' : 'auto'}>
+              <Text style={styles.label}>Trainer</Text>
+              {isOwner ? (
+                <>
+                  <Controller
+                    control={control}
+                    name="trainer_gym_user_id"
+                    render={({ field: { onChange, value } }) => {
+                      const selectedTrainer = trainerOptions.find((trainer) => trainer.key === value)
+
+                      return (
+                        <SelectList
+                          setSelected={(selectedValue) => onChange(String(selectedValue ?? ''))}
+                          data={trainerOptions}
+                          save="key"
+                          placeholder="Select trainer"
+                          boxStyles={styles.selectBox}
+                          dropdownStyles={styles.selectDropdown}
+                          search={false}
+                          {...(selectedTrainer ? { defaultOption: selectedTrainer } : {})}
+                        />
+                      )
+                    }}
+                  />
+                  {trainerOptions.length === 0 ? <Text style={styles.helperText}>No trainers available for this gym.</Text> : null}
+                </>
+              ) : (
+                <View style={[styles.input, styles.readOnlyInput]}>
+                  <Text style={styles.readOnlyText}>{trainerName || 'You'}</Text>
+                </View>
+              )}
               {errors.trainer_gym_user_id ? <Text style={styles.errorText}>{errors.trainer_gym_user_id.message}</Text> : null}
             </View>
 
-            <View style={styles.row}>
+            <View style={[styles.row, isBooked ? styles.lockedField : null]} pointerEvents={isBooked ? 'none' : 'auto'}>
               <View style={[styles.field, styles.rowField]}>
                 <Text style={styles.label}>Start Date</Text>
                 <Controller
@@ -696,7 +887,7 @@ const EditPersonalTrainingSessionScreen = ({
               </View>
             </View>
 
-            <View style={styles.row}>
+            <View style={[styles.row, isBooked ? styles.lockedField : null]} pointerEvents={isBooked ? 'none' : 'auto'}>
               <View style={[styles.field, styles.rowField]}>
                 <Text style={styles.label}>End Date</Text>
                 <Controller
@@ -735,7 +926,7 @@ const EditPersonalTrainingSessionScreen = ({
               </View>
             </View>
 
-            <View style={styles.row}>
+            <View style={[styles.row, isBooked ? styles.lockedField : null]} pointerEvents={isBooked ? 'none' : 'auto'}>
               <View style={[styles.field, styles.rowField]}>
                 <Text style={styles.label}>Price</Text>
                 <Controller
@@ -750,6 +941,7 @@ const EditPersonalTrainingSessionScreen = ({
                       placeholderTextColor={AppColors.grey3}
                       style={styles.input}
                       keyboardType="decimal-pad"
+                      editable={!isBooked}
                     />
                   )}
                 />
@@ -808,7 +1000,10 @@ const EditPersonalTrainingSessionScreen = ({
             <View style={styles.field}>
               <Text style={styles.label}>Status</Text>
               <View style={styles.segmentedControl}>
-                {(['scheduled', 'cancelled', 'completed'] as const).map((option) => {
+                {(loadedStatus === 'cancelled'
+                  ? (['scheduled', 'cancelled', 'completed'] as const)
+                  : (['scheduled', 'completed'] as const)
+                ).map((option) => {
                   const selected = statusValue === option
                   return (
                     <Controller
@@ -838,7 +1033,7 @@ const EditPersonalTrainingSessionScreen = ({
           <TouchableOpacity
             style={[styles.submitButton, submitting ? styles.submitButtonDisabled : null]}
             onPress={handleSubmit(onSubmit)}
-            disabled={submitting}
+            disabled={submitting || cancelling}
           >
             {submitting ? (
               <View style={styles.submitButtonInner}>
@@ -852,6 +1047,21 @@ const EditPersonalTrainingSessionScreen = ({
               </View>
             )}
           </TouchableOpacity>
+
+          {canCancelSession ? (
+            <TouchableOpacity
+              style={[styles.cancelSessionButton, cancelling ? styles.submitButtonDisabled : null]}
+              onPress={confirmCancelSession}
+              disabled={cancelling || submitting}
+            >
+              <View style={styles.submitButtonInner}>
+                <Feather name={cancelling ? 'loader' : 'x-circle'} color={AppColors.red} size={18} />
+                <Text style={styles.cancelSessionButtonText}>
+                  {cancelling ? 'Cancelling...' : isCancelRetry ? 'Retry Cancellation' : 'Cancel Session'}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          ) : null}
 
           <Text style={styles.footerNote}>
             Trainers must be active Trainer users in this gym. Updates apply to the selected session only.
@@ -1059,6 +1269,32 @@ const styles = StyleSheet.create({
   },
   segmentButtonTextSelected: {
     color: AppColors.white,
+  },
+  lockedField: {
+    opacity: 0.5,
+  },
+  lockedNotice: {
+    marginBottom: 14,
+    color: AppColors.grey3,
+    fontSize: 13,
+    lineHeight: 18,
+    fontFamily: 'Montserrat',
+  },
+  cancelSessionButton: {
+    marginTop: 12,
+    marginHorizontal: 16,
+    backgroundColor: AppColors.white,
+    borderColor: AppColors.red,
+    borderWidth: 1,
+    borderRadius: 18,
+    paddingVertical: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cancelSessionButtonText: {
+    color: AppColors.red,
+    fontSize: 16,
+    fontFamily: 'Montserrat',
   },
   serverMessage: {
     marginTop: 4,
