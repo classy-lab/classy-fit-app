@@ -21,6 +21,7 @@ import { UserContext } from '../../context/UserContext'
 import DateOfBirthField from '../../components/forms/input_fields/DateOfBirthField'
 import TimePickerField from '../../components/forms/input_fields/TimePickerField'
 import { performAuthenticatedRequest as performAuthenticatedRequestWithRefresh } from '../../utils/authenticatedRequest'
+import { canManagePersonalTraining } from '../../utils/roleAccess'
 
 type RefreshTokens = {
   access_token?: string
@@ -29,6 +30,7 @@ type RefreshTokens = {
 
 type UserContextValue = {
   user?: {
+    sub?: number | string
     gym_id?: number | string
     role?: string | null
   } | null
@@ -182,6 +184,7 @@ const AddPersonalTrainingSessionScreen = ({ navigation }: { navigation: AddPerso
   const [trainerOptions, setTrainerOptions] = useState<TrainerOption[]>([])
 
   const isOwner = String(user?.role ?? '').trim().toLowerCase() === 'owner'
+  const canManage = canManagePersonalTraining(user?.role)
 
   const defaultValues = useMemo<AddPersonalTrainingSessionFormInput>(() => ({
     trainer_gym_user_id: '',
@@ -200,6 +203,7 @@ const AddPersonalTrainingSessionScreen = ({ navigation }: { navigation: AddPerso
     control,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<AddPersonalTrainingSessionFormInput, unknown, AddPersonalTrainingSessionFormValues>({
     resolver: yupResolver(addPersonalTrainingSessionSchema),
@@ -266,9 +270,24 @@ const AddPersonalTrainingSessionScreen = ({ navigation }: { navigation: AddPerso
             .filter((trainer: TrainerOption | null): trainer is TrainerOption => trainer !== null)
         : []
 
-      if (isMounted) {
-        setTrainerOptions(options)
+      if (!isMounted) {
+        return
       }
+
+      if (isOwner) {
+        setTrainerOptions(options)
+        return
+      }
+
+      // A Trainer can only create sessions for themselves: find their own staff entry by user id.
+      const ownTrainer = Array.isArray(payload?.trainers)
+        ? payload.trainers.find((trainer: { uid?: number | string }) => String(trainer.uid) === String(user?.sub))
+        : null
+      const ownKey = ownTrainer ? String(ownTrainer.gym_user_id ?? ownTrainer.uid ?? '') : ''
+      const ownOption = options.find((option: TrainerOption) => option.key === ownKey)
+
+      setTrainerOptions(ownOption ? [ownOption] : [])
+      setValue('trainer_gym_user_id', ownOption ? ownOption.key : '')
     }
 
     void fetchTrainers()
@@ -276,7 +295,7 @@ const AddPersonalTrainingSessionScreen = ({ navigation }: { navigation: AddPerso
     return () => {
       isMounted = false
     }
-  }, [tokens?.access_token, user?.gym_id, webServer])
+  }, [isOwner, setValue, tokens?.access_token, user?.gym_id, user?.sub, webServer])
 
   const buildDateTimeValue = (dateValue: string, timeValue: string) => {
     const normalizedTime = timeValue.trim().length === 5 ? `${timeValue.trim()}:00` : timeValue.trim()
@@ -418,7 +437,7 @@ const AddPersonalTrainingSessionScreen = ({ navigation }: { navigation: AddPerso
     }
   }
 
-  if (!isOwner) {
+  if (!canManage) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.navs}>
@@ -430,8 +449,8 @@ const AddPersonalTrainingSessionScreen = ({ navigation }: { navigation: AddPerso
         </View>
 
         <View style={styles.centerState}>
-          <Text style={styles.emptyTitle}>Owner access required</Text>
-          <Text style={styles.stateText}>This screen is only available to gym owners.</Text>
+          <Text style={styles.emptyTitle}>Staff access required</Text>
+          <Text style={styles.stateText}>This screen is only available to gym owners and trainers.</Text>
         </View>
       </SafeAreaView>
     )
@@ -459,27 +478,42 @@ const AddPersonalTrainingSessionScreen = ({ navigation }: { navigation: AddPerso
 
             <View style={styles.field}>
               <Text style={styles.label}>Trainer</Text>
-              <Controller
-                control={control}
-                name="trainer_gym_user_id"
-                render={({ field: { onChange, value } }) => {
-                  const selectedTrainer = trainerOptions.find((trainer) => trainer.key === value)
+              {isOwner ? (
+                <>
+                  <Controller
+                    control={control}
+                    name="trainer_gym_user_id"
+                    render={({ field: { onChange, value } }) => {
+                      const selectedTrainer = trainerOptions.find((trainer) => trainer.key === value)
 
-                  return (
-                    <SelectList
-                      setSelected={(selectedValue) => onChange(String(selectedValue ?? ''))}
-                      data={trainerOptions}
-                      save="key"
-                      placeholder="Select trainer"
-                      boxStyles={styles.selectBox}
-                      dropdownStyles={styles.selectDropdown}
-                      search={false}
-                      {...(selectedTrainer ? { defaultOption: selectedTrainer } : {})}
-                    />
-                  )
-                }}
-              />
-              {trainerOptions.length === 0 ? <Text style={styles.helperText}>No trainers available for this gym.</Text> : null}
+                      return (
+                        <SelectList
+                          setSelected={(selectedValue) => onChange(String(selectedValue ?? ''))}
+                          data={trainerOptions}
+                          save="key"
+                          placeholder="Select trainer"
+                          boxStyles={styles.selectBox}
+                          dropdownStyles={styles.selectDropdown}
+                          search={false}
+                          {...(selectedTrainer ? { defaultOption: selectedTrainer } : {})}
+                        />
+                      )
+                    }}
+                  />
+                  {trainerOptions.length === 0 ? <Text style={styles.helperText}>No trainers available for this gym.</Text> : null}
+                </>
+              ) : (
+                <>
+                  <View style={[styles.input, styles.readOnlyInput]}>
+                    <Text style={styles.readOnlyText}>{trainerOptions[0]?.value ?? 'You'}</Text>
+                  </View>
+                  {trainerOptions.length === 0 ? (
+                    <Text style={styles.helperText}>Sessions are created for you. Your trainer profile could not be loaded yet.</Text>
+                  ) : (
+                    <Text style={styles.helperText}>Sessions you create are assigned to you.</Text>
+                  )}
+                </>
+              )}
               {errors.trainer_gym_user_id ? <Text style={styles.errorText}>{errors.trainer_gym_user_id.message}</Text> : null}
             </View>
 
