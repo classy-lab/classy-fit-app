@@ -18,3 +18,6 @@ export const canAccessAddMember = (role?: string | null) => isStaffRole(role)
 // Keep Add Staff aligned with the current backend behavior:
 // owners and trainers can create trainer/member accounts for now.
 export const canAccessAddStaff = (role?: string | null) => isStaffRole(role)
+
+export const canManagePersonalTraining = (role?: string | null) =>
+  isOwnerRole(role) || isTrainerRole(role)
