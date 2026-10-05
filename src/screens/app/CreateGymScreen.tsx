@@ -47,6 +47,7 @@ type GymFormValues = {
   address_line_2: string
   city: string
   state: string
+  timezone: string
   postal_code: string
   country: string
   photo_url: string
@@ -100,6 +101,7 @@ const createGymSchema = yup.object({
   address_line_2: yup.string().trim().max(255, 'Address line 2 must be 255 characters or fewer'),
   city: yup.string().trim().required('City is required').max(100, 'City must be 100 characters or fewer'),
   state: yup.string().trim().required('State / province is required').max(100, 'State / province must be 100 characters or fewer'),
+  timezone: yup.string().trim().required('Time zone is required').max(100, 'Time zone must be 100 characters or fewer'),
   postal_code: yup.string().trim().max(20, 'Postal code must be 20 characters or fewer'),
   country: yup.string().trim().required('Country is required').max(100, 'Country must be 100 characters or fewer'),
   photo_url: yup
@@ -129,6 +131,65 @@ const fieldConfigs: FieldConfig[] = [
   { name: 'about', label: 'About', placeholder: 'Tell people about your gym', required: true, multiline: true, numberOfLines: 5, autoCapitalize: 'sentences' },
 ]
 
+const TIMEZONE_OPTIONS = [
+  { key: 'America/New_York', value: 'Eastern Time — New York' },
+  { key: 'America/Detroit', value: 'Eastern Time — Detroit' },
+  { key: 'America/Indiana/Indianapolis', value: 'Eastern Time — Indianapolis' },
+  { key: 'America/Chicago', value: 'Central Time — Chicago' },
+  { key: 'America/Mexico_City', value: 'Central Time — Mexico City' },
+  { key: 'America/Winnipeg', value: 'Central Time — Winnipeg' },
+  { key: 'America/Denver', value: 'Mountain Time — Denver' },
+  { key: 'America/Phoenix', value: 'Mountain Time — Phoenix' },
+  { key: 'America/Edmonton', value: 'Mountain Time — Edmonton' },
+  { key: 'America/Los_Angeles', value: 'Pacific Time — Los Angeles' },
+  { key: 'America/Vancouver', value: 'Pacific Time — Vancouver' },
+  { key: 'America/Anchorage', value: 'Alaska Time — Anchorage' },
+  { key: 'Pacific/Honolulu', value: 'Hawaii Time — Honolulu' },
+  { key: 'America/Halifax', value: 'Atlantic Time — Halifax' },
+  { key: 'America/St_Johns', value: 'Newfoundland Time — St. John’s' },
+  { key: 'America/Toronto', value: 'Eastern Time — Toronto' },
+  { key: 'America/Regina', value: 'Central Time — Regina' },
+  { key: 'America/Sao_Paulo', value: 'Brasilia Time — São Paulo' },
+  { key: 'America/Bogota', value: 'Colombia Time — Bogotá' },
+  { key: 'America/Lima', value: 'Peru Time — Lima' },
+  { key: 'America/Santiago', value: 'Chile Time — Santiago' },
+  { key: 'America/Argentina/Buenos_Aires', value: 'Argentina Time — Buenos Aires' },
+  { key: 'America/Puerto_Rico', value: 'Atlantic Time — Puerto Rico' },
+  { key: 'Europe/London', value: 'United Kingdom — London' },
+  { key: 'Europe/Dublin', value: 'Ireland — Dublin' },
+  { key: 'Europe/Lisbon', value: 'Portugal — Lisbon' },
+  { key: 'Europe/Paris', value: 'Central Europe — Paris' },
+  { key: 'Europe/Berlin', value: 'Central Europe — Berlin' },
+  { key: 'Europe/Madrid', value: 'Spain — Madrid' },
+  { key: 'Europe/Rome', value: 'Italy — Rome' },
+  { key: 'Europe/Amsterdam', value: 'Netherlands — Amsterdam' },
+  { key: 'Europe/Zurich', value: 'Switzerland — Zurich' },
+  { key: 'Europe/Stockholm', value: 'Sweden — Stockholm' },
+  { key: 'Europe/Helsinki', value: 'Finland — Helsinki' },
+  { key: 'Europe/Warsaw', value: 'Poland — Warsaw' },
+  { key: 'Europe/Athens', value: 'Greece — Athens' },
+  { key: 'Europe/Istanbul', value: 'Turkey — Istanbul' },
+  { key: 'Asia/Jerusalem', value: 'Israel — Jerusalem' },
+  { key: 'Asia/Dubai', value: 'United Arab Emirates — Dubai' },
+  { key: 'Asia/Riyadh', value: 'Saudi Arabia — Riyadh' },
+  { key: 'Asia/Kolkata', value: 'India — Kolkata' },
+  { key: 'Asia/Bangkok', value: 'Thailand — Bangkok' },
+  { key: 'Asia/Singapore', value: 'Singapore' },
+  { key: 'Asia/Hong_Kong', value: 'Hong Kong' },
+  { key: 'Asia/Shanghai', value: 'China — Shanghai' },
+  { key: 'Asia/Tokyo', value: 'Japan — Tokyo' },
+  { key: 'Asia/Seoul', value: 'Korea — Seoul' },
+  { key: 'Australia/Perth', value: 'Australia — Perth' },
+  { key: 'Australia/Adelaide', value: 'Australia — Adelaide' },
+  { key: 'Australia/Darwin', value: 'Australia — Darwin' },
+  { key: 'Australia/Brisbane', value: 'Australia — Brisbane' },
+  { key: 'Australia/Sydney', value: 'Australia — Sydney' },
+  { key: 'Australia/Melbourne', value: 'Australia — Melbourne' },
+  { key: 'Pacific/Auckland', value: 'New Zealand — Auckland' },
+  { key: 'Pacific/Fiji', value: 'Fiji' },
+  { key: 'Etc/UTC', value: 'UTC — Coordinated Universal Time' },
+] as const
+
 const formSections: SectionConfig[] = [
   {
     title: 'Gym basics',
@@ -137,8 +198,8 @@ const formSections: SectionConfig[] = [
   },
   {
     title: 'Location',
-    description: 'Add the primary address so members know where to find you.',
-    fields: ['address_line_1', 'address_line_2', 'city', 'state', 'postal_code', 'country'],
+    description: 'Add the primary address and time zone so members know where to find you and your class times stay accurate.',
+    fields: ['address_line_1', 'address_line_2', 'city', 'state', 'postal_code', 'country', 'timezone'],
   },
   {
     title: 'Brand presence',
@@ -221,6 +282,7 @@ const defaultValues: GymFormValues = {
   address_line_2: '',
   city: '',
   state: '',
+  timezone: '',
   postal_code: '',
   country: 'United States',
   photo_url: '',
@@ -511,6 +573,54 @@ const CreateGymScreen = ({ navigation }: { navigation: CreateGymNavigation }) =>
                           pointerEvents="none"
                         />
                         {fieldErrors.country?.message ? <Text style={styles.errorText}>{fieldErrors.country.message}</Text> : null}
+                      </View>
+                    )
+                  }
+
+                  if (fieldName === 'timezone') {
+                    return (
+                      <View key={fieldName} style={styles.field}>
+                        <Text style={styles.label}>Time Zone *</Text>
+                        <Controller
+                          control={control}
+                          name="timezone"
+                          render={({ field: { onChange, value } }) => {
+                            const selectedTimezone = TIMEZONE_OPTIONS.find((option) => option.key === value)
+
+                            return (
+                              <SelectList
+                                setSelected={(selectedValue) => onChange(String(selectedValue))}
+                                data={TIMEZONE_OPTIONS.map((timezone) => ({ key: timezone.key, value: timezone.value }))}
+                                save="key"
+                                placeholder="Select a time zone"
+                                defaultOption={selectedTimezone ? { key: selectedTimezone.key, value: selectedTimezone.value } : undefined}
+                                boxStyles={{
+                                  borderColor: AppColors.textInputBorderColor,
+                                  borderWidth: 1,
+                                  borderRadius: 16,
+                                  minHeight: 48,
+                                  paddingHorizontal: 16,
+                                }}
+                                dropdownStyles={{
+                                  borderColor: AppColors.grey2,
+                                  borderWidth: 1,
+                                  marginTop: 8,
+                                  backgroundColor: 'white',
+                                  borderRadius: 16,
+                                }}
+                                inputStyles={{
+                                  color: AppColors.primary,
+                                  fontFamily: 'Montserrat',
+                                }}
+                                dropdownTextStyles={{
+                                  color: AppColors.primary,
+                                  fontFamily: 'Montserrat',
+                                }}
+                              />
+                            )
+                          }}
+                        />
+                        {fieldErrors.timezone?.message ? <Text style={styles.errorText}>{fieldErrors.timezone.message}</Text> : null}
                       </View>
                     )
                   }
