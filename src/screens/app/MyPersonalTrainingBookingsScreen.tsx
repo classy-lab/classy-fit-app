@@ -35,6 +35,7 @@ type PersonalTrainingBookingSummary = {
   price?: number | string | null
   currency_code?: string | null
   booking_status?: string | null
+  payment_status?: string | null
   location?: string | null
   start_at?: string | null
   end_at?: string | null
@@ -261,7 +262,11 @@ const MyPersonalTrainingBookingsScreen = ({ navigation }: { navigation: MyPerson
                 {visibleBookings.map((booking) => (
                   <TouchableOpacity
                     key={String(booking?.booking_uid ?? `${booking?.session_uid}-${booking?.start_at}`)}
-                    style={styles.card}
+                    style={[
+                      styles.card,
+                      (['cancelled', 'refunded'].includes(String(booking?.booking_status ?? '').toLowerCase())
+                        || String(booking?.payment_status ?? '').toLowerCase() === 'refunded') && styles.cardInactive,
+                    ]}
                     activeOpacity={0.85}
                     onPress={() => openBooking(booking)}
                   >
@@ -434,6 +439,9 @@ const styles = StyleSheet.create({
     marginBottom: 14,
     borderColor: AppColors.grey,
     borderWidth: 1,
+  },
+  cardInactive: {
+    opacity: 0.7,
   },
   cardHeader: {
     flexDirection: 'row',
