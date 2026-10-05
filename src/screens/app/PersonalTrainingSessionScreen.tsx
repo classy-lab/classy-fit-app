@@ -44,6 +44,7 @@ type PersonalTrainingSessionRecord = {
   location?: string | null
   additional_notes?: string | null
   status?: string | null
+  is_available?: boolean
 }
 
 type PersonalTrainingBookingRecord = {
@@ -367,7 +368,7 @@ const PersonalTrainingSessionScreen = ({
   const sessionStatus = String(session?.status ?? '').toLowerCase()
   const startDate = parseDate(session?.start_at)
   const isInPast = startDate ? startDate.getTime() <= Date.now() : false
-  const isBookable = sessionStatus === 'scheduled' && !isInPast
+  const isBookable = sessionStatus === 'scheduled' && !isInPast && session?.is_available !== false
   const price = Number(session?.price ?? 0)
   const isFree = price <= 0
   const priceLabel = isFree
