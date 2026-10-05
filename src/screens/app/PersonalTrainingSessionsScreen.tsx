@@ -43,6 +43,8 @@ type PersonalTrainingSessionSummary = {
   location?: string | null
   additional_notes?: string | null
   status?: string | null
+  is_available?: boolean
+  booked_count?: number
 }
 
 type PersonalTrainingSessionsNavigation = {
@@ -280,11 +282,13 @@ const PersonalTrainingSessionsScreen = ({ navigation }: { navigation: PersonalTr
                   const notesPreview = renderNotesPreview(session)
                   const status = String(session?.status ?? 'scheduled').toLowerCase()
                   const trainerName = String(session?.trainer_display_name ?? '').trim()
+                  const isUnavailable = session?.is_available === false
+                  const unavailableLabel = Number(session?.booked_count ?? 0) > 0 ? 'Booked' : 'Unavailable'
 
                   return (
                     <TouchableOpacity
                       key={String(session?.session_uid ?? session?.uid ?? `${session?.trainer_gym_user_id}-${session?.start_at}`)}
-                      style={[styles.card, status !== 'scheduled' && styles.cardPast]}
+                      style={[styles.card, (status !== 'scheduled' || isUnavailable) && styles.cardPast]}
                       activeOpacity={0.85}
                       onPress={() => openSession(session)}
                     >
@@ -293,8 +297,8 @@ const PersonalTrainingSessionsScreen = ({ navigation }: { navigation: PersonalTr
                           <Text style={styles.cardTitle}>{getMemberPersonalTrainingTitle(trainerName)}</Text>
                           <Text style={styles.pricePill}>{renderPrice(session)}</Text>
                         </View>
-                        <View style={[styles.badge, price <= 0 ? styles.badgeFree : styles.badgePaid]}>
-                          <Text style={styles.badgeText}>{price <= 0 ? 'Free' : 'Paid'}</Text>
+                        <View style={[styles.badge, isUnavailable ? styles.badgeUnavailable : price <= 0 ? styles.badgeFree : styles.badgePaid]}>
+                          <Text style={styles.badgeText}>{isUnavailable ? unavailableLabel : price <= 0 ? 'Free' : 'Paid'}</Text>
                         </View>
                       </View>
 
@@ -528,6 +532,9 @@ const styles = StyleSheet.create({
   },
   badgePaid: {
     backgroundColor: AppColors.blue,
+  },
+  badgeUnavailable: {
+    backgroundColor: AppColors.grey3,
   },
   badgeText: {
     color: AppColors.white,
