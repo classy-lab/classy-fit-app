@@ -191,7 +191,17 @@ const MyPersonalTrainingBookingsScreen = ({ navigation }: { navigation: MyPerson
     return `${price.toFixed(2)} ${currency}`.trim()
   }
 
+  const getInactiveBookingStatus = (booking: PersonalTrainingBookingSummary) => {
+    const status = String(booking?.booking_status ?? '').toLowerCase()
+    if (status === 'refunded' || String(booking?.payment_status ?? '').toLowerCase() === 'refunded') {
+      return 'Refunded'
+    }
+    return status === 'cancelled' ? 'Cancelled' : null
+  }
+
   const renderBookingStatus = (booking: PersonalTrainingBookingSummary) => {
+    const inactiveStatus = getInactiveBookingStatus(booking)
+    if (inactiveStatus) return inactiveStatus
     const status = String(booking?.booking_status ?? 'pending').toLowerCase()
     return status.charAt(0).toUpperCase() + status.slice(1)
   }
@@ -264,8 +274,7 @@ const MyPersonalTrainingBookingsScreen = ({ navigation }: { navigation: MyPerson
                     key={String(booking?.booking_uid ?? `${booking?.session_uid}-${booking?.start_at}`)}
                     style={[
                       styles.card,
-                      (['cancelled', 'refunded'].includes(String(booking?.booking_status ?? '').toLowerCase())
-                        || String(booking?.payment_status ?? '').toLowerCase() === 'refunded') && styles.cardInactive,
+                      getInactiveBookingStatus(booking) !== null && styles.cardInactive,
                     ]}
                     activeOpacity={0.85}
                     onPress={() => openBooking(booking)}
@@ -274,7 +283,12 @@ const MyPersonalTrainingBookingsScreen = ({ navigation }: { navigation: MyPerson
                       <View style={styles.cardHeaderText}>
                         <Text style={styles.cardTitle}>{getMemberPersonalTrainingTitle(booking?.trainer_display_name)}</Text>
                       </View>
-                      <View style={[styles.badge, Number(booking?.price ?? 0) <= 0 ? styles.badgeFree : styles.badgePaid]}>
+                      <View style={[
+                        styles.badge,
+                        getInactiveBookingStatus(booking) === 'Refunded'
+                          ? styles.pillRefunded
+                          : Number(booking?.price ?? 0) <= 0 ? styles.badgeFree : styles.badgePaid,
+                      ]}>
                         <Text style={styles.badgeText}>{Number(booking?.price ?? 0) <= 0 ? 'Free' : 'Paid'}</Text>
                       </View>
                     </View>
@@ -301,11 +315,23 @@ const MyPersonalTrainingBookingsScreen = ({ navigation }: { navigation: MyPerson
                       </View>
                       <View style={styles.metaItem}>
                         <Text style={styles.metaLabel}>Booking Status</Text>
-                        <Text style={styles.metaValue}>{renderBookingStatus(booking)}</Text>
+                        {getInactiveBookingStatus(booking) ? (
+                          <View style={[
+                            styles.badge,
+                            getInactiveBookingStatus(booking) === 'Cancelled' ? styles.badgeCancelled : styles.pillRefunded,
+                          ]}>
+                            <Text style={styles.badgeText}>{renderBookingStatus(booking)}</Text>
+                          </View>
+                        ) : (
+                          <Text style={styles.metaValue}>{renderBookingStatus(booking)}</Text>
+                        )}
                       </View>
                       <View style={styles.metaItem}>
                         <Text style={styles.metaLabel}>Cost</Text>
-                        <Text style={styles.pricePill}>{renderPrice(booking)}</Text>
+                        <Text style={[
+                          styles.pricePill,
+                          getInactiveBookingStatus(booking) === 'Refunded' && styles.pillRefunded,
+                        ]}>{renderPrice(booking)}</Text>
                       </View>
                     </View>
                   </TouchableOpacity>
@@ -478,6 +504,12 @@ const styles = StyleSheet.create({
   },
   badgePaid: {
     backgroundColor: AppColors.blue,
+  },
+  badgeCancelled: {
+    backgroundColor: AppColors.red,
+  },
+  pillRefunded: {
+    backgroundColor: AppColors.grey3,
   },
   badgeText: {
     color: AppColors.white,
