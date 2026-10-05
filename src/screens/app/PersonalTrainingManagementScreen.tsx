@@ -66,6 +66,47 @@ type LoadOptions = {
   isRefresh?: boolean
 }
 
+type GenerationTotals = {
+  rules_examined?: number
+  sessions_generated?: number
+  already_generated?: number
+  conflicts?: number
+  missing_pricing?: number
+  invalid_timezone?: number
+  other_errors?: number
+}
+
+const pluralize = (count: number, singular: string, plural = `${singular}s`) =>
+  `${count} ${count === 1 ? singular : plural}`
+
+const buildGenerationSummary = (totals: GenerationTotals) => {
+  const generated = Number(totals.sessions_generated ?? 0)
+  const alreadyGenerated = Number(totals.already_generated ?? 0)
+  const conflicts = Number(totals.conflicts ?? 0)
+  const missingPricing = Number(totals.missing_pricing ?? 0)
+  const invalidTimezone = Number(totals.invalid_timezone ?? 0)
+  const otherErrors = Number(totals.other_errors ?? 0)
+  const hasProblems = missingPricing + invalidTimezone + otherErrors > 0
+
+  const lines: string[] = []
+  if (Number(totals.rules_examined ?? 0) === 0) {
+    lines.push('No active availability rules were found to generate sessions from.')
+  } else if (generated > 0) {
+    lines.push(`${pluralize(generated, 'session')} generated.`)
+    if (alreadyGenerated > 0) lines.push(`${alreadyGenerated} already existed.`)
+  } else if (!hasProblems && conflicts === 0) {
+    lines.push('Upcoming sessions are already generated.')
+  }
+  if (conflicts > 0) lines.push(`${pluralize(conflicts, 'conflict')}.`)
+  if (missingPricing > 0) lines.push(`${pluralize(missingPricing, 'rule')} skipped because pricing is missing.`)
+  if (invalidTimezone > 0) {
+    lines.push(`${pluralize(invalidTimezone, 'rule')} skipped because the gym time zone is missing or invalid.`)
+  }
+  if (otherErrors > 0) lines.push(`${pluralize(otherErrors, 'error')} occurred while generating.`)
+
+  return { description: lines.join('\n'), hasProblems }
+}
+
 const parseDate = (value?: string | null) => {
   if (!value) {
     return null
@@ -131,6 +172,7 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
   const [errorMessage, setErrorMessage] = useState('')
   const [deletingSessionUid, setDeletingSessionUid] = useState<number | null>(null)
   const [cancellingSessionUid, setCancellingSessionUid] = useState<number | null>(null)
+  const [generating, setGenerating] = useState(false)
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming')
 
   const canManage = canManagePersonalTraining(user?.role)
@@ -220,6 +262,86 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
 
   const onRefresh = () => {
     void loadSessions({ isRefresh: true })
+  }
+
+  const generateUpcomingSessions = async () => {
+    if (generating) {
+      return
+    }
+
+    setGenerating(true)
+
+    try {
+      const response = await performAuthenticatedRequest(
+        `${webServer}/api/v1/personal-training/management/sessions/generate`,
+        { method: 'POST' }
+      )
+
+      if (!response) {
+        showMessage({
+          message: 'Authentication required',
+          description: 'Please sign in again to generate personal training sessions.',
+          type: 'danger',
+        })
+        return
+      }
+
+      const responseText = await response.text()
+      let responseBody: { message?: string; totals?: GenerationTotals } = {}
+      if (responseText) {
+        try {
+          responseBody = JSON.parse(responseText)
+        } catch {
+          responseBody = { message: responseText }
+        }
+      }
+
+      if (response.status === 200 && responseBody?.totals) {
+        const summary = buildGenerationSummary(responseBody.totals)
+        showMessage({
+          message: summary.hasProblems ? 'Sessions generated with issues' : 'Sessions up to date',
+          description: summary.description,
+          type: summary.hasProblems ? 'warning' : 'success',
+          duration: 6000,
+        })
+        await loadSessions()
+        return
+      }
+
+      const message = responseBody?.message || 'Unable to generate personal training sessions.'
+
+      if (response.status === 401) {
+        showMessage({
+          message: 'Authentication required',
+          description: 'Please sign in again to generate personal training sessions.',
+          type: 'danger',
+        })
+        return
+      }
+
+      if (response.status === 403) {
+        showMessage({
+          message: 'Permission denied',
+          description: message,
+          type: 'danger',
+        })
+        return
+      }
+
+      showMessage({
+        message: 'Generate failed',
+        description: message,
+        type: 'danger',
+      })
+    } catch {
+      showMessage({
+        message: 'Generate failed',
+        description: 'Unable to generate personal training sessions.',
+        type: 'danger',
+      })
+    } finally {
+      setGenerating(false)
+    }
   }
 
   const deleteSession = useCallback(
@@ -553,6 +675,21 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
             <Feather name="calendar" color={AppColors.blue} size={18} />
             <Text style={styles.availabilityButtonText}>My Availability</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.availabilityButton, generating && styles.buttonDisabled]}
+            activeOpacity={0.85}
+            disabled={generating}
+            onPress={() => void generateUpcomingSessions()}
+          >
+            {generating ? (
+              <ActivityIndicator size="small" color={AppColors.blue} />
+            ) : (
+              <Feather name="refresh-cw" color={AppColors.blue} size={18} />
+            )}
+            <Text style={styles.availabilityButtonText}>
+              {generating ? 'Generating...' : 'Generate Upcoming Sessions'}
+            </Text>
+          </TouchableOpacity>
         </View>
       ) : null}
 
@@ -811,6 +948,9 @@ const styles = StyleSheet.create({
     color: AppColors.blue,
     fontSize: 16,
     fontFamily: 'Montserrat',
+  },
+  buttonDisabled: {
+    opacity: 0.6,
   },
   cardActions: {
     marginTop: 16,
