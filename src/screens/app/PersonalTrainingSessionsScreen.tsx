@@ -298,7 +298,7 @@ const PersonalTrainingSessionsScreen = ({ navigation }: { navigation: PersonalTr
                           <Text style={styles.pricePill}>{renderPrice(session)}</Text>
                         </View>
                         <View style={[styles.badge, isUnavailable ? styles.badgeUnavailable : price <= 0 ? styles.badgeFree : styles.badgePaid]}>
-                          <Text style={styles.badgeText}>{isUnavailable ? unavailableLabel : price <= 0 ? 'Free' : 'Paid'}</Text>
+                          <Text style={styles.badgeText}>{isUnavailable ? unavailableLabel : 'Available'}</Text>
                         </View>
                       </View>
 
