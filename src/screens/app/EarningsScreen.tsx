@@ -2,7 +2,9 @@
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import {
   ActivityIndicator,
+  Alert,
   Animated,
+  Linking,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -12,6 +14,7 @@ import {
   useWindowDimensions,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { useFocusEffect } from '@react-navigation/native'
 import Feather from '@expo/vector-icons/Feather'
 import { BarChart, PieChart } from 'react-native-gifted-charts'
 import { AppColors } from '../../styles/colors'
@@ -57,8 +60,129 @@ const EarningsScreen = ({ navigation }) => {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const requestSequenceRef = useRef(0)
   const donutAnim = useRef(new Animated.Value(0)).current
+  const [isCheckingStripeStatus, setIsCheckingStripeStatus] = useState(true)
+  const [isStripeConfigured, setIsStripeConfigured] = useState(false)
+  const [isLoadingStripe, setIsLoadingStripe] = useState(false)
+  const [stripeErrorMessage, setStripeErrorMessage] = useState('')
+  const stripeStatusSequenceRef = useRef(0)
+  const stripeOnboardingInFlightRef = useRef(false)
 
   const isOwner = String(user?.role ?? '').trim().toLowerCase() === 'owner'
+
+  const checkStripeAccountStatus = useCallback(async () => {
+    const requestId = ++stripeStatusSequenceRef.current
+    setIsStripeConfigured(false)
+    setStripeErrorMessage('')
+
+    if (!isOwner) {
+      setIsCheckingStripeStatus(false)
+      return
+    }
+    if (!user?.gym_id || !tokens?.access_token || !setTokens) {
+      setStripeErrorMessage('Please sign in again to check Stripe setup.')
+      setIsCheckingStripeStatus(false)
+      return
+    }
+
+    setIsCheckingStripeStatus(true)
+    try {
+      const response = await performAuthenticatedRequest({
+        endpoint: `${webServer}/api/v1/gyms/${user.gym_id}/stripe/accounts/status`,
+        init: { method: 'GET' },
+        accessToken: tokens.access_token,
+        refreshToken: tokens.refresh_token,
+        webServer,
+        setTokens,
+      })
+      if (requestId !== stripeStatusSequenceRef.current) return
+      if (!response) {
+        setStripeErrorMessage('Please sign in again to check Stripe setup.')
+        return
+      }
+      if (response.status === 404) return
+
+      const data = await response.json()
+      if (requestId !== stripeStatusSequenceRef.current) return
+      if (response.status !== 200) {
+        setStripeErrorMessage(data?.message || 'Unable to check Stripe setup. You can retry setup below.')
+        return
+      }
+
+      const account = data?.account
+      const fullyConfigured =
+        !!account?.stripe_account_id &&
+        account?.onboarding_status === 'complete' &&
+        account?.details_submitted === true &&
+        account?.charges_enabled === true &&
+        account?.payouts_enabled === true
+      setIsStripeConfigured(fullyConfigured)
+    } catch {
+      if (requestId === stripeStatusSequenceRef.current) {
+        setStripeErrorMessage('Unable to check Stripe setup. You can retry setup below.')
+      }
+    } finally {
+      if (requestId === stripeStatusSequenceRef.current) setIsCheckingStripeStatus(false)
+    }
+  }, [isOwner, setTokens, tokens?.access_token, tokens?.refresh_token, user?.gym_id, webServer])
+
+  useFocusEffect(useCallback(() => {
+    void checkStripeAccountStatus()
+    return () => { stripeStatusSequenceRef.current++ }
+  }, [checkStripeAccountStatus]))
+
+  const handleConnectStripe = async () => {
+    if (!isOwner || stripeOnboardingInFlightRef.current) return
+    if (!user?.gym_id || !tokens?.access_token || !setTokens) {
+      Alert.alert('Stripe setup', 'Please sign in again to set up Stripe payments.')
+      return
+    }
+
+    stripeOnboardingInFlightRef.current = true
+    setIsLoadingStripe(true)
+    try {
+      const response = await performAuthenticatedRequest({
+        endpoint: `${webServer}/api/v1/gyms/${user.gym_id}/stripe/accounts/onboarding-link`,
+        init: { method: 'GET' },
+        accessToken: tokens.access_token,
+        refreshToken: tokens.refresh_token,
+        webServer,
+        setTokens,
+      })
+      if (!response) {
+        Alert.alert('Stripe setup', 'Please sign in again to set up Stripe payments.')
+        return
+      }
+      const data = await response.json()
+      if (response.status !== 200) {
+        Alert.alert('Stripe setup', data?.message || 'Failed to get Stripe onboarding link.')
+        return
+      }
+
+      const onboardingUrl = typeof data?.onboarding_url === 'string' ? data.onboarding_url.trim() : ''
+      let validUrl = false
+      try {
+        const url = new URL(onboardingUrl)
+        validUrl = url.protocol === 'https:' && !!url.hostname && !url.username && !url.password
+      } catch {
+        validUrl = false
+      }
+      if (!validUrl) {
+        Alert.alert('Stripe setup', 'Invalid onboarding link received from server.')
+        return
+      }
+
+      try {
+        await Linking.openURL(onboardingUrl)
+      } catch {
+        Alert.alert('Stripe setup', 'Unable to open Stripe onboarding link.')
+      }
+    } catch {
+      Alert.alert('Stripe setup', 'Failed to initiate Stripe Connect setup.')
+    } finally {
+      stripeOnboardingInFlightRef.current = false
+      setIsLoadingStripe(false)
+    }
+  }
 
   const loadEarnings = useCallback(async (isPullRefresh = false) => {
     if (!user?.gym_id || !tokens?.access_token || !setTokens) {
@@ -136,7 +260,8 @@ const EarningsScreen = ({ navigation }) => {
   const handleRefresh = useCallback(() => {
     setIsRefreshing(true)
     void loadEarnings(true)
-  }, [loadEarnings])
+    void checkStripeAccountStatus()
+  }, [checkStripeAccountStatus, loadEarnings])
 
   useEffect(() => {
     void loadEarnings()
@@ -381,6 +506,32 @@ const EarningsScreen = ({ navigation }) => {
         </View>
 
         <View style={styles.body}>
+          {isOwner && !isCheckingStripeStatus && !isStripeConfigured ? (
+            <View style={styles.stripeCard}>
+              <TouchableOpacity
+                style={styles.stripeAction}
+                onPress={handleConnectStripe}
+                disabled={isLoadingStripe}
+                activeOpacity={0.85}
+                accessibilityRole="button"
+                accessibilityState={{ disabled: isLoadingStripe, busy: isLoadingStripe }}
+              >
+                <Feather name="credit-card" size={24} color={AppColors.blue} />
+                <View style={styles.stripeText}>
+                  <Text style={styles.stripeTitle}>Connect Stripe Account</Text>
+                  <Text style={styles.stripeSubtitle}>Set up payments for your gym</Text>
+                </View>
+                {isLoadingStripe ? (
+                  <ActivityIndicator color={AppColors.blue} />
+                ) : (
+                  <Feather name="arrow-right" size={20} color={AppColors.blue} />
+                )}
+              </TouchableOpacity>
+              {stripeErrorMessage ? (
+                <Text style={styles.stripeSubtitle} accessibilityRole="alert">{stripeErrorMessage}</Text>
+              ) : null}
+            </View>
+          ) : null}
           <View style={styles.heroCard}>
             <View style={styles.heroHeader}>
               <View style={styles.heroTextBlock}>
@@ -713,6 +864,31 @@ const styles = StyleSheet.create({
   body: {
     paddingHorizontal: 24,
     paddingBottom: 24,
+  },
+  stripeCard: {
+    borderWidth: 1,
+    borderColor: AppColors.grey2,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 20,
+    backgroundColor: AppColors.white,
+  },
+  stripeAction: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  stripeText: { flex: 1 },
+  stripeTitle: {
+    color: AppColors.blue,
+    fontFamily: 'Montserrat-Bold',
+    fontSize: 16,
+  },
+  stripeSubtitle: {
+    color: AppColors.grey3,
+    fontFamily: 'Montserrat',
+    fontSize: 13,
+    marginTop: 6,
   },
   heroCard: {
     backgroundColor: AppColors.grey,
