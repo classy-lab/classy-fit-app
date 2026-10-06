@@ -25,12 +25,10 @@ import HoneypotField from "./input_fields/HoneypotField";
 import DateOfBirthField from "./input_fields/DateOfBirthField";
 import GymList from "../GymList";
 import {
-  findRoleOption,
   localAvatarOptions,
   MAX_PROFILE_PIC_BYTES,
   MIN_SUBMISSION_TIME_MS,
   normalizeRole,
-  roleData,
   schema,
   sexData,
 } from "./ProfileScreenForm.constants";
@@ -139,7 +137,6 @@ const RegisterForm = () => {
   ];
 
   const [gyms, setGyms] = useState([]);
-  const [role, setRole] = React.useState("");
   const [phoneCountryCode, setPhoneCountryCode] = useState("US");
   const [whatsappCountryCode, setWhatsappCountryCode] = useState("US");
   const defaultAvatar = Image.resolveAssetSource(localAvatarOptions[0].asset);
@@ -227,8 +224,6 @@ const RegisterForm = () => {
     const totalTimeElapsed = Date.now() - formLoadTime.current;
     const formData = new FormData();
 
-    console.log(data);
-
     // 1. Honeypot check
     if (website.trim() !== "") {
       console.log("Submission failed", "Bot behavior detected.");
@@ -266,8 +261,8 @@ const RegisterForm = () => {
     formData.append("gym_id", data.gymId);
     formData.append("email", data.email);
     formData.append("password", data.password);
-    formData.append("data.confirmPassword", data.confirmPassword);
-    formData.append("role", normalizeRole(data.role));
+    formData.append("confirmPassword", data.confirmPassword);
+    formData.append("role", "Member");
     formData.append("fname", data.fname);
     formData.append("lname", data.lname);
     formData.append("date_of_birth", data.dateOfBirth);
@@ -285,7 +280,7 @@ const RegisterForm = () => {
     // console.log(data.gymId);
 
     const response = await fetch(
-      `${webServer}/api/v1/gyms/${data.gymId}/users`,
+      `${webServer}/api/v1/public/gyms/${data.gymId}/register`,
       {
         method: "POST",
         body: formData,
@@ -311,7 +306,7 @@ const RegisterForm = () => {
     } else {
       showMessage({
         message: "Action Failed",
-        description: apiResponse.message || "Something went wrong.",
+        description: apiResponse.message || apiResponse.errors?.[0] || "Something went wrong.",
         type: "danger", // Automatically styles background to red
         icon: "danger",
         autoHide: false,
@@ -450,50 +445,6 @@ const RegisterForm = () => {
             <Text style={styles.errorText}>
               {errors.confirmPassword.message}
             </Text>
-          )}
-        </View>
-        <View style={styles.field}>
-          <Text style={styles.formLabel}>Role</Text>
-          <Controller
-            control={control}
-            name="role"
-            render={({ field: { onChange, onBlur, value, ref } }) => {
-              const selectedRole =
-                findRoleOption(value) || findRoleOption("2");
-
-              return (
-                <SelectList
-                  ref={ref} // CRITICAL: This allows React Hook Form to directly target the element
-                  setSelected={(selectedValue) =>
-                    onChange(normalizeRole(selectedValue))
-                  }
-                  data={roleData}
-                  save="value"
-                  placeholder="Select Category"
-                  defaultOption={
-                    selectedRole
-                      ? { key: selectedRole.key, value: selectedRole.value }
-                      : undefined
-                  }
-                  boxStyles={{
-                    borderColor: AppColors.grey,
-                    borderWidth: 1,
-                    paddingHorizontal: 8,
-                  }}
-                  dropdownStyles={{
-                    borderColor: AppColors.grey2,
-                    borderWidth: 1,
-                    marginTop: 8,
-                    backgroundColor: "white",
-                  }}
-                // If you need to force the value from the parent (e.g., reset)
-                // defaultOption={data.find(item => item.value === value)}
-                />
-              );
-            }}
-          />
-          {errors.role && (
-            <Text style={styles.errorText}>{errors.role.message}</Text>
           )}
         </View>
         <View style={styles.field}>
