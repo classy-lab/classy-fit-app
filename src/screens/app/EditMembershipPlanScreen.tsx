@@ -96,10 +96,7 @@ const performAuthenticatedRequestWithRefresh = async ({
     return response
   }
 
-  if (response.status !== 401) {
-    return response
-  }
-
+  console.log('Access token expired, requesting new one - performAuthenticatedRequestWithRefresh()')
   const refreshedAccessToken = await refreshAccessTokenWithRefresh({
     refreshToken,
     webServer,
@@ -110,7 +107,8 @@ const performAuthenticatedRequestWithRefresh = async ({
     return response
   }
 
-  return requestWithToken(refreshedAccessToken)
+  const retryResponse = await requestWithToken(refreshedAccessToken)
+  return retryResponse
 }
 
 type RefreshTokens = {
