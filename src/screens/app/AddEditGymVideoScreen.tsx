@@ -37,6 +37,7 @@ import {
   type GymVideoStatus,
   type GymVideoType,
 } from '../../utils/gymVideosApi'
+import SignOut from '../../components/utils/SignOut'
 
 type RefreshTokens = {
   access_token?: string
@@ -230,6 +231,14 @@ const AddEditGymVideoScreen = ({ navigation, route }: { navigation: any; route: 
 
   const title = isEditing ? 'Edit Gym Video' : 'Add Gym Video'
   const submitLabel = isEditing ? 'Save Changes' : 'Create Video'
+  const renderTopNav = () => (
+    <View style={styles.navs}>
+      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+        <Feather name="arrow-left" color={AppColors.blue} size={36} />
+      </TouchableOpacity>
+      <SignOut />
+    </View>
+  )
 
   const onSubmit = useCallback(async (formData: GymVideoFormValues) => {
     if (submitting) {
@@ -262,22 +271,22 @@ const AddEditGymVideoScreen = ({ navigation, route }: { navigation: any; route: 
     try {
       const request = isEditing
         ? updateGymVideo({
-            webServer,
-            gymId,
-            videoUid: String(videoUid),
-            accessToken: tokens.access_token,
-            refreshToken: tokens.refresh_token,
-            setTokens,
-            payload,
-          })
+          webServer,
+          gymId,
+          videoUid: String(videoUid),
+          accessToken: tokens.access_token,
+          refreshToken: tokens.refresh_token,
+          setTokens,
+          payload,
+        })
         : createGymVideo({
-            webServer,
-            gymId,
-            accessToken: tokens.access_token,
-            refreshToken: tokens.refresh_token,
-            setTokens,
-            payload,
-          })
+          webServer,
+          gymId,
+          accessToken: tokens.access_token,
+          refreshToken: tokens.refresh_token,
+          setTokens,
+          payload,
+        })
 
       const result = await request
 
@@ -307,6 +316,7 @@ const AddEditGymVideoScreen = ({ navigation, route }: { navigation: any; route: 
   if (!isOwner) {
     return (
       <SafeAreaView style={styles.safeArea}>
+        {renderTopNav()}
         <View style={styles.accessDeniedContainer}>
           <Feather name="lock" size={34} color={AppColors.blue} />
           <Text style={styles.accessDeniedTitle}>Owner access required</Text>
@@ -321,6 +331,7 @@ const AddEditGymVideoScreen = ({ navigation, route }: { navigation: any; route: 
   if (isEditing && loadErrorMessage && !loadingVideo) {
     return (
       <SafeAreaView style={styles.safeArea}>
+        {renderTopNav()}
         <View style={styles.accessDeniedContainer}>
           <Feather name="alert-triangle" size={34} color="#c2410c" />
           <Text style={styles.accessDeniedTitle}>Unable to load video</Text>
@@ -347,6 +358,7 @@ const AddEditGymVideoScreen = ({ navigation, route }: { navigation: any; route: 
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
+        {renderTopNav()}
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
@@ -553,6 +565,16 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: AppColors.white,
+  },
+  navs: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingTop: 8,
+  },
+  backBtn: {
+    alignSelf: 'flex-start',
   },
   flex: {
     flex: 1,
