@@ -411,24 +411,27 @@ const EquipmentEditScreen = ({ navigation, route }) => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch(
-          `${webServer}/api/v1/gyms/${user?.gym_id}/equipment-categories`,
-          {
-            headers: {
-              Authorization: 'Bearer ' + tokens.access_token,
-            },
-          }
-        )
+        const { response, body: data } = await requestWithRefresh({
+          accessToken: tokens.access_token,
+          refreshToken: tokens.refresh_token,
+          webServer,
+          setTokens,
+          request: (accessToken) =>
+            fetch(`${webServer}/api/v1/gyms/${user?.gym_id}/equipment-categories`, {
+              headers: {
+                Authorization: 'Bearer ' + accessToken,
+              },
+            }),
+        })
 
-        if (response.status === 200) {
-          const data = await response.json()
+        if (response?.status === 200) {
           const options = (data.data || []).map((cat: any) => ({
             key: String(cat.uid),
             value: cat.name,
           }))
           setCategoryOptions(options)
         } else {
-          console.log('Failed to fetch categories:', response.status)
+          console.log('Failed to fetch categories:', response?.status)
         }
       } catch (error) {
         console.log('Failed to fetch equipment categories:', error)
@@ -438,7 +441,7 @@ const EquipmentEditScreen = ({ navigation, route }) => {
     if (tokens?.access_token) {
       fetchCategories()
     }
-  }, [tokens?.access_token, webServer])
+  }, [tokens?.access_token, tokens?.refresh_token, setTokens, user?.gym_id, webServer])
 
   const {
     control,
