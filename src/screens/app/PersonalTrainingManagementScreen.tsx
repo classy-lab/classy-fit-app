@@ -20,6 +20,51 @@ import { canManagePersonalTraining } from '../../utils/roleAccess'
 
 const normalizeToken = (value) => String(value ?? '').trim()
 
+const tokenRefreshMessagePattern = /\b(?:token\s+has\s+expired|expired\s+(?:access\s+)?token|invalid\s+(?:access\s+)?token|token\s+is\s+invalid|jwt\s+expired|access\s+token\s+expired|authentication\s+token\s+expired)\b/i
+
+const extractResponseText = async (response: Response): Promise<string> => {
+  try {
+    return await response.clone().text()
+  } catch {
+    return ''
+  }
+}
+
+const extractMessageCandidates = (responseText: string): string[] => {
+  const trimmed = String(responseText ?? '').trim()
+  if (!trimmed) return []
+
+  try {
+    const parsed = JSON.parse(trimmed) as unknown
+    if (typeof parsed === 'string') return [parsed]
+    if (parsed && typeof parsed === 'object') {
+      const payload = parsed as Record<string, unknown>
+      const candidates: string[] = []
+      if (typeof payload.message === 'string') candidates.push(payload.message)
+      if (typeof payload.error === 'string') candidates.push(payload.error)
+      if (Array.isArray(payload.errors)) {
+        for (const error of payload.errors) {
+          if (typeof error === 'string') candidates.push(error)
+        }
+      }
+      if (candidates.length > 0) return candidates
+    }
+  } catch {
+    // Fall through to the raw text below.
+  }
+
+  return [trimmed]
+}
+
+const shouldRefreshAuthResponse = async (response: Response): Promise<boolean> => {
+  if (!response || response.ok) return false
+  if (response.status === 401) return true
+  if (response.status !== 400 && response.status !== 403) return false
+  const responseText = await extractResponseText(response)
+  const candidates = extractMessageCandidates(responseText)
+  return candidates.some((candidate) => tokenRefreshMessagePattern.test(candidate))
+}
+
 const refreshAccessTokenWithRefresh = async ({
   refreshToken,
   webServer,
@@ -94,7 +139,7 @@ const performAuthenticatedRequestWithRefresh = async ({
     return response
   }
 
-  if (response.status !== 401) {
+  if (!(await shouldRefreshAuthResponse(response))) {
     return response
   }
 
