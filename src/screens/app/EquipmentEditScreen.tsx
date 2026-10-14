@@ -290,7 +290,15 @@ const buildEquipmentFormData = (
 
 const parseResponseJson = async (response: Response) => {
   const rawResponse = await response.text()
-  return rawResponse ? JSON.parse(rawResponse) : {}
+  if (!rawResponse) {
+    return {}
+  }
+
+  try {
+    return JSON.parse(rawResponse)
+  } catch {
+    return { message: rawResponse }
+  }
 }
 
 const showErrorMessage = (description: string, autoHide = true) =>
@@ -301,6 +309,89 @@ const showErrorMessage = (description: string, autoHide = true) =>
     icon: 'danger',
     autoHide,
   })
+
+const tokenRefreshMessagePattern =
+  /\b(?:token\s+has\s+expired|expired\s+(?:access\s+)?token|invalid\s+(?:access\s+)?token|token\s+is\s+invalid|jwt\s+expired|access\s+token\s+expired|authentication\s+token\s+expired)\b/i
+
+const refreshAccessToken = async ({
+  refreshToken,
+  webServer,
+  setTokens,
+}) => {
+  const effectiveRefreshToken = String(refreshToken ?? '').trim()
+  if (!effectiveRefreshToken) {
+    return null
+  }
+
+  const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
+    method: 'POST',
+    body: JSON.stringify({
+      token: effectiveRefreshToken,
+    }),
+  })
+
+  const rawRefreshResponse = await refreshResponse.text()
+  const refreshObj = rawRefreshResponse ? JSON.parse(rawRefreshResponse) : {}
+
+  if (!refreshResponse.ok || !refreshObj?.access_token || !refreshObj?.refresh_token) {
+    return null
+  }
+
+  setTokens((prev: any) => ({
+    ...(prev ?? {}),
+    access_token: refreshObj.access_token,
+    refresh_token: refreshObj.refresh_token,
+  }))
+
+  return refreshObj.access_token
+}
+
+const isTokenExpiredResponse = async (response: Response, body: any) => {
+  if (!response || response.ok) {
+    return false
+  }
+
+  if (response.status === 401) {
+    return true
+  }
+
+  if (response.status !== 400 && response.status !== 403) {
+    return false
+  }
+
+  const message = String(body?.message ?? body?.error ?? body?.detail ?? '').toLowerCase()
+  return tokenRefreshMessagePattern.test(message)
+}
+
+const requestWithRefresh = async ({
+  request,
+  accessToken,
+  refreshToken,
+  webServer,
+  setTokens,
+}) => {
+  let response = await request(accessToken)
+  let body = await parseResponseJson(response)
+
+  if (await isTokenExpiredResponse(response, body)) {
+    console.log('Access token expired, requesting new one - requestWithRefresh()')
+
+    const refreshedAccessToken = await refreshAccessToken({
+      refreshToken,
+      webServer,
+      setTokens,
+    })
+
+    if (!refreshedAccessToken) {
+      return { response: null, body: null }
+    }
+
+    response = await request(refreshedAccessToken)
+    body = await parseResponseJson(response)
+  }
+
+  return { response, body }
+}
 
 const EquipmentEditScreen = ({ navigation, route }) => {
   const { user, tokens, setTokens, webServer } = useContext(UserContext)
@@ -452,43 +543,29 @@ const EquipmentEditScreen = ({ navigation, route }) => {
       try {
         setIsLoading(true)
 
-        const response = await fetch(
-          `${webServer}/api/v1/gyms/${user.gym_id}/equipment/${equipmentId}`,
-          {
-            headers: {
-              Authorization: 'Bearer ' + tokens.access_token,
-            },
-          }
-        )
+        const { response, body: obj } = await requestWithRefresh({
+          accessToken: tokens.access_token,
+          refreshToken: tokens.refresh_token,
+          webServer,
+          setTokens,
+          request: (accessToken) =>
+            fetch(`${webServer}/api/v1/gyms/${user.gym_id}/equipment/${equipmentId}`, {
+              headers: {
+                Authorization: 'Bearer ' + accessToken,
+              },
+            }),
+        })
 
-        const obj = await parseResponseJson(response)
-
-        if (response.status === 200) {
+        if (response?.status === 200) {
           const payload = obj?.data || {}
           hydrateForm(payload)
           return
         }
 
-        if (response.status === 401) {
-          const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
-            method: 'POST',
-            body: JSON.stringify({
-              token: tokens.refresh_token,
-            }),
-          })
-          const refreshObj = await refreshResponse.json()
-
-          if (refreshResponse.status === 200) {
-            setTokens((prev: any) => ({
-              ...prev,
-              access_token: refreshObj.access_token,
-              refresh_token: refreshObj.refresh_token,
-            }))
-            return
-          }
-        }
-
-        showErrorMessage(obj?.message || 'Unable to load equipment. Please try again.', false)
+        showErrorMessage(
+          obj?.message || 'Unable to load equipment. Please try again.',
+          false
+        )
       } catch (error) {
         console.log('EquipmentEditScreen equipment error: ', error)
         showErrorMessage('Unable to load equipment. Please check your connection and try again.')
@@ -555,23 +632,25 @@ const EquipmentEditScreen = ({ navigation, route }) => {
         ? buildEquipmentFormData(formData, existingImages, newImages)
         : buildRequestPayload(formData)
 
-      const response = await fetch(
-        `${webServer}/api/v1/gyms/${user.gym_id}/equipment/${equipmentId}`,
-        {
-          method: imagesChanged ? 'POST' : 'PUT',
-          headers: imagesChanged
-            ? { Authorization: 'Bearer ' + tokens.access_token }
-            : {
-                Authorization: 'Bearer ' + tokens.access_token,
-                'Content-Type': 'application/json',
-              },
-          body: imagesChanged ? requestPayload : JSON.stringify(requestPayload),
-        }
-      )
+      const { response, body: obj } = await requestWithRefresh({
+        accessToken: tokens.access_token,
+        refreshToken: tokens.refresh_token,
+        webServer,
+        setTokens,
+        request: (accessToken) =>
+          fetch(`${webServer}/api/v1/gyms/${user.gym_id}/equipment/${equipmentId}`, {
+            method: imagesChanged ? 'POST' : 'PUT',
+            headers: imagesChanged
+              ? { Authorization: 'Bearer ' + accessToken }
+              : {
+                  Authorization: 'Bearer ' + accessToken,
+                  'Content-Type': 'application/json',
+                },
+            body: imagesChanged ? requestPayload : JSON.stringify(requestPayload),
+          }),
+      })
 
-      const obj = await parseResponseJson(response)
-
-      if (response.status === 200) {
+      if (response?.status === 200) {
         const updatedEquipment = obj?.data || {
           ...(routeEquipment || {}),
           ...buildRequestPayload(formData),
@@ -599,7 +678,10 @@ const EquipmentEditScreen = ({ navigation, route }) => {
       }
 
       const errorDetails = Array.isArray(obj?.errors) ? obj.errors.join('\n') : ''
-      const errorMsg = errorDetails || obj?.message || `Something went wrong while updating equipment (${response.status}).`
+      const errorMsg =
+        errorDetails ||
+        obj?.message ||
+        `Something went wrong while updating equipment (${response?.status}).`
       console.log('Equipment update error response:', obj)
       console.log('Detailed validation errors:', obj?.errors)
       showErrorMessage(errorMsg, false)
@@ -617,19 +699,21 @@ const EquipmentEditScreen = ({ navigation, route }) => {
     try {
       setIsDeleting(true)
 
-      const response = await fetch(
-        `${webServer}/api/v1/gyms/${user.gym_id}/equipment/${equipmentId}`,
-        {
-          method: 'DELETE',
-          headers: {
-            Authorization: 'Bearer ' + tokens.access_token,
-          },
-        }
-      )
+      const { response, body: obj } = await requestWithRefresh({
+        accessToken: tokens.access_token,
+        refreshToken: tokens.refresh_token,
+        webServer,
+        setTokens,
+        request: (accessToken) =>
+          fetch(`${webServer}/api/v1/gyms/${user.gym_id}/equipment/${equipmentId}`, {
+            method: 'DELETE',
+            headers: {
+              Authorization: 'Bearer ' + accessToken,
+            },
+          }),
+      })
 
-      const obj = await parseResponseJson(response)
-
-      if (response.status === 200) {
+      if (response?.status === 200) {
         showMessage({
           message: 'Success',
           description: obj?.message || 'Equipment deleted successfully.',
@@ -645,7 +729,7 @@ const EquipmentEditScreen = ({ navigation, route }) => {
       }
 
       showErrorMessage(
-        obj?.message || `Something went wrong while deleting equipment (${response.status}).`,
+        obj?.message || `Something went wrong while deleting equipment (${response?.status}).`,
         false
       )
     } catch (error) {
