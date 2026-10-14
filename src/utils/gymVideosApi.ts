@@ -1,5 +1,3 @@
-import { performAuthenticatedRequest } from './authenticatedRequest'
-
 export type GymVideoCategory =
   | 'workout_suggestions'
   | 'proper_machine_usage'
@@ -62,6 +60,50 @@ type GymVideoDetailResponse = {
   message?: string
   error?: string
   errors?: string[]
+}
+
+const normalizeToken = (value?: string | null) => String(value ?? '').trim()
+
+const refreshAccessToken = async ({
+  refreshToken,
+  webServer,
+  setTokens,
+}: {
+  refreshToken?: string | null
+  webServer: string
+  setTokens: SetTokens
+}): Promise<string | null> => {
+  const effectiveRefreshToken = normalizeToken(refreshToken)
+  if (!effectiveRefreshToken) {
+    return null
+  }
+
+  const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      token: effectiveRefreshToken,
+    }),
+  })
+
+  if (!refreshResponse.ok) {
+    return null
+  }
+
+  const refreshObj = (await refreshResponse.json()) as RefreshTokens | null
+  if (!refreshObj?.access_token || !refreshObj?.refresh_token) {
+    return null
+  }
+
+  setTokens((prev) => ({
+    ...(prev ?? {}),
+    access_token: refreshObj.access_token,
+    refresh_token: refreshObj.refresh_token,
+  }))
+
+  return refreshObj.access_token
 }
 
 export const gymVideoCategories: Array<{
@@ -143,21 +185,43 @@ const requestGymVideoEndpoint = async ({
   body,
 }: FetchPublishedGymVideosParams & { path: string; method?: string; body?: Record<string, unknown> }): Promise<Response | null> => {
   const normalizedGymId = String(gymId ?? '').trim()
-  if (!normalizedGymId || !accessToken) {
+  const normalizedAccessToken = normalizeToken(accessToken)
+  if (!normalizedGymId || !normalizedAccessToken) {
     return null
   }
 
-  return performAuthenticatedRequest({
-    endpoint: `${webServer}/api/v1/gyms/${normalizedGymId}${path}`,
-    init: {
+  const endpoint = `${webServer}/api/v1/gyms/${normalizedGymId}${path}`
+  const requestWithToken = async (token: string) => {
+    const headers = new Headers()
+    headers.set('Authorization', `Bearer ${token}`)
+
+    if (body !== undefined && body !== null && !headers.has('Content-Type')) {
+      headers.set('Content-Type', 'application/json')
+    }
+
+    return fetch(endpoint, {
       method,
       body: body ? JSON.stringify(body) : undefined,
-    },
-    accessToken,
+      headers,
+    })
+  }
+
+  const response = await requestWithToken(normalizedAccessToken)
+  if (response.ok || response.status !== 401) {
+    return response
+  }
+
+  const refreshedAccessToken = await refreshAccessToken({
     refreshToken,
     webServer,
     setTokens,
   })
+
+  if (!refreshedAccessToken) {
+    return response
+  }
+
+  return requestWithToken(refreshedAccessToken)
 }
 
 const parseResponse = async <T extends GymVideoListResponse | GymVideoDetailResponse>(response: Response): Promise<T> => {

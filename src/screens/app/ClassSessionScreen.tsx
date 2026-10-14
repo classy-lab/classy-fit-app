@@ -14,7 +14,51 @@ import { useStripe } from '@stripe/stripe-react-native'
 import { showMessage } from 'react-native-flash-message'
 import { AppColors } from '../../styles/colors'
 import { UserContext } from '../../context/UserContext'
-import { refreshAccessToken as refreshAccessTokenWithRefresh, shouldRefreshAuthResponse } from '../../utils/authenticatedRequest'
+
+const normalizeToken = (value) => String(value ?? '').trim()
+
+const refreshAccessToken = async ({
+  refreshToken,
+  webServer,
+  setTokens,
+}) => {
+  const effectiveRefreshToken = normalizeToken(refreshToken)
+  if (!effectiveRefreshToken) {
+    return null
+  }
+
+  const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      token: effectiveRefreshToken,
+    }),
+  })
+
+  if (!refreshResponse.ok) {
+    return null
+  }
+
+  const refreshObj = await refreshResponse.json()
+  if (!refreshObj?.access_token || !refreshObj?.refresh_token) {
+    return null
+  }
+
+  const nextTokens = {
+    access_token: refreshObj.access_token,
+    refresh_token: refreshObj.refresh_token,
+  }
+
+  setTokens((prev) => ({
+    ...(prev ?? {}),
+    access_token: nextTokens.access_token,
+    refresh_token: nextTokens.refresh_token,
+  }))
+
+  return nextTokens.access_token
+}
 
 const parseDate = (value) => {
   if (!value) return null
@@ -146,15 +190,11 @@ const ClassSessionScreen = ({ navigation, route }) => {
     }
 
     const submitCheckoutRequest = async () => {
-      let accessToken = tokens.access_token
-      let response = await performRequest(accessToken)
+      let response = await performRequest(tokens.access_token)
 
-      if (await shouldRefreshAuthResponse(response)) {
+      if (response.status === 401) {
         const refreshedAccessToken = await refreshAccessToken()
-        if (refreshedAccessToken) {
-          accessToken = refreshedAccessToken
-          response = await performRequest(accessToken)
-        } else {
+        if (!refreshedAccessToken) {
           showMessage({
             message: 'Session expired',
             description: 'Please sign in again.',
@@ -162,6 +202,8 @@ const ClassSessionScreen = ({ navigation, route }) => {
           })
           return null
         }
+
+        response = await performRequest(refreshedAccessToken)
       }
 
       const responseText = await response.text()

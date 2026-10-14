@@ -15,7 +15,76 @@ import { showMessage } from 'react-native-flash-message'
 import { AppColors } from '../../styles/colors'
 import { UserContext } from '../../context/UserContext'
 import { Feather } from '@expo/vector-icons'
-import { performAuthenticatedRequest } from '../../utils/authenticatedRequest'
+
+const normalizeToken = (value) => String(value ?? '').trim()
+
+const refreshAccessToken = async ({
+  refreshToken,
+  webServer,
+  setTokens,
+}) => {
+  const effectiveRefreshToken = normalizeToken(refreshToken)
+  if (!effectiveRefreshToken) {
+    return null
+  }
+
+  const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      token: effectiveRefreshToken,
+    }),
+  })
+
+  if (!refreshResponse.ok) {
+    return null
+  }
+
+  const refreshObj = await refreshResponse.json()
+  if (!refreshObj?.access_token || !refreshObj?.refresh_token) {
+    return null
+  }
+
+  setTokens((prev) => ({
+    ...(prev ?? {}),
+    access_token: refreshObj.access_token,
+    refresh_token: refreshObj.refresh_token,
+  }))
+
+  return refreshObj.access_token
+}
+
+const requestWithRefresh = async ({
+  performRequest,
+  accessToken,
+  refreshToken,
+  webServer,
+  setTokens,
+}) => {
+  if (!accessToken) {
+    return null
+  }
+
+  let response = await performRequest(accessToken)
+  if (response.status !== 401) {
+    return response
+  }
+
+  const refreshedAccessToken = await refreshAccessToken({
+    refreshToken,
+    webServer,
+    setTokens,
+  })
+
+  if (!refreshedAccessToken) {
+    return null
+  }
+
+  return performRequest(refreshedAccessToken)
+}
+
 
 const MyClassBookingDetailScreen = ({ navigation, route }) => {
   const { tokens, setTokens, webServer } = useContext(UserContext)
@@ -39,12 +108,17 @@ const MyClassBookingDetailScreen = ({ navigation, route }) => {
     const endpoint = `${webServer}/api/v1/classes/bookings/${bookingUid}`
 
     try {
-      const response = await performAuthenticatedRequest({
-        endpoint,
+      const response = await requestWithRefresh({
         accessToken: tokens.access_token,
         refreshToken: tokens.refresh_token,
         webServer,
         setTokens,
+        performRequest: (accessToken) =>
+          fetch(endpoint, {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }),
       })
 
       if (!response) {
@@ -227,20 +301,21 @@ const MyClassBookingDetailScreen = ({ navigation, route }) => {
     setIsCancelling(true)
 
     try {
-      const response = await performAuthenticatedRequest({
-        endpoint,
-        init: {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Idempotency-Key': idempotencyKey,
-          },
-          body: '{}',
-        },
+      const response = await requestWithRefresh({
         accessToken: tokens.access_token,
         refreshToken: tokens.refresh_token,
         webServer,
         setTokens,
+        performRequest: (accessToken) =>
+          fetch(endpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Idempotency-Key': idempotencyKey,
+              Authorization: `Bearer ${accessToken}`,
+            },
+            body: '{}',
+          }),
       })
 
       if (!response) {

@@ -15,7 +15,80 @@ import { Feather } from '@expo/vector-icons'
 import { AppColors } from '../../styles/colors'
 import { UserContext } from '../../context/UserContext'
 import { getMemberPersonalTrainingTitle } from '../../components/utils/personalTrainingDisplay'
-import { shouldRefreshAuthResponse } from '../../utils/authenticatedRequest'
+
+const normalizeToken = (value) => String(value ?? '').trim()
+
+const refreshAccessToken = async ({
+  refreshToken,
+  webServer,
+  setTokens,
+}) => {
+  const effectiveRefreshToken = normalizeToken(refreshToken)
+  if (!effectiveRefreshToken) {
+    return null
+  }
+
+  const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      token: effectiveRefreshToken,
+    }),
+  })
+
+  if (!refreshResponse.ok) {
+    return null
+  }
+
+  const refreshObj = await refreshResponse.json()
+  if (!refreshObj?.access_token || !refreshObj?.refresh_token) {
+    return null
+  }
+
+  const nextTokens = {
+    access_token: refreshObj.access_token,
+    refresh_token: refreshObj.refresh_token,
+  }
+
+  setTokens((prev) => ({
+    ...(prev ?? {}),
+    access_token: nextTokens.access_token,
+    refresh_token: nextTokens.refresh_token,
+  }))
+
+  return nextTokens.access_token
+}
+
+const requestWithRefresh = async ({
+  performRequest,
+  accessToken,
+  refreshToken,
+  webServer,
+  setTokens,
+}) => {
+  if (!accessToken) {
+    return null
+  }
+
+  let response = await performRequest(accessToken)
+  if (response.status !== 401) {
+    return response
+  }
+
+  const refreshedAccessToken = await refreshAccessToken({
+    refreshToken,
+    webServer,
+    setTokens,
+  })
+
+  if (!refreshedAccessToken) {
+    return null
+  }
+
+  return performRequest(refreshedAccessToken)
+}
 
 const parseDate = (value) => {
   if (!value) return null
@@ -114,19 +187,19 @@ const MyPersonalTrainingBookingDetailScreen = ({ navigation, route }) => {
     }
 
     try {
-      let accessToken = tokens.access_token
-      let response = await performRequest(accessToken)
+      const response = await requestWithRefresh({
+        accessToken: tokens.access_token,
+        refreshToken: tokens.refresh_token,
+        webServer,
+        setTokens,
+        performRequest: (accessToken) =>
+          performRequest(accessToken),
+      })
 
-      if (await shouldRefreshAuthResponse(response)) {
-        const refreshedAccessToken = await refreshAccessToken()
-        if (refreshedAccessToken) {
-          accessToken = refreshedAccessToken
-          response = await performRequest(accessToken)
-        } else {
-          setErrorMessage('Your session expired. Please sign in again.')
-          setBooking(null)
-          return
-        }
+      if (!response) {
+        setErrorMessage('Your session expired. Please sign in again.')
+        setBooking(null)
+        return
       }
 
       const responseText = await response.text()
@@ -168,7 +241,7 @@ const MyPersonalTrainingBookingDetailScreen = ({ navigation, route }) => {
 
   const submitRequestWithRefresh = useCallback(
     async (performRequest) => {
-      let accessToken = tokens?.access_token
+      const accessToken = tokens?.access_token
       if (!accessToken) {
         showMessage({
           message: 'Session expired',
@@ -178,21 +251,21 @@ const MyPersonalTrainingBookingDetailScreen = ({ navigation, route }) => {
         return null
       }
 
-      let response = await performRequest(accessToken)
+      const response = await requestWithRefresh({
+        accessToken,
+        refreshToken: tokens?.refresh_token,
+        webServer,
+        setTokens,
+        performRequest,
+      })
 
-      if (await shouldRefreshAuthResponse(response)) {
-        const refreshedAccessToken = await refreshAccessToken()
-        if (refreshedAccessToken) {
-          accessToken = refreshedAccessToken
-          response = await performRequest(accessToken)
-        } else {
-          showMessage({
-            message: 'Session expired',
-            description: 'Please sign in again.',
-            type: 'danger',
-          })
-          return null
-        }
+      if (!response) {
+        showMessage({
+          message: 'Session expired',
+          description: 'Please sign in again.',
+          type: 'danger',
+        })
+        return null
       }
 
       const responseText = await response.text()

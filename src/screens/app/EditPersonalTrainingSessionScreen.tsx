@@ -21,8 +21,100 @@ import { AppColors } from '../../styles/colors'
 import { UserContext } from '../../context/UserContext'
 import DateOfBirthField from '../../components/forms/input_fields/DateOfBirthField'
 import TimePickerField from '../../components/forms/input_fields/TimePickerField'
-import { performAuthenticatedRequest as performAuthenticatedRequestWithRefresh } from '../../utils/authenticatedRequest'
 import { canManagePersonalTraining } from '../../utils/roleAccess'
+
+const normalizeToken = (value) => String(value ?? '').trim()
+
+const refreshAccessTokenWithRefresh = async ({
+  refreshToken,
+  webServer,
+  setTokens,
+}) => {
+  const effectiveRefreshToken = normalizeToken(refreshToken)
+  if (!effectiveRefreshToken) {
+    return null
+  }
+
+  const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      token: effectiveRefreshToken,
+    }),
+  })
+
+  if (!refreshResponse.ok) {
+    return null
+  }
+
+  const refreshObj = await refreshResponse.json()
+  if (!refreshObj?.access_token || !refreshObj?.refresh_token) {
+    return null
+  }
+
+  const nextTokens = {
+    access_token: refreshObj.access_token,
+    refresh_token: refreshObj.refresh_token,
+  }
+
+  setTokens((prev) => ({
+    ...(prev ?? {}),
+    access_token: nextTokens.access_token,
+    refresh_token: nextTokens.refresh_token,
+  }))
+
+  return nextTokens.access_token
+}
+
+const performAuthenticatedRequestWithRefresh = async ({
+  endpoint,
+  init = {} as RequestInit,
+  accessToken,
+  refreshToken,
+  webServer,
+  setTokens,
+}) => {
+  const requestAccessToken = normalizeToken(accessToken)
+  if (!requestAccessToken) {
+    return null
+  }
+
+  const requestWithToken = async (token) => {
+    const headers = new Headers(init.headers ?? undefined)
+    if (!headers.has('Content-Type')) {
+      headers.set('Content-Type', 'application/json')
+    }
+    headers.set('Authorization', `Bearer ${token}`)
+
+    return fetch(endpoint, {
+      ...init,
+      headers,
+    })
+  }
+
+  const response = await requestWithToken(requestAccessToken)
+  if (response.ok) {
+    return response
+  }
+
+  if (response.status !== 401) {
+    return response
+  }
+
+  const refreshedAccessToken = await refreshAccessTokenWithRefresh({
+    refreshToken,
+    webServer,
+    setTokens,
+  })
+
+  if (!refreshedAccessToken) {
+    return response
+  }
+
+  return requestWithToken(refreshedAccessToken)
+}
 
 type RefreshTokens = {
   access_token?: string
@@ -263,7 +355,7 @@ const EditPersonalTrainingSessionScreen = ({
 
   const performAuthenticatedRequest = async (
     endpoint: string,
-    init: RequestInit = {}
+    init = {} as RequestInit
   ): Promise<Response | null> => {
     return performAuthenticatedRequestWithRefresh({
       endpoint,
