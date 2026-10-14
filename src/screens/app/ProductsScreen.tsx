@@ -12,6 +12,7 @@ import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { UserContext } from '../../context/UserContext'
 import { useCart } from '../../context/CartContext'
+import { normalizeUserRole } from '../../utils/roleAccess'
 
 type Product = {
   title?: string;
@@ -25,6 +26,8 @@ const ProductsScreen = ({ navigation, route }) => {
   const { webServer } = useContext(UserContext);
   const { totalItemCount } = useCart();
   const [products, setProducts] = useState<Product[]>([]);
+  const role = normalizeUserRole(user?.role);
+  const canEditStaff = role === 'owner';
 
   // 1. Define the Yup validation schema
   const schema = yup.object().shape({
@@ -135,13 +138,14 @@ const ProductsScreen = ({ navigation, route }) => {
               onPress={() => navigation.navigate('HomeTab', { screen: 'DashboardScreen' })}
             />
             <View style={styles.headerActions}>
-              {/* move to separate component */}
-              <TouchableOpacity onPress={() => navigation.navigate('ProductsTab', { screen: 'AddProductScreen' })} style={styles.signOut}>
-                <Text style={styles.signOutText}>Add Product</Text>
-                <View style={styles.circle}>
-                  <MaterialIcons name="add" color={AppColors.white} size={16} />
-                </View>
-              </TouchableOpacity>
+              {canEditStaff ? (
+                <TouchableOpacity onPress={() => navigation.navigate('ProductsTab', { screen: 'AddProductScreen' })} style={styles.signOut}>
+                  <Text style={styles.signOutText}>Add Product</Text>
+                  <View style={styles.circle}>
+                    <MaterialIcons name="add" color={AppColors.white} size={16} />
+                  </View>
+                </TouchableOpacity>
+              ) : null}
               <TouchableOpacity onPress={() => navigation.navigate('ProductsTab', { screen: 'ViewCartScreen' })} style={styles.signOut}>
                 <Text style={styles.signOutText}>Cart</Text>
                 <View style={styles.circle}>
