@@ -30,7 +30,7 @@ const StaffScreen = ({ navigation }: { navigation: any }) => {
   const ownersList = Object.values(owners);
   const trainersList = Object.values(trainers);
   const role = normalizeUserRole(user?.role);
-  const canEditStaff = role !== 'member';
+  const canEditStaff = role === 'owner';
 
   // 1. Define the Yup validation schema
   const schema = yup.object().shape({
