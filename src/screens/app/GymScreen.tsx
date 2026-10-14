@@ -53,7 +53,12 @@ const GymScreen = ({ navigation, route }) => {
     <>
       <SafeAreaView style={styles.container}>
         <View style={styles.navs}>
-          <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
+          <Feather
+            name="arrow-left"
+            color={AppColors.blue}
+            size={36}
+            onPress={() => navigation.navigate('HomeTab', { screen: 'DashboardScreen' })}
+          />
           <SignOut />
         </View>
         <ScrollView showsVerticalScrollIndicator={false}>

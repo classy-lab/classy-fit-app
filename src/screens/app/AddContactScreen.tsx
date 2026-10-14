@@ -287,9 +287,7 @@ const AddContactScreen = ({ navigation }: { navigation: any }) => {
             name="arrow-left"
             color={AppColors.blue}
             size={36}
-            onPress={() => {
-              navigation.goBack();
-            }}
+            onPress={() => navigation.navigate("HomeTab", { screen: "ContractorsScreen" })}
           />
           <View style={layoutStyles.rightActions}>
             <SignOut />

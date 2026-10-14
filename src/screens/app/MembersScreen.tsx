@@ -206,9 +206,7 @@ const MembersScreen = ({ navigation }: { navigation: any }) => {
             name="arrow-left"
             color={AppColors.blue}
             size={36}
-            onPress={() => {
-              navigation.goBack();
-            }}
+            onPress={() => navigation.navigate('HomeTab', { screen: 'DashboardScreen' })}
           />
           <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: 10 }}>
             {/* move to separate component */}

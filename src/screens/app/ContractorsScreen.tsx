@@ -176,7 +176,12 @@ const ContractorsScreen = ({ navigation }: { navigation: any }) => {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <SafeAreaView style={styles.container}>
           <View style={styles.navs}>
-            <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => { navigation.goBack() }} />
+            <Feather
+              name="arrow-left"
+              color={AppColors.blue}
+              size={36}
+              onPress={() => navigation.popToTop()}
+            />
             <View style={styles.rightActions}>
               {canEditContacts ? (
                 <TouchableOpacity onPress={() => { navigation.navigate('StaffTab', { screen: 'AddContactScreen' }) }} style={styles.signOut}>

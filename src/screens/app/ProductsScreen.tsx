@@ -132,9 +132,7 @@ const ProductsScreen = ({ navigation, route }) => {
               name="arrow-left"
               color={AppColors.blue}
               size={36}
-              onPress={() => {
-                navigation.goBack();
-              }}
+              onPress={() => navigation.navigate('HomeTab', { screen: 'DashboardScreen' })}
             />
             <View style={styles.headerActions}>
               {/* move to separate component */}
