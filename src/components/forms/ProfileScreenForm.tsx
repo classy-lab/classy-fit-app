@@ -87,6 +87,81 @@ const normalizeDateOfBirthValue = (value: unknown) => {
   return dateMatch ? dateMatch[1] : raw;
 };
 
+const tokenRefreshMessagePattern =
+  /\b(?:token\s+has\s+expired|expired\s+(?:access\s+)?token|invalid\s+(?:access\s+)?token|token\s+is\s+invalid|jwt\s+expired|access\s+token\s+expired|authentication\s+token\s+expired)\b/i
+
+const parseJsonResponse = (value: string) => {
+  if (!value) {
+    return {};
+  }
+
+  try {
+    return JSON.parse(value);
+  } catch {
+    return { message: value };
+  }
+}
+
+const refreshAccessToken = async ({ tokens, webServer, setTokens }: any) => {
+  const refreshToken = String(tokens?.refresh_token ?? '').trim()
+  if (!refreshToken) {
+    return null
+  }
+
+  const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
+    method: "POST",
+    body: JSON.stringify({
+      token: refreshToken,
+    }),
+  })
+
+  const refreshJson = await refreshResponse.text()
+  const refreshObj = parseJsonResponse(refreshJson)
+
+  if (!refreshResponse.ok || !refreshObj?.access_token || !refreshObj?.refresh_token) {
+    return null
+  }
+
+  setTokens({
+    ...tokens,
+    access_token: refreshObj.access_token,
+    refresh_token: refreshObj.refresh_token,
+  })
+
+  return refreshObj.access_token
+}
+
+const isExpiredTokenResponse = (response: Response, responseMessage: string) =>
+  !response.ok &&
+  (response.status === 401 ||
+    (response.status === 400 || response.status === 403) &&
+      tokenRefreshMessagePattern.test(String(responseMessage ?? '').toLowerCase()))
+
+const requestWithRefresh = async ({ request, tokens, webServer, setTokens }: any) => {
+  const accessToken = String(tokens?.access_token ?? '').trim()
+  if (!accessToken) {
+    return { response: null, body: {} }
+  }
+
+  let response = await request(accessToken)
+  let body = parseJsonResponse(await response.text())
+  const responseMessage = String(body?.message || body?.error || '').trim()
+
+  if (isExpiredTokenResponse(response, responseMessage)) {
+    console.log("Access token expired, requesting new one - ProfileScreenForm requestWithRefresh()");
+    const refreshedAccessToken = await refreshAccessToken({ tokens, webServer, setTokens })
+
+    if (!refreshedAccessToken) {
+      return { response: null, body: {} }
+    }
+
+    response = await request(refreshedAccessToken)
+    body = parseJsonResponse(await response.text())
+  }
+
+  return { response, body }
+}
+
 // ============================================================================
 // COMPONENT
 // ============================================================================
@@ -216,7 +291,7 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
           refreshAttempted: false,
           originalRequestRetried: isRetry,
         });
-        const obj = json ? JSON.parse(json) : {};
+        const obj = parseJsonResponse(json);
         const payload = obj?.data ?? obj?.profile_fields ?? obj?.profileFields ?? null;
         console.log("Fetched user data:", payload);
 
@@ -254,35 +329,22 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
 
         const responseMessage = String(obj?.message || obj?.error || "").trim();
 
-        if (response.status === 401 && /expired|invalid/i.test(responseMessage) && tokens?.refresh_token) {
+        if (isExpiredTokenResponse(response, responseMessage) && tokens?.refresh_token) {
           logGymRequestDiagnostics(requestContext, "response", {
             refreshAttempted: true,
             originalRequestRetried: isRetry,
             tokenRefreshAttempted: true,
           });
 
-          const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
-            method: "POST",
-            body: JSON.stringify({
-              token: tokens.refresh_token,
-            }),
-          });
-
-          const refreshJson = await refreshResponse.text();
-          logGymRefreshResponse(requestContext, refreshResponse.status, refreshJson, {
+          const refreshedAccessToken = await refreshAccessToken({ tokens, webServer, setTokens });
+          logGymRefreshResponse(requestContext, refreshedAccessToken ? 200 : 400, '', {
             tokenRefreshAttempted: true,
-            tokenRefreshSucceeded: refreshResponse.status === 200,
+            tokenRefreshSucceeded: Boolean(refreshedAccessToken),
             originalRequestRetried: isRetry,
           });
-          const refreshObj = refreshJson ? JSON.parse(refreshJson) : {};
 
-          if (refreshResponse.status == 200) {
-            setTokens({
-              ...tokens,
-              access_token: refreshObj.access_token,
-              refresh_token: refreshObj.refresh_token,
-            });
-            await fetchUserData(refreshObj.access_token, true);
+          if (refreshedAccessToken) {
+            await fetchUserData(refreshedAccessToken, true);
           }
           return;
         }
@@ -359,24 +421,11 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
       return;
     }
 
-    if (firstResponse.status === 401 && tokens.refresh_token) {
-      const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
-        method: "POST",
-        body: JSON.stringify({
-          token: tokens.refresh_token,
-        }),
-      });
+    if (isExpiredTokenResponse(firstResponse, String(firstJson?.message || firstJson?.error || "")) && tokens.refresh_token) {
+      const refreshedAccessToken = await refreshAccessToken({ tokens, webServer, setTokens });
 
-      const refreshJson = parseJson(await refreshResponse.text());
-
-      if (refreshResponse.ok && refreshJson?.access_token) {
-        setTokens({
-          ...tokens,
-          access_token: refreshJson.access_token,
-          refresh_token: refreshJson.refresh_token,
-        });
-
-        const retryResponse = await performDelete(refreshJson.access_token);
+      if (refreshedAccessToken) {
+        const retryResponse = await performDelete(refreshedAccessToken);
         const retryJson = parseJson(await retryResponse.text());
 
         if (retryResponse.ok) {
@@ -511,14 +560,7 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
     );
 
     const json = await response.text();
-    let obj: any = {};
-    if (json) {
-      try {
-        obj = JSON.parse(json);
-      } catch {
-        obj = { message: json };
-      }
-    }
+    let obj: any = parseJsonResponse(json);
 
     if (response.ok) {
       showMessage({
@@ -532,35 +574,40 @@ const ProfileScreenForm = ({ navigation }: { navigation: any }) => {
 
     const responseMessage = String(obj?.message || obj?.error || 'Unable to update profile.').trim();
 
-    if (response.status === 401 && /expired|invalid/i.test(responseMessage)) {
-      const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
-        method: "POST",
-        body: JSON.stringify({
-          token: tokens.refresh_token,
-        }),
-      });
+    if (isExpiredTokenResponse(response, responseMessage) && tokens?.refresh_token) {
+      const refreshedAccessToken = await refreshAccessToken({ tokens, webServer, setTokens });
 
-      const refreshJson = await refreshResponse.text();
-      let refreshObj: any = {};
-      if (refreshJson) {
-        try {
-          refreshObj = JSON.parse(refreshJson);
-        } catch {
-          refreshObj = {};
+      if (refreshedAccessToken) {
+        const retryResponse = await fetch(
+          `${webServer}/api/v1/gyms/${authenticatedGymId}/users/${authenticatedUserId}`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: "Bearer " + refreshedAccessToken,
+            },
+            body: formData,
+          },
+        );
+
+        const retryJson = await retryResponse.text();
+        const retryObj: any = parseJsonResponse(retryJson);
+
+        if (retryResponse.ok) {
+          showMessage({
+            message: retryObj?.message,
+            type: "success",
+            autoHide: true, // prevents the message from disappearing automatically
+            onPress: () => hideMessage(), // closes the message when pressed
+          });
+          return;
         }
-      }
 
-      if (refreshResponse.status == 200) {
-        setTokens({
-          ...tokens,
-          access_token: refreshObj.access_token,
-          refresh_token: refreshObj.refresh_token,
-        });
         showMessage({
-          message: "Session refreshed",
-          description: "Please try saving your profile again.",
-          type: "info",
-          autoHide: true,
+          message: retryResponse.status === 403 ? "Forbidden" : "Action Failed",
+          description: String(retryObj?.message || retryObj?.error || 'Unable to update profile.').trim(),
+          type: "danger",
+          icon: "danger",
+          autoHide: false,
         });
         return;
       }
