@@ -1,5 +1,6 @@
 // @ts-nocheck
 import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, ActivityIndicator, useWindowDimensions } from 'react-native'
+import { normalizeUserRole } from '../../utils/roleAccess'
 import { useState, useCallback, useContext } from 'react'
 import { Alert, Linking } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -26,7 +27,7 @@ const buildImageSlots = (images = [], webServer) => {
     isPlaceholder: false,
     source: { uri: resolveEquipmentImageUri(webServer, img?.image_url) },
   }));
-  
+
   for (let i = slots.length; i < 5; i++) {
     slots.push({ id: `placeholder-${i}`, isPlaceholder: true });
   }
@@ -44,71 +45,73 @@ const EquipmentDetailScreen = ({ navigation, route }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [notFound, setNotFound] = useState(false);
+  const role = normalizeUserRole(user?.role);
+  const canEditStaff = role === 'owner';
 
   useFocusEffect(
     useCallback(() => {
-    const fetchEquipment = async () => {
-      setIsLoading(true);
-      setError('');
-      setNotFound(false);
+      const fetchEquipment = async () => {
+        setIsLoading(true);
+        setError('');
+        setNotFound(false);
 
-      try {
-        if (!equipmentId) {
-          setIsLoading(false);
-          setNotFound(true);
-          return;
-        }
+        try {
+          if (!equipmentId) {
+            setIsLoading(false);
+            setNotFound(true);
+            return;
+          }
 
-        const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/equipment/${equipmentId}`, {
-          headers: {
-            Authorization: "Bearer " + tokens.access_token,
-          },
-        });
-
-        if (response.status === 404) {
-          setNotFound(true);
-          return;
-        }
-
-        const data = await response.json();
-
-        if (response.status === 200) {
-          setEquipment(data.data);
-          setSelectedImageIndex(0);
-        }
-        else {
-          console.log("Access token expired, requesting new one - useFocusEffect()");
-
-          const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
-            method: "POST",
-            body: JSON.stringify({
-              token: tokens.refresh_token,
-            }),
+          const response = await fetch(`${webServer}/api/v1/gyms/${user.gym_id}/equipment/${equipmentId}`, {
+            headers: {
+              Authorization: "Bearer " + tokens.access_token,
+            },
           });
 
-          const refreshObj = await refreshResponse.json();
+          if (response.status === 404) {
+            setNotFound(true);
+            return;
+          }
 
-          if (refreshResponse.status === 200) {
-            console.log("Got new access token and refresh token");
-            setTokens((prev: any) => ({
-              ...prev,
-              access_token: refreshObj.access_token,
-              refresh_token: refreshObj.refresh_token,
-            }));
+          const data = await response.json();
+
+          if (response.status === 200) {
+            setEquipment(data.data);
+            setSelectedImageIndex(0);
           }
           else {
-            setError('Unable to load equipment. Please try again.');
-          }
-        }
-      } catch (error) {
-        console.log('EquipmentDetailScreen equipment error: ', error);
-        setError('Unable to load equipment. Please check your connection and try again.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
+            console.log("Access token expired, requesting new one - useFocusEffect()");
 
-    fetchEquipment();
+            const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
+              method: "POST",
+              body: JSON.stringify({
+                token: tokens.refresh_token,
+              }),
+            });
+
+            const refreshObj = await refreshResponse.json();
+
+            if (refreshResponse.status === 200) {
+              console.log("Got new access token and refresh token");
+              setTokens((prev: any) => ({
+                ...prev,
+                access_token: refreshObj.access_token,
+                refresh_token: refreshObj.refresh_token,
+              }));
+            }
+            else {
+              setError('Unable to load equipment. Please try again.');
+            }
+          }
+        } catch (error) {
+          console.log('EquipmentDetailScreen equipment error: ', error);
+          setError('Unable to load equipment. Please check your connection and try again.');
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      fetchEquipment();
     }, [tokens?.access_token, tokens?.refresh_token, equipmentId, user?.gym_id, webServer, setTokens])
   );
 
@@ -152,15 +155,17 @@ const EquipmentDetailScreen = ({ navigation, route }) => {
       <SafeAreaView style={styles.container}>
         <View style={styles.navs}>
           <Feather name="arrow-left" color={AppColors.blue} size={36} onPress={() => navigation.goBack()} />
-          <View style={styles.headerActions}>
-            <TouchableOpacity
-              style={styles.editIconButton}
-              onPress={handleEditPress}
-              activeOpacity={0.8}
-            >
-              <Feather name="edit-2" color={AppColors.blue} size={18} />
-            </TouchableOpacity>
-          </View>
+          {canEditStaff ? (
+            <View style={styles.headerActions}>
+              <TouchableOpacity
+                style={styles.editIconButton}
+                onPress={handleEditPress}
+                activeOpacity={0.8}
+              >
+                <Feather name="edit-2" color={AppColors.blue} size={18} />
+              </TouchableOpacity>
+            </View>
+          ) : null}
         </View>
 
         {isLoading ? (
