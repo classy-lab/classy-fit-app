@@ -409,34 +409,68 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
     setGenerating(true)
 
     try {
-      const response = await performAuthenticatedRequest(
-        `${webServer}/api/v1/personal-training/management/sessions/generate`,
-        { method: 'POST' }
-      )
+      const generateSessions = async (accessToken: string) => {
+        const headers = new Headers()
+        headers.set('Authorization', `Bearer ${accessToken}`)
 
-      if (!response) {
-        showMessage({
-          message: 'Authentication required',
-          description: 'Please sign in again to generate personal training sessions.',
-          type: 'danger',
+        return fetch(`${webServer}/api/v1/personal-training/management/sessions/generate`, {
+          method: 'POST',
+          headers,
         })
-        return
       }
 
-      const responseText = await response.text()
-      let responseBody: { message?: string; totals?: GenerationTotals } = {}
-      if (responseText) {
+      const parseResponseBody = async (response: Response) => {
+        const responseText = await response.text()
+        if (!responseText) {
+          return {}
+        }
+
         try {
-          responseBody = JSON.parse(responseText)
+          return JSON.parse(responseText)
         } catch {
-          responseBody = { message: responseText }
+          return { message: responseText }
+        }
+      }
+
+      let response = await generateSessions(String(tokens?.access_token ?? '').trim())
+      let responseBody: { message?: string; totals?: GenerationTotals } = await parseResponseBody(response)
+
+      if (response.status !== 200) {
+        console.log('Access token expired, requesting new one - generateUpcomingSessions()')
+
+        const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
+          method: 'POST',
+          body: JSON.stringify({
+            token: tokens?.refresh_token,
+          }),
+        })
+
+        const refreshObj = await refreshResponse.json()
+
+        if (refreshResponse.status === 200) {
+          console.log('Got new access token and refresh token')
+          setTokens((prev: RefreshTokens | null) => ({
+            ...(prev ?? {}),
+            access_token: refreshObj.access_token,
+            refresh_token: refreshObj.refresh_token,
+          }))
+
+          response = await generateSessions(String(refreshObj.access_token ?? '').trim())
+          responseBody = await parseResponseBody(response)
+        } else {
+          showMessage({
+            message: 'Authentication required',
+            description: 'Please sign in again to generate personal training sessions.',
+            type: 'danger',
+          })
+          return
         }
       }
 
       if (response.status === 200 && responseBody?.totals) {
         const summary = buildGenerationSummary(responseBody.totals)
         showMessage({
-          message: summary.hasProblems ? 'Sessions generated with issues' : 'Sessions up to date',
+          message: summary.hasProblems ? 'Sessions generated with warnings' : 'Sessions up to date',
           description: summary.description,
           type: summary.hasProblems ? 'warning' : 'success',
           duration: 6000,
@@ -446,15 +480,6 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
       }
 
       const message = responseBody?.message || 'Unable to generate personal training sessions.'
-
-      if (response.status === 401) {
-        showMessage({
-          message: 'Authentication required',
-          description: 'Please sign in again to generate personal training sessions.',
-          type: 'danger',
-        })
-        return
-      }
 
       if (response.status === 403) {
         showMessage({
