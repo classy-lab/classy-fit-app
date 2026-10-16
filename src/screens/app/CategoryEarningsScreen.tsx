@@ -164,7 +164,7 @@ const CategoryEarningsScreen = ({ navigation, route }) => {
 
   const fetchPage = useCallback(
     async (period: EarningsPeriod, pageNumber: number) => {
-      const response = await performAuthenticatedRequest({
+      const response = await performAuthenticatedRequestWithRefresh({
         endpoint: `${webServer}/api/v1/gyms/${user.gym_id}/earnings/${category}?period=${period}&page=${pageNumber}&per_page=${PAGE_SIZE}`,
         init: { method: 'GET' },
         accessToken: tokens.access_token,
