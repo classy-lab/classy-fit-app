@@ -17,6 +17,7 @@ import { showMessage } from 'react-native-flash-message'
 import Feather from '@expo/vector-icons/Feather'
 import { SelectList } from 'react-native-dropdown-select-list'
 import { AppColors } from '../../styles/colors'
+import { APP_CURRENCY_CODE } from '../../utils/currency'
 import { UserContext } from '../../context/UserContext'
 import DateOfBirthField from '../../components/forms/input_fields/DateOfBirthField'
 import TimePickerField from '../../components/forms/input_fields/TimePickerField'
@@ -467,7 +468,7 @@ const AddPersonalTrainingSessionScreen = ({ navigation }: { navigation: AddPerso
         start_at: buildDateTimeValue(String(formData.session_start_date ?? ''), String(formData.session_start_time ?? '')),
         end_at: buildDateTimeValue(String(formData.session_end_date ?? ''), String(formData.session_end_time ?? '')),
         price: Number.parseFloat(String(formData.price ?? '0')),
-        currency_code: String(formData.currency_code ?? 'USD').trim().toUpperCase(),
+        currency_code: APP_CURRENCY_CODE,
         location: location === '' ? null : location,
         additional_notes: additionalNotes === '' ? null : additionalNotes,
         status: formData.status ?? 'scheduled',

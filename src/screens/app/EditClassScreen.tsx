@@ -18,6 +18,7 @@ import * as yup from 'yup'
 import { Feather } from '@expo/vector-icons'
 import { showMessage } from 'react-native-flash-message'
 import { AppColors } from '../../styles/colors'
+import { APP_CURRENCY_CODE, formatUsdOrFree } from '../../utils/currency'
 import { UserContext } from '../../context/UserContext'
 
 const normalizeToken = (value) => String(value ?? '').trim()
@@ -355,15 +356,7 @@ const normalizeStatus = (value?: string | null) => {
   return normalized === 'inactive' ? 'inactive' : 'active'
 }
 
-const formatPrice = (value?: number | string | null, currencyCode?: string | null) => {
-  const price = Number(value ?? 0)
-  if (price <= 0) {
-    return 'Free'
-  }
-
-  const currency = String(currencyCode ?? '').trim().toUpperCase()
-  return `${price.toFixed(2)} ${currency}`.trim()
-}
+const formatPrice = (value?: number | string | null) => formatUsdOrFree(value)
 
 const isUpcomingSession = (session: ClassSessionRecord) => {
   const parsed = parseDateTime(session?.start_at)
@@ -446,7 +439,7 @@ const EditClassScreen = ({ navigation, route }: { navigation: EditClassNavigatio
         duration_minutes: String(classData.duration_minutes ?? ''),
         capacity: String(classData.capacity ?? ''),
         price: Number(classData.price ?? 0).toFixed(2),
-        currency_code: String(classData.currency_code ?? 'USD').trim().toUpperCase(),
+        currency_code: APP_CURRENCY_CODE,
         status: normalizeStatus(classData.status),
       })
     },
@@ -636,7 +629,7 @@ const EditClassScreen = ({ navigation, route }: { navigation: EditClassNavigatio
             duration_minutes: Number.parseInt(String(formData.duration_minutes ?? ''), 10),
             capacity: Number.parseInt(String(formData.capacity ?? ''), 10),
             price: Number.parseFloat(String(formData.price ?? '')),
-            currency_code: String(formData.currency_code ?? 'USD').trim().toUpperCase(),
+            currency_code: APP_CURRENCY_CODE,
             status: formData.status,
           }),
         })
@@ -748,15 +741,7 @@ const EditClassScreen = ({ navigation, route }: { navigation: EditClassNavigatio
     return normalized.charAt(0).toUpperCase() + normalized.slice(1)
   }
 
-  const renderSessionPrice = (session: ClassSessionRecord) => {
-    const price = Number(session?.price ?? 0)
-    if (price <= 0) {
-      return 'Free'
-    }
-
-    const currency = String(session?.currency_code ?? '').trim().toUpperCase()
-    return `${price.toFixed(2)} ${currency}`.trim()
-  }
+  const renderSessionPrice = (session: ClassSessionRecord) => formatUsdOrFree(session?.price)
 
   const upcomingSessions = useMemo(() => sessions.filter(isUpcomingSession), [sessions])
   const pastSessions = useMemo(() => sessions.filter((session) => !isUpcomingSession(session)), [sessions])
@@ -923,24 +908,13 @@ const EditClassScreen = ({ navigation, route }: { navigation: EditClassNavigatio
                   </View>
 
                   <View style={[styles.field, styles.rowField]}>
-                    <Text style={styles.label}>Currency Code</Text>
-                    <Controller
-                      control={control}
-                      name="currency_code"
-                      render={({ field: { onChange, onBlur, value } }) => (
-                        <TextInput
-                          value={value}
-                          onBlur={onBlur}
-                          onChangeText={(text) => onChange(text.toUpperCase())}
-                          placeholder="USD"
-                          placeholderTextColor={AppColors.grey3}
-                          style={styles.input}
-                          autoCapitalize="characters"
-                          maxLength={3}
-                        />
-                      )}
+                    <Text style={styles.label}>Currency</Text>
+                    <TextInput
+                      value={APP_CURRENCY_CODE}
+                      editable={false}
+                      placeholderTextColor={AppColors.grey3}
+                      style={styles.input}
                     />
-                    {errors.currency_code ? <Text style={styles.errorText}>{errors.currency_code.message}</Text> : null}
                   </View>
                 </View>
 
@@ -1082,7 +1056,7 @@ const EditClassScreen = ({ navigation, route }: { navigation: EditClassNavigatio
 
                           <View style={styles.metaItem}>
                             <Text style={styles.metaLabel}>Price</Text>
-                            <Text style={styles.metaValue}>{formatPrice(session?.price, session?.currency_code)}</Text>
+                            <Text style={styles.metaValue}>{formatPrice(session?.price)}</Text>
                           </View>
                         </View>
 

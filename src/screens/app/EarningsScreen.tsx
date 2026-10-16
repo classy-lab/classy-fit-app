@@ -20,6 +20,7 @@ import { BarChart, PieChart } from 'react-native-gifted-charts'
 import { AppColors } from '../../styles/colors'
 import SignOut from '../../components/utils/SignOut'
 import { UserContext } from '../../context/UserContext'
+import { formatUsd } from '../../utils/currency'
 import {
   NEGATIVE_COLOR,
   PERIOD_OPTIONS,
@@ -373,27 +374,8 @@ const EarningsScreen = ({ navigation }) => {
     }).start()
   }, [donutAnim, earnings, isLoading])
 
-  const currencyFormatter = useMemo(() => {
-    const currencyCode = earnings?.currency ?? 'USD'
-    try {
-      return new Intl.NumberFormat(undefined, {
-        style: 'currency',
-        currency: currencyCode,
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      })
-    } catch {
-      return new Intl.NumberFormat(undefined, {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      })
-    }
-  }, [earnings?.currency])
-
-  const formatCurrency = useCallback(
-    (value: number) => currencyFormatter.format(value),
-    [currencyFormatter]
-  )
+  // USD only: earnings are always formatted as US dollars regardless of device locale.
+  const formatCurrency = useCallback((value: number) => formatUsd(value), [])
 
   const totalRevenue = earnings?.totals.revenue ?? 0
   const transactionCount = earnings?.totals.transaction_count ?? 0

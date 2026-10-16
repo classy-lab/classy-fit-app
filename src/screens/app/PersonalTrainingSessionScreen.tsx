@@ -14,6 +14,7 @@ import { Feather } from '@expo/vector-icons'
 import { useStripe } from '@stripe/stripe-react-native'
 import { showMessage } from 'react-native-flash-message'
 import { AppColors } from '../../styles/colors'
+import { formatUsd } from '../../utils/currency'
 import { UserContext } from '../../context/UserContext'
 import { getMemberPersonalTrainingTitle } from '../../components/utils/personalTrainingDisplay'
 
@@ -388,7 +389,7 @@ const PersonalTrainingSessionScreen = ({
   const isFree = price <= 0
   const priceLabel = isFree
     ? 'Free'
-    : `${price.toFixed(2)} ${String(session?.currency_code ?? '').toUpperCase()}`
+    : formatUsd(price)
   const location = String(session?.location ?? '').trim()
   const additionalNotes = String(session?.additional_notes ?? '').trim()
   const bookingButtonLabel = isFree ? 'Book Session' : 'Pay & Book Session'

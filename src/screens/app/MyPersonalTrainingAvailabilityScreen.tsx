@@ -14,6 +14,7 @@ import { useFocusEffect } from '@react-navigation/native'
 import { Feather } from '@expo/vector-icons'
 import { showMessage } from 'react-native-flash-message'
 import { AppColors } from '../../styles/colors'
+import { formatUsd } from '../../utils/currency'
 import { UserContext } from '../../context/UserContext'
 import { canManagePersonalTraining, isOwnerRole } from '../../utils/roleAccess'
 
@@ -170,6 +171,8 @@ type AvailabilityRule = {
   end_time_local: string
   effective_start_date: string
   effective_end_date?: string | null
+  trainer_hourly_price?: number | null
+  trainer_hourly_currency_code?: string | null
   status: string
 }
 
@@ -562,6 +565,14 @@ const MyPersonalTrainingAvailabilityScreen = ({ navigation }: { navigation: MyPe
                             <Text style={styles.metaValue}>{trainerName || 'Unknown trainer'}</Text>
                           </View>
                         ) : null}
+                        <View style={styles.metaItem}>
+                          <Text style={styles.metaLabel}>Hourly rate</Text>
+                          <Text style={styles.metaValue}>
+                            {rule.trainer_hourly_price != null
+                              ? `${formatUsd(rule.trainer_hourly_price)} per hour`
+                              : 'No standard hourly rate set.'}
+                          </Text>
+                        </View>
                         <View style={styles.metaItem}>
                           <Text style={styles.metaLabel}>From</Text>
                           <Text style={styles.metaValue}>{formatLocalDate(rule.effective_start_date)}</Text>

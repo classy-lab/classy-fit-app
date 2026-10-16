@@ -13,6 +13,7 @@ import { Feather } from '@expo/vector-icons'
 import { useStripe } from '@stripe/stripe-react-native'
 import { showMessage } from 'react-native-flash-message'
 import { AppColors } from '../../styles/colors'
+import { formatUsd } from '../../utils/currency'
 import { UserContext } from '../../context/UserContext'
 
 const normalizeToken = (value) => String(value ?? '').trim()
@@ -177,7 +178,7 @@ const ClassSessionScreen = ({ navigation, route }) => {
   const isFree = price <= 0
   const priceLabel = isFree
     ? 'Free'
-    : `${price.toFixed(2)} ${String(session?.currency_code ?? '').toUpperCase()}`
+    : formatUsd(price)
 
   const refreshAccessToken = async () => {
     return refreshAccessTokenWithRefresh({

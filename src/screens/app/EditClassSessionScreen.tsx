@@ -18,6 +18,7 @@ import { SelectList } from 'react-native-dropdown-select-list'
 import { Feather } from '@expo/vector-icons'
 import { showMessage } from 'react-native-flash-message'
 import { AppColors } from '../../styles/colors'
+import { APP_CURRENCY_CODE, formatUsdOrFree } from '../../utils/currency'
 import { UserContext } from '../../context/UserContext'
 import DateOfBirthField from '../../components/forms/input_fields/DateOfBirthField'
 import TimePickerField from '../../components/forms/input_fields/TimePickerField'
@@ -394,15 +395,7 @@ const renderSessionStatusLabel = (status?: string | null) => {
   return normalized.charAt(0).toUpperCase() + normalized.slice(1)
 }
 
-const renderPrice = (priceValue?: number | string | null, currencyCode?: string | null) => {
-  const price = Number(priceValue ?? 0)
-  if (price <= 0) {
-    return 'Free'
-  }
-
-  const currency = String(currencyCode ?? '').trim().toUpperCase()
-  return `${price.toFixed(2)} ${currency}`.trim()
-}
+const renderPrice = (priceValue?: number | string | null) => formatUsdOrFree(priceValue)
 
 const EditClassSessionScreen = ({ navigation, route }: { navigation: EditClassSessionNavigation; route: EditClassSessionRoute }) => {
   const { user, tokens, setTokens, webServer } = useContext(UserContext) as UserContextValue
@@ -493,7 +486,7 @@ const EditClassSessionScreen = ({ navigation, route }: { navigation: EditClassSe
       additional_notes: String(session?.additional_notes ?? ''),
       capacity: session?.capacity !== null && session?.capacity !== undefined ? String(session.capacity) : '',
       price: session?.price !== null && session?.price !== undefined ? Number(session.price).toFixed(2) : '',
-      currency_code: String(session?.currency_code ?? 'USD').trim().toUpperCase() || 'USD',
+      currency_code: APP_CURRENCY_CODE,
       status: (String(session?.status ?? 'scheduled').trim().toLowerCase() as EditClassSessionFormInput['status']) || 'scheduled',
     })
     setActiveBookingCount(Number(session?.active_booking_count ?? 0))
@@ -680,7 +673,7 @@ const EditClassSessionScreen = ({ navigation, route }: { navigation: EditClassSe
             additional_notes: notesValue === '' ? null : notesValue,
             capacity: requestedCapacity,
             price: Number.parseFloat(String(formData.price ?? '')),
-            currency_code: String(formData.currency_code ?? 'USD').trim().toUpperCase(),
+            currency_code: APP_CURRENCY_CODE,
             status: formData.status ?? 'scheduled',
           }),
         })
@@ -834,7 +827,7 @@ const EditClassSessionScreen = ({ navigation, route }: { navigation: EditClassSe
                 <View style={styles.sectionHeaderText}>
                   <Text style={styles.sectionTitle}>{currentSession?.class_name || 'Class session'}</Text>
                   <Text style={styles.sectionSubtitle}>
-                    {renderPrice(currentSession?.price, currentSession?.currency_code)}
+                    {renderPrice(currentSession?.price)}
                   </Text>
                 </View>
                 <View
@@ -1053,24 +1046,13 @@ const EditClassSessionScreen = ({ navigation, route }: { navigation: EditClassSe
 
               <View style={styles.row}>
                 <View style={[styles.field, styles.rowField]}>
-                  <Text style={styles.label}>Currency Code</Text>
-                  <Controller
-                    control={control}
-                    name="currency_code"
-                    render={({ field: { onChange, onBlur, value } }) => (
-                      <TextInput
-                        value={value}
-                        onBlur={onBlur}
-                        onChangeText={(text) => onChange(text.toUpperCase())}
-                        placeholder="USD"
-                        placeholderTextColor={AppColors.grey3}
-                        style={styles.input}
-                        autoCapitalize="characters"
-                        maxLength={3}
-                      />
-                    )}
+                  <Text style={styles.label}>Currency</Text>
+                  <TextInput
+                    value={APP_CURRENCY_CODE}
+                    editable={false}
+                    placeholderTextColor={AppColors.grey3}
+                    style={styles.input}
                   />
-                  {errors.currency_code ? <Text style={styles.errorText}>{errors.currency_code.message}</Text> : null}
                 </View>
 
                 <View style={[styles.field, styles.rowField]}>

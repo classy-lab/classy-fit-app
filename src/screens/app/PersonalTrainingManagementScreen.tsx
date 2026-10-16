@@ -14,6 +14,7 @@ import { useFocusEffect } from '@react-navigation/native'
 import { Feather } from '@expo/vector-icons'
 import { showMessage } from 'react-native-flash-message'
 import { AppColors } from '../../styles/colors'
+import { formatUsdOrFree } from '../../utils/currency'
 import { UserContext } from '../../context/UserContext'
 import { getOwnerPersonalTrainingTitle } from '../../components/utils/personalTrainingDisplay'
 import { canManagePersonalTraining } from '../../utils/roleAccess'
@@ -178,6 +179,7 @@ type ManagedPersonalTrainingSession = {
   status?: SessionStatus
   booked_count?: number | null
   is_available?: boolean | null
+  is_generated?: boolean | null
   created_at?: string | null
   updated_at?: string | null
 }
@@ -235,7 +237,9 @@ const buildGenerationSummary = (totals: GenerationTotals) => {
     lines.push('Upcoming sessions are already generated.')
   }
   if (conflicts > 0) lines.push(`${pluralize(conflicts, 'conflict')}.`)
-  if (missingPricing > 0) lines.push(`${pluralize(missingPricing, 'rule')} skipped because pricing is missing.`)
+  if (missingPricing > 0) {
+    lines.push(`${pluralize(missingPricing, 'rule')} skipped because the trainer has no standard hourly rate set. Set it from the trainer's staff profile.`)
+  }
   if (invalidTimezone > 0) {
     lines.push(`${pluralize(invalidTimezone, 'rule')} skipped because the gym time zone is missing or invalid.`)
   }
@@ -310,7 +314,9 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
   const [deletingSessionUid, setDeletingSessionUid] = useState<number | null>(null)
   const [cancellingSessionUid, setCancellingSessionUid] = useState<number | null>(null)
   const [generating, setGenerating] = useState(false)
-  const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming')
+  const [bulkCancellingTrainer, setBulkCancellingTrainer] = useState<number | null>(null)
+  const [deletingCancelled, setDeletingCancelled] = useState(false)
+  const [activeTab, setActiveTab] = useState<'upcoming' | 'past' | 'cancelled'>('upcoming')
 
   const canManage = canManagePersonalTraining(user?.role)
 
@@ -764,14 +770,179 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
     )
   }
 
-  const renderPrice = (session: ManagedPersonalTrainingSession) => {
-    const price = Number(session?.price ?? 0)
-    if (price <= 0) {
-      return 'Free'
+  const renderPrice = (session: ManagedPersonalTrainingSession) => formatUsdOrFree(session?.price)
+
+  // Cancels one trainer's upcoming generated sessions that nobody has booked. Booked and manual sessions are kept.
+  const cancelUnbookedForTrainer = async (trainerGymUserId: number) => {
+    if (bulkCancellingTrainer !== null) {
+      return
     }
 
-    const currency = String(session?.currency_code ?? '').trim().toUpperCase()
-    return `${price.toFixed(2)} ${currency}`.trim()
+    setBulkCancellingTrainer(trainerGymUserId)
+
+    try {
+      const response = await performAuthenticatedRequest(
+        `${webServer}/api/v1/personal-training/management/sessions/cancel-unbooked`,
+        {
+          method: 'POST',
+          body: JSON.stringify({ trainer_gym_user_id: trainerGymUserId }),
+        }
+      )
+
+      if (!response) {
+        showMessage({
+          message: 'Authentication required',
+          description: 'Please sign in again to cancel personal training sessions.',
+          type: 'danger',
+        })
+        return
+      }
+
+      const responseText = await response.text()
+      let responseBody: { message?: string; cancelled?: number; skipped_booked?: number; settlement_failed?: number } = {}
+      if (responseText) {
+        try {
+          responseBody = JSON.parse(responseText)
+        } catch {
+          responseBody = { message: responseText }
+        }
+      }
+
+      if (response.status === 200) {
+        const cancelled = Number(responseBody?.cancelled ?? 0)
+        const skipped = Number(responseBody?.skipped_booked ?? 0)
+        showMessage({
+          message: cancelled > 0 ? 'Sessions cancelled' : 'Nothing to cancel',
+          description:
+            `${pluralize(cancelled, 'unbooked session')} cancelled.` +
+            (skipped > 0 ? ` ${pluralize(skipped, 'session')} kept because of a booking.` : ''),
+          type: 'success',
+        })
+        await loadSessions()
+        return
+      }
+
+      showMessage({
+        message: 'Cancel failed',
+        description: responseBody?.message || 'Unable to cancel the unbooked sessions.',
+        type: 'danger',
+      })
+    } catch {
+      showMessage({
+        message: 'Cancel failed',
+        description: 'Unable to cancel the unbooked sessions.',
+        type: 'danger',
+      })
+    } finally {
+      setBulkCancellingTrainer(null)
+    }
+  }
+
+  // Permanently removes cancelled sessions that never had a booking. Ones with booking history are kept.
+  const deleteAllCancelledSessions = async () => {
+    if (deletingCancelled) {
+      return
+    }
+
+    setDeletingCancelled(true)
+
+    try {
+      const response = await performAuthenticatedRequest(
+        `${webServer}/api/v1/personal-training/management/sessions/delete-cancelled`,
+        { method: 'POST', body: JSON.stringify({}) }
+      )
+
+      if (!response) {
+        showMessage({
+          message: 'Authentication required',
+          description: 'Please sign in again to delete personal training sessions.',
+          type: 'danger',
+        })
+        return
+      }
+
+      const responseText = await response.text()
+      let responseBody: { message?: string; deleted?: number; kept_with_booking_history?: number } = {}
+      if (responseText) {
+        try {
+          responseBody = JSON.parse(responseText)
+        } catch {
+          responseBody = { message: responseText }
+        }
+      }
+
+      if (response.status === 200) {
+        const deleted = Number(responseBody?.deleted ?? 0)
+        const kept = Number(responseBody?.kept_with_booking_history ?? 0)
+        showMessage({
+          message: deleted > 0 ? 'Cancelled sessions deleted' : 'Nothing to delete',
+          description:
+            `${pluralize(deleted, 'cancelled session')} deleted.` +
+            (kept > 0 ? ` ${pluralize(kept, 'session')} kept because they have booking history.` : ''),
+          type: 'success',
+        })
+        await loadSessions()
+        return
+      }
+
+      showMessage({
+        message: 'Delete failed',
+        description: responseBody?.message || 'Unable to delete the cancelled sessions.',
+        type: 'danger',
+      })
+    } catch {
+      showMessage({
+        message: 'Delete failed',
+        description: 'Unable to delete the cancelled sessions.',
+        type: 'danger',
+      })
+    } finally {
+      setDeletingCancelled(false)
+    }
+  }
+
+  const confirmDeleteAllCancelled = (count: number) => {
+    if (deletingCancelled) {
+      return
+    }
+
+    Alert.alert(
+      'Delete all cancelled sessions?',
+      `This permanently deletes up to ${pluralize(count, 'cancelled session')}. Sessions that have booking history are kept so payment records stay intact. If a trainer still has availability covering these times, Generate Upcoming Sessions can create them again, so remove that availability first. This cannot be undone.`,
+      [
+        { text: 'Keep Them', style: 'cancel' },
+        {
+          text: 'Delete All',
+          style: 'destructive',
+          onPress: () => {
+            void deleteAllCancelledSessions()
+          },
+        },
+      ],
+      { cancelable: true }
+    )
+  }
+
+  const confirmCancelUnbooked = (trainer: { trainerGymUserId: number; name: string; count: number }) => {
+    if (bulkCancellingTrainer !== null) {
+      return
+    }
+
+    Alert.alert(
+      'Cancel unbooked sessions?',
+      `This cancels ${pluralize(trainer.count, 'upcoming unbooked session')} for ${trainer.name}. Sessions that someone has booked, and sessions you added by hand, are not changed. Cancelled sessions cannot be re-created by the generator.`,
+      [
+        { text: 'Keep Sessions', style: 'cancel' },
+        {
+          text: 'Cancel Sessions',
+          style: 'destructive',
+          onPress: () => {
+            void cancelUnbookedForTrainer(trainer.trainerGymUserId)
+          },
+        },
+      ],
+      { cancelable: true }
+    )
   }
 
   const isUpcomingSession = (session: ManagedPersonalTrainingSession) => {
@@ -783,10 +954,36 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
     return sessionDate.getTime() > Date.now()
   }
 
-  const upcomingSessions = sessions.filter(isUpcomingSession)
-  const pastSessions = sessions.filter((session) => !isUpcomingSession(session))
-  const visibleSessions = activeTab === 'upcoming' ? upcomingSessions : pastSessions
-  const activeSessionsLabel = activeTab === 'upcoming' ? 'Upcoming' : 'Past'
+  // A cancelled session with nothing left to settle belongs under Cancelled. One that still has a booking stays in
+  // Upcoming/Past because it needs "Retry Cancellation".
+  const isSettledCancelled = (session: ManagedPersonalTrainingSession) =>
+    String(session?.status ?? '').trim().toLowerCase() === 'cancelled' && Number(session?.booked_count ?? 0) === 0
+
+  const cancelledSessions = sessions.filter(isSettledCancelled)
+  const activeSessions = sessions.filter((session) => !isSettledCancelled(session))
+  const upcomingSessions = activeSessions.filter(isUpcomingSession)
+  const pastSessions = activeSessions.filter((session) => !isUpcomingSession(session))
+  const visibleSessions =
+    activeTab === 'upcoming' ? upcomingSessions : activeTab === 'cancelled' ? cancelledSessions : pastSessions
+  const activeSessionsLabel = activeTab === 'upcoming' ? 'Upcoming' : activeTab === 'cancelled' ? 'Cancelled' : 'Past'
+
+  const unbookedByTrainer = Object.values(
+    upcomingSessions
+      .filter(
+        (session) =>
+          session?.is_generated === true &&
+          String(session?.status ?? '').trim().toLowerCase() === 'scheduled' &&
+          Number(session?.booked_count ?? 0) === 0 &&
+          Number(session?.trainer_gym_user_id ?? 0) > 0
+      )
+      .reduce<Record<string, { trainerGymUserId: number; name: string; count: number }>>((groups, session) => {
+        const trainerGymUserId = Number(session.trainer_gym_user_id)
+        const key = String(trainerGymUserId)
+        const name = String(session?.trainer_display_name ?? '').trim() || `Trainer ${trainerGymUserId}`
+        groups[key] = { trainerGymUserId, name, count: (groups[key]?.count ?? 0) + 1 }
+        return groups
+      }, {})
+  ).sort((a, b) => a.name.localeCompare(b.name))
 
   const sessionCount = sessions.length
 
@@ -881,6 +1078,34 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
           </View>
         ) : (
           <>
+            {unbookedByTrainer.length > 0 ? (
+              <View style={styles.bulkCard}>
+                <Text style={styles.bulkTitle}>Unbooked generated sessions</Text>
+                <Text style={styles.bulkHint}>
+                  Created from availability and not booked by anyone. Use this after removing availability to clear the
+                  sessions it already generated. Booked sessions are never changed.
+                </Text>
+                {unbookedByTrainer.map((trainer) => {
+                  const busy = bulkCancellingTrainer === trainer.trainerGymUserId
+
+                  return (
+                    <View key={trainer.trainerGymUserId} style={styles.bulkRow}>
+                      <Text style={styles.bulkRowText}>
+                        {trainer.name}: {pluralize(trainer.count, 'session')}
+                      </Text>
+                      <TouchableOpacity
+                        style={[styles.bulkButton, bulkCancellingTrainer !== null && styles.buttonDisabled]}
+                        activeOpacity={0.85}
+                        disabled={bulkCancellingTrainer !== null}
+                        onPress={() => confirmCancelUnbooked(trainer)}
+                      >
+                        <Text style={styles.bulkButtonText}>{busy ? 'Cancelling...' : 'Cancel all'}</Text>
+                      </TouchableOpacity>
+                    </View>
+                  )
+                })}
+              </View>
+            ) : null}
             <View style={styles.filterBar}>
               <TouchableOpacity
                 style={[styles.filterButton, activeTab === 'upcoming' && styles.filterButtonActive]}
@@ -898,7 +1123,29 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
                   Past ({pastSessions.length})
                 </Text>
               </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.filterButton, activeTab === 'cancelled' && styles.filterButtonActive]}
+                onPress={() => setActiveTab('cancelled')}
+              >
+                <Text style={[styles.filterButtonText, activeTab === 'cancelled' && styles.filterButtonTextActive]}>
+                  Cancelled ({cancelledSessions.length})
+                </Text>
+              </TouchableOpacity>
             </View>
+
+            {activeTab === 'cancelled' && cancelledSessions.length > 0 ? (
+              <TouchableOpacity
+                style={[styles.deleteAllButton, deletingCancelled && styles.buttonDisabled]}
+                activeOpacity={0.85}
+                disabled={deletingCancelled}
+                onPress={() => confirmDeleteAllCancelled(cancelledSessions.length)}
+              >
+                <Feather name="trash-2" color={AppColors.white} size={16} />
+                <Text style={styles.deleteAllButtonText}>
+                  {deletingCancelled ? 'Deleting...' : `Delete all cancelled sessions (${cancelledSessions.length})`}
+                </Text>
+              </TouchableOpacity>
+            ) : null}
 
             {visibleSessions.length > 0 ? (
               <View style={styles.list}>
@@ -1029,7 +1276,9 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
                 <Text style={styles.stateText}>
                   {activeTab === 'upcoming'
                     ? 'No upcoming personal training sessions right now. Add a new session to get started.'
-                    : 'No past personal training sessions yet.'}
+                    : activeTab === 'cancelled'
+                      ? 'No cancelled personal training sessions.'
+                      : 'No past personal training sessions yet.'}
                 </Text>
               </View>
             )}
@@ -1113,6 +1362,64 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: {
     opacity: 0.6,
+  },
+  deleteAllButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: AppColors.red,
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    marginBottom: 14,
+  },
+  deleteAllButtonText: {
+    color: AppColors.white,
+    fontSize: 14,
+    fontFamily: 'Montserrat',
+  },
+  bulkCard: {
+    backgroundColor: AppColors.white,
+    borderRadius: 18,
+    padding: 16,
+    marginBottom: 14,
+  },
+  bulkTitle: {
+    color: AppColors.primary,
+    fontSize: 16,
+    fontFamily: 'Montserrat',
+  },
+  bulkHint: {
+    marginTop: 6,
+    color: AppColors.grey3,
+    fontSize: 12,
+    fontFamily: 'Montserrat',
+  },
+  bulkRow: {
+    marginTop: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  bulkRowText: {
+    flex: 1,
+    color: AppColors.primary,
+    fontSize: 14,
+    fontFamily: 'Montserrat',
+  },
+  bulkButton: {
+    borderColor: AppColors.red,
+    borderWidth: 1,
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+  },
+  bulkButtonText: {
+    color: AppColors.red,
+    fontSize: 14,
+    fontFamily: 'Montserrat',
   },
   cardActions: {
     marginTop: 16,

@@ -13,6 +13,7 @@ import { useFocusEffect } from '@react-navigation/native'
 import { showMessage } from 'react-native-flash-message'
 import { Feather } from '@expo/vector-icons'
 import { AppColors } from '../../styles/colors'
+import { formatUsdOrFree } from '../../utils/currency'
 import { UserContext } from '../../context/UserContext'
 import { getMemberPersonalTrainingTitle } from '../../components/utils/personalTrainingDisplay'
 
@@ -329,14 +330,7 @@ const PersonalTrainingSessionsScreen = ({ navigation }: { navigation: PersonalTr
     })
   }
 
-  const renderPrice = (session: PersonalTrainingSessionSummary) => {
-    const price = Number(session?.price ?? 0)
-    if (price <= 0) {
-      return 'Free'
-    }
-    const currency = String(session?.currency_code ?? '').trim().toUpperCase()
-    return `${price.toFixed(2)} ${currency}`.trim()
-  }
+  const renderPrice = (session: PersonalTrainingSessionSummary) => formatUsdOrFree(session?.price)
 
   const renderNotesPreview = (session: PersonalTrainingSessionSummary) => {
     const notes = String(session?.additional_notes ?? '').trim()

@@ -2,6 +2,7 @@ import React from 'react'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5'
 import { AppColors } from '../styles/colors'
+import { formatUsd } from './currency'
 import type { EarningsCategoryKey, EarningsPeriod } from '../types/earnings'
 
 export const categoryOrder: EarningsCategoryKey[] = [
@@ -152,29 +153,7 @@ export const getInitials = (name?: string | null) => {
   return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase()
 }
 
-const currencyFormatters = new Map<string, Intl.NumberFormat>()
-
-export const formatMoney = (value: number, currency = 'USD') => {
-  let formatter = currencyFormatters.get(currency)
-
-  if (!formatter) {
-    try {
-      formatter = new Intl.NumberFormat(undefined, {
-        style: 'currency',
-        currency,
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      })
-    } catch {
-      formatter = new Intl.NumberFormat(undefined, {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      })
-    }
-    currencyFormatters.set(currency, formatter)
-  }
-
-  return formatter.format(value)
-}
+// Classy Fit is USD-only: the currency argument is kept for call-site compatibility but never changes the output.
+export const formatMoney = (value: number, _currency?: string) => formatUsd(value)
 
 export const roundMoney = (value: number) => Math.round(value * 100) / 100

@@ -15,6 +15,7 @@ import { UserContext } from "../../context/UserContext";
 import { styles } from "../../styles/registerFormStyles";
 import { AppColors } from "../../styles/colors";
 import HealthyLifestyleSvg from "../svg/HealthyLifestyleSvg";
+import TrainerHourlyRateSection from "./TrainerHourlyRateSection";
 
 const UpdateStaffForm = ({ staffData }: { staffData: any }) => {
   const { user } = useContext(UserContext);
@@ -242,6 +243,10 @@ const UpdateStaffForm = ({ staffData }: { staffData: any }) => {
       <InfoField label="WhatsApp" value={staff?.whatsapp} />
       <InfoField label="E-mail" value={staff?.email} />
       <InfoField label="Preferred Contact Method" value={getPreferredContactLabel(staff?.preferred_contact)} />
+
+      {String(staff?.role ?? "").trim().toLowerCase() === "trainer" ? (
+        <TrainerHourlyRateSection staffUid={staff?.uid} />
+      ) : null}
 
     </ScrollView>
   );

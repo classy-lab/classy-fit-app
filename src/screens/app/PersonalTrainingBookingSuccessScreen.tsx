@@ -2,6 +2,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Feather } from '@expo/vector-icons'
 import { AppColors } from '../../styles/colors'
+import { formatUsd } from '../../utils/currency'
 import { getMemberPersonalTrainingTitle } from '../../components/utils/personalTrainingDisplay'
 
 type PersonalTrainingSessionRecord = {
@@ -74,7 +75,6 @@ const PersonalTrainingBookingSuccessScreen = ({
   const location = String(session?.location ?? booking?.location ?? '').trim()
   const price = Number(booking?.price ?? session?.price ?? 0)
   const isFree = price <= 0
-  const currency = String(booking?.currency_code ?? session?.currency_code ?? '').trim().toUpperCase()
 
   return (
     <SafeAreaView style={styles.container}>
@@ -104,7 +104,7 @@ const PersonalTrainingBookingSuccessScreen = ({
           <Text style={styles.detail}>Date: {formatDate(session?.start_at)}</Text>
           <Text style={styles.detail}>Time: {formatTime(session?.start_at)} - {formatTime(session?.end_at)}</Text>
           {location ? <Text style={styles.detail}>Location: {location}</Text> : null}
-          <Text style={styles.detail}>{isFree ? 'Free' : `${Number(price).toFixed(2)} ${currency}`}</Text>
+          <Text style={styles.detail}>{isFree ? 'Free' : formatUsd(price)}</Text>
           {booking?.booking_uid ? <Text style={styles.detail}>Booking UID: {booking.booking_uid}</Text> : null}
 
           <TouchableOpacity style={styles.primaryBtn} onPress={() => navigation.navigate('PersonalTrainingSessionsScreen')}>

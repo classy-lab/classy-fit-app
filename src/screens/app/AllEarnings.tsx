@@ -17,6 +17,7 @@ import { s } from 'react-native-size-matters';
 import { AppColors } from '../../styles/colors';
 import { UserContext } from '../../context/UserContext';
 import SignOut from '../../components/utils/SignOut';
+import { formatUsd } from '../../utils/currency';
 import type {
   EarningsApiResponse,
   EarningsCategoryKey,
@@ -199,28 +200,8 @@ const AllEarnings = ({ navigation }: { navigation: AllEarningsNavigation }) => {
   const setTokens = authContext?.setTokens;
   const isOwner = String(user?.role ?? '').trim().toLowerCase() === 'owner';
 
-  const currencyCode = earnings?.currency ?? 'USD';
-
-  const currencyFormatter = useMemo(() => {
-    try {
-      return new Intl.NumberFormat(undefined, {
-        style: 'currency',
-        currency: currencyCode,
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      });
-    } catch {
-      return new Intl.NumberFormat(undefined, {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      });
-    }
-  }, [currencyCode]);
-
-  const formatCurrency = useCallback(
-    (value: number) => currencyFormatter.format(value),
-    [currencyFormatter]
-  );
+  // USD only: earnings are always formatted as US dollars regardless of device locale.
+  const formatCurrency = useCallback((value: number) => formatUsd(value), []);
 
   const loadEarnings = useCallback(
     async (mode: EarningsLoadState) => {

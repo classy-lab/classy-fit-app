@@ -13,6 +13,7 @@ import { useFocusEffect } from '@react-navigation/native'
 import { showMessage } from 'react-native-flash-message'
 import { Feather } from '@expo/vector-icons'
 import { AppColors } from '../../styles/colors'
+import { formatUsdOrFree } from '../../utils/currency'
 import { UserContext } from '../../context/UserContext'
 import { getMemberPersonalTrainingTitle } from '../../components/utils/personalTrainingDisplay'
 
@@ -337,14 +338,7 @@ const MyPersonalTrainingBookingsScreen = ({ navigation }: { navigation: MyPerson
     navigation.navigate('MyPersonalTrainingBookingDetailScreen', { bookingUid: booking?.booking_uid })
   }
 
-  const renderPrice = (booking: PersonalTrainingBookingSummary) => {
-    const price = Number(booking?.price ?? 0)
-    if (price <= 0) {
-      return 'Free'
-    }
-    const currency = String(booking?.currency_code ?? '').trim().toUpperCase()
-    return `${price.toFixed(2)} ${currency}`.trim()
-  }
+  const renderPrice = (booking: PersonalTrainingBookingSummary) => formatUsdOrFree(booking?.price)
 
   const getInactiveBookingStatus = (booking: PersonalTrainingBookingSummary) => {
     const status = String(booking?.booking_status ?? '').toLowerCase()

@@ -18,6 +18,7 @@ import { SelectList } from 'react-native-dropdown-select-list'
 import Feather from '@expo/vector-icons/Feather'
 import { showMessage } from 'react-native-flash-message'
 import { AppColors } from '../../styles/colors'
+import { APP_CURRENCY_CODE } from '../../utils/currency'
 import { UserContext } from '../../context/UserContext'
 
 const normalizeToken = (value) => String(value ?? '').trim()
@@ -328,7 +329,7 @@ const EditMembershipPlanScreen = ({
         description: String(plan.description ?? ''),
         duration_months: String(plan.duration_months ?? '1'),
         price: plan.price === null || plan.price === undefined ? '' : String(plan.price),
-        currency_code: String(plan.currency_code ?? 'USD').trim().toUpperCase() || 'USD',
+        currency_code: APP_CURRENCY_CODE,
         status: (String(plan.status ?? 'active').trim().toLowerCase() === 'inactive' ? 'inactive' : 'active'),
       })
     } catch {
@@ -375,7 +376,7 @@ const EditMembershipPlanScreen = ({
         description: String(formData.description ?? '').trim() || null,
         duration_months: Number.parseInt(String(formData.duration_months ?? ''), 10),
         price: Number.parseFloat(String(formData.price ?? '0')),
-        currency_code: String(formData.currency_code ?? 'USD').trim().toUpperCase(),
+        currency_code: APP_CURRENCY_CODE,
         status: formData.status ?? 'active',
       }
 
@@ -654,23 +655,12 @@ const EditMembershipPlanScreen = ({
             <View style={styles.row}>
               <View style={[styles.field, styles.rowField]}>
                 <Text style={styles.label}>Currency</Text>
-                <Controller
-                  control={control}
-                  name="currency_code"
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <TextInput
-                      value={value}
-                      onBlur={onBlur}
-                      onChangeText={(text) => onChange(text.toUpperCase())}
-                      placeholder="USD"
-                      placeholderTextColor={AppColors.grey3}
-                      style={styles.input}
-                      autoCapitalize="characters"
-                      maxLength={3}
-                    />
-                  )}
+                <TextInput
+                  value={APP_CURRENCY_CODE}
+                  editable={false}
+                  placeholderTextColor={AppColors.grey3}
+                  style={styles.input}
                 />
-                {errors.currency_code ? <Text style={styles.errorText}>{errors.currency_code.message}</Text> : null}
               </View>
 
               <View style={[styles.field, styles.rowField]}>

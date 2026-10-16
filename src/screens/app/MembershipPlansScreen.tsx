@@ -14,6 +14,7 @@ import Feather from '@expo/vector-icons/Feather'
 import { useStripe } from '@stripe/stripe-react-native'
 import { showMessage } from 'react-native-flash-message'
 import { AppColors } from '../../styles/colors'
+import { formatUsd } from '../../utils/currency'
 import { UserContext } from '../../context/UserContext'
 
 const normalizeToken = (value) => String(value ?? '').trim()
@@ -226,11 +227,7 @@ const formatDurationLabel = (durationMonths?: number | string | null) => {
   return 'Unknown duration'
 }
 
-const formatPlanPrice = (plan: MembershipPlan) => {
-  const price = Number(plan?.price ?? 0)
-  const currency = String(plan?.currency_code ?? '').trim().toUpperCase()
-  return `${price.toFixed(2)} ${currency}`.trim()
-}
+const formatPlanPrice = (plan: MembershipPlan) => formatUsd(plan?.price)
 
 const MembershipPlansScreen = ({ navigation }: { navigation: MembershipPlansNavigation }) => {
   const { user, tokens, setTokens, webServer } = useContext(UserContext) as UserContextValue

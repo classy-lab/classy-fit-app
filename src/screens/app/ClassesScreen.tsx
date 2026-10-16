@@ -13,6 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { useFocusEffect } from '@react-navigation/native'
 import { showMessage } from 'react-native-flash-message'
 import { AppColors } from '../../styles/colors'
+import { formatUsd, formatUsdOrFree } from '../../utils/currency'
 import { UserContext } from '../../context/UserContext'
 import { Feather } from '@expo/vector-icons'
 
@@ -350,14 +351,7 @@ const ClassesScreen = ({ navigation }) => {
     navigation.navigate('ClassSessionScreen', { session })
   }
 
-  const renderPrice = (session) => {
-    const price = Number(session?.price ?? 0)
-    if (price <= 0) {
-      return 'Free'
-    }
-    const currency = String(session?.currency_code ?? '').trim().toUpperCase()
-    return `${price.toFixed(2)} ${currency}`.trim()
-  }
+  const renderPrice = (session) => formatUsdOrFree(session?.price)
 
   const isUpcoming = (session) => {
     const sessionDate = parseDate(session?.start_at)
@@ -456,7 +450,7 @@ const ClassesScreen = ({ navigation }) => {
                         <View style={styles.cardHeaderText}>
                           <Text style={styles.cardTitle}>{session?.class_name || 'Untitled class'}</Text>
                           <Text style={styles.pricePill}>
-                            {price <= 0 ? 'Free' : `${price.toFixed(2)} ${String(session?.currency_code ?? '').toUpperCase()}`}
+                            {price <= 0 ? 'Free' : formatUsd(price)}
                           </Text>
                         </View>
                         <View style={[styles.badge, price <= 0 ? styles.badgeFree : styles.badgePaid]}>

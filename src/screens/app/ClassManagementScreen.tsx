@@ -14,6 +14,7 @@ import { useFocusEffect } from '@react-navigation/native'
 import { showMessage } from 'react-native-flash-message'
 import { Feather } from '@expo/vector-icons'
 import { AppColors } from '../../styles/colors'
+import { formatUsdOrFree } from '../../utils/currency'
 import { UserContext } from '../../context/UserContext'
 
 type ClassStatus = 'active' | 'inactive' | string
@@ -310,15 +311,7 @@ const ClassManagementScreen = ({ navigation }: { navigation: ClassManagementNavi
     void loadClasses({ isRefresh: true })
   }
 
-  const renderPrice = (classItem: ManagedClass) => {
-    const price = Number(classItem?.price ?? 0)
-    if (price <= 0) {
-      return 'Free'
-    }
-
-    const currency = String(classItem?.currency_code ?? '').trim().toUpperCase()
-    return `${price.toFixed(2)} ${currency}`.trim()
-  }
+  const renderPrice = (classItem: ManagedClass) => formatUsdOrFree(classItem?.price)
 
   const renderStatusLabel = (status: ClassStatus) => {
     const normalized = String(status ?? '').trim().toLowerCase()

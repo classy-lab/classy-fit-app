@@ -2,6 +2,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Feather } from '@expo/vector-icons'
 import { AppColors } from '../../styles/colors'
+import { formatUsdOrFree } from '../../utils/currency'
 
 type MembershipPurchaseSuccessMembership = {
   uid?: number | string
@@ -61,15 +62,7 @@ const formatDurationLabel = (durationMonths?: number | string | null) => {
   return months === 1 ? '1 month' : `${months} months`
 }
 
-const formatPrice = (price?: number | string | null, currency?: string | null) => {
-  const amount = Number(price ?? 0)
-  if (!Number.isFinite(amount) || amount <= 0) {
-    return 'Free'
-  }
-
-  const currencyCode = String(currency ?? '').trim().toUpperCase()
-  return currencyCode ? `${amount.toFixed(2)} ${currencyCode}` : amount.toFixed(2)
-}
+const formatPrice = (price?: number | string | null) => formatUsdOrFree(price)
 
 const MembershipPurchaseSuccessScreen = ({
   navigation,
@@ -84,8 +77,7 @@ const MembershipPurchaseSuccessScreen = ({
     membership?.plan_name ?? membership?.membership_plan_name ?? membership?.name ?? 'Membership'
   ).trim()
   const durationLabel = formatDurationLabel(membership?.duration_months)
-  const priceLabel = formatPrice(membership?.price, membership?.currency_code)
-  const currencyLabel = String(membership?.currency_code ?? '').trim().toUpperCase() || 'Unknown currency'
+  const priceLabel = formatPrice(membership?.price)
   const startDate = formatDate(membership?.start_at)
   const endDate = formatDate(membership?.end_at)
   const note = isPaid
@@ -113,7 +105,6 @@ const MembershipPurchaseSuccessScreen = ({
           <Text style={styles.membershipName}>{membershipName}</Text>
           <Text style={styles.detail}>Duration: {durationLabel}</Text>
           <Text style={styles.detail}>Price: {priceLabel}</Text>
-          <Text style={styles.detail}>Currency: {currencyLabel}</Text>
           <Text style={styles.detail}>Start date: {startDate}</Text>
           <Text style={styles.detail}>End date: {endDate}</Text>
 

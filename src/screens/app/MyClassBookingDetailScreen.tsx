@@ -13,6 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { useFocusEffect } from '@react-navigation/native'
 import { showMessage } from 'react-native-flash-message'
 import { AppColors } from '../../styles/colors'
+import { formatUsdOrFree } from '../../utils/currency'
 import { UserContext } from '../../context/UserContext'
 import { Feather } from '@expo/vector-icons'
 
@@ -287,14 +288,7 @@ const MyClassBookingDetailScreen = ({ navigation, route }) => {
       : `${minutes}m`
   }
 
-  const renderPrice = () => {
-    const price = Number(booking?.price ?? 0)
-    if (price <= 0) {
-      return 'Free'
-    }
-    const currency = String(booking?.currency_code ?? '').trim().toUpperCase()
-    return `${price.toFixed(2)} ${currency}`.trim()
-  }
+  const renderPrice = () => formatUsdOrFree(booking?.price)
 
   const renderBookingStatus = () => {
     const status = String(booking?.booking_status ?? 'pending').toLowerCase()

@@ -19,6 +19,7 @@ import { showMessage } from 'react-native-flash-message'
 import Feather from '@expo/vector-icons/Feather'
 import { SelectList } from 'react-native-dropdown-select-list'
 import { AppColors } from '../../styles/colors'
+import { APP_CURRENCY_CODE } from '../../utils/currency'
 import { UserContext } from '../../context/UserContext'
 import DateOfBirthField from '../../components/forms/input_fields/DateOfBirthField'
 import TimePickerField from '../../components/forms/input_fields/TimePickerField'
@@ -476,7 +477,7 @@ const AddClassScreen = ({ navigation }: { navigation: AddClassNavigation }) => {
         duration_minutes: Number.parseInt(formData.duration_minutes, 10),
         capacity: Number.parseInt(formData.capacity, 10),
         price: Number.parseFloat(formData.price),
-        currency_code: String(formData.currency_code ?? 'USD').trim().toUpperCase(),
+        currency_code: APP_CURRENCY_CODE,
         status: formData.status,
       }
 
@@ -493,7 +494,7 @@ const AddClassScreen = ({ navigation }: { navigation: AddClassNavigation }) => {
         additional_notes: additionalNotes === '' ? null : additionalNotes,
         capacity: sessionCapacity === '' ? Number.parseInt(formData.capacity, 10) : Number.parseInt(sessionCapacity, 10),
         price: sessionPrice === '' ? Number.parseFloat(formData.price) : Number.parseFloat(sessionPrice),
-        currency_code: String(formData.currency_code ?? 'USD').trim().toUpperCase(),
+        currency_code: APP_CURRENCY_CODE,
         status: formData.session_status ?? 'scheduled',
       }
 

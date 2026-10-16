@@ -13,6 +13,7 @@ import { useFocusEffect } from '@react-navigation/native'
 import { showMessage } from 'react-native-flash-message'
 import Feather from '@expo/vector-icons/Feather'
 import { AppColors } from '../../styles/colors'
+import { formatUsdOrFree } from '../../utils/currency'
 import { UserContext } from '../../context/UserContext'
 
 const normalizeToken = (value) => String(value ?? '').trim()
@@ -168,15 +169,7 @@ const formatDate = (value?: string | null) => {
   }).format(date)
 }
 
-const formatPrice = (price?: number | string | null, currency?: string | null) => {
-  const amount = Number(price ?? 0)
-  if (!Number.isFinite(amount) || amount <= 0) {
-    return 'Free'
-  }
-
-  const currencyCode = String(currency ?? '').trim().toUpperCase()
-  return currencyCode ? `${amount.toFixed(2)} ${currencyCode}` : amount.toFixed(2)
-}
+const formatPrice = (price?: number | string | null) => formatUsdOrFree(price)
 
 const formatDurationLabel = (durationMonths?: number | string | null) => {
   const months = Number(durationMonths ?? 0)
@@ -356,7 +349,7 @@ const MyMembershipScreen = ({ navigation }: { navigation: MyMembershipNavigation
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>Price</Text>
             <Text style={styles.detailValue}>
-              {formatPrice(membership?.price, membership?.currency_code)}
+              {formatPrice(membership?.price)}
             </Text>
           </View>
           <View style={styles.detailRow}>
