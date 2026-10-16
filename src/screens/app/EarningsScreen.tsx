@@ -179,7 +179,7 @@ const EarningsScreen = ({ navigation }) => {
 
     setIsCheckingStripeStatus(true)
     try {
-      const response = await performAuthenticatedRequest({
+      const response = await performAuthenticatedRequestWithRefresh({
         endpoint: `${webServer}/api/v1/gyms/${user.gym_id}/stripe/accounts/status`,
         init: { method: 'GET' },
         accessToken: tokens.access_token,
@@ -187,6 +187,7 @@ const EarningsScreen = ({ navigation }) => {
         webServer,
         setTokens,
       })
+
       if (requestId !== stripeStatusSequenceRef.current) return
       if (!response) {
         setStripeErrorMessage('Please sign in again to check Stripe setup.')
@@ -233,7 +234,7 @@ const EarningsScreen = ({ navigation }) => {
     stripeOnboardingInFlightRef.current = true
     setIsLoadingStripe(true)
     try {
-      const response = await performAuthenticatedRequest({
+      const response = await performAuthenticatedRequestWithRefresh({
         endpoint: `${webServer}/api/v1/gyms/${user.gym_id}/stripe/accounts/onboarding-link`,
         init: { method: 'GET' },
         accessToken: tokens.access_token,
@@ -298,7 +299,7 @@ const EarningsScreen = ({ navigation }) => {
     setErrorMessage('')
 
     try {
-      const response = await performAuthenticatedRequest({
+      const response = await performAuthenticatedRequestWithRefresh({
         endpoint: `${webServer}/api/v1/gyms/${user.gym_id}/earnings?period=${selectedPeriod}`,
         init: { method: 'GET' },
         accessToken: tokens.access_token,
