@@ -39,6 +39,7 @@ import type {
   EarningsTransaction,
 } from '../../types/earnings'
 
+const PAGE_SIZE = 20
 const normalizeToken = (value) => String(value ?? '').trim()
 
 const refreshAccessTokenWithRefresh = async ({
