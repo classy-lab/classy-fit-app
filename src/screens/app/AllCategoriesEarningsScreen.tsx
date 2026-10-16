@@ -57,9 +57,6 @@ const refreshAccessTokenWithRefresh = async ({
 
   const refreshResponse = await fetch(`${webServer}/api/v1/refresh`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify({
       token: effectiveRefreshToken,
     }),
@@ -101,39 +98,24 @@ const performAuthenticatedRequestWithRefresh = async ({
     return null
   }
 
-  const requestWithToken = async (token) => {
-    const headers = new Headers(init.headers ?? undefined)
-    if (!headers.has('Content-Type')) {
-      headers.set('Content-Type', 'application/json')
-    }
-    headers.set('Authorization', `Bearer ${token}`)
+  const headers = new Headers(init.headers ?? undefined)
+  headers.set('Authorization', `Bearer ${requestAccessToken}`)
 
-    return fetch(endpoint, {
-      ...init,
-      headers,
-    })
-  }
+  const response = await fetch(endpoint, {
+    ...init,
+    headers,
+  })
 
-  const response = await requestWithToken(requestAccessToken)
-  if (response.ok) {
+  if (response.status === 200) {
     return response
   }
 
-  if (response.status !== 401) {
-    return response
-  }
-
-  const refreshedAccessToken = await refreshAccessTokenWithRefresh({
+  await refreshAccessTokenWithRefresh({
     refreshToken,
     webServer,
     setTokens,
   })
-
-  if (!refreshedAccessToken) {
-    return response
-  }
-
-  return requestWithToken(refreshedAccessToken)
+  return response
 }
 
 const TREND_Y_AXIS_WIDTH = 42
