@@ -14,6 +14,7 @@ import { showMessage } from 'react-native-flash-message'
 import { Feather } from '@expo/vector-icons'
 import { AppColors } from '../../styles/colors'
 import { formatUsdOrFree } from '../../utils/currency'
+import { formatEasternDate, formatEasternDateTime, formatEasternTime } from '../../utils/easternTime'
 import { UserContext } from '../../context/UserContext'
 import { getMemberPersonalTrainingTitle } from '../../components/utils/personalTrainingDisplay'
 
@@ -136,42 +137,16 @@ const requestWithRefresh = async ({
   return performRequest(refreshedAccessToken)
 }
 
-const parseDate = (value) => {
-  if (!value) return null
-  const normalized = String(value).includes('T') ? String(value) : String(value).replace(' ', 'T')
-  const date = new Date(normalized)
-  return Number.isNaN(date.getTime()) ? null : date
-}
-
 const formatDate = (value) => {
-  const date = parseDate(value)
-  if (!date) return 'Unknown date'
-  return new Intl.DateTimeFormat(undefined, {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  }).format(date)
+  return formatEasternDate(value)
 }
 
 const formatTime = (value) => {
-  const date = parseDate(value)
-  if (!date) return 'Unknown time'
-  return new Intl.DateTimeFormat(undefined, {
-    hour: 'numeric',
-    minute: '2-digit',
-  }).format(date)
+  return formatEasternTime(value)
 }
 
 const formatDateTime = (value) => {
-  const date = parseDate(value)
-  if (!date) return 'Unknown'
-  return new Intl.DateTimeFormat(undefined, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  }).format(date)
+  return formatEasternDateTime(value)
 }
 
 const MyPersonalTrainingBookingDetailScreen = ({ navigation, route }) => {
