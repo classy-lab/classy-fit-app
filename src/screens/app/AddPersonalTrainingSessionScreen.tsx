@@ -18,6 +18,7 @@ import Feather from '@expo/vector-icons/Feather'
 import { SelectList } from 'react-native-dropdown-select-list'
 import { AppColors } from '../../styles/colors'
 import { APP_CURRENCY_CODE } from '../../utils/currency'
+import { easternWallClockToUtcDateTime, formatEasternDateTimeParts } from '../../utils/easternTime'
 import { UserContext } from '../../context/UserContext'
 import DateOfBirthField from '../../components/forms/input_fields/DateOfBirthField'
 import TimePickerField from '../../components/forms/input_fields/TimePickerField'
@@ -216,14 +217,7 @@ const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
 const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/
 const CURRENCY_PATTERN = /^[A-Z]{3}$/
 
-const formatDateValue = (date: Date) => {
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
-}
-
-const getTodayDateValue = () => formatDateValue(new Date())
+const getEasternTodayDateValue = () => formatEasternDateTimeParts(new Date().toISOString()).date
 
 const addPersonalTrainingSessionSchema = yup
   .object({
@@ -298,14 +292,10 @@ const addPersonalTrainingSessionSchema = yup
       return true
     }
 
-    const startAt = new Date(`${startDate}T${startTime.length === 5 ? `${startTime}:00` : startTime}`)
-    const endAt = new Date(`${endDate}T${endTime.length === 5 ? `${endTime}:00` : endTime}`)
+    const startKey = `${startDate}T${startTime.length === 5 ? `${startTime}` : startTime.slice(0, 5)}`
+    const endKey = `${endDate}T${endTime.length === 5 ? `${endTime}` : endTime.slice(0, 5)}`
 
-    if (Number.isNaN(startAt.getTime()) || Number.isNaN(endAt.getTime())) {
-      return true
-    }
-
-    if (startAt.getTime() >= endAt.getTime()) {
+    if (startKey >= endKey) {
       return this.createError({
         path: 'session_end_time',
         message: 'Start must be before end',
@@ -326,9 +316,9 @@ const AddPersonalTrainingSessionScreen = ({ navigation }: { navigation: AddPerso
 
   const defaultValues = useMemo<AddPersonalTrainingSessionFormInput>(() => ({
     trainer_gym_user_id: '',
-    session_start_date: getTodayDateValue(),
+    session_start_date: getEasternTodayDateValue(),
     session_start_time: '',
-    session_end_date: getTodayDateValue(),
+    session_end_date: getEasternTodayDateValue(),
     session_end_time: '',
     price: '',
     currency_code: 'USD',
@@ -435,11 +425,6 @@ const AddPersonalTrainingSessionScreen = ({ navigation }: { navigation: AddPerso
     }
   }, [isOwner, setValue, tokens?.access_token, user?.gym_id, user?.sub, webServer])
 
-  const buildDateTimeValue = (dateValue: string, timeValue: string) => {
-    const normalizedTime = timeValue.trim().length === 5 ? `${timeValue.trim()}:00` : timeValue.trim()
-    return `${dateValue.trim()} ${normalizedTime}`
-  }
-
   const onSubmit = async (formData: AddPersonalTrainingSessionFormValues) => {
     if (submitting) {
       return
@@ -462,11 +447,30 @@ const AddPersonalTrainingSessionScreen = ({ navigation }: { navigation: AddPerso
       const trainerGymUserId = String(formData.trainer_gym_user_id ?? '').trim()
       const location = String(formData.location ?? '').trim()
       const additionalNotes = String(formData.additional_notes ?? '').trim()
+      const startAt = easternWallClockToUtcDateTime(
+        String(formData.session_start_date ?? '').trim(),
+        String(formData.session_start_time ?? '').trim()
+      )
+      const endAt = easternWallClockToUtcDateTime(
+        String(formData.session_end_date ?? '').trim(),
+        String(formData.session_end_time ?? '').trim()
+      )
+
+      if (!startAt || !endAt) {
+        const message = 'Please check the start and end date/time values.'
+        setServerMessage(message)
+        showMessage({
+          message: 'Create failed',
+          description: message,
+          type: 'danger',
+        })
+        return
+      }
 
       const payload = {
         trainer_gym_user_id: trainerGymUserId === '' ? null : Number.parseInt(trainerGymUserId, 10),
-        start_at: buildDateTimeValue(String(formData.session_start_date ?? ''), String(formData.session_start_time ?? '')),
-        end_at: buildDateTimeValue(String(formData.session_end_date ?? ''), String(formData.session_end_time ?? '')),
+        start_at: startAt,
+        end_at: endAt,
         price: Number.parseFloat(String(formData.price ?? '0')),
         currency_code: APP_CURRENCY_CODE,
         location: location === '' ? null : location,
