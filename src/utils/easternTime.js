@@ -217,6 +217,7 @@ const easternWallClockToUtcDateTime = (dateValue, timeValue) => {
     parsed.milliseconds
   )
 
+  const matches = []
   for (const offsetMinutes of EASTERN_TIME_ZONE_OFFSETS_MINUTES) {
     const candidate = new Date(targetMs - offsetMinutes * 60_000)
     const parts = getEasternDateParts(candidate)
@@ -228,11 +229,15 @@ const easternWallClockToUtcDateTime = (dateValue, timeValue) => {
       Number(parts.minute) === parsed.minute &&
       Number(parts.second) === parsed.second
     ) {
-      return formatUtcDateTime(candidate)
+      matches.push(candidate)
     }
   }
 
-  return null
+  if (matches.length !== 1) {
+    return null
+  }
+
+  return formatUtcDateTime(matches[0])
 }
 
 module.exports = {
