@@ -366,6 +366,42 @@ const ClassSessionScreen = ({ navigation, route }) => {
 
       if (presentError) {
         if (presentError.code === 'Canceled') {
+          const bookingUid = Number(booking?.booking_uid ?? 0)
+          if (bookingUid > 0) {
+            try {
+              const cancelResponse = await submitRequestWithRefresh((accessToken) => {
+                return fetch(`${webServer}/api/v1/classes/bookings/${bookingUid}/cancel`, {
+                  method: 'POST',
+                  headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    'Idempotency-Key': idempotencyKey,
+                  },
+                })
+              })
+
+              if (!cancelResponse || (!cancelResponse.response.ok && cancelResponse.response.status !== 409)) {
+                showMessage({
+                  message: 'Booking still pending',
+                  description:
+                    cancelResponse?.responseBody?.message ||
+                    'Your payment was cancelled, but we could not release this class right away. Please refresh and try again.',
+                  type: 'warning',
+                })
+              }
+
+              bookingAttemptKeyRef.current = null
+            } catch (error) {
+              showMessage({
+                message: 'Booking still pending',
+                description:
+                  'Your payment was cancelled, but we could not release this class right away. Please refresh and try again.',
+                type: 'warning',
+              })
+            } finally {
+              await loadSession({ isRefresh: true })
+            }
+          }
+
           return
         }
 
