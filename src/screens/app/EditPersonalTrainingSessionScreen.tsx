@@ -19,6 +19,7 @@ import Feather from '@expo/vector-icons/Feather'
 import { SelectList } from 'react-native-dropdown-select-list'
 import { AppColors } from '../../styles/colors'
 import { APP_CURRENCY_CODE } from '../../utils/currency'
+import { easternWallClockToUtcDateTime, formatEasternDateTimeParts, parseApiDateTime } from '../../utils/easternTime'
 import { UserContext } from '../../context/UserContext'
 import DateOfBirthField from '../../components/forms/input_fields/DateOfBirthField'
 import TimePickerField from '../../components/forms/input_fields/TimePickerField'
@@ -310,14 +311,10 @@ const editPersonalTrainingSessionSchema = yup
       return true
     }
 
-    const startAt = new Date(`${startDate}T${startTime.length === 5 ? `${startTime}:00` : startTime}`)
-    const endAt = new Date(`${endDate}T${endTime.length === 5 ? `${endTime}:00` : endTime}`)
+    const startKey = `${startDate}T${startTime.slice(0, 5)}`
+    const endKey = `${endDate}T${endTime.slice(0, 5)}`
 
-    if (Number.isNaN(startAt.getTime()) || Number.isNaN(endAt.getTime())) {
-      return true
-    }
-
-    if (startAt.getTime() >= endAt.getTime()) {
+    if (startKey >= endKey) {
       return this.createError({
         path: 'session_end_time',
         message: 'Start must be before end',
@@ -327,22 +324,7 @@ const editPersonalTrainingSessionSchema = yup
     return true
   })
 
-const parseDateTime = (value?: string | null) => {
-  if (!value) {
-    return { date: '', time: '' }
-  }
-
-  const normalized = String(value).replace('T', ' ').trim()
-  if (!normalized) {
-    return { date: '', time: '' }
-  }
-
-  const [datePart = '', timePart = ''] = normalized.split(' ')
-  return {
-    date: datePart.slice(0, 10),
-    time: timePart.slice(0, 5),
-  }
-}
+const parseDateTime = (value?: string | null) => formatEasternDateTimeParts(value)
 
 const isSessionPayload = (value: unknown): value is SessionPayload => {
   return typeof value === 'object' && value !== null
@@ -550,11 +532,6 @@ const EditPersonalTrainingSessionScreen = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionUid, tokens?.access_token, tokens?.refresh_token, webServer])
 
-  const buildDateTimeValue = (dateValue: string, timeValue: string) => {
-    const normalizedTime = timeValue.trim().length === 5 ? `${timeValue.trim()}:00` : timeValue.trim()
-    return `${dateValue.trim()} ${normalizedTime}`
-  }
-
   const onSubmit = async (formData: EditPersonalTrainingSessionFormValues) => {
     if (submitting) {
       return
@@ -577,14 +554,33 @@ const EditPersonalTrainingSessionScreen = ({
       const trainerGymUserId = String(formData.trainer_gym_user_id ?? '').trim()
       const location = String(formData.location ?? '').trim()
       const additionalNotes = String(formData.additional_notes ?? '').trim()
+      const startAt = easternWallClockToUtcDateTime(
+        String(formData.session_start_date ?? '').trim(),
+        String(formData.session_start_time ?? '').trim()
+      )
+      const endAt = easternWallClockToUtcDateTime(
+        String(formData.session_end_date ?? '').trim(),
+        String(formData.session_end_time ?? '').trim()
+      )
+
+      if (!startAt || !endAt) {
+        const message = 'Please check the start and end date/time values.'
+        setFormMessage(message)
+        showMessage({
+          message: 'Update failed',
+          description: message,
+          type: 'danger',
+        })
+        return
+      }
 
       // A booked session keeps its scheduling, price, currency and trainer; only the editable fields are sent.
       const lockedFields = isBooked
         ? {}
         : {
             trainer_gym_user_id: trainerGymUserId === '' ? null : Number.parseInt(trainerGymUserId, 10),
-            start_at: buildDateTimeValue(String(formData.session_start_date ?? ''), String(formData.session_start_time ?? '')),
-            end_at: buildDateTimeValue(String(formData.session_end_date ?? ''), String(formData.session_end_time ?? '')),
+            start_at: startAt,
+            end_at: endAt,
             price: Number.parseFloat(String(formData.price ?? '0')),
             currency_code: APP_CURRENCY_CODE,
           }
@@ -830,8 +826,8 @@ const EditPersonalTrainingSessionScreen = ({
   }
 
   const isCancelRetry = loadedStatus === 'cancelled' && isBooked
-  const loadedStartDate = new Date(String(loadedStartAt).includes('T') ? loadedStartAt : String(loadedStartAt).replace(' ', 'T'))
-  const isUpcoming = !Number.isNaN(loadedStartDate.getTime()) && loadedStartDate.getTime() > Date.now()
+  const loadedStartDate = parseApiDateTime(loadedStartAt)
+  const isUpcoming = loadedStartDate !== null && loadedStartDate.getTime() > Date.now()
   const canCancelSession = (loadedStatus === 'scheduled' && isUpcoming) || isCancelRetry
 
   const confirmCancelSession = () => {
