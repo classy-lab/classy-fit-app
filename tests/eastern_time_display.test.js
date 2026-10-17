@@ -40,5 +40,9 @@ assert.equal(parsedExplicitUtc?.toISOString(), '2026-07-15T15:30:00.000Z')
 
 assert.equal(easternWallClockToUtcDateTime('2026-01-15', '10:30'), '2026-01-15 15:30:00')
 assert.equal(easternWallClockToUtcDateTime('2026-07-15', '10:30'), '2026-07-15 14:30:00')
+assert.equal(easternWallClockToUtcDateTime('2026-03-08', '01:30'), '2026-03-08 06:30:00')
+assert.equal(easternWallClockToUtcDateTime('2026-03-08', '02:30'), null)
+assert.equal(easternWallClockToUtcDateTime('2026-03-08', '03:30'), '2026-03-08 07:30:00')
+assert.equal(easternWallClockToUtcDateTime('2026-11-01', '01:30'), null)
 
 console.log('Eastern time formatting checks passed.')
