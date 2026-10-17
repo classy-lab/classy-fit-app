@@ -796,7 +796,9 @@ const AddEditPersonalTrainingAvailabilityScreen = ({
           </TouchableOpacity>
 
           <Text style={styles.footerNote}>
-            Times are shown in Eastern Time (America/New_York).{' '}
+            {gymTimezone
+              ? `Times are in your gym's local time (${gymTimezone}).`
+              : "Times are in your gym's local time."}{' '}
             Windows for the same trainer on the same day cannot overlap.
           </Text>
         </ScrollView>
