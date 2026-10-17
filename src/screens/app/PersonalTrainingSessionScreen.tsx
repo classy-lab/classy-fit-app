@@ -536,6 +536,43 @@ const PersonalTrainingSessionScreen = ({
 
       if (presentError) {
         if (presentError.code === 'Canceled') {
+          if (bookingUid > 0) {
+            try {
+              const cancelResponse = await requestWithRefresh(
+                `${webServer}/api/v1/personal-training/bookings/${bookingUid}/cancel`,
+                {
+                  method: 'POST',
+                  headers: {
+                    'Idempotency-Key': idempotencyKey,
+                  },
+                },
+                'reconciliation'
+              )
+
+              if (!cancelResponse || (!cancelResponse.ok && cancelResponse.status !== 409)) {
+                const cancelBody = cancelResponse ? (await parseResponseBody<{ message?: string }>(cancelResponse)) : {}
+                showMessage({
+                  message: 'Booking still pending',
+                  description:
+                    cancelBody?.message ||
+                    'Your payment was cancelled, but we could not release this session right away. Please refresh and try again.',
+                  type: 'warning',
+                })
+              } else {
+                bookingAttemptKeyRef.current = null
+              }
+            } catch (error) {
+              showMessage({
+                message: 'Booking still pending',
+                description:
+                  'Your payment was cancelled, but we could not release this session right away. Please refresh and try again.',
+                type: 'warning',
+              })
+            } finally {
+              await loadSession({ isRefresh: true })
+            }
+          }
+
           return
         }
 
