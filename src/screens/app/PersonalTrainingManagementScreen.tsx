@@ -15,6 +15,7 @@ import { Feather } from '@expo/vector-icons'
 import { showMessage } from 'react-native-flash-message'
 import { AppColors } from '../../styles/colors'
 import { formatUsdOrFree } from '../../utils/currency'
+import { formatEasternDate, formatEasternTime, parseApiDateTime } from '../../utils/easternTime'
 import { UserContext } from '../../context/UserContext'
 import { getOwnerPersonalTrainingTitle } from '../../components/utils/personalTrainingDisplay'
 import { canManagePersonalTraining } from '../../utils/roleAccess'
@@ -248,40 +249,12 @@ const buildGenerationSummary = (totals: GenerationTotals) => {
   return { description: lines.join('\n'), hasProblems }
 }
 
-const parseDate = (value?: string | null) => {
-  if (!value) {
-    return null
-  }
-
-  const normalized = String(value).includes('T') ? String(value) : String(value).replace(' ', 'T')
-  const date = new Date(normalized)
-  return Number.isNaN(date.getTime()) ? null : date
-}
-
 const formatDate = (value?: string | null) => {
-  const date = parseDate(value)
-  if (!date) {
-    return 'Unknown date'
-  }
-
-  return new Intl.DateTimeFormat(undefined, {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  }).format(date)
+  return formatEasternDate(value)
 }
 
 const formatTime = (value?: string | null) => {
-  const date = parseDate(value)
-  if (!date) {
-    return 'Unknown time'
-  }
-
-  return new Intl.DateTimeFormat(undefined, {
-    hour: 'numeric',
-    minute: '2-digit',
-  }).format(date)
+  return formatEasternTime(value)
 }
 
 const renderStatusLabel = (status?: SessionStatus) => {
@@ -946,7 +919,7 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
   }
 
   const isUpcomingSession = (session: ManagedPersonalTrainingSession) => {
-    const sessionDate = parseDate(session?.start_at)
+    const sessionDate = parseApiDateTime(session?.start_at)
     if (!sessionDate) {
       return false
     }
