@@ -197,6 +197,9 @@ type LoadOptions = {
   isRefresh?: boolean
 }
 
+// The trainer rates list starts open up to this many trainers, and hidden above it.
+const RATES_AUTO_OPEN_MAX = 5
+
 // ISO weekdays, matching the API: 1 = Monday ... 7 = Sunday.
 const WEEKDAYS = [
   { day: 1, label: 'Monday' },
@@ -239,6 +242,8 @@ const MyPersonalTrainingAvailabilityScreen = ({ navigation }: { navigation: MyPe
   const [refreshing, setRefreshing] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [deletingRuleUid, setDeletingRuleUid] = useState<number | null>(null)
+  // null = automatic: the rates list starts open for a few trainers and hidden for many; a tap overrides it.
+  const [ratesOpenOverride, setRatesOpenOverride] = useState<boolean | null>(null)
 
   const canManage = canManagePersonalTraining(user?.role)
   const isOwner = isOwnerRole(user?.role)
@@ -484,6 +489,7 @@ const MyPersonalTrainingAvailabilityScreen = ({ navigation }: { navigation: MyPe
       return groups
     }, {})
   ).sort((a, b) => a.name.localeCompare(b.name))
+  const ratesOpen = ratesOpenOverride ?? trainerRates.length <= RATES_AUTO_OPEN_MAX
 
   if (!canManage) {
     return (
@@ -560,14 +566,25 @@ const MyPersonalTrainingAvailabilityScreen = ({ navigation }: { navigation: MyPe
                   ? 'Rates appear here once a trainer has availability.'
                   : 'Your rate appears here once you have availability. You can also see it on your Staff profile.'}
               </Text>
-            ) : (
+            ) : ratesOpen ? (
               trainerRates.map((trainer) => (
                 <Text key={trainer.trainerGymUserId} style={styles.rateBoxText}>
                   {isOwner ? `${trainer.name}: ` : ''}
                   {trainer.price === null ? 'No rate set' : `${formatUsd(trainer.price)} per hour`}
                 </Text>
               ))
-            )}
+            ) : null}
+            <TouchableOpacity onPress={() => setRatesOpenOverride(!ratesOpen)} activeOpacity={0.7}>
+              <Text style={styles.rateToggleText}>
+                {ratesOpen
+                  ? isOwner
+                    ? 'Hide trainer rates'
+                    : 'Hide rate'
+                  : isOwner
+                    ? `Show trainer rates (${trainerRates.length})`
+                    : 'Show rate'}
+              </Text>
+            </TouchableOpacity>
             {isOwner ? (
               <>
                 <Text style={styles.rateBoxHint}>
@@ -913,6 +930,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 18,
     color: AppColors.grey3,
+    marginTop: 8,
+    fontFamily: 'Montserrat',
+  },
+  rateToggleText: {
+    fontSize: 13,
+    color: AppColors.blue,
     marginTop: 8,
     fontFamily: 'Montserrat',
   },
