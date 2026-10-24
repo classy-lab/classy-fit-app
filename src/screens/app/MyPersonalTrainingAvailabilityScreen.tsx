@@ -187,10 +187,10 @@ type UserContextValue = {
 
 type MyPersonalTrainingAvailabilityNavigation = {
   goBack: () => void
-  navigate: (
-    screen: 'AddEditPersonalTrainingAvailabilityScreen',
-    params?: { availability?: AvailabilityRule; gymTimezone?: string | null }
-  ) => void
+  navigate: {
+    (screen: 'AddEditPersonalTrainingAvailabilityScreen', params?: { availability?: AvailabilityRule; gymTimezone?: string | null }): void
+    (screen: 'StaffTab', params: { screen: 'StaffScreen' }): void
+  }
 }
 
 type LoadOptions = {
@@ -468,6 +468,23 @@ const MyPersonalTrainingAvailabilityScreen = ({ navigation }: { navigation: MyPe
       ),
   })).filter((group) => group.rules.length > 0)
 
+  // The effective rate comes from the API (the same one used when sessions are generated), one entry per trainer.
+  const trainerRates = Object.values(
+    rules.reduce<Record<string, { trainerGymUserId: number; name: string; price: number | null }>>((groups, rule) => {
+      const trainerGymUserId = Number(rule.trainer_gym_user_id ?? 0)
+      const key = String(trainerGymUserId)
+      const price = rule.trainer_hourly_price === null || rule.trainer_hourly_price === undefined
+        ? null
+        : Number(rule.trainer_hourly_price)
+      groups[key] = {
+        trainerGymUserId,
+        name: String(rule.trainer_display_name ?? '').trim() || `Trainer ${trainerGymUserId}`,
+        price: groups[key]?.price ?? price,
+      }
+      return groups
+    }, {})
+  ).sort((a, b) => a.name.localeCompare(b.name))
+
   if (!canManage) {
     return (
       <SafeAreaView style={styles.container}>
@@ -532,9 +549,44 @@ const MyPersonalTrainingAvailabilityScreen = ({ navigation }: { navigation: MyPe
           </Text>
           <Text style={styles.infoText}>
             {isOwner
-              ? "Each session is priced at the trainer's standard hourly rate, which you set from the trainer's staff profile. A trainer with no rate set is skipped."
-              : 'Each session is priced at your standard hourly rate, which your gym owner sets. If no rate is set, your availability is skipped.'}
+              ? "Each session is priced at the trainer's standard hourly rate. A trainer with no rate set is skipped when sessions are generated."
+              : 'Each session is priced at your standard hourly rate. If no rate is set, your availability is skipped when sessions are generated.'}
           </Text>
+          <View style={styles.rateBox}>
+            <Text style={styles.rateBoxTitle}>{isOwner ? 'Trainer hourly rates' : 'Your hourly rate'}</Text>
+            {trainerRates.length === 0 ? (
+              <Text style={styles.rateBoxText}>
+                {isOwner
+                  ? 'Rates appear here once a trainer has availability.'
+                  : 'Your rate appears here once you have availability. You can also see it on your Staff profile.'}
+              </Text>
+            ) : (
+              trainerRates.map((trainer) => (
+                <Text key={trainer.trainerGymUserId} style={styles.rateBoxText}>
+                  {isOwner ? `${trainer.name}: ` : ''}
+                  {trainer.price === null ? 'No rate set' : `${formatUsd(trainer.price)} per hour`}
+                </Text>
+              ))
+            )}
+            {isOwner ? (
+              <>
+                <Text style={styles.rateBoxHint}>
+                  Only owners can change a trainer's rate. To change one, open Staff, tap the trainer, and edit
+                  "Personal Training Hourly Rate" at the bottom of their profile.
+                </Text>
+                <TouchableOpacity
+                  style={styles.rateLink}
+                  activeOpacity={0.85}
+                  onPress={() => navigation.navigate('StaffTab', { screen: 'StaffScreen' })}
+                >
+                  <Feather name="users" color={AppColors.blue} size={16} />
+                  <Text style={styles.rateLinkText}>Open Staff</Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <Text style={styles.rateBoxHint}>Only your gym owner can change this rate.</Text>
+            )}
+          </View>
           <Text style={styles.infoText}>
             Changing or deleting availability does not change sessions that already exist. To remove those, cancel them on
             the Personal Training screen.
@@ -837,6 +889,49 @@ const styles = StyleSheet.create({
     lineHeight: 19,
     color: AppColors.primary,
     marginBottom: 8,
+    fontFamily: 'Montserrat',
+  },
+  rateBox: {
+    backgroundColor: AppColors.grey,
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 8,
+  },
+  rateBoxTitle: {
+    fontSize: 13,
+    color: AppColors.blue,
+    marginBottom: 6,
+    fontFamily: 'Montserrat',
+  },
+  rateBoxText: {
+    fontSize: 13,
+    lineHeight: 19,
+    color: AppColors.primary,
+    fontFamily: 'Montserrat',
+  },
+  rateBoxHint: {
+    fontSize: 12,
+    lineHeight: 18,
+    color: AppColors.grey3,
+    marginTop: 8,
+    fontFamily: 'Montserrat',
+  },
+  rateLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    gap: 8,
+    marginTop: 10,
+    borderWidth: 1,
+    borderColor: AppColors.blue,
+    borderRadius: 999,
+    backgroundColor: AppColors.white,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+  },
+  rateLinkText: {
+    fontSize: 13,
+    color: AppColors.blue,
     fontFamily: 'Montserrat',
   },
   card: {
