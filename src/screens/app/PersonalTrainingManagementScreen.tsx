@@ -730,8 +730,8 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
     Alert.alert(
       isRetry ? 'Retry cancellation?' : 'Cancel personal training session?',
       isBooked
-        ? 'A member has booked this session. Cancelling will cancel their booking and cancel or refund their payment. This cannot simply be undone.'
-        : 'This session will be cancelled and can no longer be booked. Any booking or payment on it will be cancelled or refunded. This cannot simply be undone.',
+        ? 'A member has booked this session. Cancelling will cancel their booking and automatically refund their payment (or cancel it if it was never completed). The session can no longer be booked.'
+        : 'This session will be cancelled and can no longer be booked. Any booking or payment on it will be cancelled or refunded automatically.',
       [
         {
           text: 'Keep Session',
@@ -909,7 +909,7 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
 
     Alert.alert(
       'Cancel unbooked sessions?',
-      `This cancels ${pluralize(trainer.count, 'upcoming unbooked session')} for ${trainer.name}. Sessions that someone has booked, and sessions you added by hand, are not changed. Cancelled sessions cannot be re-created by the generator.`,
+      `This cancels ${pluralize(trainer.count, 'upcoming unbooked session')} for ${trainer.name}. Sessions that someone has booked, and sessions you added by hand, are not changed. If Trainer Availability still covers these times, Generate Upcoming Sessions will reopen them, so remove or shorten that availability first if you want them to stay cancelled.`,
       [
         { text: 'Keep Sessions', style: 'cancel' },
         {
