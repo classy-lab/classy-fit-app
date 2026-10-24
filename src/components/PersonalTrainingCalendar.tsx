@@ -12,10 +12,14 @@ import {
 } from '../utils/personalTrainingCalendar'
 
 type Props = {
-  selectedDateKey: string
+  selectedDateKey: string | null
   todayDateKey: string
   markedDateKeys: Set<string>
   onSelectDate: (dateKey: string) => void
+  // Staff view: days that contain a booked session get a distinct dot, and the selection can be cleared to show all dates.
+  bookedDateKeys?: Set<string>
+  onClearSelection?: () => void
+  clearLabel?: string
 }
 
 const monthOf = (dateKey: string) => {
@@ -23,14 +27,32 @@ const monthOf = (dateKey: string) => {
   return parts ? { year: parts.year, month: parts.month } : { year: 1970, month: 1 }
 }
 
-const PersonalTrainingCalendar = ({ selectedDateKey, todayDateKey, markedDateKeys, onSelectDate }: Props) => {
-  const [visibleMonth, setVisibleMonth] = useState(() => monthOf(selectedDateKey))
+const PersonalTrainingCalendar = ({
+  selectedDateKey,
+  todayDateKey,
+  markedDateKeys,
+  onSelectDate,
+  bookedDateKeys,
+  onClearSelection,
+  clearLabel = 'All dates',
+}: Props) => {
+  const [visibleMonth, setVisibleMonth] = useState(() => monthOf(selectedDateKey ?? todayDateKey))
   const currentMonth = monthOf(todayDateKey)
   const canGoBack = compareMonths(visibleMonth, currentMonth) > 0
   const weeks = buildMonthGrid(visibleMonth)
 
   return (
     <View style={styles.container}>
+      {onClearSelection ? (
+        <TouchableOpacity
+          style={[styles.clearPill, selectedDateKey === null && styles.clearPillSelected]}
+          activeOpacity={0.8}
+          onPress={onClearSelection}
+          accessibilityState={{ selected: selectedDateKey === null }}
+        >
+          <Text style={[styles.clearPillText, selectedDateKey === null && styles.clearPillTextSelected]}>{clearLabel}</Text>
+        </TouchableOpacity>
+      ) : null}
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => canGoBack && setVisibleMonth(shiftMonth(visibleMonth, -1))}
@@ -71,6 +93,7 @@ const PersonalTrainingCalendar = ({ selectedDateKey, todayDateKey, markedDateKey
             const isSelected = cell.key === selectedDateKey
             const isToday = cell.key === todayDateKey
             const hasSessions = markedDateKeys.has(cell.key)
+            const hasBooking = bookedDateKeys?.has(cell.key) === true
 
             return (
               <TouchableOpacity
@@ -79,7 +102,7 @@ const PersonalTrainingCalendar = ({ selectedDateKey, todayDateKey, markedDateKey
                 disabled={isPast}
                 activeOpacity={0.7}
                 onPress={() => onSelectDate(cell.key)}
-                accessibilityLabel={`${cell.key}${hasSessions ? ', sessions available' : ''}`}
+                accessibilityLabel={`${cell.key}${hasBooking ? ', has a booking' : hasSessions ? ', sessions available' : ''}`}
                 accessibilityState={{ selected: isSelected, disabled: isPast }}
               >
                 <View style={[styles.dayCircle, isSelected && styles.dayCircleSelected, !isSelected && isToday && styles.dayCircleToday]}>
@@ -93,12 +116,21 @@ const PersonalTrainingCalendar = ({ selectedDateKey, todayDateKey, markedDateKey
                     {cell.day}
                   </Text>
                 </View>
-                <View style={[styles.dot, hasSessions && styles.dotActive]} />
+                <View style={[styles.dot, hasSessions && styles.dotActive, hasBooking && styles.dotBooked]} />
               </TouchableOpacity>
             )
           })}
         </View>
       ))}
+
+      {bookedDateKeys ? (
+        <View style={styles.legend}>
+          <View style={[styles.dot, styles.dotActive]} />
+          <Text style={styles.legendText}>Sessions</Text>
+          <View style={[styles.dot, styles.dotBooked, styles.legendSpacer]} />
+          <Text style={styles.legendText}>Has a booking</Text>
+        </View>
+      ) : null}
     </View>
   )
 }
@@ -178,5 +210,44 @@ const styles = StyleSheet.create({
   },
   dotActive: {
     backgroundColor: AppColors.blue,
+  },
+  dotBooked: {
+    backgroundColor: '#38a169',
+  },
+  legend: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 10,
+  },
+  legendText: {
+    fontSize: 11,
+    color: AppColors.grey3,
+    marginLeft: 6,
+    fontFamily: 'Montserrat',
+  },
+  legendSpacer: {
+    marginLeft: 16,
+  },
+  clearPill: {
+    alignSelf: 'flex-start',
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: AppColors.blue,
+    backgroundColor: AppColors.white,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    marginBottom: 10,
+  },
+  clearPillSelected: {
+    backgroundColor: AppColors.blue,
+  },
+  clearPillText: {
+    fontSize: 13,
+    color: AppColors.blue,
+    fontFamily: 'Montserrat',
+  },
+  clearPillTextSelected: {
+    color: AppColors.white,
   },
 })
