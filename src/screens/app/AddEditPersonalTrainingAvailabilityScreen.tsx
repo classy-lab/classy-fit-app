@@ -596,6 +596,31 @@ const AddEditPersonalTrainingAvailabilityScreen = ({
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+          <View style={styles.infoCard}>
+            <Text style={styles.infoTitle}>How this works</Text>
+            <Text style={styles.infoText}>
+              Choose a day of the week and a time window. It repeats every week. Times are in your gym's local time.
+            </Text>
+            <Text style={styles.infoText}>
+              The window is cut into one-hour sessions, starting at the Start Time. For example, 9:30 AM to 12:30 PM gives
+              sessions at 9:30, 10:30 and 11:30. A leftover part-hour is not used.
+            </Text>
+            <Text style={styles.infoText}>
+              The Effective Start Date and End Date limit when this availability applies. Leave the End Date empty to
+              repeat it until you change it. Active availability cannot overlap another active window for the same trainer
+              on the same day. Inactive availability is ignored when sessions are generated.
+            </Text>
+            <Text style={styles.infoText}>
+              {isOwner && !isEdit
+                ? 'You are setting this for the trainer you select below. '
+                : isOwner
+                  ? 'This availability belongs to the trainer shown below. '
+                  : 'This availability is for you. '}
+              Saving does not create sessions. Go back to Personal Training and press Generate Upcoming Sessions to make
+              them bookable.{isEdit ? ' Editing does not change sessions that were already generated.' : ''}
+            </Text>
+          </View>
+
           <View style={styles.card}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Weekly Availability</Text>
@@ -863,6 +888,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 16,
     paddingBottom: 28,
+  },
+  infoCard: {
+    backgroundColor: AppColors.white,
+    borderRadius: 18,
+    padding: 18,
+    marginBottom: 16,
+    borderColor: AppColors.blue,
+    borderWidth: 1,
+  },
+  infoTitle: {
+    fontSize: 16,
+    color: AppColors.blue,
+    marginBottom: 8,
+    fontFamily: 'Montserrat',
+  },
+  infoText: {
+    fontSize: 13,
+    lineHeight: 19,
+    color: AppColors.primary,
+    marginBottom: 8,
+    fontFamily: 'Montserrat',
   },
   card: {
     backgroundColor: AppColors.white,
