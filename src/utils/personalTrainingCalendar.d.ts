@@ -18,6 +18,18 @@ export declare function getTodayEasternDateKey(now?: Date): string | null
 
 export declare function filterSessionsByEasternDate<T extends SessionLike>(sessions: T[], dateKey?: string | null): T[]
 
+export declare function getEasternDateKeysSpanned(session: SessionLike & { end_at?: string | null }): string[]
+
+export declare function filterSessionsBySpannedEasternDate<T extends SessionLike & { end_at?: string | null }>(
+  sessions: T[],
+  dateKey?: string | null
+): T[]
+
+export declare function getSpannedEasternDateKeys<T extends SessionLike & { end_at?: string | null }>(
+  sessions: T[],
+  predicate?: (session: T) => boolean
+): Set<string>
+
 export declare function getEasternDateKeysWithAvailableSessions(sessions: SessionLike[]): Set<string>
 
 export declare function shiftMonth(month: CalendarMonth, delta: number): CalendarMonth
