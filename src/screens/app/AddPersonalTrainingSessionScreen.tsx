@@ -631,6 +631,22 @@ const AddPersonalTrainingSessionScreen = ({ navigation }: { navigation: AddPerso
               in total, counted in the gym's time zone), and only for times that haven't started yet. Dates further ahead
               are not created yet. Press Generate Upcoming Sessions again later to add them as they come into range.
             </Text>
+            <Text style={styles.infoSubtitle}>Cancelling sessions</Text>
+            <Text style={styles.infoText}>
+              {isOwner
+                ? 'As an owner you can cancel any trainer\'s sessions. '
+                : 'You can cancel only your own sessions. '}
+              Cancelling a session that nobody has booked simply removes it from what members see. Cancelling a booked
+              session also cancels the member's booking and automatically refunds their payment. If Trainer Availability
+              still covers that time, Generate Upcoming Sessions will reopen a cancelled session, so remove or shorten the
+              availability first if you want it to stay cancelled.
+            </Text>
+            <Text style={styles.infoText}>
+              {isOwner
+                ? 'Use "Cancel unbooked" on the Personal Training screen to cancel a trainer\'s upcoming generated sessions in bulk. Booked sessions and sessions added by hand are never changed. '
+                : 'Use "Cancel unbooked" on the Personal Training screen to cancel your upcoming generated sessions in bulk. Booked sessions and sessions added by hand are never changed. '}
+              Members can cancel their own bookings, and a paid booking is refunded.
+            </Text>
           </View>
 
           <View style={styles.card}>
