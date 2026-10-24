@@ -712,18 +712,26 @@ const PersonalTrainingSessionScreen = ({
         )}
 
         {!loading && !errorMessage && session ? (
-          <TouchableOpacity
-            style={[styles.bookBtn, (!isBookable || isSubmitting) && styles.bookBtnDisabled]}
-            disabled={!isBookable || isSubmitting}
-            activeOpacity={isBookable && !isSubmitting ? 0.85 : 1}
-            onPress={submitBooking}
-          >
-            {isSubmitting ? (
-              <ActivityIndicator color={AppColors.white} />
-            ) : (
-              <Text style={styles.bookBtnText}>{bookingButtonLabel}</Text>
-            )}
-          </TouchableOpacity>
+          <>
+            <TouchableOpacity
+              style={[styles.bookBtn, (!isBookable || isSubmitting) && styles.bookBtnDisabled]}
+              disabled={!isBookable || isSubmitting}
+              activeOpacity={isBookable && !isSubmitting ? 0.85 : 1}
+              onPress={submitBooking}
+            >
+              {isSubmitting ? (
+                <ActivityIndicator color={AppColors.white} />
+              ) : (
+                <Text style={styles.bookBtnText}>{bookingButtonLabel}</Text>
+              )}
+            </TouchableOpacity>
+            {isBookable ? (
+              <Text style={styles.bookHelpText}>
+                This books the whole session for you, and no one else can book it. You can cancel it later from My PT
+                Bookings, and a paid booking is refunded.
+              </Text>
+            ) : null}
+          </>
         ) : null}
       </ScrollView>
     </SafeAreaView>
@@ -931,5 +939,13 @@ const styles = StyleSheet.create({
     color: AppColors.white,
     fontFamily: 'Montserrat',
     fontSize: 16,
+  },
+  bookHelpText: {
+    marginTop: 10,
+    fontSize: 12,
+    lineHeight: 18,
+    color: AppColors.grey3,
+    textAlign: 'center',
+    fontFamily: 'Montserrat',
   },
 })
