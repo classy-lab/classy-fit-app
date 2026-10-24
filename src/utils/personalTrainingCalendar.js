@@ -1,4 +1,6 @@
-const { formatEasternDateTimeParts } = require('./easternTime')
+const { formatEasternDateTimeParts, parseApiDateTime } = require('./easternTime')
+
+const MAX_SESSION_SPAN_DAYS = 366
 
 const MONTH_NAMES = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -36,6 +38,66 @@ const filterSessionsByEasternDate = (sessions, dateKey) => {
   }
 
   return sessions.filter((session) => getEasternDateKey(session?.start_at) === dateKey)
+}
+
+// Pure Gregorian arithmetic on a YYYY-MM-DD key: no timezone or DST is involved, so it cannot shift a day.
+const addDaysToDateKey = (key, days) => {
+  const parts = parseDateKey(key)
+  if (!parts) {
+    return null
+  }
+
+  const next = new Date(Date.UTC(parts.year, parts.month - 1, parts.day + days))
+  return toDateKey(next.getUTCFullYear(), next.getUTCMonth() + 1, next.getUTCDate())
+}
+
+// Every Eastern calendar date a session occupies, so a manual multi-day session shows on each day it spans.
+// The end instant is exclusive: a session ending exactly at Eastern midnight does not occupy the next day.
+const getEasternDateKeysSpanned = (session) => {
+  const first = getEasternDateKey(session?.start_at)
+  if (!first) {
+    return []
+  }
+
+  let last = first
+  const start = parseApiDateTime(session?.start_at)
+  const end = parseApiDateTime(session?.end_at)
+  if (start && end && end.getTime() > start.getTime()) {
+    const lastKey = getEasternDateKey(new Date(end.getTime() - 1000).toISOString())
+    if (lastKey && lastKey > first) {
+      last = lastKey
+    }
+  }
+
+  const keys = [first]
+  for (let key = first; key < last && keys.length < MAX_SESSION_SPAN_DAYS; ) {
+    key = addDaysToDateKey(key, 1)
+    keys.push(key)
+  }
+
+  return keys
+}
+
+const filterSessionsBySpannedEasternDate = (sessions, dateKey) => {
+  if (!Array.isArray(sessions) || !dateKey) {
+    return []
+  }
+
+  return sessions.filter((session) => getEasternDateKeysSpanned(session).includes(dateKey))
+}
+
+// The set of Eastern dates occupied by the sessions that satisfy the predicate (all sessions by default).
+const getSpannedEasternDateKeys = (sessions, predicate = () => true) => {
+  const keys = new Set()
+  for (const session of Array.isArray(sessions) ? sessions : []) {
+    if (predicate(session)) {
+      for (const key of getEasternDateKeysSpanned(session)) {
+        keys.add(key)
+      }
+    }
+  }
+
+  return keys
 }
 
 // Only dates that actually have a session the API reports as available (never inferred from availability rules).
@@ -100,6 +162,9 @@ module.exports = {
   getEasternDateKey,
   getTodayEasternDateKey,
   filterSessionsByEasternDate,
+  getEasternDateKeysSpanned,
+  filterSessionsBySpannedEasternDate,
+  getSpannedEasternDateKeys,
   getEasternDateKeysWithAvailableSessions,
   shiftMonth,
   compareMonths,
