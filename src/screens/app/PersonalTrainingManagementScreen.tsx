@@ -16,8 +16,15 @@ import { showMessage } from 'react-native-flash-message'
 import { AppColors } from '../../styles/colors'
 import { formatUsdOrFree } from '../../utils/currency'
 import { formatEasternDate, formatEasternTime, parseApiDateTime } from '../../utils/easternTime'
+import {
+  filterSessionsBySpannedEasternDate,
+  formatDateKeyLabel,
+  getSpannedEasternDateKeys,
+  getTodayEasternDateKey,
+} from '../../utils/personalTrainingCalendar'
 import { UserContext } from '../../context/UserContext'
 import { getOwnerPersonalTrainingTitle } from '../../components/utils/personalTrainingDisplay'
+import PersonalTrainingCalendar from '../../components/PersonalTrainingCalendar'
 import { canManagePersonalTraining } from '../../utils/roleAccess'
 
 const normalizeToken = (value) => String(value ?? '').trim()
@@ -296,6 +303,8 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
   const [bulkCancellingTrainer, setBulkCancellingTrainer] = useState<number | null>(null)
   const [deletingCancelled, setDeletingCancelled] = useState(false)
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past' | 'cancelled'>('upcoming')
+  // null shows every upcoming session; otherwise only sessions occupying that Eastern calendar date.
+  const [selectedDate, setSelectedDate] = useState<string | null>(null)
 
   const canManage = canManagePersonalTraining(user?.role)
 
@@ -942,8 +951,17 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
   const activeSessions = sessions.filter((session) => !isSettledCancelled(session))
   const upcomingSessions = activeSessions.filter(isUpcomingSession)
   const pastSessions = activeSessions.filter((session) => !isUpcomingSession(session))
+  // A selection that has fallen into the past (app left open overnight) reverts to all upcoming sessions.
+  const todayDateKey = getTodayEasternDateKey() ?? ''
+  const effectiveSelectedDate = selectedDate !== null && selectedDate >= todayDateKey ? selectedDate : null
+  const datesWithSessions = getSpannedEasternDateKeys(upcomingSessions)
+  const datesWithBookings = getSpannedEasternDateKeys(upcomingSessions, (session) => Number(session?.booked_count ?? 0) > 0)
+  const upcomingForDate =
+    effectiveSelectedDate === null
+      ? upcomingSessions
+      : filterSessionsBySpannedEasternDate(upcomingSessions, effectiveSelectedDate)
   const visibleSessions =
-    activeTab === 'upcoming' ? upcomingSessions : activeTab === 'cancelled' ? cancelledSessions : pastSessions
+    activeTab === 'upcoming' ? upcomingForDate : activeTab === 'cancelled' ? cancelledSessions : pastSessions
   const activeSessionsLabel = activeTab === 'upcoming' ? 'Upcoming' : activeTab === 'cancelled' ? 'Cancelled' : 'Past'
 
   const unbookedByTrainer = Object.values(
@@ -1112,6 +1130,18 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
               </TouchableOpacity>
             </View>
 
+            {activeTab === 'upcoming' && upcomingSessions.length > 0 ? (
+              <PersonalTrainingCalendar
+                selectedDateKey={effectiveSelectedDate}
+                todayDateKey={todayDateKey}
+                markedDateKeys={datesWithSessions}
+                bookedDateKeys={datesWithBookings}
+                onSelectDate={setSelectedDate}
+                onClearSelection={() => setSelectedDate(null)}
+                clearLabel="All upcoming"
+              />
+            ) : null}
+
             {activeTab === 'cancelled' && cancelledSessions.length > 0 ? (
               <TouchableOpacity
                 style={[styles.deleteAllButton, deletingCancelled && styles.buttonDisabled]}
@@ -1128,7 +1158,11 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
 
             {visibleSessions.length > 0 ? (
               <View style={styles.list}>
-                <Text style={styles.sectionTitle}>{activeSessionsLabel} sessions</Text>
+                <Text style={styles.sectionTitle}>
+                  {activeTab === 'upcoming' && effectiveSelectedDate !== null
+                    ? formatDateKeyLabel(effectiveSelectedDate)
+                    : `${activeSessionsLabel} sessions`}
+                </Text>
                 {visibleSessions.map((session, index) => {
                   const sessionUid = Number(session?.uid ?? session?.session_uid ?? 0)
                   const priceLabel = renderPrice(session)
@@ -1251,10 +1285,16 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
               </View>
             ) : (
               <View style={styles.emptyCard}>
-                <Text style={styles.emptyTitle}>{activeSessionsLabel} sessions</Text>
+                <Text style={styles.emptyTitle}>
+                  {activeTab === 'upcoming' && effectiveSelectedDate !== null
+                    ? 'No sessions on this date'
+                    : `${activeSessionsLabel} sessions`}
+                </Text>
                 <Text style={styles.stateText}>
                   {activeTab === 'upcoming'
-                    ? 'No upcoming personal training sessions right now. Add a new session to get started.'
+                    ? effectiveSelectedDate !== null
+                      ? `${formatDateKeyLabel(effectiveSelectedDate)} has no upcoming personal training sessions. Choose another date or All upcoming.`
+                      : 'No upcoming personal training sessions right now. Add a new session to get started.'
                     : activeTab === 'cancelled'
                       ? 'No cancelled personal training sessions.'
                       : 'No past personal training sessions yet.'}
