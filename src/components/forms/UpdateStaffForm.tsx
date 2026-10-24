@@ -248,6 +248,16 @@ const UpdateStaffForm = ({ staffData }: { staffData: any }) => {
         <TrainerHourlyRateSection staffUid={staff?.uid} />
       ) : null}
 
+      {String(staff?.role ?? "").trim().toLowerCase() === "owner" ? (
+        <View style={{ marginTop: 16 }}>
+          <Text style={{ fontSize: 13, color: AppColors.grey3, lineHeight: 19, fontFamily: "Montserrat" }}>
+            Personal training hourly rates are set per trainer, so owner profiles do not have one. To set or change a
+            trainer's rate, go back to the Staff list, tap the trainer, and edit "Personal Training Hourly Rate" at the
+            bottom of their profile. Only owners can change it.
+          </Text>
+        </View>
+      ) : null}
+
     </ScrollView>
   );
 };
