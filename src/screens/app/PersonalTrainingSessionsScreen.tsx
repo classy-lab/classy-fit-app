@@ -14,9 +14,16 @@ import { showMessage } from 'react-native-flash-message'
 import { Feather } from '@expo/vector-icons'
 import { AppColors } from '../../styles/colors'
 import { formatUsdOrFree } from '../../utils/currency'
-import { formatEasternDate, formatEasternTime, parseApiDateTime } from '../../utils/easternTime'
+import { formatEasternDate, formatEasternTime } from '../../utils/easternTime'
+import {
+  filterSessionsByEasternDate,
+  formatDateKeyLabel,
+  getEasternDateKeysWithAvailableSessions,
+  getTodayEasternDateKey,
+} from '../../utils/personalTrainingCalendar'
 import { UserContext } from '../../context/UserContext'
 import { getMemberPersonalTrainingTitle } from '../../components/utils/personalTrainingDisplay'
+import PersonalTrainingCalendar from '../../components/PersonalTrainingCalendar'
 
 const normalizeToken = (value) => String(value ?? '').trim()
 
@@ -215,7 +222,7 @@ const PersonalTrainingSessionsScreen = ({ navigation }: { navigation: PersonalTr
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
-  const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming')
+  const [selectedDate, setSelectedDate] = useState(() => getTodayEasternDateKey() ?? '')
 
   const performAuthenticatedRequest = async (endpoint: string, init = {} as RequestInit) => {
     return performAuthenticatedRequestWithRefresh({
@@ -320,16 +327,13 @@ const PersonalTrainingSessionsScreen = ({ navigation }: { navigation: PersonalTr
     return notes.length > 80 ? `${notes.slice(0, 77)}...` : notes
   }
 
-  const isUpcoming = (session: PersonalTrainingSessionSummary) => {
-    const sessionDate = parseApiDateTime(session?.start_at)
-    if (!sessionDate) return false
-    return sessionDate.getTime() > Date.now()
-  }
-
-  const upcomingSessions = sessions.filter(isUpcoming)
-  const pastSessions = sessions.filter((session) => !isUpcoming(session))
-  const visibleSessions = activeTab === 'upcoming' ? upcomingSessions : pastSessions
-  const activeSessionsLabel = activeTab === 'upcoming' ? 'Upcoming' : 'Past'
+  // The list is always derived from the loaded sessions and the selected date, so a previous
+  // selection can never leave stale sessions on screen. A past date (e.g. the app left open
+  // overnight) falls back to today so past sessions are never browsed as bookable.
+  const todayDateKey = getTodayEasternDateKey() ?? selectedDate
+  const effectiveSelectedDate = selectedDate && selectedDate >= todayDateKey ? selectedDate : todayDateKey
+  const visibleSessions = filterSessionsByEasternDate(sessions, effectiveSelectedDate)
+  const datesWithSessions = getEasternDateKeysWithAvailableSessions(sessions)
 
   return (
     <SafeAreaView style={styles.container}>
@@ -367,28 +371,16 @@ const PersonalTrainingSessionsScreen = ({ navigation }: { navigation: PersonalTr
           </View>
         ) : (
           <>
-            <View style={styles.filterBar}>
-              <TouchableOpacity
-                style={[styles.filterButton, activeTab === 'upcoming' && styles.filterButtonActive]}
-                onPress={() => setActiveTab('upcoming')}
-              >
-                <Text style={[styles.filterButtonText, activeTab === 'upcoming' && styles.filterButtonTextActive]}>
-                  Upcoming ({upcomingSessions.length})
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.filterButton, activeTab === 'past' && styles.filterButtonActive]}
-                onPress={() => setActiveTab('past')}
-              >
-                <Text style={[styles.filterButtonText, activeTab === 'past' && styles.filterButtonTextActive]}>
-                  Past ({pastSessions.length})
-                </Text>
-              </TouchableOpacity>
-            </View>
+            <PersonalTrainingCalendar
+              selectedDateKey={effectiveSelectedDate}
+              todayDateKey={todayDateKey}
+              markedDateKeys={datesWithSessions}
+              onSelectDate={setSelectedDate}
+            />
 
             {visibleSessions.length > 0 ? (
               <View style={styles.list}>
-                <Text style={styles.sectionTitle}>{activeSessionsLabel} sessions</Text>
+                <Text style={styles.sectionTitle}>{formatDateKeyLabel(effectiveSelectedDate)}</Text>
                 {visibleSessions.map((session) => {
                   const price = Number(session?.price ?? 0)
                   const location = String(session?.location ?? '').trim()
@@ -455,11 +447,12 @@ const PersonalTrainingSessionsScreen = ({ navigation }: { navigation: PersonalTr
               </View>
             ) : (
               <View style={styles.emptyCard}>
-                <Text style={styles.emptyTitle}>{activeSessionsLabel} sessions</Text>
+                <Text style={styles.emptyTitle}>No sessions on this date</Text>
                 <Text style={styles.stateText}>
-                  {activeTab === 'upcoming'
-                    ? 'No upcoming personal training sessions right now. Check back for new sessions.'
-                    : 'You do not have any past personal training sessions yet.'}
+                  {formatDateKeyLabel(effectiveSelectedDate)} has no personal training sessions.
+                  {datesWithSessions.size > 0
+                    ? ' Dates with a dot have sessions available.'
+                    : ' Check back later for new sessions.'}
                 </Text>
               </View>
             )}
@@ -505,32 +498,6 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 16,
     paddingVertical: 16,
-  },
-  filterBar: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 8,
-    marginBottom: 6,
-  },
-  filterButton: {
-    flex: 1,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: AppColors.grey,
-    backgroundColor: AppColors.white,
-    paddingVertical: 12,
-    alignItems: 'center',
-  },
-  filterButtonActive: {
-    borderColor: AppColors.blue,
-    backgroundColor: AppColors.blue,
-  },
-  filterButtonText: {
-    color: AppColors.primary,
-    fontSize: 14,
-  },
-  filterButtonTextActive: {
-    color: AppColors.white,
   },
   list: {
     marginTop: 16,
