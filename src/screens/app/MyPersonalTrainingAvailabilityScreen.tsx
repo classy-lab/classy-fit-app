@@ -517,6 +517,30 @@ const MyPersonalTrainingAvailabilityScreen = ({ navigation }: { navigation: MyPe
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={AppColors.blue} />}
       >
+        <View style={styles.infoCard}>
+          <Text style={styles.infoTitle}>How availability works</Text>
+          <Text style={styles.infoText}>
+            {isOwner
+              ? 'Availability is a weekly schedule of when each trainer is free, for example Saturdays 9:00 AM to 12:00 PM. '
+              : 'Availability is a weekly schedule of when you are free, for example Saturdays 9:00 AM to 12:00 PM. '}
+            It does not create sessions by itself.
+          </Text>
+          <Text style={styles.infoText}>
+            To make it bookable, go back to Personal Training and press Generate Upcoming Sessions. That creates
+            one-hour sessions for today and the next 27 days (28 calendar days in total). Press it again later to add
+            dates further ahead.
+          </Text>
+          <Text style={styles.infoText}>
+            {isOwner
+              ? "Each session is priced at the trainer's standard hourly rate, which you set from the trainer's staff profile. A trainer with no rate set is skipped."
+              : 'Each session is priced at your standard hourly rate, which your gym owner sets. If no rate is set, your availability is skipped.'}
+          </Text>
+          <Text style={styles.infoText}>
+            Changing or deleting availability does not change sessions that already exist. To remove those, cancel them on
+            the Personal Training screen.
+          </Text>
+        </View>
+
         {loading ? (
           <View style={styles.centerState}>
             <ActivityIndicator size="large" color={AppColors.blue} />
@@ -792,6 +816,27 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     color: AppColors.blue,
+    fontFamily: 'Montserrat',
+  },
+  infoCard: {
+    backgroundColor: AppColors.white,
+    borderRadius: 18,
+    padding: 18,
+    marginBottom: 16,
+    borderColor: AppColors.blue,
+    borderWidth: 1,
+  },
+  infoTitle: {
+    fontSize: 16,
+    color: AppColors.blue,
+    marginBottom: 8,
+    fontFamily: 'Montserrat',
+  },
+  infoText: {
+    fontSize: 13,
+    lineHeight: 19,
+    color: AppColors.primary,
+    marginBottom: 8,
     fontFamily: 'Montserrat',
   },
   card: {
