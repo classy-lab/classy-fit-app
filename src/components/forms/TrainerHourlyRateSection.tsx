@@ -203,6 +203,7 @@ const TrainerHourlyRateSection = ({ staffUid }: { staffUid?: number | string | n
   return (
     <View style={styles.section}>
       <Text style={styles.label}>Personal Training Hourly Rate</Text>
+      <Text style={styles.helperText}>The rate currently saved for this trainer.</Text>
       <View style={styles.valueBox}>
         {loading ? (
           <ActivityIndicator size="small" color={AppColors.blue} />
@@ -218,13 +219,18 @@ const TrainerHourlyRateSection = ({ staffUid }: { staffUid?: number | string | n
         )}
       </View>
 
+      {!canEdit && !loading && !loadError ? (
+        <Text style={styles.helperText}>Only the gym owner can change a trainer's rate.</Text>
+      ) : null}
+
       {canEdit && !loading && !loadError ? (
         <View>
           <Text style={styles.helperText}>
-            Price per hour in US dollars (USD). Used for every availability window of this trainer. Leave it empty to
-            clear the rate.
+            Only owners can change a trainer's rate. The box above shows the rate that is saved now; use the field below
+            to change it, then press Save. Price is per hour in US dollars (USD) and applies to every availability window
+            of this trainer. Leave the field empty and save to clear the rate.
           </Text>
-          <Text style={styles.fieldLabel}>Price per hour (USD)</Text>
+          <Text style={styles.fieldLabel}>New price per hour (USD)</Text>
           <Controller
             control={control}
             name="price"
