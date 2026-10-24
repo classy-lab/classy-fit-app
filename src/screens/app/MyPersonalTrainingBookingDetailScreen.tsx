@@ -352,8 +352,8 @@ const MyPersonalTrainingBookingDetailScreen = ({ navigation, route }) => {
     Alert.alert(
       'Cancel booking?',
       hasRefundablePayment
-        ? 'This personal training booking will be cancelled and your payment will be refunded.'
-        : 'This personal training booking will be cancelled.',
+        ? 'This personal training booking will be cancelled and your payment will be refunded. The session will become available for other members to book.'
+        : 'This personal training booking will be cancelled. The session will become available for other members to book.',
       [
         { text: 'No', style: 'cancel' },
         {
@@ -572,8 +572,8 @@ const MyPersonalTrainingBookingDetailScreen = ({ navigation, route }) => {
                 </TouchableOpacity>
                 <Text style={styles.cancelHelpText}>
                   {hasRefundablePayment
-                    ? 'Cancelling this booking will also refund the payment.'
-                    : 'Cancelling this booking will remove it from your schedule.'}
+                    ? 'Cancelling this booking will refund your payment and make the session available to other members.'
+                    : 'Cancelling this booking will remove it from your schedule and make the session available to other members.'}
                 </Text>
               </View>
             ) : null}
