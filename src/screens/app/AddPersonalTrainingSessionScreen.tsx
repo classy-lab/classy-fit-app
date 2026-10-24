@@ -613,6 +613,26 @@ const AddPersonalTrainingSessionScreen = ({ navigation }: { navigation: AddPerso
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+          <View style={styles.infoCard}>
+            <Text style={styles.infoTitle}>What is a session?</Text>
+            <Text style={styles.infoText}>
+              A session is one appointment slot that a member can book: one trainer, one start moment, one end moment, a
+              price, and optionally a location and notes. A member books the whole session, and only one member can book it.
+            </Text>
+            <Text style={styles.infoText}>
+              For a normal one-hour appointment, set the End Date to the same day as the Start Date and the End Time to one
+              hour later. Multi-hour sessions are allowed.
+            </Text>
+            <Text style={styles.infoSubtitle}>Manual sessions vs. generated sessions</Text>
+            <Text style={styles.infoText}>
+              Sessions you add here are manual: one at a time, any length you choose. Trainer Availability does not create
+              sessions by itself. It describes when a trainer is free, and Generate Upcoming Sessions turns that into
+              bookable one-hour sessions. It only creates sessions for today and the following 27 days (28 calendar days
+              in total, counted in the gym's time zone), and only for times that haven't started yet. Dates further ahead
+              are not created yet. Press Generate Upcoming Sessions again later to add them as they come into range.
+            </Text>
+          </View>
+
           <View style={styles.card}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Session Information</Text>
@@ -920,6 +940,34 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 16,
     paddingBottom: 28,
+  },
+  infoCard: {
+    backgroundColor: AppColors.white,
+    borderRadius: 18,
+    padding: 18,
+    marginBottom: 16,
+    borderColor: AppColors.blue,
+    borderWidth: 1,
+  },
+  infoTitle: {
+    fontSize: 16,
+    color: AppColors.blue,
+    marginBottom: 8,
+    fontFamily: 'Montserrat',
+  },
+  infoSubtitle: {
+    fontSize: 14,
+    color: AppColors.blue,
+    marginTop: 4,
+    marginBottom: 6,
+    fontFamily: 'Montserrat',
+  },
+  infoText: {
+    fontSize: 13,
+    lineHeight: 19,
+    color: AppColors.primary,
+    marginBottom: 8,
+    fontFamily: 'Montserrat',
   },
   card: {
     backgroundColor: AppColors.white,
