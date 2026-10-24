@@ -209,6 +209,7 @@ type LoadOptions = {
 type GenerationTotals = {
   rules_examined?: number
   sessions_generated?: number
+  sessions_reactivated?: number
   already_generated?: number
   conflicts?: number
   missing_pricing?: number
@@ -220,24 +221,29 @@ const pluralize = (count: number, singular: string, plural = `${singular}s`) =>
   `${count} ${count === 1 ? singular : plural}`
 
 const buildGenerationSummary = (totals: GenerationTotals) => {
-  const generated = Number(totals.sessions_generated ?? 0)
+  const created = Number(totals.sessions_generated ?? 0)
+  const reopened = Number(totals.sessions_reactivated ?? 0)
+  const generated = created + reopened
   const alreadyGenerated = Number(totals.already_generated ?? 0)
   const conflicts = Number(totals.conflicts ?? 0)
   const missingPricing = Number(totals.missing_pricing ?? 0)
   const invalidTimezone = Number(totals.invalid_timezone ?? 0)
   const otherErrors = Number(totals.other_errors ?? 0)
-  const hasProblems = missingPricing + invalidTimezone + otherErrors > 0
+  const hasProblems = missingPricing + invalidTimezone + otherErrors + conflicts > 0
 
   const lines: string[] = []
   if (Number(totals.rules_examined ?? 0) === 0) {
     lines.push('No active availability rules were found to generate sessions from.')
   } else if (generated > 0) {
     lines.push(`${pluralize(generated, 'session')} generated.`)
+    if (reopened > 0) lines.push(`${reopened} of them reopened from previously cancelled sessions.`)
     if (alreadyGenerated > 0) lines.push(`${alreadyGenerated} already existed.`)
-  } else if (!hasProblems && conflicts === 0) {
+  } else if (!hasProblems) {
     lines.push('Upcoming sessions are already generated.')
   }
-  if (conflicts > 0) lines.push(`${pluralize(conflicts, 'conflict')}.`)
+  if (conflicts > 0) {
+    lines.push(`${pluralize(conflicts, 'slot')} skipped because ${conflicts === 1 ? 'it overlaps' : 'they overlap'} an existing session.`)
+  }
   if (missingPricing > 0) {
     lines.push(`${pluralize(missingPricing, 'rule')} skipped because the trainer has no standard hourly rate set. Set it from the trainer's staff profile.`)
   }
@@ -1005,7 +1011,7 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
             onPress={() => navigation.navigate('MyPersonalTrainingAvailabilityScreen')}
           >
             <Feather name="calendar" color={AppColors.blue} size={18} />
-            <Text style={styles.availabilityButtonText}>My Availability</Text>
+            <Text style={styles.availabilityButtonText}>Trainer Availability</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.availabilityButton, generating && styles.buttonDisabled]}
