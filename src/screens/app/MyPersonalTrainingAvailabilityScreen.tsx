@@ -475,7 +475,7 @@ const MyPersonalTrainingAvailabilityScreen = ({ navigation }: { navigation: MyPe
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
             <Feather name="arrow-left" color={AppColors.blue} size={36} />
           </TouchableOpacity>
-          <Text style={styles.title}>My Availability</Text>
+          <Text style={styles.title}>Trainer Availability</Text>
           <View style={styles.spacer} />
         </View>
 
@@ -493,7 +493,7 @@ const MyPersonalTrainingAvailabilityScreen = ({ navigation }: { navigation: MyPe
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <Feather name="arrow-left" color={AppColors.blue} size={36} />
         </TouchableOpacity>
-        <Text style={styles.title}>My Availability</Text>
+        <Text style={styles.title}>Trainer Availability</Text>
         <View style={styles.spacer} />
       </View>
 
