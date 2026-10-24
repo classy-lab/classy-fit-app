@@ -3,6 +3,9 @@ const {
   getEasternDateKey,
   getTodayEasternDateKey,
   filterSessionsByEasternDate,
+  getEasternDateKeysSpanned,
+  filterSessionsBySpannedEasternDate,
+  getSpannedEasternDateKeys,
   getEasternDateKeysWithAvailableSessions,
   shiftMonth,
   compareMonths,
@@ -65,6 +68,41 @@ const marked = getEasternDateKeysWithAvailableSessions([
 assert.deepEqual([...marked].sort(), ['2026-10-05', '2026-10-06', '2026-10-07', '2026-10-09'])
 assert.equal(marked.has('2026-10-08'), false)
 assert.equal(getEasternDateKeysWithAvailableSessions(undefined).size, 0)
+
+// Multi-day sessions occupy every Eastern date they span (the end instant is exclusive).
+const spanned = (start, end) => getEasternDateKeysSpanned({ start_at: start, end_at: end })
+assert.deepEqual(spanned('2026-10-06 14:00:00', '2026-10-06 15:00:00'), ['2026-10-06'])
+assert.deepEqual(spanned('2026-10-07 01:00:00', '2026-10-07 02:00:00'), ['2026-10-06']) // 9-10 PM EDT
+assert.deepEqual(spanned('2026-10-07 03:00:00', '2026-10-07 05:00:00'), ['2026-10-06', '2026-10-07']) // 11 PM -> 1 AM EDT
+assert.deepEqual(spanned('2026-10-06 14:00:00', '2026-10-07 04:00:00'), ['2026-10-06']) // ends exactly at Eastern midnight
+assert.deepEqual(spanned('2026-10-06 14:00:00', '2026-10-09 14:00:00'), ['2026-10-06', '2026-10-07', '2026-10-08', '2026-10-09'])
+assert.deepEqual(spanned('2026-10-06 14:00:00', null), ['2026-10-06'])
+assert.deepEqual(spanned('2026-10-06 14:00:00', '2026-10-06 13:00:00'), ['2026-10-06']) // end before start is ignored
+assert.deepEqual(spanned(null, '2026-10-06 13:00:00'), [])
+// Across the 2026-11-01 fall-back day (25 hours) and a month boundary.
+assert.deepEqual(spanned('2026-10-31 14:00:00', '2026-11-02 14:00:00'), ['2026-10-31', '2026-11-01', '2026-11-02'])
+assert.deepEqual(spanned('2026-10-30 14:00:00', '2026-11-01 14:00:00').length, 3)
+// A session like uid 249 (Oct 24 12:00 UTC to Nov 24 18:00 UTC) appears on every day, not only its start date.
+const month = spanned('2026-10-24 12:00:00', '2026-11-24 18:00:00')
+assert.equal(month.length, 32)
+assert.equal(month[0], '2026-10-24')
+assert.equal(month[month.length - 1], '2026-11-24')
+assert.ok(month.includes('2026-11-01') && month.includes('2026-10-31'))
+
+const spanSessions = [
+  { session_uid: 1, start_at: '2026-10-24 12:00:00', end_at: '2026-11-24 18:00:00', booked_count: 0 },
+  { session_uid: 2, start_at: '2026-10-31 13:00:00', end_at: '2026-10-31 14:00:00', booked_count: 1 },
+  { session_uid: 3, start_at: '2026-11-07 14:00:00', end_at: '2026-11-07 15:00:00', booked_count: 0 },
+]
+assert.deepEqual(filterSessionsBySpannedEasternDate(spanSessions, '2026-10-31').map((s) => s.session_uid), [1, 2])
+assert.deepEqual(filterSessionsBySpannedEasternDate(spanSessions, '2026-11-07').map((s) => s.session_uid), [1, 3])
+assert.deepEqual(filterSessionsBySpannedEasternDate(spanSessions, '2026-11-25'), [])
+assert.deepEqual(filterSessionsBySpannedEasternDate(spanSessions, '2026-10-23'), [])
+assert.deepEqual(filterSessionsBySpannedEasternDate(spanSessions, null), [])
+const bookedDays = getSpannedEasternDateKeys(spanSessions, (s) => Number(s.booked_count) > 0)
+assert.deepEqual([...bookedDays], ['2026-10-31'])
+assert.equal(getSpannedEasternDateKeys(spanSessions).has('2026-11-07'), true)
+assert.equal(getSpannedEasternDateKeys(undefined).size, 0)
 
 // Month navigation, including year boundaries.
 assert.deepEqual(shiftMonth({ year: 2026, month: 10 }, 1), { year: 2026, month: 11 })
