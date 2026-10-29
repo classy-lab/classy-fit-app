@@ -443,7 +443,7 @@ const MyPersonalTrainingAvailabilityScreen = ({ navigation }: { navigation: MyPe
 
     Alert.alert(
       'Delete availability?',
-      `This will permanently delete ${dayLabel} ${formatLocalTime(rule.start_time_local)} - ${formatLocalTime(rule.end_time_local)}. This cannot be undone.`,
+      `This will permanently delete ${dayLabel} ${formatLocalTime(rule.start_time_local)} - ${formatLocalTime(rule.end_time_local)}. Sessions already generated from it are not cancelled or removed. This cannot be undone.`,
       [
         {
           text: 'Cancel',
@@ -544,14 +544,13 @@ const MyPersonalTrainingAvailabilityScreen = ({ navigation }: { navigation: MyPe
           <Text style={styles.infoTitle}>How availability works</Text>
           <Text style={styles.infoText}>
             {isOwner
-              ? 'Availability is a weekly schedule of when each trainer is free, for example Saturdays 9:00 AM to 12:00 PM. '
-              : 'Availability is a weekly schedule of when you are free, for example Saturdays 9:00 AM to 12:00 PM. '}
-            It does not create sessions by itself.
+              ? 'Availability is a recurring weekly schedule of when each trainer is free, for example Saturdays 9:00 AM to 12:00 PM. '
+              : 'Availability is a recurring weekly schedule of when you are free, for example Saturdays 9:00 AM to 12:00 PM. '}
+            It is not a bookable session.
           </Text>
           <Text style={styles.infoText}>
-            To make it bookable, go back to Personal Training and press Generate Upcoming Sessions. That creates
-            one-hour sessions for today and the next 27 days (28 calendar days in total). Press it again later to add
-            dates further ahead.
+            To make it bookable, go back to Personal Training and select Generate Upcoming Sessions. That creates
+            one-hour sessions for the next 28 days (today plus 27). Generate again later to cover dates further ahead.
           </Text>
           <Text style={styles.infoText}>
             {isOwner
@@ -605,8 +604,8 @@ const MyPersonalTrainingAvailabilityScreen = ({ navigation }: { navigation: MyPe
             )}
           </View>
           <Text style={styles.infoText}>
-            Changing or deleting availability does not change sessions that already exist. To remove those, cancel them on
-            the Personal Training screen.
+            Changing or deleting availability does not change or cancel sessions that were already generated. To remove
+            those, cancel them on the Personal Training screen.
           </Text>
         </View>
 
