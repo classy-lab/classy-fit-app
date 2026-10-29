@@ -616,36 +616,12 @@ const AddPersonalTrainingSessionScreen = ({ navigation }: { navigation: AddPerso
           <View style={styles.infoCard}>
             <Text style={styles.infoTitle}>What is a session?</Text>
             <Text style={styles.infoText}>
-              A session is one appointment slot that a member can book: one trainer, one start moment, one end moment, a
-              price, and optionally a location and notes. A member books the whole session, and only one member can book it.
+              A session is one bookable appointment with one trainer, a start time, an end time, and a price. Add a
+              one-time session here. For repeating weekly hours, use Trainer Availability, then select Generate Upcoming
+              Sessions.
             </Text>
             <Text style={styles.infoText}>
-              For a normal one-hour appointment, set the End Date to the same day as the Start Date and the End Time to one
-              hour later. Multi-hour sessions are allowed.
-            </Text>
-            <Text style={styles.infoSubtitle}>Manual sessions vs. generated sessions</Text>
-            <Text style={styles.infoText}>
-              Sessions you add here are manual: one at a time, any length you choose. Trainer Availability does not create
-              sessions by itself. It describes when a trainer is free, and Generate Upcoming Sessions turns that into
-              bookable one-hour sessions. It only creates sessions for today and the following 27 days (28 calendar days
-              in total, counted in the gym's time zone), and only for times that haven't started yet. Dates further ahead
-              are not created yet. Press Generate Upcoming Sessions again later to add them as they come into range.
-            </Text>
-            <Text style={styles.infoSubtitle}>Cancelling sessions</Text>
-            <Text style={styles.infoText}>
-              {isOwner
-                ? 'As an owner you can cancel any trainer\'s sessions. '
-                : 'You can cancel only your own sessions. '}
-              Cancelling a session that nobody has booked simply removes it from what members see. Cancelling a booked
-              session also cancels the member's booking and automatically refunds their payment. If Trainer Availability
-              still covers that time, Generate Upcoming Sessions will reopen a cancelled session, so remove or shorten the
-              availability first if you want it to stay cancelled.
-            </Text>
-            <Text style={styles.infoText}>
-              {isOwner
-                ? 'Use "Cancel unbooked" on the Personal Training screen to cancel a trainer\'s upcoming generated sessions in bulk. Booked sessions and sessions added by hand are never changed. '
-                : 'Use "Cancel unbooked" on the Personal Training screen to cancel your upcoming generated sessions in bulk. Booked sessions and sessions added by hand are never changed. '}
-              Members can cancel their own bookings, and a paid booking is refunded.
+              Manual sessions can be any length, and only one member can book each session.
             </Text>
           </View>
 
@@ -773,6 +749,10 @@ const AddPersonalTrainingSessionScreen = ({ navigation }: { navigation: AddPerso
               </View>
             </View>
 
+            <Text style={styles.helperText}>
+              Times are entered in Eastern Time (America/New_York), not the gym's configured time zone.
+            </Text>
+
             <View style={styles.row}>
               <View style={[styles.field, styles.rowField]}>
                 <Text style={styles.label}>Price</Text>
@@ -801,6 +781,10 @@ const AddPersonalTrainingSessionScreen = ({ navigation }: { navigation: AddPerso
                 </View>
               </View>
             </View>
+
+            <Text style={styles.helperText}>
+              A manual session uses the price you enter. Generated sessions use the trainer's hourly rate.
+            </Text>
 
             <View style={styles.field}>
               <Text style={styles.label}>Location</Text>
@@ -868,6 +852,7 @@ const AddPersonalTrainingSessionScreen = ({ navigation }: { navigation: AddPerso
                 })}
               </View>
               {errors.status ? <Text style={styles.errorText}>{errors.status.message}</Text> : null}
+              <Text style={styles.helperText}>Scheduled sessions can be booked by members until they start.</Text>
             </View>
 
             {serverMessage ? <Text style={styles.serverMessage}>{serverMessage}</Text> : null}
