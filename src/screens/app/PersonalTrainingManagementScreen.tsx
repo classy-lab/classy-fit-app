@@ -222,44 +222,121 @@ type GenerationTotals = {
   missing_pricing?: number
   invalid_timezone?: number
   other_errors?: number
+  time_conversion_skips?: number
+  ineligible_rules?: number
+  past_slots?: number
+  outside_date_range?: number
+  insufficient_window?: number
 }
 
 const pluralize = (count: number, singular: string, plural = `${singular}s`) =>
   `${count} ${count === 1 ? singular : plural}`
 
-const buildGenerationSummary = (totals: GenerationTotals) => {
-  const created = Number(totals.sessions_generated ?? 0)
-  const reopened = Number(totals.sessions_reactivated ?? 0)
-  const generated = created + reopened
-  const alreadyGenerated = Number(totals.already_generated ?? 0)
-  const conflicts = Number(totals.conflicts ?? 0)
-  const missingPricing = Number(totals.missing_pricing ?? 0)
-  const invalidTimezone = Number(totals.invalid_timezone ?? 0)
-  const otherErrors = Number(totals.other_errors ?? 0)
-  const hasProblems = missingPricing + invalidTimezone + otherErrors + conflicts > 0
+const REOPEN_NOTE_GENERATED =
+  'Cancelled generated sessions may be reopened when you generate sessions again if the availability rule still covers the time and the session meets the reopening requirements. Remove or adjust availability and review existing sessions when you want to prevent a time slot from becoming bookable again.'
 
-  const lines: string[] = []
-  if (Number(totals.rules_examined ?? 0) === 0) {
-    lines.push('No active availability rules were found to generate sessions from.')
-  } else if (generated > 0) {
-    lines.push(`${pluralize(generated, 'session')} generated.`)
-    if (reopened > 0) lines.push(`${reopened} of them reopened from previously cancelled sessions.`)
-    if (alreadyGenerated > 0) lines.push(`${alreadyGenerated} already existed.`)
-  } else if (!hasProblems) {
-    lines.push('Upcoming sessions are already generated.')
-  }
+const REOPEN_NOTE_MANUAL =
+  'Cancelled manual sessions are not reopened by Generate Upcoming Sessions, but a cancelled session can still block generation for an overlapping time until it is deleted.'
+
+type GenerationSummary = {
+  title: string
+  description: string
+  type: 'success' | 'info' | 'warning'
+  hasProblems: boolean
+}
+
+const buildGenerationSummary = (totals: GenerationTotals): GenerationSummary => {
+  const count = (value?: number) => Number(value ?? 0)
+  const created = count(totals.sessions_generated)
+  const reopened = count(totals.sessions_reactivated)
+  const generated = created + reopened
+  const alreadyGenerated = count(totals.already_generated)
+  const conflicts = count(totals.conflicts)
+  const missingPricing = count(totals.missing_pricing)
+  const invalidTimezone = count(totals.invalid_timezone)
+  const otherErrors = count(totals.other_errors)
+  const conversionSkips = count(totals.time_conversion_skips)
+  const ineligibleRules = count(totals.ineligible_rules)
+  const insufficientWindow = count(totals.insufficient_window)
+  const outsideDateRange = count(totals.outside_date_range)
+  const pastSlots = count(totals.past_slots)
+
+  // Reasons that most likely need the owner's attention. Rules with no dates in the window are informational only.
+  const problems: string[] = []
   if (conflicts > 0) {
-    lines.push(`${pluralize(conflicts, 'slot')} skipped because ${conflicts === 1 ? 'it overlaps' : 'they overlap'} an existing session.`)
+    problems.push(
+      `${pluralize(conflicts, 'slot')} skipped because ${conflicts === 1 ? 'it overlaps' : 'they overlap'} an existing or cancelled session.`
+    )
   }
   if (missingPricing > 0) {
-    lines.push(`${pluralize(missingPricing, 'rule')} skipped because the trainer has no standard hourly rate set. Set it from the trainer's staff profile.`)
+    problems.push(
+      `${pluralize(missingPricing, 'rule')} skipped because the trainer has no hourly rate configured. Set it from the trainer's staff profile.`
+    )
   }
   if (invalidTimezone > 0) {
-    lines.push(`${pluralize(invalidTimezone, 'rule')} skipped because the gym time zone is missing or invalid.`)
+    problems.push(`${pluralize(invalidTimezone, 'rule')} skipped because the gym time zone is missing or invalid.`)
   }
-  if (otherErrors > 0) lines.push(`${pluralize(otherErrors, 'error')} occurred while generating.`)
+  if (insufficientWindow > 0) {
+    problems.push(`${pluralize(insufficientWindow, 'rule')} skipped because the window is shorter than one hour.`)
+  }
+  if (ineligibleRules > 0) {
+    problems.push(`${pluralize(ineligibleRules, 'rule')} skipped because the gym or trainer is not active.`)
+  }
+  if (conversionSkips > 0) {
+    problems.push(
+      `${pluralize(conversionSkips, 'slot')} skipped because the time could not be converted, usually because of a daylight-saving change.`
+    )
+  }
+  if (otherErrors > 0) problems.push(`${pluralize(otherErrors, 'error')} occurred while generating.`)
+  const hasProblems = problems.length > 0
 
-  return { description: lines.join('\n'), hasProblems }
+  const info: string[] = []
+  if (outsideDateRange > 0) {
+    info.push(`${pluralize(outsideDateRange, 'rule')} had no matching dates in the next 28 days.`)
+  }
+
+  if (count(totals.rules_examined) === 0) {
+    return {
+      title: 'No new sessions created',
+      description: 'No active availability rules were found to generate sessions from.',
+      type: 'info',
+      hasProblems: false,
+    }
+  }
+
+  if (generated > 0) {
+    const lines = [`${pluralize(generated, 'session')} generated.`]
+    if (reopened > 0) lines.push(`${reopened} of them reopened from previously cancelled generated sessions.`)
+    if (alreadyGenerated > 0) lines.push(`${pluralize(alreadyGenerated, 'slot')} already had a session.`)
+    return {
+      title: hasProblems ? 'Sessions generated with warnings' : 'Sessions generated',
+      description: [...lines, ...problems, ...info].join('\n'),
+      type: hasProblems ? 'warning' : 'success',
+      hasProblems,
+    }
+  }
+
+  const lines: string[] = []
+  if (hasProblems || info.length > 0) {
+    lines.push('No new sessions were created.')
+    if (alreadyGenerated > 0) lines.push(`${pluralize(alreadyGenerated, 'slot')} already had a session.`)
+    lines.push(...problems, ...info)
+  } else if (alreadyGenerated > 0) {
+    lines.push('Upcoming sessions are already generated.')
+  } else if (pastSlots > 0) {
+    lines.push('No new sessions were created. The matching time slots have already started.')
+  } else {
+    lines.push(
+      'No new sessions were created. Existing sessions may already cover these times, or some availability rules may not produce eligible slots.'
+    )
+  }
+
+  return {
+    title: !hasProblems && alreadyGenerated > 0 && info.length === 0 ? 'Sessions up to date' : 'No new sessions created',
+    description: lines.join('\n'),
+    type: hasProblems ? 'warning' : alreadyGenerated > 0 ? 'success' : 'info',
+    hasProblems,
+  }
 }
 
 const formatDate = (value?: string | null) => {
@@ -464,10 +541,10 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
       if (response.status === 200 && responseBody?.totals) {
         const summary = buildGenerationSummary(responseBody.totals)
         showMessage({
-          message: summary.hasProblems ? 'Sessions generated with warnings' : 'Sessions up to date',
+          message: summary.title,
           description: summary.description,
-          type: summary.hasProblems ? 'warning' : 'success',
-          duration: 6000,
+          type: summary.type,
+          duration: summary.hasProblems ? 9000 : 6000,
         })
         await loadSessions()
         return
@@ -731,16 +808,18 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
     [cancellingSessionUid, loadSessions, performAuthenticatedRequest, webServer]
   )
 
-  const confirmCancelSession = (sessionUid: number, isBooked: boolean, isRetry: boolean) => {
+  const confirmCancelSession = (sessionUid: number, isBooked: boolean, isRetry: boolean, isGenerated: boolean) => {
     if (!sessionUid || cancellingSessionUid !== null) {
       return
     }
 
     Alert.alert(
       isRetry ? 'Retry cancellation?' : 'Cancel personal training session?',
-      isBooked
-        ? 'A member has booked this session. Cancelling will cancel their booking and automatically refund their payment (or cancel it if it was never completed). The session can no longer be booked.'
-        : 'This session will be cancelled and can no longer be booked. Any booking or payment on it will be cancelled or refunded automatically.',
+      `${
+        isBooked
+          ? 'A member has booked this session. Cancelling will cancel their booking and automatically refund their payment (or cancel it if it was never completed). The session can no longer be booked.'
+          : 'This session will be cancelled and can no longer be booked. Any booking or payment on it will be cancelled or refunded automatically.'
+      } ${isGenerated ? REOPEN_NOTE_GENERATED : REOPEN_NOTE_MANUAL}`,
       [
         {
           text: 'Keep Session',
@@ -896,7 +975,7 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
 
     Alert.alert(
       'Delete all cancelled sessions?',
-      `This permanently deletes up to ${pluralize(count, 'cancelled session')}. Sessions that have booking history are kept so payment records stay intact. If a trainer still has availability covering these times, Generate Upcoming Sessions can create them again, so remove that availability first. This cannot be undone.`,
+      `This permanently deletes up to ${pluralize(count, 'cancelled session')}. Sessions that have booking history are kept so payment records stay intact. Deleted generated sessions can be created again by Generate Upcoming Sessions if a trainer's availability still covers the time, so remove or adjust that availability first. This cannot be undone.`,
       [
         { text: 'Keep Them', style: 'cancel' },
         {
@@ -917,8 +996,8 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
     }
 
     Alert.alert(
-      'Cancel unbooked sessions?',
-      `This cancels ${pluralize(trainer.count, 'upcoming unbooked session')} for ${trainer.name}. Sessions that someone has booked, and sessions you added by hand, are not changed. If Trainer Availability still covers these times, Generate Upcoming Sessions will reopen them, so remove or shorten that availability first if you want them to stay cancelled.`,
+      'Cancel unbooked generated sessions?',
+      `This cancels ${pluralize(trainer.count, 'upcoming unbooked generated session')} for ${trainer.name}. Booked sessions and sessions you added by hand are not changed. ${REOPEN_NOTE_GENERATED}`,
       [
         { text: 'Keep Sessions', style: 'cancel' },
         {
@@ -1055,6 +1134,13 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={AppColors.blue} />}
       >
+        <View style={styles.hintCard}>
+          <Text style={styles.hintText}>
+            Sessions are the bookable appointment slots members see. Trainer Availability is a weekly schedule, not
+            bookable sessions. After adding or changing availability, select Generate Upcoming Sessions to create
+            bookable time slots.
+          </Text>
+        </View>
         {loading ? (
           <View style={styles.centerState}>
             <ActivityIndicator size="large" color={AppColors.blue} />
@@ -1071,7 +1157,9 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
         ) : sessionCount === 0 ? (
           <View style={styles.centerState}>
             <Text style={styles.emptyTitle}>No personal training sessions yet</Text>
-            <Text style={styles.stateText}>Use the backend to create sessions and they will appear here.</Text>
+            <Text style={styles.stateText}>
+              Add a one-time session, or set up Trainer Availability and generate upcoming sessions.
+            </Text>
           </View>
         ) : (
           <>
@@ -1079,8 +1167,9 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
               <View style={styles.bulkCard}>
                 <Text style={styles.bulkTitle}>Unbooked generated sessions</Text>
                 <Text style={styles.bulkHint}>
-                  Created from availability and not booked by anyone. Use this after removing availability to clear the
-                  sessions it already generated. Booked sessions are never changed.
+                  Upcoming generated sessions that nobody has booked. Cancel unbooked does not cancel booked sessions or
+                  sessions you added by hand. Removing or shortening availability does not cancel sessions that were
+                  already generated, so use this to clear them.
                 </Text>
                 {unbookedByTrainer.map((trainer) => {
                   const busy = bulkCancellingTrainer === trainer.trainerGymUserId
@@ -1096,7 +1185,7 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
                         disabled={bulkCancellingTrainer !== null}
                         onPress={() => confirmCancelUnbooked(trainer)}
                       >
-                        <Text style={styles.bulkButtonText}>{busy ? 'Cancelling...' : 'Cancel all'}</Text>
+                        <Text style={styles.bulkButtonText}>{busy ? 'Cancelling...' : 'Cancel unbooked'}</Text>
                       </TouchableOpacity>
                     </View>
                   )
@@ -1177,6 +1266,14 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
                   // A cancelled session that still has a booking means refund processing did not finish.
                   const isCancelRetry = status === 'cancelled' && bookedCount > 0
                   const canCancel = (status === 'scheduled' && isUpcomingSession(session)) || isCancelRetry
+                  const isGenerated = session?.is_generated === true
+                  // The backend rejects deleting generated sessions and sessions with bookings.
+                  const canDelete = !isGenerated && bookedCount === 0
+                  const deleteRestrictionNote = canCancel
+                    ? 'Generated sessions and sessions with bookings cannot be deleted. Cancel the session instead.'
+                    : status === 'cancelled' && isGenerated && bookedCount === 0
+                      ? 'Generated sessions and sessions with bookings cannot be deleted individually. Use "Delete all cancelled sessions" to remove cancelled sessions that have no booking history.'
+                      : 'Generated sessions and sessions with bookings cannot be deleted.'
                   const statusStyle =
                     status === 'cancelled'
                       ? styles.statusCancelled
@@ -1249,7 +1346,7 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
                           <TouchableOpacity
                             style={[styles.cancelSessionButton, cancelling ? styles.cancelSessionButtonDisabled : null]}
                             activeOpacity={0.85}
-                            onPress={() => confirmCancelSession(sessionUid, bookedCount > 0, isCancelRetry)}
+                            onPress={() => confirmCancelSession(sessionUid, bookedCount > 0, isCancelRetry, isGenerated)}
                             disabled={!sessionUid || deleting || cancelling}
                           >
                             {cancelling ? (
@@ -1263,22 +1360,25 @@ const PersonalTrainingManagementScreen = ({ navigation }: { navigation: Personal
                           </TouchableOpacity>
                         ) : null}
 
-                        <TouchableOpacity
-                          style={[styles.deleteButton, deleting ? styles.deleteButtonDisabled : null]}
-                          activeOpacity={0.85}
-                          onPress={() =>
-                            confirmDeleteSession(sessionUid, `${trainerDisplayName || 'this personal training session'}`)
-                          }
-                          disabled={!sessionUid || deleting || cancelling}
-                        >
-                          {deleting ? (
-                            <ActivityIndicator size="small" color={AppColors.white} />
-                          ) : (
-                            <Feather name="trash-2" color={AppColors.white} size={16} />
-                          )}
-                          <Text style={styles.deleteButtonText}>{deleting ? 'Deleting...' : 'Delete'}</Text>
-                        </TouchableOpacity>
+                        {canDelete ? (
+                          <TouchableOpacity
+                            style={[styles.deleteButton, deleting ? styles.deleteButtonDisabled : null]}
+                            activeOpacity={0.85}
+                            onPress={() =>
+                              confirmDeleteSession(sessionUid, `${trainerDisplayName || 'this personal training session'}`)
+                            }
+                            disabled={!sessionUid || deleting || cancelling}
+                          >
+                            {deleting ? (
+                              <ActivityIndicator size="small" color={AppColors.white} />
+                            ) : (
+                              <Feather name="trash-2" color={AppColors.white} size={16} />
+                            )}
+                            <Text style={styles.deleteButtonText}>{deleting ? 'Deleting...' : 'Delete'}</Text>
+                          </TouchableOpacity>
+                        ) : null}
                       </View>
+                      {!canDelete ? <Text style={styles.restrictionNote}>{deleteRestrictionNote}</Text> : null}
                     </View>
                   )
                 })}
@@ -1396,6 +1496,24 @@ const styles = StyleSheet.create({
   deleteAllButtonText: {
     color: AppColors.white,
     fontSize: 14,
+    fontFamily: 'Montserrat',
+  },
+  hintCard: {
+    backgroundColor: AppColors.white,
+    borderRadius: 18,
+    padding: 16,
+    marginBottom: 14,
+  },
+  hintText: {
+    color: AppColors.grey3,
+    fontSize: 13,
+    lineHeight: 19,
+    fontFamily: 'Montserrat',
+  },
+  restrictionNote: {
+    marginTop: 10,
+    color: AppColors.grey3,
+    fontSize: 12,
     fontFamily: 'Montserrat',
   },
   bulkCard: {
