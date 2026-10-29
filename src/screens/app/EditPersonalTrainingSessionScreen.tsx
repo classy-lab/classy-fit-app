@@ -232,6 +232,7 @@ type SessionPayload = {
   status?: string | null
   trainer_display_name?: string | null
   booked_count?: number | null
+  is_generated?: boolean | null
 }
 
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
@@ -346,6 +347,7 @@ const EditPersonalTrainingSessionScreen = ({
   const [trainerOptions, setTrainerOptions] = useState<TrainerOption[]>([])
   const [cancelling, setCancelling] = useState(false)
   const [bookedCount, setBookedCount] = useState(0)
+  const [isGenerated, setIsGenerated] = useState(false)
   const [loadedStatus, setLoadedStatus] = useState('')
   const [loadedStartAt, setLoadedStartAt] = useState('')
   const [trainerName, setTrainerName] = useState('')
@@ -496,6 +498,7 @@ const EditPersonalTrainingSessionScreen = ({
       const normalizedStatus = String(session.status ?? 'scheduled').trim().toLowerCase()
 
       setBookedCount(Number(session.booked_count ?? 0) || 0)
+      setIsGenerated(session.is_generated === true)
       setLoadedStatus(normalizedStatus)
       setLoadedStartAt(String(session.start_at ?? ''))
       setTrainerName(String(session.trainer_display_name ?? '').trim())
@@ -837,9 +840,15 @@ const EditPersonalTrainingSessionScreen = ({
 
     Alert.alert(
       isCancelRetry ? 'Retry cancellation?' : 'Cancel personal training session?',
-      isBooked
-        ? 'A member has booked this session. Cancelling will cancel their booking and cancel or refund their payment. Unsaved changes on this screen are not applied. This cannot simply be undone.'
-        : 'This session will be cancelled and can no longer be booked. Any booking or payment on it will be cancelled or refunded. Unsaved changes on this screen are not applied. This cannot simply be undone.',
+      `${
+        isBooked
+          ? 'A member has booked this session. Cancelling will cancel their booking and cancel or refund their payment. Unsaved changes on this screen are not applied. This cannot simply be undone.'
+          : 'This session will be cancelled and can no longer be booked. Any booking or payment on it will be cancelled or refunded. Unsaved changes on this screen are not applied. This cannot simply be undone.'
+      } ${
+        isGenerated
+          ? 'Cancelled generated sessions may be reopened when you generate sessions again if the availability rule still covers the time and the session meets the reopening requirements.'
+          : 'Cancelled manual sessions are not reopened by Generate Upcoming Sessions, but a cancelled session can still block generation for an overlapping time until it is deleted.'
+      }`,
       [
         {
           text: 'Keep Session',
