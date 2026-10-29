@@ -608,7 +608,8 @@ const AddEditPersonalTrainingAvailabilityScreen = ({
             <Text style={styles.infoText}>
               The Effective Start Date and End Date limit when this availability applies. Leave the End Date empty to
               repeat it until you change it. Active availability cannot overlap another active window for the same trainer
-              on the same day. Inactive availability is ignored when sessions are generated.
+              on the same weekday when their effective date ranges also overlap. Inactive availability is ignored when
+              sessions are generated.
             </Text>
             <Text style={styles.infoText}>
               {isOwner && !isEdit
@@ -616,7 +617,7 @@ const AddEditPersonalTrainingAvailabilityScreen = ({
                 : isOwner
                   ? 'This availability belongs to the trainer shown below. '
                   : 'This availability is for you. '}
-              Saving does not create sessions. Go back to Personal Training and press Generate Upcoming Sessions to make
+              Saving does not create sessions. Go back to Personal Training and select Generate Upcoming Sessions to make
               them bookable.{isEdit ? ' Editing does not change sessions that were already generated.' : ''}
             </Text>
           </View>
@@ -823,8 +824,7 @@ const AddEditPersonalTrainingAvailabilityScreen = ({
           <Text style={styles.footerNote}>
             {gymTimezone
               ? `Times are in your gym's local time (${gymTimezone}).`
-              : "Times are in your gym's local time."}{' '}
-            Windows for the same trainer on the same day cannot overlap.
+              : "Times are in your gym's local time."}
           </Text>
         </ScrollView>
       </KeyboardAvoidingView>
